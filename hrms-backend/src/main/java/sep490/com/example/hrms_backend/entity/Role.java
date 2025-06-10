@@ -25,13 +25,9 @@ public class Role {
     @Column(name = "role_name", nullable = false, unique = true)
     private String roleName; // tên vai trò (admin, hr, employee...)
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
-
-    // Một vai trò có thể được gán cho nhiều tài khoản (vai trò chính)
-    @OneToMany(mappedBy = "role")
+//    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
+//
+// 🔗 Quan hệ ngược lại với Account (many-to-many)
+    @ManyToMany(mappedBy = "roles")
     private List<Account> accounts;
-
-    // Một vai trò có thể là vai trò phụ cho nhiều tài khoản (thông qua bảng trung gian)
-    @OneToMany(mappedBy = "role")
-    private List<AccountRole> accountRoles;
 }
