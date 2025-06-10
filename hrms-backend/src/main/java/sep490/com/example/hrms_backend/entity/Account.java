@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "account")
@@ -64,7 +65,7 @@ public class Account {
     @JoinTable(name = "account_role",
                     joinColumns = @JoinColumn(name = "account_id",referencedColumnName = "account_id"),
                     inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id"))
-    private List<Role> roles;
+    private Set<Role> roles;
 
 
     // Một tài khoản có thể nhận nhiều thông báo

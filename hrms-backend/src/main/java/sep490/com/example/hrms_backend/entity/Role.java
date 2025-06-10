@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "role")
@@ -29,5 +30,5 @@ public class Role {
 //
 // 🔗 Quan hệ ngược lại với Account (many-to-many)
     @ManyToMany(mappedBy = "roles")
-    private List<Account> accounts;
+    private Set<Account> accounts;
 }
