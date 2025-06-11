@@ -9,7 +9,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "attendance_period")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

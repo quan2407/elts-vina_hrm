@@ -10,7 +10,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "work_shift")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

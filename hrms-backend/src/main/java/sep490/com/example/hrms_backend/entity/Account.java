@@ -10,7 +10,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "account")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -61,11 +62,14 @@ public class Account {
     private Employee employee;
 
     // Mỗi tài khoản có một vai trò chính
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "account_role",
-                    joinColumns = @JoinColumn(name = "account_id",referencedColumnName = "account_id"),
-                    inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id"))
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "account_role",
+            joinColumns = @JoinColumn(name = "account_id", referencedColumnName = "account_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id")
+    )
     private Set<Role> roles;
+
 
 
     // Một tài khoản có thể nhận nhiều thông báo

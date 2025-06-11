@@ -1,5 +1,6 @@
 package sep490.com.example.hrms_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -9,7 +10,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "role")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -30,5 +32,6 @@ public class Role {
 //
 // 🔗 Quan hệ ngược lại với Account (many-to-many)
     @ManyToMany(mappedBy = "roles")
+    @JsonIgnore
     private Set<Account> accounts;
 }
