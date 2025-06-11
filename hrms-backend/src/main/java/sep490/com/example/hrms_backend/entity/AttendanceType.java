@@ -6,7 +6,8 @@ import lombok.*;
 
 @Entity
 @Table(name = "attendance_type")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

@@ -6,7 +6,8 @@ import lombok.*;
 
 @Entity
 @Table(name = "deduction")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

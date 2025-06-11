@@ -10,7 +10,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "benefit")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

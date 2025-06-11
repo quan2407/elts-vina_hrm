@@ -6,10 +6,12 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "account")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -60,13 +62,15 @@ public class Account {
     private Employee employee;
 
     // Mỗi tài khoản có một vai trò chính
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "account_role",
+            joinColumns = @JoinColumn(name = "account_id", referencedColumnName = "account_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id")
+    )
+    private Set<Role> roles;
 
-    // Một tài khoản có thể được gán nhiều vai trò phụ (qua bảng trung gian)
-    @OneToMany(mappedBy = "account")
-    private List<AccountRole> accountRoles;
+
 
     // Một tài khoản có thể nhận nhiều thông báo
     @OneToMany(mappedBy = "account")
