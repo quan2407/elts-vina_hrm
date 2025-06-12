@@ -1,11 +1,13 @@
 package sep490.com.example.hrms_backend.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import sep490.com.example.hrms_backend.entity.Account;
-import sep490.com.example.hrms_backend.repository.AccountRepository;
+import sep490.com.example.hrms_backend.dto.response.AccountResponseDTO;
+import sep490.com.example.hrms_backend.service.AccountService;
 
 import java.util.List;
 
@@ -14,10 +16,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AccountController {
 
-    private final AccountRepository accountRepository;
+    private final AccountService accountService;
+
 
     @GetMapping
-    public List<Account> getAllAccounts() {
-        return accountRepository.findAll();
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<AccountResponseDTO>> getAllAccounts() {
+        List<AccountResponseDTO> accountList = accountService.getAllAccounts();
+        return ResponseEntity.ok(accountList);
     }
+
+
+
 }

@@ -1,7 +1,26 @@
-import React from "react";
-import "./Login.css";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import authService from "../services/authService";
+import "../assets/styles/LoginPage.css";
 
-function Login() {
+function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await authService.login({ usernameOrEmail: email, password });
+      console.log("Login successful:", res.data); // ✅ debug success
+      localStorage.setItem("accessToken", res.data.token);
+      navigate("/home");
+    } catch (err) {
+      console.error("Login failed:", err.response || err); // ✅ debug lỗi cụ thể
+      alert("Đăng nhập thất bại! Vui lòng kiểm tra lại email hoặc mật khẩu.");
+    }
+  };
+
   return (
     <div className="login-page">
       <div className="login-container">
@@ -10,50 +29,75 @@ function Login() {
           alt="Background"
           className="background-image"
         />
-
         <img
           src="https://cdn.builder.io/api/v1/image/assets/TEMP/7b0992b36149c43e127ce390c6b217aa4b75a7e6?placeholderIfAbsent=true&apiKey=305fd9be184a488087180f4b7cfd2d98"
           alt="Header Logo"
           className="header-logo"
         />
         <div className="overlay"></div>
-        <div className="login-form-wrapper">
+        <form
+          className="login-form-wrapper"
+          onSubmit={handleLogin}
+        >
           <img
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/11da01531e0457dff7f19452706b1cf360116459?placeholderIfAbsent=true&apiKey=305fd9be184a488087180f4b7cfd2d98"
             alt="Company Logo"
             className="company-logo"
           />
           <div className="login-title">Login to your account.</div>
+
           <div className="form-field">
             <div className="field-label">E-mail Address</div>
             <input
               type="email"
               className="input-field email-input"
               placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
+
           <div className="form-field">
             <div className="field-label">Password</div>
             <input
               type="password"
               className="input-field password-input"
               placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
+
           <div className="form-options">
             <div className="remember-me-section">
-              <div className="checkbox-field"></div>
-              <div className="remember-me-text">Remember me</div>
+              <input
+                type="checkbox"
+                id="remember"
+              />
+              <label
+                htmlFor="remember"
+                className="remember-me-text"
+              >
+                Remember me
+              </label>
             </div>
             <div className="reset-password-link">Reset Password?</div>
           </div>
+
           <div className="form-field">
-            <button className="sign-in-button">Sign In</button>
+            <button
+              type="submit"
+              className="sign-in-button"
+            >
+              Sign In
+            </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
 }
 
-export default Login;
+export default LoginPage;
