@@ -3,6 +3,7 @@ package sep490.com.example.hrms_backend.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import sep490.com.example.hrms_backend.enums.CandidateStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,9 +39,10 @@ public class Candidate {
     @Column(name = "note")
     private String note; // ghi chú nội bộ
 
-    @NotBlank
+    @NotNull
     @Column(name = "status")
-    private String status; // trạng thái ứng viên (ví dụ: đang xét, bị loại,...)
+    @Enumerated(EnumType.STRING)
+    private CandidateStatus status; // trạng thái ứng viên (ví dụ: đang xét, bị loại,...)
 
     @Column(name = "submitted_at")
     private LocalDateTime submittedAt; // thời điểm ứng viên ứng tuyển

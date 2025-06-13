@@ -46,7 +46,6 @@ public class RecuitmentMapper {
         recruitment.setCreateAt(recruitmentDto.getCreateAt());
         recruitment.setUpdateAt(recruitmentDto.getUpdateAt());
         recruitment.setStatus(recruitmentDto.getStatus());
-        recruitment.setCreateAt(recruitmentDto.getCreateAt());
 
         return recruitment;
     }
