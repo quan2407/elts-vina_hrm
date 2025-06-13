@@ -47,11 +47,11 @@ public class RecruitmentDto {
 
     // Mỗi đợt tuyển dụng thuộc về 1 phòng ban
 
-    private String departmentId;
+    private String departmentName;
 
     // Người tạo là một nhân viên cụ thể
 
-    private String createdById;
+    private String createdByIdName;
 
     // Một đợt tuyển dụng có nhiều ứng viên
      private List<String> candidate_id;
