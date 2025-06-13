@@ -21,6 +21,19 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // handler specific exceptions
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorDetail> handleResourceNotFoundException(ResourceNotFoundException exception,
+                                                                       WebRequest webRequest){
+        ErrorDetail errorDetail = new ErrorDetail(new Date(), exception.getMessage(), webRequest.getDescription(false));
+        return new ResponseEntity<>(errorDetail, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(HRMSAPIException.class)
+    public ResponseEntity<ErrorDetail> handleBlogAPIException(HRMSAPIException exception,
+                                                              WebRequest webRequest){
+        ErrorDetail errorDetail = new ErrorDetail(new Date(), exception.getMessage(), webRequest.getDescription(false));
+        return new ResponseEntity<>(errorDetail, HttpStatus.NOT_FOUND);
+    }
 
 
     // global exceptions
