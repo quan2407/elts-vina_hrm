@@ -1,0 +1,462 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Archivo+Black:wght@400&display=swap");
+
+.jobs-page {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  background-color: #fff;
+}
+
+/* Header */
+.header {
+  width: 100%;
+  height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 144px;
+  box-sizing: border-box;
+  background-color: #132745;
+}
+
+.brand-title {
+  color: #fff;
+  font-family: "Manrope", sans-serif;
+  font-size: 40px;
+  font-weight: 800;
+}
+
+.menu-icon {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+}
+
+/* Hero Section */
+.hero-section {
+  position: relative;
+  width: 100%;
+  height: 498px;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(19, 39, 69, 0.9);
+}
+
+.hero-title {
+  position: absolute;
+  left: 144px;
+  top: 206px;
+  color: #fff;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  font-size: 80px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+/* Search Section */
+.search-section {
+  width: 100%;
+  height: 237px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 144px;
+  box-sizing: border-box;
+  background-color: #f9f9f9;
+}
+
+.search-container {
+  width: 100%;
+  max-width: 1000px;
+  height: 64px;
+  position: relative;
+  display: flex;
+}
+
+.search-input {
+  width: calc(100% - 110px);
+  height: 100%;
+  border: 1px solid #dcdcdc;
+  padding: 0 67px;
+  box-sizing: border-box;
+  color: #adadad;
+  font-family: "Manrope", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 1.2px;
+  outline: none;
+  background-color: #fff;
+}
+
+.search-input::placeholder {
+  color: #adadad;
+}
+
+.search-button {
+  width: 64px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #32ffce;
+}
+
+.search-icon {
+  width: 45px;
+  height: 45px;
+}
+
+/* Jobs Listing */
+.jobs-listing {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 0 90px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.jobs-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.job-card {
+  width: 100%;
+  height: 433px;
+  border: 1px solid #fff;
+  position: relative;
+  background-color: #fff;
+  margin-bottom: 0;
+}
+
+.job-ref {
+  position: absolute;
+  left: 123px;
+  top: 89px;
+  color: #888;
+  font-family: "Manrope", sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+.job-title {
+  position: absolute;
+  left: 123px;
+  top: 145px;
+  color: #132745;
+  font-family: "Manrope", sans-serif;
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.job-location {
+  position: absolute;
+  left: 123px;
+  top: 204px;
+  color: #132745;
+  font-family: "Manrope", sans-serif;
+  font-size: 30px;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+}
+
+.job-salary {
+  position: absolute;
+  left: 123px;
+  top: 274px;
+  color: #132745;
+  font-family: "Manrope", sans-serif;
+  font-size: 30px;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+}
+
+.job-description {
+  position: absolute;
+  left: 704px;
+  top: 112px;
+  width: 613px;
+  height: 188px;
+  color: #132745;
+  font-family: "Manrope", sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.9px;
+  white-space: pre-line;
+}
+
+.job-arrow-button {
+  position: absolute;
+  right: 77px;
+  bottom: 70px;
+  width: 77px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #32ffce;
+}
+
+.arrow-icon {
+  width: 31px;
+  height: 31px;
+}
+
+/* Pagination Section */
+.pagination-section {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 144px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 90px;
+}
+
+.entries-info,
+.page-numbers {
+  color: #000;
+  font-family: "Manrope", sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: 1.2px;
+}
+
+/* Footer */
+.footer {
+  width: 100%;
+  height: 145px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 162px;
+  box-sizing: border-box;
+  background-color: #132745;
+}
+
+.footer-brand {
+  color: #fff;
+  font-family: "Manrope", sans-serif;
+  font-size: 40px;
+  font-weight: 800;
+}
+
+.footer-credits {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.credits-top {
+  color: #fff;
+  text-align: right;
+  font-family: "Manrope", sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+.credits-bottom {
+  color: #fff;
+  text-align: right;
+  font-family: "Manrope", sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 1.3px;
+}
+
+/* Responsive Design */
+@media (max-width: 991px) {
+  .header {
+    padding: 0 40px;
+  }
+
+  .hero-title {
+    left: 40px;
+  }
+
+  .search-section {
+    padding: 0 40px;
+  }
+
+  .jobs-listing {
+    padding: 60px 40px;
+  }
+
+  .job-card {
+    height: auto;
+    min-height: 400px;
+    padding: 40px;
+    box-sizing: border-box;
+  }
+
+  .job-ref,
+  .job-title,
+  .job-location,
+  .job-salary,
+  .job-description,
+  .job-arrow-button {
+    position: static;
+  }
+
+  .job-ref {
+    margin-bottom: 20px;
+  }
+
+  .job-title {
+    margin-bottom: 15px;
+    font-size: 32px;
+  }
+
+  .job-location {
+    margin-bottom: 15px;
+    font-size: 24px;
+  }
+
+  .job-salary {
+    margin-bottom: 20px;
+    font-size: 24px;
+  }
+
+  .job-description {
+    width: 100%;
+    height: auto;
+    margin-bottom: 30px;
+    font-size: 16px;
+  }
+
+  .job-arrow-button {
+    margin-left: auto;
+    width: 60px;
+    height: 60px;
+  }
+
+  .pagination-section {
+    padding: 0 40px;
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .footer {
+    padding: 0 40px;
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+    height: auto;
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: 0 20px;
+    height: 120px;
+  }
+
+  .brand-title {
+    font-size: 28px;
+  }
+
+  .hero-section {
+    height: 300px;
+  }
+
+  .hero-title {
+    left: 20px;
+    font-size: 48px;
+    top: 150px;
+  }
+
+  .search-section {
+    padding: 20px;
+    height: auto;
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  .search-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .search-input {
+    width: 100%;
+    height: 60px;
+    font-size: 18px;
+    padding: 0 20px;
+  }
+
+  .search-button {
+    width: 100%;
+    height: 60px;
+  }
+
+  .jobs-listing {
+    padding: 40px 20px;
+  }
+
+  .job-card {
+    padding: 30px 20px;
+  }
+
+  .job-title {
+    font-size: 24px;
+    letter-spacing: 1px;
+  }
+
+  .job-location,
+  .job-salary {
+    font-size: 18px;
+  }
+
+  .job-description {
+    font-size: 14px;
+  }
+
+  .pagination-section {
+    padding: 0 20px;
+  }
+
+  .entries-info,
+  .page-numbers {
+    font-size: 18px;
+  }
+
+  .footer {
+    padding: 30px 20px;
+  }
+
+  .footer-brand {
+    font-size: 28px;
+  }
+
+  .credits-top {
+    font-size: 16px;
+  }
+
+  .credits-bottom {
+    font-size: 20px;
+  }
+}

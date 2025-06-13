@@ -14,6 +14,8 @@ import java.util.List;
 
 @Data
 public class RecruitmentDto {
+    @NotEmpty(message = "id không đc trống")
+    private Long recruitmentId;
 
     @NotEmpty(message = "Recruitment title không đc trống")
     private String title; // tiêu đề đợt tuyển dụng

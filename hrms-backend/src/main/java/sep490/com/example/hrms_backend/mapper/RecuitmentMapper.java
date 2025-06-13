@@ -8,6 +8,7 @@ import java.util.Optional;
 
 public class RecuitmentMapper {
     public static RecruitmentDto mapToRecruitmentDto(Recruitment recruitment, RecruitmentDto recruitmentDto) {
+        recruitmentDto.setRecruitmentId(recruitment.getId());
         recruitmentDto.setTitle(recruitment.getTitle());
         recruitmentDto.setWorkLocation(recruitment.getWorkLocation());
         recruitmentDto.setEmploymentType(recruitment.getEmploymentType());
@@ -34,6 +35,7 @@ public class RecuitmentMapper {
     }
 
     public static Recruitment mapToRecruitment(Recruitment recruitment, RecruitmentDto recruitmentDto) {
+        recruitment.setId(recruitmentDto.getRecruitmentId());
         recruitment.setTitle(recruitmentDto.getTitle());
         recruitment.setWorkLocation(recruitmentDto.getWorkLocation());
         recruitment.setEmploymentType(recruitmentDto.getEmploymentType());
