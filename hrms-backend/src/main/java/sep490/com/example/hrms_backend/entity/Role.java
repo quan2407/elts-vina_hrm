@@ -1,12 +1,10 @@
 package sep490.com.example.hrms_backend.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "role")
@@ -26,12 +24,13 @@ public class Role {
 
     @NotBlank
     @Column(name = "role_name", nullable = false, unique = true)
-    private String roleName; // tên vai trò (admin, hr, employee...)
+    private String roleName; // tên role, ví dụ: ROLE_ADMIN, ROLE_EMPLOYEE
 
-//    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
-//
-// 🔗 Quan hệ ngược lại với Account (many-to-many)
-    @ManyToMany(mappedBy = "roles")
-    @JsonIgnore
-    private Set<Account> accounts;
+    @Column(name = "description")
+    private String description; // mô tả vai trò
+
+    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
+
+    @OneToMany(mappedBy = "role")
+    private List<Account> accounts; // role này có nhiều account
 }

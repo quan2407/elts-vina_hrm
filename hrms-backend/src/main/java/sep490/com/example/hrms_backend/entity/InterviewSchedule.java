@@ -33,13 +33,15 @@ public class InterviewSchedule {
 
     // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
-    // Nhiều lịch phỏng vấn liên kết với một ứng viên
     @ManyToOne
     @JoinColumn(name = "candidate_id")
     private Candidate candidate;
 
-    // Người phỏng vấn là một nhân viên trong hệ thống
     @ManyToOne
     @JoinColumn(name = "interviewer_id")
     private Employee interviewer;
+
+    @ManyToOne
+    @JoinColumn(name = "recruitment_id")
+    private Recruitment recruitment; // đợt tuyển dụng của buổi phỏng vấn
 }

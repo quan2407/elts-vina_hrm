@@ -1,0 +1,134 @@
+.sidebar {
+  width: 359px;
+  min-height: 100vh;
+  height: auto;
+  border-radius: 0px 0px 13px 0px;
+  display: flex;
+  flex-direction: column;
+  padding: 27px 0 0 0;
+  position: relative;
+  background-color: #121c3e;
+}
+
+.logo-top {
+  width: 49px;
+  height: 37px;
+  position: absolute;
+  left: 408px;
+  top: 74px;
+}
+
+.user-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 94px 0 50px 0;
+}
+
+.profile-image {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+}
+
+.user-name {
+  color: #fff;
+  font-size: 25px;
+  font-weight: 700;
+  margin-top: 22px;
+}
+
+.user-role {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 400;
+  margin-top: 8px;
+}
+
+.features-section,
+.recruitment-section,
+.organization-section {
+  margin-bottom: 36px;
+}
+
+.section-title {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 400;
+  margin: 0 0 16px 36px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 36px;
+  position: relative;
+  cursor: pointer;
+}
+
+.nav-item.active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-icon {
+  width: 34px;
+  height: 29px;
+  margin-right: 14px;
+}
+
+.nav-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: #fff;
+}
+
+.nav-text {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.notification-badge {
+  position: absolute;
+  right: 36px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.notification-count {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  padding: 12px 36px;
+  margin: auto 14px 20px 14px;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 13px 4px 14px 0px rgba(0, 0, 0, 0.12);
+  background-color: #f00;
+}
+
+.logout-text {
+  font-weight: 700;
+}
+
+@media (max-width: 991px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .sidebar {
+    display: none;
+  }
+}
