@@ -6,7 +6,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "account")
@@ -56,27 +55,17 @@ public class Account {
 
     // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
-    // Tài khoản này thuộc về một nhân viên
     @OneToOne
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    // Mỗi tài khoản có một vai trò chính
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "account_role",
-            joinColumns = @JoinColumn(name = "account_id", referencedColumnName = "account_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id")
-    )
-    private Set<Role> roles;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
+    private Role role; // tài khoản thuộc 1 vai trò
 
-
-
-    // Một tài khoản có thể nhận nhiều thông báo
     @OneToMany(mappedBy = "account")
     private List<Notification> notifications;
 
-    // Một tài khoản có thể tạo nhiều log hệ thống
     @OneToMany(mappedBy = "account")
     private List<SystemLog> systemLogs;
 }

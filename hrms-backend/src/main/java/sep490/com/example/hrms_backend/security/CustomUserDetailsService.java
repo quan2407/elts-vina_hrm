@@ -13,9 +13,7 @@ import sep490.com.example.hrms_backend.entity.Account;
 import sep490.com.example.hrms_backend.entity.Role;
 import sep490.com.example.hrms_backend.repository.AccountRepository;
 
-import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -40,14 +38,16 @@ public class CustomUserDetailsService implements UserDetailsService {
         Account account = accountRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Account not found"));
 
-        // ✅ BẮT BUỘC PHẢI COPY RA HashSet — KHÔNG stream trực tiếp!
-        Set<Role> roles = new HashSet<>(account.getRoles());
+        Role role = account.getRole();
 
-        Set<GrantedAuthority> authorities = roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
-                .collect(Collectors.toSet());
+        if (role == null) {
+            throw new UsernameNotFoundException("Account has no assigned role");
+        }
+
+        Set<GrantedAuthority> authorities = Set.of(new SimpleGrantedAuthority(role.getRoleName()));
 
         return new User(account.getUsername(), account.getPasswordHash(), authorities);
     }
+
 
 }

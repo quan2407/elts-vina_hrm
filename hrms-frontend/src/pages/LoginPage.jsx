@@ -35,10 +35,7 @@ function LoginPage() {
           className="header-logo"
         />
         <div className="overlay"></div>
-        <form
-          className="login-form-wrapper"
-          onSubmit={handleLogin}
-        >
+        <form className="login-form-wrapper" onSubmit={handleLogin}>
           <img
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/11da01531e0457dff7f19452706b1cf360116459?placeholderIfAbsent=true&apiKey=305fd9be184a488087180f4b7cfd2d98"
             alt="Company Logo"
@@ -72,14 +69,8 @@ function LoginPage() {
 
           <div className="form-options">
             <div className="remember-me-section">
-              <input
-                type="checkbox"
-                id="remember"
-              />
-              <label
-                htmlFor="remember"
-                className="remember-me-text"
-              >
+              <input type="checkbox" id="remember" />
+              <label htmlFor="remember" className="remember-me-text">
                 Remember me
               </label>
             </div>
@@ -87,11 +78,19 @@ function LoginPage() {
           </div>
 
           <div className="form-field">
-            <button
-              type="submit"
-              className="sign-in-button"
-            >
+            <button type="submit" className="sign-in-button">
               Sign In
+            </button>
+          </div>
+
+          <div className="form-field" style={{ marginTop: "20px" }}>
+            <button
+              type="button"
+              className="sign-in-button"
+              onClick={() => navigate("/employee-management")}
+              style={{ backgroundColor: "#3F861E" }}
+            >
+              Go to Employee Management (Demo)
             </button>
           </div>
         </form>

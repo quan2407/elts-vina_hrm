@@ -1,8 +1,10 @@
 package sep490.com.example.hrms_backend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -14,12 +16,32 @@ import java.util.List;
 @Builder
 public class MonthlyAttendance {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES: D1 → D31) ======
+    // 🧩 ====== THUỘC TÍNH ======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "monthly_attendance_id")
     private Long id;
+
+    @Min(1)
+    @Max(12)
+    @Column(name = "month", nullable = false)
+    private int month; // tháng của kỳ công
+
+    @Min(2000)
+    @Column(name = "year", nullable = false)
+    private int year; // năm của kỳ công
+
+    @NotNull
+    @Column(name = "start_date")
+    private LocalDate startDate; // ngày bắt đầu kỳ công
+
+    @Column(name = "is_locked")
+    private Boolean isLocked; // khoá kỳ công
+
+    @Min(0)
+    @Column(name = "leave_days")
+    private Integer leaveDays; // số nghỉ phép
 
     @Lob @Column(name = "D1")  private String D1;
     @Lob @Column(name = "D2")  private String D2;
@@ -53,23 +75,15 @@ public class MonthlyAttendance {
     @Lob @Column(name = "D30") private String D30;
     @Lob @Column(name = "D31") private String D31;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
+    // 🔗 ====== QUAN HỆ ======
 
-    // Thuộc về một nhân viên
     @ManyToOne
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    // Thuộc về một kỳ công (tháng/năm)
-    @ManyToOne
-    @JoinColumn(name = "attendance_period_id")
-    private AttendancePeriod attendancePeriod;
-
-    // Một bảng công tháng có nhiều bản ghi công theo ngày
     @OneToMany(mappedBy = "monthlyAttendance")
     private List<AttendanceLog> attendanceLogs;
 
-    // Một bảng công tháng tương ứng với một bảng lương
     @OneToOne(mappedBy = "monthlyAttendance")
     private Salary salary;
 }
