@@ -6,10 +6,10 @@ import "./App.css";
 function App() {
   return (
     <div className="App">
-       <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/jobs" element={<JobsPage />} />
-        </Routes>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/jobs" element={<JobsPage />} />
+      </Routes>
     </div>
   );
 }

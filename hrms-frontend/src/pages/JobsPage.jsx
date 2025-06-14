@@ -4,10 +4,19 @@ import { getAllRecruitments } from "../services/recruitmentService";
 import { useEffect, useState } from "react";
 import imgCongTy from "../assets/imgs/imageCongTy.jpg";
 
+function removeVietnameseTones(str) {
+  return str
+    .normalize('NFD') // tách dấu
+    .replace(/[\u0300-\u036f]/g, '') // xóa dấu
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D');
+}
+
 const formatDate = (isoDate) => {
   const date = new Date(isoDate);
   return date.toLocaleDateString("vi-VN"); // hoặc en-GB, en-US tùy ngôn ngữ
 };
+
 const JobCard = ({ createAt, expiredAt, title, location, salary, description }) => {
   return (
     <div className="job-card" style={{ backgroundColor: "#eeeeee" }}>
@@ -36,18 +45,40 @@ const JobCard = ({ createAt, expiredAt, title, location, salary, description }) 
 };
 
 const JobsPage = () => {
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredJobs, setFilteredJobs] = useState([]);
   const [jobs, setJobs] = useState([]);
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         const response = await getAllRecruitments();
-        setJobs(response); 
+        setJobs(response);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách jobs:", error);
       }
     };
     fetchJobs();
   }, []);
+
+  useEffect(() => {
+
+    const normalizedSearch = removeVietnameseTones(searchTerm.toLowerCase());
+
+    const filtered = jobs.filter((job) =>
+      removeVietnameseTones(job.title.toLowerCase()).includes(normalizedSearch)
+      || removeVietnameseTones(job.jobDescription.toLowerCase()).includes(normalizedSearch)
+      || removeVietnameseTones(job.workLocation.toLowerCase()).includes(normalizedSearch)
+    );
+
+    // const lowerSearch = searchTerm.toLowerCase();
+    // const results = jobs.filter(job =>
+    //   job.title.toLowerCase().includes(lowerSearch)
+    //   || job.jobDescription.toLowerCase().includes(lowerSearch)
+    //   || job.workLocation.toLowerCase().includes(lowerSearch)
+    // );
+    setFilteredJobs(filtered);
+  }, [searchTerm, jobs]);
 
   return (
     <div className="jobs-page">
@@ -83,8 +114,11 @@ const JobsPage = () => {
         <div className="search-container">
           <input
             type="text"
-            placeholder="Search for job titiles..."
+            placeholder="Tìm kiếm theo tên công việc"
             className="search-input"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+
           />
           <div className="search-button">
             <svg
@@ -106,7 +140,8 @@ const JobsPage = () => {
 
       <main className="jobs-listing">
         <div className="jobs-container">
-          {jobs.map((job, index) => (
+          {filteredJobs.length > 0 ? (
+          filteredJobs.map((job) => (
             <JobCard
               key={job.recruitmentId}
               createAt={job.createAt}
@@ -116,10 +151,13 @@ const JobsPage = () => {
               salary={job.salaryRange}
               description={job.jobDescription}
             />
-          ))}
+          ))
+          ) : (
+            <div style={{color: 'red'}} className="no-jobs-message">Không có công việc nào phù hợp với tìm kiếm của bạn.</div>
+          )}
         </div>
       </main>
-{/* 
+      {/* 
       <section className="pagination-section">
         <div className="pagination-container">
           <div className="entries-info">Show 1 - 4 of 20 entries</div>
