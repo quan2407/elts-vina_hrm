@@ -25,7 +25,4 @@ public class AccountController {
         List<AccountResponseDTO> accountList = accountService.getAllAccounts();
         return ResponseEntity.ok(accountList);
     }
-
-
-
 }

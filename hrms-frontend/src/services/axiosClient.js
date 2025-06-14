@@ -9,9 +9,12 @@ const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
-  if (token) {
+
+  // Không gắn Authorization nếu là /auth/login
+  if (token && !config.url.includes("/auth/login")) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 

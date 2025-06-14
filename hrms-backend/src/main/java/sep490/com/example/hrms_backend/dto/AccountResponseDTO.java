@@ -1,8 +1,8 @@
 package sep490.com.example.hrms_backend.dto;
 
 import lombok.*;
+
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -15,5 +15,6 @@ public class AccountResponseDTO {
     private String email;
     private Boolean isActive;
     private LocalDateTime lastLoginAt;
-    private Set<String> roles; // Trả về tên role (ADMIN, EMPLOYEE...)
+    private String role; // ❗ Bỏ Set<String> roles, thay bằng String role
 }
+

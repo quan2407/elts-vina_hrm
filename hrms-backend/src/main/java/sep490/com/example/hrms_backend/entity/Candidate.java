@@ -49,12 +49,9 @@ public class Candidate {
 
     // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
-    // Một ứng viên ứng tuyển vào một đợt tuyển dụng
-    @ManyToOne
-    @JoinColumn(name = "recruitment_id")
-    private Recruitment recruitment;
+    @ManyToMany(mappedBy = "candidates")
+    private List<Recruitment> recruitments;
 
-    // Một ứng viên có thể được phỏng vấn nhiều lần (1 - n)
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL)
     private List<InterviewSchedule> interviewSchedules;
 }

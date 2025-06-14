@@ -1,0 +1,123 @@
+.account-table-container {
+  border-radius: 24px;
+  padding: 30px;
+  flex: 1;
+  background-color: #fff;
+  width: 100%;
+  overflow-x: auto;
+  box-sizing: border-box;
+}
+
+/* ---------- Grid layout ---------- */
+.account-table-header,
+.account-table-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr 1fr 2fr 1fr;
+  gap: 10px;
+  width: 100%;
+  padding: 18px 30px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+/* ---------- Text styles ---------- */
+.account-header-cell {
+  color: #000;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.account-table-cell {
+  color: #000;
+  font-size: 20px;
+  font-weight: 400;
+  text-align: center;
+  word-break: break-word;
+  white-space: normal;
+}
+
+.username-column {
+  text-align: left;
+}
+
+/* ---------- Actions dropdown ---------- */
+.account-actions-wrapper {
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.account-actions-button {
+  border-radius: 6px;
+  padding: 14px 23px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 11px 4px 14px 0px rgba(0, 0, 0, 0.12);
+  background-color: #253d90;
+}
+
+.account-actions-text {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.account-actions-dropdown {
+  width: 14px;
+  height: 15px;
+  fill: #fff;
+}
+
+.account-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 8px;
+  padding: 0;
+  margin-top: 8px;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  z-index: 10;
+  width: 159px;
+  background-color: #253d90;
+}
+
+.account-dropdown-item {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 17px 28px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.account-dropdown-divider {
+  height: 2px;
+  border-radius: 8px;
+  margin: 0;
+  background-color: #fff;
+}
+
+/* ---------- Responsive tweaks ---------- */
+@media (max-width: 991px) {
+  .account-table-header,
+  .account-table-row {
+    grid-template-columns: 1.5fr 2.5fr 2fr 1fr 1.5fr 1.2fr;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .account-table-header,
+  .account-table-row {
+    grid-template-columns: 1.2fr 2fr 2fr 1fr 1.5fr 1fr;
+    font-size: 14px;
+  }
+
+  .account-actions-button {
+    padding: 8px 16px;
+  }
+}

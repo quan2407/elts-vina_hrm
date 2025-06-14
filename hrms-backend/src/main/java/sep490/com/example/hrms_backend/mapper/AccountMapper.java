@@ -1,9 +1,7 @@
 package sep490.com.example.hrms_backend.mapper;
 
-import sep490.com.example.hrms_backend.entity.Account;
 import sep490.com.example.hrms_backend.dto.AccountResponseDTO;
-
-import java.util.stream.Collectors;
+import sep490.com.example.hrms_backend.entity.Account;
 
 public class AccountMapper {
 
@@ -14,15 +12,11 @@ public class AccountMapper {
         dto.setIsActive(account.getIsActive());
         dto.setLastLoginAt(account.getLastLoginAt());
 
-        if (account.getRoles() != null) {
-            dto.setRoles(
-                    account.getRoles().stream()
-                            .map(role -> role.getRoleName())
-                            .collect(Collectors.toSet())
-            );
+        if (account.getRole() != null) {
+            dto.setRole(account.getRole().getRoleName());
         }
 
         return dto;
     }
-
 }
+

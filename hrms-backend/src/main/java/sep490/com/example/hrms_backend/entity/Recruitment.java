@@ -57,17 +57,19 @@ public class Recruitment {
 
     // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
-    // Mỗi đợt tuyển dụng thuộc về 1 phòng ban
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
 
-    // Người tạo là một nhân viên cụ thể
     @ManyToOne
     @JoinColumn(name = "created_by")
     private Employee createdBy;
 
-    // Một đợt tuyển dụng có nhiều ứng viên
-    @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL)
+    @ManyToMany
+    @JoinTable(
+            name = "recruitment_candidate",
+            joinColumns = @JoinColumn(name = "recruitment_id"),
+            inverseJoinColumns = @JoinColumn(name = "candidate_id")
+    )
     private List<Candidate> candidates;
 }

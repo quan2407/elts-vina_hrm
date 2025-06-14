@@ -24,14 +24,12 @@ public class Deduction {
     @Column(name = "deduction_type")
     private String deductionType; // loại khấu trừ (VD: bảo hiểm, trừ đi muộn...)
 
-    @DecimalMin(value = "0.0")
-    @DecimalMax(value = "100.0")
-    @Column(name = "percentage")
-    private Double percentage; // phần trăm khấu trừ (%) áp dụng trên tổng lương
+    @DecimalMin(value = "0.0", inclusive = true)
+    @Column(name = "amount")
+    private Double amount; // số tiền khấu trừ cụ thể
 
     // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
-    // Khoản khấu trừ này thuộc về một bảng lương
     @ManyToOne
     @JoinColumn(name = "salary_id")
     private Salary salary;
