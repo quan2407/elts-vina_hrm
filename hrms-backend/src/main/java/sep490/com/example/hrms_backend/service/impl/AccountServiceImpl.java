@@ -2,7 +2,7 @@ package sep490.com.example.hrms_backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import sep490.com.example.hrms_backend.dto.response.AccountResponseDTO;
+import sep490.com.example.hrms_backend.dto.AccountResponseDTO;
 import sep490.com.example.hrms_backend.entity.Account;
 import sep490.com.example.hrms_backend.mapper.AccountMapper;
 import sep490.com.example.hrms_backend.repository.AccountRepository;

@@ -1,6 +1,6 @@
 package sep490.com.example.hrms_backend.service;
 
-import sep490.com.example.hrms_backend.dto.response.AccountResponseDTO;
+import sep490.com.example.hrms_backend.dto.AccountResponseDTO;
 
 import java.util.List;
 

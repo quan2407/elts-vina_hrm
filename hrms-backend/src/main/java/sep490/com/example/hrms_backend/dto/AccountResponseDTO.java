@@ -1,4 +1,4 @@
-package sep490.com.example.hrms_backend.dto.response;
+package sep490.com.example.hrms_backend.dto;
 
 import lombok.*;
 import java.time.LocalDateTime;

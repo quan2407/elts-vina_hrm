@@ -1,7 +1,7 @@
 package sep490.com.example.hrms_backend.mapper;
 
 import sep490.com.example.hrms_backend.entity.Account;
-import sep490.com.example.hrms_backend.dto.response.AccountResponseDTO;
+import sep490.com.example.hrms_backend.dto.AccountResponseDTO;
 
 import java.util.stream.Collectors;
 
