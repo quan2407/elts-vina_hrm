@@ -1,6 +1,6 @@
-import "./Header.css"
+import "./RecruitmentHeader.css"
 import imgCongTy from "../assets/imgs/imageCongTy.jpg";
-function Header() {
+function RecruitmentHeader() {
     return (
         <>
             <header className="header">
@@ -33,4 +33,4 @@ function Header() {
         </>
     );
 };
-export default Header;
+export default RecruitmentHeader;

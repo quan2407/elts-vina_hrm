@@ -3,7 +3,7 @@ import "../assets/styles/JobsPage.css";
 import { getAllRecruitments } from "../services/recruitmentService";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../component/Header.jsx";
+import RecruitmentHeader from "../component/RecruitmentHeader.jsx";
 function removeVietnameseTones(str) {
   return str
     .normalize('NFD') // tách dấu
@@ -88,7 +88,7 @@ const JobsPage = () => {
   return (
     <div className="jobs-page">
 
-      <Header />
+      <RecruitmentHeader />
 
       <section className="search-section">
         <div className="search-container">

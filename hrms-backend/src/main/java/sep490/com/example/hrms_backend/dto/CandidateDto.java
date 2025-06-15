@@ -40,7 +40,7 @@ public class CandidateDto {
 
     // Một ứng viên ứng tuyển vào một đợt tuyển dụng
 
-    private Long recruitmentId;
+    private List<Long> recruitmentId;
 
     // Một ứng viên có thể được phỏng vấn nhiều lần (1 - n)
 

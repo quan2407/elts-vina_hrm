@@ -6,10 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.CandidateDto;
 import sep490.com.example.hrms_backend.service.CandidateService;
 
@@ -22,14 +19,24 @@ public class CandidateController {
     @Autowired
     private CandidateService candidateService;
 
-    @PostMapping("/add")
-    public ResponseEntity<?> addCandidate(@RequestBody CandidateDto candidateDto) {
+    @PostMapping("/{id}")
+    public ResponseEntity<?> addCandidate(@RequestBody CandidateDto candidateDto, @RequestParam Long id) {
         try {
-            candidateService.saveCandidate(candidateDto);
-        return new ResponseEntity<>(candidateDto, HttpStatus.CREATED);
-    } catch (Exception e) {
-        return new ResponseEntity<>(candidateDto, HttpStatus.BAD_REQUEST);
 
-    }
+            candidateService.saveCandidate(candidateDto, id);
+
+//            boolean checkCandidate = candidateService.checkCanddateByEmail(candidateDto.getEmail());
+//            if(checkCandidate){
+//                candidateDto.getRecruitmentId().add(id);
+//            candidateService.saveCandidate(candidateDto);
+//            return new ResponseEntity<>(candidateDto, HttpStatus.CREATED);
+//            }
+//            else{
+//
+//            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(candidateDto, HttpStatus.BAD_REQUEST);
+
+        }
     }
 }
