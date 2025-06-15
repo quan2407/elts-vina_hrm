@@ -6,6 +6,9 @@ import AccountManagement from "./pages/AccountManagement";
 import EmployeeManagement from "./pages/EmployeeManagement";
 import JobsPage from "./pages/JobsPage";
 import JobDetailPage from "./pages/JobDetailPage";
+import UnauthorizedPage from "./pages/UnauthorizedPage";
+
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 import "./App.css";
 
@@ -17,14 +20,25 @@ function App() {
           path="/"
           element={<LoginPage />}
         />
+
         <Route
           path="/accounts"
-          element={<AccountManagement />}
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
+              <AccountManagement />
+            </ProtectedRoute>
+          }
         />
+
         <Route
           path="/employee-management"
-          element={<EmployeeManagement />}
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_EMPLOYEE", "ROLE_ADMIN"]}>
+              <EmployeeManagement />
+            </ProtectedRoute>
+          }
         />
+
         <Route
           path="/jobs"
           element={<JobsPage />}
@@ -32,6 +46,10 @@ function App() {
         <Route
           path="/jobs/:id"
           element={<JobDetailPage />}
+        />
+        <Route
+          path="/unauthorized"
+          element={<UnauthorizedPage />}
         />
       </Routes>
     </div>

@@ -14,7 +14,7 @@ public class CandidateMapper {
         candidateDto.setNote(candidate.getNote());
         candidateDto.setStatus(candidate.getStatus());
         candidateDto.setSubmittedAt(candidate.getSubmittedAt());
-        candidateDto.setRecruitmentId(candidate.getRecruitment().getId());
+//        candidateDto.setRecruitmentId(candidate.getRecruitment().getId());
         candidateDto.setInterviewScheduleId(
                 candidate.getInterviewSchedules().stream()
                         .map(schedule -> schedule.getId())  // đảm bảo có getId()
