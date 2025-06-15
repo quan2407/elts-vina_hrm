@@ -7,64 +7,6 @@
   background-color: #fff;
 }
 
-/* Header */
-.header {
-  width: 100%;
-  height: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 144px;
-  box-sizing: border-box;
-  background-color: #132745;
-}
-
-.brand-title {
-  color: #fff;
-  font-family: "Manrope", sans-serif;
-  font-size: 20px;
-  font-weight: 800;
-}
-
-.menu-icon {
-  width: 50px;
-  height: 50px;
-  flex-shrink: 0;
-}
-
-/* Hero Section */
-.hero-section {
-  position: relative;
-  width: 100%;
-  height: 300px;
-  background: linear-gradient(135deg, #132745 0%, #1e3a5f 100%);
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding-left: 144px;
-  box-sizing: border-box;
-}
-
-.hero-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(19, 39, 69, 0.1);
-}
-
-.hero-title {
-  color: #fff;
-  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
-  font-size: 80px;
-  font-weight: 400;
-  text-transform: uppercase;
-  z-index: 2;
-  position: relative;
-}
-
-/* Contact Content */
 .contact-content {
   width: 100%;
   padding: 80px 144px;
@@ -80,7 +22,6 @@
   margin: 0 auto;
 }
 
-/* Contact Info Section */
 .contact-info-section {
   background-color: #fff;
   padding: 40px;
@@ -145,7 +86,6 @@
   margin: 0;
 }
 
-/* Contact Form Section */
 .contact-form-section {
   background-color: #fff;
   padding: 40px;
@@ -209,7 +149,6 @@
 .textarea-field {
   resize: vertical;
   min-height: 120px;
-  font-family: "Manrope", sans-serif;
 }
 
 .submit-button {
@@ -247,7 +186,6 @@
   transform: translateX(5px);
 }
 
-/* Footer */
 .footer {
   width: 100%;
   height: 145px;
@@ -291,7 +229,7 @@
   letter-spacing: 1.3px;
 }
 
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 1200px) {
   .contact-content {
     padding: 60px 80px;
@@ -303,18 +241,6 @@
 }
 
 @media (max-width: 991px) {
-  .header {
-    padding: 0 40px;
-  }
-
-  .hero-section {
-    padding-left: 40px;
-  }
-
-  .hero-title {
-    font-size: 60px;
-  }
-
   .contact-content {
     padding: 60px 40px;
   }
@@ -346,24 +272,6 @@
 }
 
 @media (max-width: 640px) {
-  .header {
-    padding: 0 20px;
-    height: 120px;
-  }
-
-  .brand-title {
-    font-size: 28px;
-  }
-
-  .hero-section {
-    height: 200px;
-    padding-left: 20px;
-  }
-
-  .hero-title {
-    font-size: 40px;
-  }
-
   .contact-content {
     padding: 40px 20px;
   }

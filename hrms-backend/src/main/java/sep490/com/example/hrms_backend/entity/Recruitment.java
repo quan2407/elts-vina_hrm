@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import sep490.com.example.hrms_backend.enums.RecruitmentStatus;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,45 +16,41 @@ import java.util.List;
 @Builder
 public class Recruitment {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "recruitment_id")
     private Long id;
 
     @NotBlank
-    private String title; // tiêu đề đợt tuyển dụng
+    private String title;
 
-    private String workLocation; // địa điểm làm việc
+    private String workLocation;
 
-    private String employmentType; // loại hình (toàn thời gian, part-time,...)
+    private String employmentType;
 
-    private String jobDescription; // mô tả công việc
+    private String jobDescription;
 
-    private String jobRequirement; // yêu cầu tuyển dụng
+    private String jobRequirement;
 
-    private String benefits; // quyền lợi
+    private String benefits;
 
-    private String salaryRange; // khoảng lương
+    private String salaryRange;
 
     @Min(1)
-    private Integer quantity; // số lượng cần tuyển
+    private Integer quantity;
 
     @Column(name = "expired_at")
-    private LocalDateTime expiredAt; // ngày hết hạn tuyển dụng
+    private LocalDateTime expiredAt;
 
     @Column(name = "create_at")
-    private LocalDateTime createAt; // ngày tạo
+    private LocalDateTime createAt;
 
     @Column(name = "update_at")
-    private LocalDateTime updateAt; // ngày cập nhật
+    private LocalDateTime updateAt;
 
     @NotBlank
     @Enumerated(EnumType.STRING)
-    private RecruitmentStatus status; // trạng thái (đang mở, đã đóng, v.v.)
-
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
+    private RecruitmentStatus status;
 
     @ManyToOne
     @JoinColumn(name = "department_id")
@@ -65,11 +60,7 @@ public class Recruitment {
     @JoinColumn(name = "created_by")
     private Employee createdBy;
 
-    @ManyToMany
-    @JoinTable(
-            name = "recruitment_candidate",
-            joinColumns = @JoinColumn(name = "recruitment_id"),
-            inverseJoinColumns = @JoinColumn(name = "candidate_id")
-    )
-    private List<Candidate> candidates;
+    // Quan hệ mới
+    @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CandidateRecruitment> candidateRecruitments;
 }

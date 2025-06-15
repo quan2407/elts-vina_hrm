@@ -1,5 +1,4 @@
-/* Header */
-.header {
+.header-recruitment {
   width: 100%;
   height: 70px;
   display: flex;
@@ -10,21 +9,20 @@
   background-color: #132745;
 }
 
-.brand-title {
+.brand-title-recruitment {
   color: #fff;
   font-family: "Manrope", sans-serif;
   font-size: 15px;
   font-weight: 800;
 }
 
-.menu-icon {
+.menu-icon-recruitment {
   width: 50px;
   height: 50px;
   flex-shrink: 0;
 }
 
-/* Hero Section */
-.hero-section {
+.hero-section-recruitment {
   position: relative;
   width: 100%;
   height: 350px;
@@ -33,14 +31,13 @@
   box-sizing: border-box;
 }
 
-
-.hero-image {
+.hero-image-recruitment {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* hoặc 'contain' nếu bạn muốn toàn bộ ảnh luôn hiển thị */
+  object-fit: cover;
 }
 
-.hero-overlay {
+.hero-overlay-recruitment {
   position: absolute;
   top: 0;
   left: 0;
@@ -49,12 +46,12 @@
   background-color: rgba(19, 39, 69, 0.9);
 }
 
-.hero-title {
+.hero-title-recruitment {
   position: absolute;
   left: 144px;
   top: 200px;
   color: #fff;
-  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
   font-size: 80px;
   font-weight: 400;
   text-transform: uppercase;

@@ -1,276 +1,77 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import "../assets/styles/Sidebar.css";
+import { sidebarMenus } from "../config/sidebarMenus";
 
 function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Lấy token từ localStorage
+  const token = localStorage.getItem("accessToken");
+  let username = "Mock User";
+  let role = "admin"; // default nếu chưa login
+
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      username = decoded.sub || "Unknown";
+      // Giả sử chỉ lấy role đầu tiên nếu có nhiều role
+      role =
+        decoded.roles && decoded.roles[0]
+          ? decoded.roles[0].replace("ROLE_", "").toLowerCase()
+          : "unknown";
+    } catch (err) {
+      console.error("Invalid token", err);
+    }
+  }
+
   const handleNavigation = (path) => {
     navigate(path);
   };
 
+  const menus = sidebarMenus[role] || [];
+
   return (
     <div className="sidebar">
-      <img
-        className="logo-top"
-        src="https://cdn.builder.io/api/v1/image/assets/TEMP/9908afab81161f1b407a120e0aec0f72548bf681?placeholderIfAbsent=true"
-        alt="Group 47"
-      />
-
       <div className="user-profile">
         <img
           className="profile-image"
           src="https://cdn.builder.io/api/v1/image/assets/TEMP/8020efea94b33e133d3f1c7ace70ab7dcdce7dee?placeholderIfAbsent=true"
-          alt="Group 46"
+          alt="Profile"
         />
-        <div className="user-name">Aman Admin</div>
-        <div className="user-role">Admin</div>
+        <div className="user-name">{username}</div>
+        <div className="user-role">{role.toUpperCase()}</div>
       </div>
 
       <div className="features-section">
-        <div className="section-title">Features</div>
-
-        <div className="nav-item" onClick={() => handleNavigation("/")}>
-          <div className="nav-icon">
-            <svg
-              width="33"
-              height="29"
-              viewBox="0 0 33 29"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M19.0781 0H31.4531C32.3074 0 33 0.695547 33 1.55357V11.9107C33 12.7687 32.3074 13.4643 31.4531 13.4643H19.0781C18.2238 13.4643 17.5312 12.7687 17.5312 11.9107V1.55357C17.5312 0.695547 18.2238 0 19.0781 0ZM13.9219 0H1.54688C0.692549 0 0 0.695547 0 1.55357V11.9107C0 12.7687 0.692549 13.4643 1.54688 13.4643H13.9219C14.7762 13.4643 15.4688 12.7687 15.4688 11.9107V1.55357C15.4688 0.695547 14.7762 0 13.9219 0ZM0 17.0893V27.4464C0 28.3045 0.692549 29 1.54688 29H13.9219C14.7762 29 15.4688 28.3045 15.4688 27.4464V17.0893C15.4688 16.2313 14.7762 15.5357 13.9219 15.5357H1.54688C0.692549 15.5357 0 16.2313 0 17.0893ZM19.0781 29H31.4531C32.3074 29 33 28.3045 33 27.4464V17.0893C33 16.2313 32.3074 15.5357 31.4531 15.5357H19.0781C18.2238 15.5357 17.5312 16.2313 17.5312 17.0893V27.4464C17.5312 28.3045 18.2238 29 19.0781 29Z"
-                fill="white"
-              />
-            </svg>
+        {menus.map((item, index) => (
+          <div
+            key={index}
+            className={`nav-item ${
+              location.pathname === item.path ? "active" : ""
+            }`}
+            onClick={() => handleNavigation(item.path)}
+          >
+            <div className="nav-icon">{item.icon}</div>
+            <div className="nav-text">{item.text}</div>
+            {item.badge && (
+              <div className="notification-badge">
+                <div className="notification-count">{item.badge}</div>
+              </div>
+            )}
           </div>
-          <div className="nav-text">Dashboard</div>
-        </div>
-
-        <div className="nav-item">
-          <div className="nav-icon">
-            <svg
-              width="36"
-              height="27"
-              viewBox="0 0 36 27"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M35.318 8.91563C35.5922 8.69766 36 8.90156 36 9.24609V23.625C36 25.4883 34.4883 27 32.625 27H3.375C1.51172 27 0 25.4883 0 23.625V9.25313C0 8.90156 0.400781 8.70469 0.682031 8.92266C2.25703 10.1461 4.34531 11.7 11.5172 16.9102C13.0008 17.993 15.5039 20.2711 18 20.257C20.5102 20.2781 23.0625 17.9508 24.4898 16.9102C31.6617 11.7 33.743 10.1391 35.318 8.91563ZM18 18C19.6313 18.0281 21.9797 15.9469 23.1609 15.0891C32.4914 8.31797 33.2016 7.72734 35.3531 6.03984C35.7609 5.72344 36 5.23125 36 4.71094V3.375C36 1.51172 34.4883 0 32.625 0H3.375C1.51172 0 0 1.51172 0 3.375V4.71094C0 5.23125 0.239062 5.71641 0.646875 6.03984C2.79844 7.72031 3.50859 8.31797 12.8391 15.0891C14.0203 15.9469 16.3687 18.0281 18 18Z"
-                fill="white"
-              />
-            </svg>
-          </div>
-          <div className="nav-text">Messages</div>
-          <div className="notification-badge">
-            <svg
-              width="33"
-              height="33"
-              viewBox="0 0 33 33"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g filter="url(#filter0_d_2_1963)">
-                <circle cx="17.5" cy="14.5" r="11.5" fill="#FF0000" />
-                <circle cx="17.5" cy="14.5" r="11" stroke="white" />
-              </g>
-              <defs>
-                <filter
-                  id="filter0_d_2_1963"
-                  x="0"
-                  y="0"
-                  width="33"
-                  height="33"
-                  filterUnits="userSpaceOnUse"
-                  colorInterpolationFilters="sRGB"
-                >
-                  <feFlood floodOpacity="0" result="BackgroundImageFix" />
-                  <feColorMatrix
-                    in="SourceAlpha"
-                    type="matrix"
-                    values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                    result="hardAlpha"
-                  />
-                  <feMorphology
-                    radius="1"
-                    operator="dilate"
-                    in="SourceAlpha"
-                    result="effect1_dropShadow_2_1963"
-                  />
-                  <feOffset dx="-1" dy="2" />
-                  <feGaussianBlur stdDeviation="2" />
-                  <feComposite in2="hardAlpha" operator="out" />
-                  <feColorMatrix
-                    type="matrix"
-                    values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"
-                  />
-                  <feBlend
-                    mode="normal"
-                    in2="BackgroundImageFix"
-                    result="effect1_dropShadow_2_1963"
-                  />
-                  <feBlend
-                    mode="normal"
-                    in="SourceGraphic"
-                    in2="effect1_dropShadow_2_1963"
-                    result="shape"
-                  />
-                </filter>
-              </defs>
-            </svg>
-            <div className="notification-count">13</div>
-          </div>
-        </div>
+        ))}
       </div>
 
-      <div className="recruitment-section">
-        <div className="section-title">Recruitment</div>
-
-        <div className="nav-item">
-          <div className="nav-icon">
-            <svg
-              width="35"
-              height="31"
-              viewBox="0 0 35 31"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M21.875 21.0357C21.875 21.6474 21.3855 22.1429 20.7812 22.1429H14.2188C13.6145 22.1429 13.125 21.6474 13.125 21.0357V17.7143H0V27.6786C0 29.45 1.53125 31 3.28125 31H31.7188C33.4688 31 35 29.45 35 27.6786V17.7143H21.875V21.0357ZM31.7188 6.64286H26.25V3.32143C26.25 1.55 24.7188 0 22.9688 0H12.0312C10.2812 0 8.75 1.55 8.75 3.32143V6.64286H3.28125C1.53125 6.64286 0 8.19286 0 9.96428V15.5H35V9.96428C35 8.19286 33.4688 6.64286 31.7188 6.64286ZM21.875 6.64286H13.125V4.42857H21.875V6.64286Z"
-                fill="white"
-              />
-            </svg>
-          </div>
-          <div className="nav-text">Jobs</div>
-        </div>
-
-        <div className="nav-item">
-          <div className="nav-icon">
-            <svg
-              width="40"
-              height="28"
-              viewBox="0 0 40 28"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12 14C15.8687 14 19 10.8687 19 7C19 3.13125 15.8687 0 12 0C8.13125 0 5 3.13125 5 7C5 10.8687 8.13125 14 12 14ZM16.8 16H16.2812C14.9812 16.625 13.5375 17 12 17C10.4625 17 9.025 16.625 7.71875 16H7.2C3.225 16 0 19.225 0 23.2V25C0 26.6562 1.34375 28 3 28H21C22.6562 28 24 26.6562 24 25V23.2C24 19.225 20.775 16 16.8 16ZM30 14C33.3125 14 36 11.3125 36 8C36 4.6875 33.3125 2 30 2C26.6875 2 24 4.6875 24 8C24 11.3125 26.6875 14 30 14ZM33 16H32.7625C31.8938 16.3 30.975 16.5 30 16.5C29.025 16.5 28.1062 16.3 27.2375 16H27C25.725 16 24.55 16.3687 23.5187 16.9625C25.0437 18.6062 26 20.7875 26 23.2V25.6C26 25.7375 25.9688 25.8687 25.9625 26H37C38.6562 26 40 24.6562 40 23C40 19.1313 36.8688 16 33 16Z"
-                fill="white"
-              />
-            </svg>
-          </div>
-          <div className="nav-text">Candidates</div>
-        </div>
-
-        <div className="nav-item">
-          <div className="nav-icon">
-            <svg
-              width="25"
-              height="33"
-              viewBox="0 0 25 33"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M14.5833 8.76562V0H1.5625C0.696615 0 0 0.689648 0 1.54688V31.4531C0 32.3104 0.696615 33 1.5625 33H23.4375C24.3034 33 25 32.3104 25 31.4531V10.3125H16.1458C15.2865 10.3125 14.5833 9.61641 14.5833 8.76562ZM18.75 23.9766C18.75 24.402 18.3984 24.75 17.9688 24.75H7.03125C6.60156 24.75 6.25 24.402 6.25 23.9766V23.4609C6.25 23.0355 6.60156 22.6875 7.03125 22.6875H17.9688C18.3984 22.6875 18.75 23.0355 18.75 23.4609V23.9766ZM18.75 19.8516C18.75 20.277 18.3984 20.625 17.9688 20.625H7.03125C6.60156 20.625 6.25 20.277 6.25 19.8516V19.3359C6.25 18.9105 6.60156 18.5625 7.03125 18.5625H17.9688C18.3984 18.5625 18.75 18.9105 18.75 19.3359V19.8516ZM18.75 15.2109V15.7266C18.75 16.152 18.3984 16.5 17.9688 16.5H7.03125C6.60156 16.5 6.25 16.152 6.25 15.7266V15.2109C6.25 14.7855 6.60156 14.4375 7.03125 14.4375H17.9688C18.3984 14.4375 18.75 14.7855 18.75 15.2109ZM25 7.85684V8.25H16.6667V0H17.0638C17.4805 0 17.8776 0.161133 18.1706 0.451172L24.5443 6.76758C24.8372 7.05762 25 7.45078 25 7.85684Z"
-                fill="white"
-              />
-            </svg>
-          </div>
-          <div className="nav-text">Resumes</div>
-        </div>
-      </div>
-
-      <div className="organization-section">
-        <div className="section-title">Organization</div>
-
-        <div
-          className={`nav-item ${location.pathname === "/employee-management" ? "active" : ""}`}
-          onClick={() => handleNavigation("/employee-management")}
-        >
-          <div className="nav-icon">
-            <svg
-              width="28"
-              height="28"
-              viewBox="0 0 28 28"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g clipPath="url(#clip0_2_1967)">
-                <path
-                  d="M14 15.75C18.3477 15.75 21.875 12.2227 21.875 7.875C21.875 3.52734 18.3477 0 14 0C9.65234 0 6.125 3.52734 6.125 7.875C6.125 12.2227 9.65234 15.75 14 15.75ZM21 17.5H17.9867C16.7727 18.0578 15.4219 18.375 14 18.375C12.5781 18.375 11.2328 18.0578 10.0133 17.5H7C3.13359 17.5 0 20.6336 0 24.5V25.375C0 26.8242 1.17578 28 2.625 28H25.375C26.8242 28 28 26.8242 28 25.375V24.5C28 20.6336 24.8664 17.5 21 17.5Z"
-                  fill="white"
-                />
-              </g>
-              <defs>
-                <clipPath id="clip0_2_1967">
-                  <rect width="28" height="28" fill="white" />
-                </clipPath>
-              </defs>
-            </svg>
-          </div>
-          <div className="nav-text">Employee Management</div>
-        </div>
-
-        <div className="nav-item">
-          <div className="nav-icon">
-            <svg
-              width="34"
-              height="34"
-              viewBox="0 0 34 34"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M32.006 3.78055C28.7713 3.96413 22.342 4.63232 18.373 7.0619C18.0991 7.22954 17.9439 7.52763 17.9439 7.8393V29.3177C17.9439 29.9995 18.6894 30.4304 19.318 30.114C23.4016 28.0587 29.3073 27.4979 32.2274 27.3444C33.2244 27.2919 33.9994 26.4927 33.9994 25.5346V5.5927C34 4.54732 33.0933 3.71916 32.006 3.78055ZM15.6264 7.0619C11.658 4.63232 5.22868 3.96472 1.99396 3.78055C0.906667 3.71916 0 4.54732 0 5.5927V25.5352C0 26.4938 0.775035 27.2931 1.77201 27.345C4.6933 27.4985 10.602 28.0599 14.6855 30.1164C15.3124 30.4322 16.0556 30.0019 16.0556 29.3219V7.82867C16.0556 7.51642 15.9009 7.23013 15.6264 7.0619Z"
-                fill="white"
-              />
-            </svg>
-          </div>
-          <div className="nav-text">Leave Management</div>
-        </div>
-
-        <div className="nav-item">
-          <div className="nav-icon">
-            <svg
-              width="33"
-              height="27"
-              viewBox="0 0 33 27"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M4.95 24.4688V26.1563C4.95 26.6224 5.31919 27 5.775 27H17.325C17.7808 27 18.15 26.6224 18.15 26.1563V8.0817C18.3851 7.97623 18.6099 7.85231 18.8198 7.70624L26.1443 10.218C26.5763 10.3661 27.044 10.1278 27.1889 9.68639L27.7133 8.08645C27.8582 7.64454 27.6251 7.16624 27.1935 7.01806L20.5729 4.74786C20.5946 4.57278 20.625 4.39982 20.625 4.21894C20.625 1.88915 18.778 0.000225356 16.5 0.000225356C14.9691 0.000225356 13.6486 0.862952 12.9365 2.12909L6.85575 0.0439945C6.42366 -0.104188 5.95598 0.13417 5.81109 0.575553L5.2867 2.1755C5.14181 2.61741 5.37488 3.09571 5.80645 3.24389L12.6127 5.57789C12.9881 6.69849 13.7966 7.61026 14.8495 8.08117V23.625H5.775C5.31919 23.625 4.95 24.0026 4.95 24.4688ZM0 16.0313C0 18.3611 2.95505 20.2501 6.6 20.2501C10.245 20.2501 13.2 18.3611 13.2 16.0313H13.199C13.199 15.205 13.3062 15.649 8.81358 6.4596C7.90195 4.59493 5.29598 4.59862 4.38591 6.4596C-0.0680625 15.571 0.00103125 15.1781 0.00103125 16.0313H0ZM2.8875 15.1876L6.6 7.59391L10.3125 15.1876H2.8875ZM19.801 22.7813H19.8C19.8 25.1111 22.755 27 26.4 27C30.045 27 33 25.1111 33 22.7813H32.999C32.999 21.9549 33.1062 22.399 28.6136 13.2095C27.702 11.3449 25.096 11.3486 24.1859 13.2095C19.7319 22.3209 19.801 21.9281 19.801 22.7813ZM22.6875 21.9375L26.4 14.3439L30.1125 21.9375H22.6875Z"
-                fill="white"
-              />
-            </svg>
-          </div>
-          <div className="nav-text">Performance Management</div>
-        </div>
-
-        <div className="nav-item">
-          <div className="nav-icon">
-            <svg
-              width="34"
-              height="23"
-              viewBox="0 0 34 23"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M32.9986 1.15308C30.9379 0.31779 28.8756 6.17488e-08 26.8144 6.17488e-08C20.2711 -0.000513331 13.7283 3.20049 7.18504 3.20049C5.54404 3.20049 3.9041 2.99924 2.26309 2.49612C2.07875 2.43964 1.89388 2.41295 1.71325 2.41295C0.798988 2.41295 0 3.09679 0 4.04605V20.334C0 20.9824 0.384088 21.5969 1.00086 21.8464C3.06155 22.6822 5.12383 23 7.18504 23C13.7283 23 20.2717 19.799 26.815 19.799C28.456 19.799 30.0959 20.0002 31.7369 20.5034C31.9212 20.5598 32.1061 20.5865 32.2867 20.5865C33.201 20.5865 34 19.9027 34 18.9534V2.66605C33.9995 2.01712 33.6154 1.4031 32.9986 1.15308ZM2.54996 5.14522C3.61882 5.40397 4.73443 5.53386 5.88191 5.60368C5.56954 7.11254 4.19681 8.24971 2.54996 8.24971V5.14522ZM2.54996 19.7769V17.3239C4.37584 17.3239 5.85322 18.724 5.9345 20.4762C4.73761 20.3832 3.61882 20.1522 2.54996 19.7769ZM16.9997 16.4286C14.6522 16.4286 12.7498 14.2215 12.7498 11.5C12.7498 8.77799 14.6527 6.57143 16.9997 6.57143C19.3468 6.57143 21.2497 8.77799 21.2497 11.5C21.2497 14.2225 19.3462 16.4286 16.9997 16.4286ZM31.4495 17.8548C30.5188 17.6294 29.5524 17.5031 28.5638 17.4215C28.8756 16.0825 30.0247 15.066 31.4495 14.8915V17.8548ZM31.4495 5.73306C29.8085 5.53232 28.5351 4.20828 28.4846 2.57313C29.5227 2.68453 30.5081 2.89297 31.4495 3.22308V5.73306Z"
-                fill="white"
-              />
-            </svg>
-          </div>
-          <div className="nav-text">Payroll Management</div>
-        </div>
-      </div>
-
-      <div className="logout-button" onClick={() => handleNavigation("/")}>
+      <div
+        className="logout-button"
+        onClick={() => {
+          localStorage.removeItem("accessToken");
+          navigate("/");
+        }}
+      >
         <div className="nav-icon">
           <svg
             width="25"

@@ -1,31 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import accountService from "../services/accountService";
 import "../assets/styles/AccountTable.css";
 
 function AccountTable() {
   const [showDropdown, setShowDropdown] = useState(null);
-
-  const accounts = [
-    {
-      id: 1,
-      username: "admin123",
-      email: "admin@example.com",
-      roles: ["ROLE_ADMIN", "ROLE_PMC"],
-      isActive: true,
-      lastLoginAt: "2024-06-10T10:12:00",
-    },
-    {
-      id: 2,
-      username: "user456",
-      email: "user@example.com",
-      roles: ["ROLE_EMPLOYEE"],
-      isActive: false,
-      lastLoginAt: "2024-06-01T09:45:00",
-    },
-  ];
+  const [accounts, setAccounts] = useState([]);
 
   const toggleDropdown = (id) => {
     setShowDropdown(showDropdown === id ? null : id);
   };
+
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const response = await accountService.getAllAccounts();
+        const data = response.data;
+
+        const formattedData = data.map((acc) => ({
+          id: acc.accountId,
+          username: acc.username,
+          email: acc.email,
+          isActive: acc.isActive,
+          lastLoginAt: acc.lastLoginAt,
+          roles: [acc.role], // Giữ role raw, xử lý khi render
+        }));
+
+        setAccounts(formattedData);
+      } catch (err) {
+        console.error("Error fetching accounts:", err);
+        if (err.response && err.response.status === 403) {
+          alert("You are not authorized to view this page.");
+        } else {
+          alert("Failed to load accounts.");
+        }
+      }
+    };
+
+    fetchAccounts();
+  }, []);
 
   return (
     <div className="account-table-container">
@@ -48,13 +60,15 @@ function AccountTable() {
           </div>
           <div className="account-table-cell email-column">{acc.email}</div>
           <div className="account-table-cell role-column">
-            {acc.roles.join(", ")}
+            {acc.roles
+              .map((r) => r.replace("ROLE_", "").replace(/_/g, " "))
+              .join(", ")}
           </div>
           <div className="account-table-cell active-column">
             {acc.isActive ? "Yes" : "No"}
           </div>
           <div className="account-table-cell login-column">
-            {acc.lastLoginAt}
+            {acc.lastLoginAt || "-"}
           </div>
           <div className="account-table-cell actions-column">
             <div className="account-actions-wrapper">

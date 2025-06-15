@@ -3,29 +3,47 @@ import "../assets/styles/JobsPage.css";
 import { getAllRecruitments } from "../services/recruitmentService";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../component/Header.jsx";
+import HeaderRecruitment from "../component/HeaderRecruitment.jsx";
+
 function removeVietnameseTones(str) {
   return str
-    .normalize('NFD') // tách dấu
-    .replace(/[\u0300-\u036f]/g, '') // xóa dấu
-    .replace(/đ/g, 'd')
-    .replace(/Đ/g, 'D');
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D");
 }
 
 const formatDate = (isoDate) => {
   const date = new Date(isoDate);
-  return date.toLocaleDateString("vi-VN"); // hoặc en-GB, en-US tùy ngôn ngữ
+  return date.toLocaleDateString("vi-VN");
 };
 
-const JobCard = ({ createAt, expiredAt, title, location, salary, description, id, ...props }) => {
+const JobCard = ({
+  createAt,
+  expiredAt,
+  title,
+  location,
+  salary,
+  description,
+  id,
+  ...props
+}) => {
   return (
-    <div className="job-card" style={{ backgroundColor: "#eeeeee" }}>
-      <div className="job-ref"> {formatDate(createAt)} - {formatDate(expiredAt)}</div>
+    <div
+      className="job-card"
+      style={{ backgroundColor: "#eeeeee" }}
+    >
+      <div className="job-ref">
+        {formatDate(createAt)} - {formatDate(expiredAt)}
+      </div>
       <div className="job-title">{title}</div>
       <div className="job-location">{location}</div>
       <div className="job-salary">{salary}</div>
       <div className="job-description">{description}</div>
-      <div className="job-arrow-button" {...props}>
+      <div
+        className="job-arrow-button"
+        {...props}
+      >
         <svg
           width="31"
           height="31"
@@ -46,10 +64,10 @@ const JobCard = ({ createAt, expiredAt, title, location, salary, description, id
 
 const JobsPage = () => {
   const navigate = useNavigate();
-
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [jobs, setJobs] = useState([]);
+
   useEffect(() => {
     const fetchJobs = async () => {
       try {
@@ -63,21 +81,19 @@ const JobsPage = () => {
   }, []);
 
   useEffect(() => {
-
     const normalizedSearch = removeVietnameseTones(searchTerm.toLowerCase());
-
-    const filtered = jobs.filter((job) =>
-      removeVietnameseTones(job.title.toLowerCase()).includes(normalizedSearch)
-      || removeVietnameseTones(job.jobDescription.toLowerCase()).includes(normalizedSearch)
-      || removeVietnameseTones(job.workLocation.toLowerCase()).includes(normalizedSearch)
+    const filtered = jobs.filter(
+      (job) =>
+        removeVietnameseTones(job.title.toLowerCase()).includes(
+          normalizedSearch
+        ) ||
+        removeVietnameseTones(job.jobDescription.toLowerCase()).includes(
+          normalizedSearch
+        ) ||
+        removeVietnameseTones(job.workLocation.toLowerCase()).includes(
+          normalizedSearch
+        )
     );
-
-    // const lowerSearch = searchTerm.toLowerCase();
-    // const results = jobs.filter(job =>
-    //   job.title.toLowerCase().includes(lowerSearch)
-    //   || job.jobDescription.toLowerCase().includes(lowerSearch)
-    //   || job.workLocation.toLowerCase().includes(lowerSearch)
-    // );
     setFilteredJobs(filtered);
   }, [searchTerm, jobs]);
 
@@ -87,8 +103,7 @@ const JobsPage = () => {
 
   return (
     <div className="jobs-page">
-
-      <Header />
+      <HeaderRecruitment />
 
       <section className="search-section">
         <div className="search-container">
@@ -98,7 +113,6 @@ const JobsPage = () => {
             className="search-input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-
           />
           <div className="search-button">
             <svg
@@ -135,17 +149,15 @@ const JobsPage = () => {
               />
             ))
           ) : (
-            <div style={{ color: 'red' }} className="no-jobs-message">Không có công việc nào phù hợp với tìm kiếm của bạn.</div>
+            <div
+              style={{ color: "red" }}
+              className="no-jobs-message"
+            >
+              Không có công việc nào phù hợp với tìm kiếm của bạn.
+            </div>
           )}
         </div>
       </main>
-      {/* 
-      <section className="pagination-section">
-        <div className="pagination-container">
-          <div className="entries-info">Show 1 - 4 of 20 entries</div>
-          <div className="page-numbers">1 | 2 | 3 | 4</div>
-        </div>
-      </section> */}
 
       <footer className="footer">
         <div className="footer-brand">ELTS VINA</div>
