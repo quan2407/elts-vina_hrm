@@ -12,12 +12,6 @@ function Sidebar() {
 
   return (
     <div className="sidebar">
-      <img
-        className="logo-top"
-        src="https://cdn.builder.io/api/v1/image/assets/TEMP/9908afab81161f1b407a120e0aec0f72548bf681?placeholderIfAbsent=true"
-        alt="Group 47"
-      />
-
       <div className="user-profile">
         <img
           className="profile-image"
@@ -31,7 +25,10 @@ function Sidebar() {
       <div className="features-section">
         <div className="section-title">Features</div>
 
-        <div className="nav-item" onClick={() => handleNavigation("/")}>
+        <div
+          className="nav-item"
+          onClick={() => handleNavigation("/")}
+        >
           <div className="nav-icon">
             <svg
               width="33"
@@ -74,8 +71,18 @@ function Sidebar() {
               xmlns="http://www.w3.org/2000/svg"
             >
               <g filter="url(#filter0_d_2_1963)">
-                <circle cx="17.5" cy="14.5" r="11.5" fill="#FF0000" />
-                <circle cx="17.5" cy="14.5" r="11" stroke="white" />
+                <circle
+                  cx="17.5"
+                  cy="14.5"
+                  r="11.5"
+                  fill="#FF0000"
+                />
+                <circle
+                  cx="17.5"
+                  cy="14.5"
+                  r="11"
+                  stroke="white"
+                />
               </g>
               <defs>
                 <filter
@@ -87,7 +94,10 @@ function Sidebar() {
                   filterUnits="userSpaceOnUse"
                   colorInterpolationFilters="sRGB"
                 >
-                  <feFlood floodOpacity="0" result="BackgroundImageFix" />
+                  <feFlood
+                    floodOpacity="0"
+                    result="BackgroundImageFix"
+                  />
                   <feColorMatrix
                     in="SourceAlpha"
                     type="matrix"
@@ -100,9 +110,15 @@ function Sidebar() {
                     in="SourceAlpha"
                     result="effect1_dropShadow_2_1963"
                   />
-                  <feOffset dx="-1" dy="2" />
+                  <feOffset
+                    dx="-1"
+                    dy="2"
+                  />
                   <feGaussianBlur stdDeviation="2" />
-                  <feComposite in2="hardAlpha" operator="out" />
+                  <feComposite
+                    in2="hardAlpha"
+                    operator="out"
+                  />
                   <feColorMatrix
                     type="matrix"
                     values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"
@@ -188,7 +204,9 @@ function Sidebar() {
         <div className="section-title">Organization</div>
 
         <div
-          className={`nav-item ${location.pathname === "/employee-management" ? "active" : ""}`}
+          className={`nav-item ${
+            location.pathname === "/employee-management" ? "active" : ""
+          }`}
           onClick={() => handleNavigation("/employee-management")}
         >
           <div className="nav-icon">
@@ -207,7 +225,11 @@ function Sidebar() {
               </g>
               <defs>
                 <clipPath id="clip0_2_1967">
-                  <rect width="28" height="28" fill="white" />
+                  <rect
+                    width="28"
+                    height="28"
+                    fill="white"
+                  />
                 </clipPath>
               </defs>
             </svg>
@@ -270,7 +292,10 @@ function Sidebar() {
         </div>
       </div>
 
-      <div className="logout-button" onClick={() => handleNavigation("/")}>
+      <div
+        className="logout-button"
+        onClick={() => handleNavigation("/")}
+      >
         <div className="nav-icon">
           <svg
             width="25"
