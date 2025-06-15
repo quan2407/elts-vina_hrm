@@ -3,6 +3,7 @@ package sep490.com.example.hrms_backend.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import sep490.com.example.hrms_backend.enums.RecruitmentStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,7 +52,8 @@ public class Recruitment {
     private LocalDateTime updateAt; // ngày cập nhật
 
     @NotBlank
-    private String status; // trạng thái (đang mở, đã đóng, v.v.)
+    @Enumerated(EnumType.STRING)
+    private RecruitmentStatus status; // trạng thái (đang mở, đã đóng, v.v.)
 
     // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
