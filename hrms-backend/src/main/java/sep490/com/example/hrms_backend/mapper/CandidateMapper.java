@@ -11,10 +11,10 @@ public class CandidateMapper {
         candidateDto.setCandidateName(candidate.getCandidateName());
         candidateDto.setEmail(candidate.getEmail());
         candidateDto.setPhoneNumber(candidate.getPhoneNumber());
-        candidateDto.setNote(candidate.getNote());
-        candidateDto.setStatus(candidate.getStatus());
-        candidateDto.setSubmittedAt(candidate.getSubmittedAt());
-//        candidateDto.setRecruitmentId(candidate.getRecruitment().getId());
+//        candidateDto.setNote(candidate.getNote());
+//        candidateDto.setStatus(candidate.getStatus());
+//        candidateDto.setSubmittedAt(candidate.getSubmittedAt());
+////        candidateDto.setRecruitmentId(candidate.getRecruitment().getId());
         candidateDto.setInterviewScheduleId(
                 candidate.getInterviewSchedules().stream()
                         .map(schedule -> schedule.getId())  // đảm bảo có getId()
@@ -28,9 +28,9 @@ public class CandidateMapper {
         candidate.setCandidateName(candidateDto.getCandidateName());
         candidate.setEmail(candidateDto.getEmail());
         candidate.setPhoneNumber(candidateDto.getPhoneNumber());
-        candidate.setNote(candidateDto.getNote());
-        candidate.setStatus(candidateDto.getStatus());
-        candidate.setSubmittedAt(candidateDto.getSubmittedAt());
+//        candidate.setNote(candidateDto.getNote());
+//        candidate.setStatus(candidateDto.getStatus());
+//        candidate.setSubmittedAt(candidateDto.getSubmittedAt());
         return candidate;
     }
 }

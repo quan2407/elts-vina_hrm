@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../services/authService";
-import { jwtDecode } from "jwt-decode"; // Đúng cú pháp import
+import { jwtDecode } from "jwt-decode";
 import "../assets/styles/LoginPage.css";
 
 function LoginPage() {
@@ -16,7 +16,7 @@ function LoginPage() {
       console.log("Login successful:", res.data);
 
       const token = res.data.accessToken;
-      localStorage.setItem("token", token);
+      localStorage.setItem("accessToken", token); // ✅ Lưu đúng key đồng bộ axiosClient
 
       const decoded = jwtDecode(token);
       const roles = decoded.roles || [];
