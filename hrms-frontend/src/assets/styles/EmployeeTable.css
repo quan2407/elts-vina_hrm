@@ -1,133 +1,75 @@
-.employee-table-container {
-  border-radius: 24px;
-  padding: 30px;
-  flex: 1;
+.employee-table-wrapper {
+  overflow-x: auto;
+  max-width: 100%; /* Ngăn vượt ngoài trang */
   background-color: #fff;
+  border-radius: 24px;
+  padding: 20px;
 }
 
-.table-header {
+.employee-table {
+  min-width: 1800px; /* Đặt giá trị lớn đủ để tạo scroll trong bảng */
+}
+
+.employee-table-header,
+.employee-table-row {
   display: grid;
-  grid-template-columns: 169px 97px 152px 122px 122px 122px 156px;
-  border-radius: 6px;
-  padding: 18px 30px;
-  margin-bottom: 20px;
-  background-color: #e3edf9;
+  grid-template-columns:
+    120px 180px 100px 150px 150px 150px 200px 150px
+    150px 150px 150px 150px 150px 120px;
+  gap: 10px;
+  padding: 12px 0;
 }
 
-.table-row {
-  display: grid;
-  grid-template-columns: 169px 97px 152px 122px 122px 122px 156px;
-  border-radius: 6px;
-  padding: 18px 30px;
-  margin-bottom: 20px;
-  align-items: center;
-  background-color: #e3edf9;
-}
-
-.header-cell {
-  color: #000;
-  font-size: 20px;
+.employee-header-cell {
   font-weight: 700;
-}
-
-.table-cell {
-  color: #000;
-  font-size: 20px;
-  font-weight: 400;
-}
-
-.name-column {
-  text-align: left;
-}
-
-.dept-column,
-.job-title-column,
-.start-date-column,
-.category-column,
-.gender-column,
-.actions-column {
+  font-size: 16px;
   text-align: center;
 }
 
-.actions-wrapper {
-  display: flex;
-  justify-content: center;
+.employee-table-cell {
+  font-size: 15px;
+  text-align: center;
+  word-break: break-word;
+}
+
+.employee-actions-wrapper {
   position: relative;
 }
 
-.actions-button {
-  border-radius: 6px;
-  padding: 14px 23px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  box-shadow: 11px 4px 14px 0px rgba(0, 0, 0, 0.12);
+.employee-actions-button {
   background-color: #253d90;
-}
-
-.actions-text {
   color: #fff;
-  font-size: 18px;
-  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
 }
 
-.actions-dropdown {
-  width: 14px;
-  height: 15px;
-  fill: #fff;
-}
-
-.dropdown-menu {
+.employee-dropdown-menu {
   position: absolute;
   top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  border-radius: 8px;
-  padding: 0;
-  margin-top: 8px;
-  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-  z-index: 10;
-  width: 159px;
   background-color: #253d90;
+  border-radius: 6px;
+  margin-top: 5px;
+  width: 150px;
+  z-index: 10;
 }
 
-.dropdown-item {
+.employee-dropdown-item {
   color: #fff;
-  font-size: 16px;
-  font-weight: 700;
-  padding: 17px 28px;
+  padding: 8px;
   text-align: center;
   cursor: pointer;
 }
 
-.dropdown-divider {
-  height: 2px;
-  border-radius: 8px;
+.employee-dropdown-item:hover {
+  background-color: #1a2b6c;
+}
+
+.employee-dropdown-divider {
+  height: 1px;
+  background: #fff;
   margin: 0;
-  background-color: #fff;
-}
-
-@media (max-width: 991px) {
-  .employee-table-container {
-    overflow-x: auto;
-  }
-
-  .table-header,
-  .table-row {
-    grid-template-columns: 150px 80px 120px 100px 100px 80px 120px;
-    font-size: 16px;
-  }
-}
-
-@media (max-width: 640px) {
-  .table-header,
-  .table-row {
-    grid-template-columns: 120px 60px 100px 80px 80px 60px 100px;
-    font-size: 14px;
-  }
-
-  .actions-button {
-    padding: 8px 16px;
-  }
 }
