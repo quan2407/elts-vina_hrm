@@ -17,7 +17,7 @@ function EmployeeTable() {
   }, []);
 
   return (
-    <div className="employee-table-wrapper">
+    <div className="employee-table-wrapper" >
       <div className="employee-table">
         <div className="employee-table-header">
           <div className="employee-header-cell">Code</div>
