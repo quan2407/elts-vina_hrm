@@ -13,6 +13,28 @@ public class CandidateService {
     @Autowired
     private CandidateRepository candidateRepository;
 
+    public boolean checkCandidateByEmail(String email) {
+        return candidateRepository.existsByEmail(email);
+    }
+
+    public CandidateDto getCandidateByEmail(String email) {
+
+        Candidate candidate = candidateRepository.findByEmail(email);
+        CandidateDto candidateDto = null;
+        return CandidateMapper.mapToCandidateDto(candidate, candidateDto);
+    }
+
+    public void saveCandidate(CandidateDto candidateDto, Long id) {
+        boolean checkCandidate = this.checkCandidateByEmail(candidateDto.getEmail());
+
+//        if (!checkCandidate) {
+//            saveCandidate(candidateDto);
+//            Candidate candidate
+//        }
+
+    }
+
+
     public void saveCandidate(CandidateDto candidateDto) {
         Candidate candidate = CandidateMapper.mapToCandidate(new Candidate(), candidateDto);
         candidateRepository.save(candidate);

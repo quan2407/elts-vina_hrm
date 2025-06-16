@@ -24,19 +24,12 @@ public class CandidateDto {
     @Pattern(regexp = "^[0-9\\-\\+]{9,15}$", message = "Phone number không hợp lệ")
     private String phoneNumber; // số điện thoại ứng viên
 
-//    private String note; // ghi chú nội bộ
-//
-//    @NotNull(message = "Status không được trống")
-//    private CandidateStatus status; // trạng thái ứng viên (ví dụ: đang xét, bị loại,...)
-//
-//
-//    private LocalDateTime submittedAt; // thời điểm ứng viên ứng tuyển
 
     // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
     // Một ứng viên ứng tuyển vào một đợt tuyển dụng
 
-    private Long recruitmentId;
+    private List<Long> recruitmentId;
 
     // Một ứng viên có thể được phỏng vấn nhiều lần (1 - n)
 

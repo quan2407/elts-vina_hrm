@@ -29,21 +29,13 @@ const JobCard = ({
   ...props
 }) => {
   return (
-    <div
-      className="job-card"
-      style={{ backgroundColor: "#eeeeee" }}
-    >
-      <div className="job-ref">
-        {formatDate(createAt)} - {formatDate(expiredAt)}
-      </div>
+    <div className="job-card" style={{ backgroundColor: "#eeeeee" }}>
+      <div className="job-ref"> {formatDate(createAt)} - {formatDate(expiredAt)}</div>
       <div className="job-title">{title}</div>
       <div className="job-location">{location}</div>
       <div className="job-salary">{salary}</div>
       <div className="job-description">{description}</div>
-      <div
-        className="job-arrow-button"
-        {...props}
-      >
+      <div className="job-arrow-button" {...props}>
         <svg
           width="31"
           height="31"
@@ -64,10 +56,10 @@ const JobCard = ({
 
 const JobsPage = () => {
   const navigate = useNavigate();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [jobs, setJobs] = useState([]);
-
   useEffect(() => {
     const fetchJobs = async () => {
       try {
@@ -81,19 +73,21 @@ const JobsPage = () => {
   }, []);
 
   useEffect(() => {
+
     const normalizedSearch = removeVietnameseTones(searchTerm.toLowerCase());
-    const filtered = jobs.filter(
-      (job) =>
-        removeVietnameseTones(job.title.toLowerCase()).includes(
-          normalizedSearch
-        ) ||
-        removeVietnameseTones(job.jobDescription.toLowerCase()).includes(
-          normalizedSearch
-        ) ||
-        removeVietnameseTones(job.workLocation.toLowerCase()).includes(
-          normalizedSearch
-        )
+
+    const filtered = jobs.filter((job) =>
+      removeVietnameseTones(job.title.toLowerCase()).includes(normalizedSearch)
+      || removeVietnameseTones(job.jobDescription.toLowerCase()).includes(normalizedSearch)
+      || removeVietnameseTones(job.workLocation.toLowerCase()).includes(normalizedSearch)
     );
+
+    // const lowerSearch = searchTerm.toLowerCase();
+    // const results = jobs.filter(job =>
+    //   job.title.toLowerCase().includes(lowerSearch)
+    //   || job.jobDescription.toLowerCase().includes(lowerSearch)
+    //   || job.workLocation.toLowerCase().includes(lowerSearch)
+    // );
     setFilteredJobs(filtered);
   }, [searchTerm, jobs]);
 
@@ -158,13 +152,17 @@ const JobsPage = () => {
           )}
         </div>
       </main>
+      {/* 
+      <section className="pagination-section">
+        <div className="pagination-container">
+          <div className="entries-info">Show 1 - 4 of 20 entries</div>
+          <div className="page-numbers">1 | 2 | 3 | 4</div>
+        </div>
+      </section> */}
 
       <footer className="footer">
-        <div className="footer-brand">ELTS VINA</div>
-        <div className="footer-credits">
-          <div className="credits-top">Điện thoại liên hệ</div>
-          <div className="credits-bottom">0987654321</div>
-        </div>
+        <span>ELTS VINA</span>
+        <span>Liên hệ: <strong>0987654321</strong></span>
       </footer>
     </div>
   );

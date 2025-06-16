@@ -1,11 +1,11 @@
+
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-
 import LoginPage from "./pages/LoginPage";
 import AccountManagement from "./pages/AccountManagement";
 import EmployeeManagement from "./pages/EmployeeManagement";
 import JobsPage from "./pages/JobsPage";
-import JobDetailPage from "./pages/JobDetailPage";
+import JobDetail from "./pages/JobDetail";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -45,7 +45,7 @@ function App() {
         />
         <Route
           path="/jobs/:id"
-          element={<JobDetailPage />}
+          element={<JobDetail />}
         />
         <Route
           path="/unauthorized"
