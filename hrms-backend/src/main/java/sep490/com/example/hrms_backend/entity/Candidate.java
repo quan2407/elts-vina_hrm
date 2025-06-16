@@ -3,6 +3,8 @@ package sep490.com.example.hrms_backend.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -22,6 +24,14 @@ public class Candidate {
     @NotBlank
     @Column(name = "candidate_name", nullable = false)
     private String candidateName;
+
+    @NotBlank
+    @Column(name = "gender", nullable = false)
+    private String gender; // giới tính
+
+    @Past
+    @Column(name = "dob")
+    private LocalDate dob; // ngày sinh
 
     @Email
     @Column(name = "email")

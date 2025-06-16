@@ -1,13 +1,14 @@
 .employee-table-wrapper {
   overflow-x: auto;
-  max-width: 100%; /* Ngăn vượt ngoài trang */
+  max-width: 100%;
   background-color: #fff;
   border-radius: 24px;
   padding: 20px;
+  font-family: "Product Sans", sans-serif; /* Hoặc font giống Account */
 }
 
 .employee-table {
-  min-width: 1800px; /* Đặt giá trị lớn đủ để tạo scroll trong bảng */
+  min-width: 1800px; /* Đảm bảo đủ rộng để tạo scroll */
 }
 
 .employee-table-header,
@@ -15,21 +16,27 @@
   display: grid;
   grid-template-columns:
     120px 180px 100px 150px 150px 150px 200px 150px
-    150px 150px 150px 150px 150px 120px;
+    150px 150px 150px 150px 150px 150px;
   gap: 10px;
-  padding: 12px 0;
+  padding: 18px 30px;
+  margin-bottom: 20px;
+  border-radius: 6px;
 }
 
 .employee-header-cell {
+  color: #000;
+  font-size: 20px;
   font-weight: 700;
-  font-size: 16px;
   text-align: center;
 }
 
 .employee-table-cell {
-  font-size: 15px;
+  color: #000;
+  font-size: 20px;
+  font-weight: 400;
   text-align: center;
   word-break: break-word;
+  white-space: normal;
 }
 
 .employee-actions-wrapper {
