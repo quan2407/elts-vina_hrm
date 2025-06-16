@@ -27,10 +27,10 @@ public class CandidateService {
     public void saveCandidate(CandidateDto candidateDto, Long id) {
         boolean checkCandidate = this.checkCandidateByEmail(candidateDto.getEmail());
 
-        if (!checkCandidate) {
-            saveCandidate(candidateDto);
-            Candidate candidate
-        }
+//        if (!checkCandidate) {
+//            saveCandidate(candidateDto);
+//            Candidate candidate
+//        }
 
     }
 

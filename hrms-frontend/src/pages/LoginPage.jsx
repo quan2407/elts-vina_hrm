@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../services/authService";
+import { jwtDecode } from "jwt-decode";
 import "../assets/styles/LoginPage.css";
 
 function LoginPage() {
@@ -12,11 +13,23 @@ function LoginPage() {
     e.preventDefault();
     try {
       const res = await authService.login({ usernameOrEmail: email, password });
-      console.log("Login successful:", res.data); // ✅ debug success
-      localStorage.setItem("accessToken", res.data.token);
-      navigate("/home");
+      console.log("Login successful:", res.data);
+
+      const token = res.data.accessToken;
+      localStorage.setItem("accessToken", token); // ✅ Lưu đúng key đồng bộ axiosClient
+
+      const decoded = jwtDecode(token);
+      const roles = decoded.roles || [];
+
+      if (roles.includes("ROLE_ADMIN")) {
+        navigate("/accounts");
+      } else if (roles.includes("ROLE_EMPLOYEE")) {
+        navigate("/employee-management");
+      } else {
+        navigate("/unauthorized");
+      }
     } catch (err) {
-      console.error("Login failed:", err.response || err); // ✅ debug lỗi cụ thể
+      console.error("Login failed:", err.response || err);
       alert("Đăng nhập thất bại! Vui lòng kiểm tra lại email hoặc mật khẩu.");
     }
   };
@@ -35,7 +48,10 @@ function LoginPage() {
           className="header-logo"
         />
         <div className="overlay"></div>
-        <form className="login-form-wrapper" onSubmit={handleLogin}>
+        <form
+          className="login-form-wrapper"
+          onSubmit={handleLogin}
+        >
           <img
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/11da01531e0457dff7f19452706b1cf360116459?placeholderIfAbsent=true&apiKey=305fd9be184a488087180f4b7cfd2d98"
             alt="Company Logo"
@@ -69,8 +85,14 @@ function LoginPage() {
 
           <div className="form-options">
             <div className="remember-me-section">
-              <input type="checkbox" id="remember" />
-              <label htmlFor="remember" className="remember-me-text">
+              <input
+                type="checkbox"
+                id="remember"
+              />
+              <label
+                htmlFor="remember"
+                className="remember-me-text"
+              >
                 Remember me
               </label>
             </div>
@@ -78,19 +100,11 @@ function LoginPage() {
           </div>
 
           <div className="form-field">
-            <button type="submit" className="sign-in-button">
-              Sign In
-            </button>
-          </div>
-
-          <div className="form-field" style={{ marginTop: "20px" }}>
             <button
-              type="button"
+              type="submit"
               className="sign-in-button"
-              onClick={() => navigate("/employee-management")}
-              style={{ backgroundColor: "#3F861E" }}
             >
-              Go to Employee Management (Demo)
+              Sign In
             </button>
           </div>
         </form>

@@ -7,7 +7,14 @@ export const getAllRecruitments = async () => {
   return response.data;
 };
 
+
 export const getRecruitmentById = async (id) => {
-  const response = await axios.get(`${API_URL}/${id}`);
-  return response.data;
+  try {
+    const response = await axios.get(API_URL + `/` +id);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching recruitment:", error);
+    throw error;
+  }
 };
+

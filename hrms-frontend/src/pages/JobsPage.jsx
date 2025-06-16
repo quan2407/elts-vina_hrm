@@ -3,21 +3,31 @@ import "../assets/styles/JobsPage.css";
 import { getAllRecruitments } from "../services/recruitmentService";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import RecruitmentHeader from "../component/RecruitmentHeader.jsx";
+import HeaderRecruitment from "../component/HeaderRecruitment.jsx";
+
 function removeVietnameseTones(str) {
   return str
-    .normalize('NFD') // tách dấu
-    .replace(/[\u0300-\u036f]/g, '') // xóa dấu
-    .replace(/đ/g, 'd')
-    .replace(/Đ/g, 'D');
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D");
 }
 
 const formatDate = (isoDate) => {
   const date = new Date(isoDate);
-  return date.toLocaleDateString("vi-VN"); // hoặc en-GB, en-US tùy ngôn ngữ
+  return date.toLocaleDateString("vi-VN");
 };
 
-const JobCard = ({ createAt, expiredAt, title, location, salary, description, id, ...props }) => {
+const JobCard = ({
+  createAt,
+  expiredAt,
+  title,
+  location,
+  salary,
+  description,
+  id,
+  ...props
+}) => {
   return (
     <div className="job-card" style={{ backgroundColor: "#eeeeee" }}>
       <div className="job-ref"> {formatDate(createAt)} - {formatDate(expiredAt)}</div>
@@ -87,8 +97,7 @@ const JobsPage = () => {
 
   return (
     <div className="jobs-page">
-
-      <RecruitmentHeader />
+      <HeaderRecruitment />
 
       <section className="search-section">
         <div className="search-container">
@@ -98,7 +107,6 @@ const JobsPage = () => {
             className="search-input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-
           />
           <div className="search-button">
             <svg
@@ -135,7 +143,12 @@ const JobsPage = () => {
               />
             ))
           ) : (
-            <div style={{ color: 'red' }} className="no-jobs-message">Không có công việc nào phù hợp với tìm kiếm của bạn.</div>
+            <div
+              style={{ color: "red" }}
+              className="no-jobs-message"
+            >
+              Không có công việc nào phù hợp với tìm kiếm của bạn.
+            </div>
           )}
         </div>
       </main>
@@ -148,11 +161,8 @@ const JobsPage = () => {
       </section> */}
 
       <footer className="footer">
-        <div className="footer-brand">ELTS VINA</div>
-        <div className="footer-credits">
-          <div className="credits-top">Điện thoại liên hệ</div>
-          <div className="credits-bottom">0987654321</div>
-        </div>
+        <span>ELTS VINA</span>
+        <span>Liên hệ: <strong>0987654321</strong></span>
       </footer>
     </div>
   );

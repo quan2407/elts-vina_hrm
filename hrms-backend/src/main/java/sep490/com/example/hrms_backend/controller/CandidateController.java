@@ -19,24 +19,24 @@ public class CandidateController {
     @Autowired
     private CandidateService candidateService;
 
-    @PostMapping("/{id}")
-    public ResponseEntity<?> addCandidate(@RequestBody CandidateDto candidateDto, @RequestParam Long id) {
-        try {
-
-            candidateService.saveCandidate(candidateDto, id);
-
-//            boolean checkCandidate = candidateService.checkCanddateByEmail(candidateDto.getEmail());
-//            if(checkCandidate){
-//                candidateDto.getRecruitmentId().add(id);
-//            candidateService.saveCandidate(candidateDto);
-//            return new ResponseEntity<>(candidateDto, HttpStatus.CREATED);
-//            }
-//            else{
+//    @PostMapping("/{id}")
+//    public ResponseEntity<?> addCandidate(@RequestBody CandidateDto candidateDto, @RequestParam Long id) {
+//        try {
 //
-//            }
-        } catch (Exception e) {
-            return new ResponseEntity<>(candidateDto, HttpStatus.BAD_REQUEST);
-
-        }
-    }
+//            candidateService.saveCandidate(candidateDto, id);
+//
+////            boolean checkCandidate = candidateService.checkCanddateByEmail(candidateDto.getEmail());
+////            if(checkCandidate){
+////                candidateDto.getRecruitmentId().add(id);
+////            candidateService.saveCandidate(candidateDto);
+////            return new ResponseEntity<>(candidateDto, HttpStatus.CREATED);
+////            }
+////            else{
+////
+////            }
+//        } catch (Exception e) {
+//            return new ResponseEntity<>(candidateDto, HttpStatus.BAD_REQUEST);
+//
+//        }
+//    }
 }

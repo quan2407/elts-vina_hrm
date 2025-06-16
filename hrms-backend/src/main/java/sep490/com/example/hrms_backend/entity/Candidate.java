@@ -3,9 +3,6 @@ package sep490.com.example.hrms_backend.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
-import sep490.com.example.hrms_backend.enums.CandidateStatus;
-
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -17,8 +14,6 @@ import java.util.List;
 @Builder
 public class Candidate {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "candidate_id")
@@ -26,32 +21,22 @@ public class Candidate {
 
     @NotBlank
     @Column(name = "candidate_name", nullable = false)
-    private String candidateName; // tên ứng viên
+    private String candidateName;
 
     @Email
     @Column(name = "email")
-    private String email; // email ứng viên
+    private String email;
 
     @Pattern(regexp = "^[0-9\\-\\+]{9,15}$")
     @Column(name = "phone_number")
-    private String phoneNumber; // số điện thoại ứng viên
+    private String phoneNumber;
 
-    @Column(name = "note")
-    private String note; // ghi chú nội bộ
 
-    @NotNull
-    @Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    private CandidateStatus status; // trạng thái ứng viên (ví dụ: đang xét, bị loại,...)
 
-    @Column(name = "submitted_at")
-    private LocalDateTime submittedAt; // thời điểm ứng viên ứng tuyển
+    // Quan hệ mới
+    @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CandidateRecruitment> candidateRecruitments;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
-
-    @ManyToMany(mappedBy = "candidates")
-    private List<Recruitment> recruitments;
-
-    @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InterviewSchedule> interviewSchedules;
 }

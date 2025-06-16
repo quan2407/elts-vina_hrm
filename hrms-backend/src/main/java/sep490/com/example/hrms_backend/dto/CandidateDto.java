@@ -1,13 +1,9 @@
 package sep490.com.example.hrms_backend.dto;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
-import sep490.com.example.hrms_backend.entity.InterviewSchedule;
-import sep490.com.example.hrms_backend.entity.Recruitment;
-import sep490.com.example.hrms_backend.enums.CandidateStatus;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -28,13 +24,6 @@ public class CandidateDto {
     @Pattern(regexp = "^[0-9\\-\\+]{9,15}$", message = "Phone number không hợp lệ")
     private String phoneNumber; // số điện thoại ứng viên
 
-    private String note; // ghi chú nội bộ
-
-    @NotNull(message = "Status không được trống")
-    private CandidateStatus status; // trạng thái ứng viên (ví dụ: đang xét, bị loại,...)
-
-
-    private LocalDateTime submittedAt; // thời điểm ứng viên ứng tuyển
 
     // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
