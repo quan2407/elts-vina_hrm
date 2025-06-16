@@ -1,21 +1,25 @@
 package sep490.com.example.hrms_backend.controller;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import sep490.com.example.hrms_backend.dto.EmployeeResponseDTO;
+import sep490.com.example.hrms_backend.service.EmployeeService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/employees")
+@RequiredArgsConstructor
 public class EmployeeController {
+
+    private final EmployeeService employeeService;
+
     @GetMapping
-    public String view(){
-        return "view is accept";
-    }
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
-    public String create(){
-        return "create is ok";
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
+    public ResponseEntity<List<EmployeeResponseDTO>> getAllEmployees() {
+        List<EmployeeResponseDTO> employeeList = employeeService.getAllEmployees();
+        return ResponseEntity.ok(employeeList);
     }
 }

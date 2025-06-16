@@ -7,7 +7,7 @@ UPDATE `lines` SET leader_id = NULL;
 
 -- Xóa dữ liệu tuyển dụng + ứng viên + phỏng vấn (KHÔNG xoá account, employee, role, lines, department)
 DELETE FROM interview_schedule;
-DELETE FROM recruitment_candidate;
+DELETE FROM candidate_recruitment;
 DELETE FROM candidate;
 DELETE FROM recruitment;
 
@@ -111,21 +111,23 @@ INSERT INTO recruitment (
 -- Candidate
 -- ====================
 INSERT INTO candidate (
-    candidate_id, candidate_name, email, phone_number,
-    note, status, submitted_at
+    candidate_id, candidate_name, email, phone_number
 ) VALUES
-(1, 'Nguyễn Văn A', 'a@gmail.com', '0901234567', 'Ứng viên tiềm năng', 'APPLIED', '2025-06-01 10:00:00'),
-(2, 'Trần Thị B', 'b@gmail.com', '0909876543', 'Đã có kinh nghiệm', 'INTERVIEWED', '2025-06-03 15:00:00'),
-(3, 'Lê Văn C', 'c@gmail.com', '0912345678', 'Ứng viên trẻ, cần đào tạo', 'APPLIED', '2025-06-05 09:00:00');
+(1, 'Nguyễn Văn A', 'a@gmail.com', '0901234567'),
+(2, 'Trần Thị B', 'b@gmail.com', '0909876543'),
+(3, 'Lê Văn C', 'c@gmail.com', '0912345678');
 
 -- ====================
 -- Recruitment-Candidate mapping
 -- ====================
-INSERT INTO recruitment_candidate (recruitment_id, candidate_id) VALUES
-(1, 1),
-(1, 2),
-(2, 2),
-(2, 3);
+INSERT INTO candidate_recruitment (
+    candidate_id, recruitment_id, status, submitted_at
+) VALUES
+(1, 1, 'APPLIED', '2025-06-01 10:00:00'),
+(2, 1, 'INTERVIEWED', '2025-06-03 15:00:00'),
+(2, 2, 'INTERVIEWED', '2025-06-03 15:00:00'),
+(3, 2, 'APPLIED', '2025-06-05 09:00:00');
+
 
 -- ====================
 -- Interview Schedule

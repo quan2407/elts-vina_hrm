@@ -105,4 +105,10 @@ public class Employee {
     // Một nhân viên có thể có nhiều lịch làm việc
     @OneToMany(mappedBy = "employee")
     private List<WorkSchedule> workSchedules;
+
+    // Nhân viên có một chức vụ
+    @ManyToOne
+    @JoinColumn(name = "position_id")
+    private Position position;
+
 }
