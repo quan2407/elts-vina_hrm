@@ -1,6 +1,6 @@
 import React from "react";
 
-// DashboardIcon (HR vẫn dùng)
+// Dashboard icon (HR)
 const DashboardIcon = (
   <svg
     width="33"
@@ -16,7 +16,7 @@ const DashboardIcon = (
   </svg>
 );
 
-// AccountListIcon (icon mới cho admin)
+// Account list icon (Admin)
 const AccountListIcon = (
   <svg
     width="28"
@@ -32,7 +32,7 @@ const AccountListIcon = (
   </svg>
 );
 
-// các icon khác bạn giữ nguyên
+// Mock icons
 const MessageIcon = (
   <div style={{ width: 20, height: 20, background: "#fff", borderRadius: 4 }} />
 );
@@ -46,19 +46,19 @@ const CandidateIcon = (
   <div style={{ width: 20, height: 20, background: "#fff", borderRadius: 4 }} />
 );
 
-export const sidebarMenus = {
-  admin: [
-    { text: "Account List", path: "/", icon: AccountListIcon }, // admin dùng icon mới
-    { text: "Messages", path: "/messages", icon: MessageIcon, badge: 13 },
-    {
-      text: "Employee Management",
-      path: "/employee-management",
-      icon: EmployeeIcon,
-    },
-  ],
-  hr: [
-    { text: "Dashboard", path: "/", icon: DashboardIcon }, // hr vẫn dùng Dashboard icon
-    { text: "Jobs", path: "/jobs", icon: JobIcon },
-    { text: "Candidates", path: "/candidates", icon: CandidateIcon },
-  ],
-};
+// Menus
+export const systemMenus = [
+  { text: "Account List", path: "/", icon: AccountListIcon },
+  { text: "Messages", path: "/messages", icon: MessageIcon, badge: 13 },
+];
+
+export const hrMenus = [
+  { text: "Dashboard", path: "/", icon: DashboardIcon },
+  {
+    text: "Employee Management",
+    path: "/employee-management",
+    icon: EmployeeIcon,
+  },
+  { text: "Jobs", path: "/jobs", icon: JobIcon },
+  { text: "Candidates", path: "/candidates", icon: CandidateIcon },
+];

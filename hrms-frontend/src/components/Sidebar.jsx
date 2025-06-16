@@ -2,36 +2,34 @@ import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import "../assets/styles/Sidebar.css";
-import { sidebarMenus } from "../config/sidebarMenus";
+import { systemMenus, hrMenus } from "../config/sidebarMenus";
 
 function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Lấy token từ localStorage
   const token = localStorage.getItem("accessToken");
   let username = "Mock User";
-  let role = "admin"; // default nếu chưa login
+  let roles = [];
 
   if (token) {
     try {
       const decoded = jwtDecode(token);
       username = decoded.sub || "Unknown";
-      // Giả sử chỉ lấy role đầu tiên nếu có nhiều role
-      role =
-        decoded.roles && decoded.roles[0]
-          ? decoded.roles[0].replace("ROLE_", "").toLowerCase()
-          : "unknown";
+      roles = decoded.roles
+        ? decoded.roles.map((r) => r.replace("ROLE_", "").toUpperCase())
+        : [];
     } catch (err) {
       console.error("Invalid token", err);
     }
   }
 
-  const handleNavigation = (path) => {
-    navigate(path);
-  };
+  const isHrPage =
+    location.pathname.startsWith("/employee-management") ||
+    location.pathname.startsWith("/jobs") ||
+    location.pathname.startsWith("/candidates");
 
-  const menus = sidebarMenus[role] || [];
+  const menus = isHrPage ? hrMenus : systemMenus;
 
   return (
     <div className="sidebar">
@@ -42,7 +40,7 @@ function Sidebar() {
           alt="Profile"
         />
         <div className="user-name">{username}</div>
-        <div className="user-role">{role.toUpperCase()}</div>
+        <div className="user-role">{roles.join(", ") || "UNKNOWN"}</div>
       </div>
 
       <div className="features-section">
@@ -52,7 +50,7 @@ function Sidebar() {
             className={`nav-item ${
               location.pathname === item.path ? "active" : ""
             }`}
-            onClick={() => handleNavigation(item.path)}
+            onClick={() => navigate(item.path)}
           >
             <div className="nav-icon">{item.icon}</div>
             <div className="nav-text">{item.text}</div>
