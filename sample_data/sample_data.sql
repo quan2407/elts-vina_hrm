@@ -7,7 +7,7 @@ UPDATE `lines` SET leader_id = NULL;
 
 -- Xóa dữ liệu tuyển dụng + ứng viên + phỏng vấn (KHÔNG xoá account, employee, role, lines, department)
 DELETE FROM interview_schedule;
-DELETE FROM recruitment_candidate;
+DELETE FROM candidate_recruitment;
 DELETE FROM candidate;
 DELETE FROM recruitment;
 
