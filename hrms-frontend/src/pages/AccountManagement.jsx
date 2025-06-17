@@ -2,7 +2,7 @@ import React from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import AccountTable from "../components/AccountTable";
-import "../assets/styles/EmployeeManagement.css";
+import "../styles/EmployeeManagement.css";
 
 function AccountManagement() {
   return (

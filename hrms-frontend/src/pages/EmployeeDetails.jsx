@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { vi } from "date-fns/locale";
-import "../assets/styles/EmployeeDetails.css";
+import "../styles/EmployeeDetails.css";
 
 function EmployeeDetails() {
   const [birthDate, setBirthDate] = useState(new Date("1990-01-01"));

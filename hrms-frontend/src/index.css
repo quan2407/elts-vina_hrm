@@ -1,25 +1,43 @@
-@import url("https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&display=swap");
-
-body {
-  margin: 0;
-  font-family: "Product Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
-    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-    "Helvetica Neue", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
+/* Reset cơ bản cho toàn app */
 * {
   box-sizing: border-box;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
-}
-html,
-body {
-  height: 100%;
   margin: 0;
   padding: 0;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100vh;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  background-color: #ffffff; /* Nền mặc định trắng */
+  color: #213547; /* Màu chữ mặc định */
+}
+
+a {
+  text-decoration: none;
+  color: #0066cc;
+  font-weight: 500;
+}
+
+a:hover {
+  color: #004999;
+}
+
+button {
+  border: none;
+  border-radius: 4px;
+  padding: 0.6em 1em;
+  font-size: 1em;
+  cursor: pointer;
+  background-color: #007bff;
+  color: #fff;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #0056b3;
 }

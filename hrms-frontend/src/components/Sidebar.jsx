@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import "../assets/styles/Sidebar.css";
+import "../styles/Sidebar.css";
 import { systemMenus, hrMenus } from "../config/sidebarMenus";
 
 function Sidebar() {

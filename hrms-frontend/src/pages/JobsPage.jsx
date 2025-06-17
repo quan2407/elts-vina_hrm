@@ -1,9 +1,9 @@
-import React from "react";
-import "../assets/styles/JobsPage.css";
-import { getAllRecruitments } from "../services/recruitmentService";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import "../styles/JobsPage.css";
 import { useNavigate } from "react-router-dom";
-import HeaderRecruitment from "../component/HeaderRecruitment.jsx";
+import HeaderRecruitment from "../components/HeaderRecruitment";
+import FooterRecruitment from "../components/FooterRecruitment";
+import { getAllRecruitments } from "../services/recruitmentService";
 
 function removeVietnameseTones(str) {
   return str
@@ -25,69 +25,71 @@ const JobCard = ({
   location,
   salary,
   description,
-  id,
-  ...props
-}) => {
-  return (
-    <div className="job-card" style={{ backgroundColor: "#eeeeee" }}>
-      <div className="job-ref"> {formatDate(createAt)} - {formatDate(expiredAt)}</div>
-      <div className="job-title">{title}</div>
-      <div className="job-location">{location}</div>
-      <div className="job-salary">{salary}</div>
-      <div className="job-description">{description}</div>
-      <div className="job-arrow-button" {...props}>
-        <svg
-          width="31"
-          height="31"
-          viewBox="0 0 31 31"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="arrow-icon"
-        >
-          <path
-            d="M15.5 25.8333L13.6594 24.025L20.8927 16.7916H5.16666V14.2083H20.8927L13.6594 6.97496L15.5 5.16663L25.8333 15.5L15.5 25.8333Z"
-            fill="black"
-          />
-        </svg>
-      </div>
+  onClick,
+}) => (
+  <div
+    className="job-card"
+    style={{ backgroundColor: "#eeeeee" }}
+    onClick={onClick}
+  >
+    <div className="job-ref">
+      {formatDate(createAt)} - {formatDate(expiredAt)}
     </div>
-  );
-};
+    <div className="job-title">{title}</div>
+    <div className="job-location">{location}</div>
+    <div className="job-salary">{salary}</div>
+    <div className="job-description">{description}</div>
+    <div className="job-arrow-button">
+      <svg
+        width="31"
+        height="31"
+        viewBox="0 0 31 31"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="arrow-icon"
+      >
+        <path
+          d="M15.5 25.8333L13.6594 24.025L20.8927 16.7916H5.16666V14.2083H20.8927L13.6594 6.97496L15.5 5.16663L25.8333 15.5L15.5 25.8333Z"
+          fill="black"
+        />
+      </svg>
+    </div>
+  </div>
+);
 
 const JobsPage = () => {
   const navigate = useNavigate();
-
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredJobs, setFilteredJobs] = useState([]);
   const [jobs, setJobs] = useState([]);
+  const [filteredJobs, setFilteredJobs] = useState([]);
+
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await getAllRecruitments();
-        setJobs(response);
+        const data = await getAllRecruitments();
+        setJobs(data);
+        setFilteredJobs(data);
       } catch (error) {
-        console.error("Lỗi khi lấy danh sách jobs:", error);
+        console.error("Lỗi khi load danh sách công việc:", error);
       }
     };
     fetchJobs();
   }, []);
 
   useEffect(() => {
-
     const normalizedSearch = removeVietnameseTones(searchTerm.toLowerCase());
-
-    const filtered = jobs.filter((job) =>
-      removeVietnameseTones(job.title.toLowerCase()).includes(normalizedSearch)
-      || removeVietnameseTones(job.jobDescription.toLowerCase()).includes(normalizedSearch)
-      || removeVietnameseTones(job.workLocation.toLowerCase()).includes(normalizedSearch)
+    const filtered = jobs.filter(
+      (job) =>
+        removeVietnameseTones(job.title.toLowerCase()).includes(
+          normalizedSearch
+        ) ||
+        removeVietnameseTones(job.jobDescription.toLowerCase()).includes(
+          normalizedSearch
+        ) ||
+        removeVietnameseTones(job.workLocation.toLowerCase()).includes(
+          normalizedSearch
+        )
     );
-
-    // const lowerSearch = searchTerm.toLowerCase();
-    // const results = jobs.filter(job =>
-    //   job.title.toLowerCase().includes(lowerSearch)
-    //   || job.jobDescription.toLowerCase().includes(lowerSearch)
-    //   || job.workLocation.toLowerCase().includes(lowerSearch)
-    // );
     setFilteredJobs(filtered);
   }, [searchTerm, jobs]);
 
@@ -138,32 +140,21 @@ const JobsPage = () => {
                 location={job.workLocation}
                 salary={job.salaryRange}
                 description={job.jobDescription}
-                id={job.recruitmentId}
                 onClick={() => handleViewDetails(job.recruitmentId)}
               />
             ))
           ) : (
             <div
-              style={{ color: "red" }}
               className="no-jobs-message"
+              style={{ color: "red" }}
             >
               Không có công việc nào phù hợp với tìm kiếm của bạn.
             </div>
           )}
         </div>
       </main>
-      {/* 
-      <section className="pagination-section">
-        <div className="pagination-container">
-          <div className="entries-info">Show 1 - 4 of 20 entries</div>
-          <div className="page-numbers">1 | 2 | 3 | 4</div>
-        </div>
-      </section> */}
 
-      <footer className="footer">
-        <span>ELTS VINA</span>
-        <span>Liên hệ: <strong>0987654321</strong></span>
-      </footer>
+      <FooterRecruitment />
     </div>
   );
 };
