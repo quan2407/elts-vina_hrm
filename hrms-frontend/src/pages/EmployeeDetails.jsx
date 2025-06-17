@@ -143,17 +143,6 @@ function EmployeeDetails() {
                   />
                 </div>
               </div>
-
-              <div className="employeedetail-form-row">
-                <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Nơi cấp</div>
-                  <input
-                    className="employeedetail-input-field"
-                    type="text"
-                    defaultValue="Cục Cảnh sát QLHC"
-                  />
-                </div>
-              </div>
             </div>
 
             <div className="employeedetail-contact-information">

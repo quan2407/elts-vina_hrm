@@ -5,19 +5,31 @@ SET SQL_SAFE_UPDATES = 0;
 UPDATE employee SET line_id = NULL;
 UPDATE `lines` SET leader_id = NULL;
 
--- Xóa dữ liệu tuyển dụng + ứng viên + phỏng vấn (KHÔNG xoá account, employee, role, lines, department)
+-- Xóa dữ liệu phụ thuộc trước (để tránh lỗi khóa ngoại)
 DELETE FROM interview_schedule;
 DELETE FROM candidate_recruitment;
 DELETE FROM candidate;
 DELETE FROM recruitment;
 
--- Xóa dữ liệu cũ theo thứ tự phụ thuộc khóa ngoại
-
 DELETE FROM `lines`;
 DELETE FROM account;
 DELETE FROM employee;
+DELETE FROM position;
 DELETE FROM department;
 DELETE FROM role;
+
+-- Reset AUTO_INCREMENT cho các bảng
+ALTER TABLE interview_schedule AUTO_INCREMENT = 1;
+ALTER TABLE candidate_recruitment AUTO_INCREMENT = 1;
+ALTER TABLE candidate AUTO_INCREMENT = 1;
+ALTER TABLE recruitment AUTO_INCREMENT = 1;
+ALTER TABLE `lines` AUTO_INCREMENT = 1;
+ALTER TABLE account AUTO_INCREMENT = 1;
+ALTER TABLE employee AUTO_INCREMENT = 1;
+ALTER TABLE position AUTO_INCREMENT = 1;
+ALTER TABLE department AUTO_INCREMENT = 1;
+ALTER TABLE role AUTO_INCREMENT = 1;
+
 
 -- ====================
 -- Roles
@@ -42,25 +54,86 @@ INSERT INTO department (department_id, department_name) VALUES
 (5, 'Bán Tự động'),
 (6, 'Tự Động'),
 (7, 'Lái Xe');
+INSERT INTO position (position_name, description) VALUES
+('Công Nhân', NULL),
+('Công Nhân (Ype)', NULL),
+('Công Nhân Kiểm Tra', NULL),
+('Công Nhân Kiểm Tra (Inno)', NULL),
+('Công Nhân Kiểm Tra (Ype)', NULL),
+('Công Nhân Kiểm Tra(Inno)', NULL),
+('Công Nhân Kiểm Tra(Ype)', NULL),
+('Công Nhân( Inno)', NULL),
+('Công Nhân(Inno)', NULL),
+('Công Nhân(Ype)', NULL),
+('Data', NULL),
+('Hỗ Trợ Lái Xe', NULL),
+('Lái Xe', NULL),
+('Nhân Viên Miss /Vệ Sinh', NULL),
+('Nhân Viên QC', NULL),
+('Nhân Viên Sản Xuất', NULL),
+('Nhân Viên Vệ Sinh', NULL),
+('Phó Phòng Sản Xuất', NULL),
+('Quản Lý', NULL),
+('Quản Lý Chất Lượng', NULL),
+('Quản Lý Vật Tư', NULL),
+('Silling/ Quản Lý Kỹ Thuật', NULL),
+('Trưởng Ca Sản Xuất', NULL),
+('Tổ Phó', NULL),
+('Tổ Phó(Inno)', NULL),
+('Tổ Trưởng', NULL),
+('Tổ Trưởng(Inno)', NULL),
+('Tổng Quản Lý Cấp 2', NULL);
 
 -- ====================
 -- Employees
 -- ====================
 INSERT INTO employee (
     employee_id, employee_code, employee_name, gender, dob,
-    place_of_birth, image, nationality, address, start_work_at,
-    phone_number, citizen_id, department_id
+    place_of_birth, origin_place, nationality, citizen_id, 
+    citizen_issue_date, citizen_expiry_date, citizen_issue_place, 
+    phone_number, email, image, address, start_work_at,
+    department_id, position_id
 ) VALUES
-(1, 'EMP001', 'Test User A', 'MALE', '1991-01-15', NULL, NULL, NULL, NULL, '2016-01-01', '0900000001', NULL, 1),
-(2, 'EMP002', 'Test User B', 'FEMALE', '1992-02-15', NULL, NULL, NULL, NULL, '2017-01-01', '0900000002', NULL, 1),
-(3, 'EMP003', 'Test User C', 'MALE', '1993-03-15', NULL, NULL, NULL, NULL, '2018-01-01', '0900000003', NULL, 1),
-(4, 'EMP004', 'Test User D', 'FEMALE', '1994-04-15', NULL, NULL, NULL, NULL, '2019-01-01', '0900000004', NULL, 1),
-(5, 'EMP005', 'Test User E', 'MALE', '1995-05-15', NULL, NULL, NULL, NULL, '2020-01-01', '0900000005', NULL, 1),
-(6, 'EMP006', 'Test User F', 'FEMALE', '1996-06-15', NULL, NULL, NULL, NULL, '2021-01-01', '0900000006', NULL, 2),
-(7, 'EMP007', 'Test User G', 'MALE', '1997-07-15', NULL, NULL, NULL, NULL, '2022-01-01', '0900000007', NULL, 2),
-(8, 'EMP008', 'Test User H', 'FEMALE', '1998-08-15', NULL, NULL, NULL, NULL, '2023-01-01', '0900000008', NULL, 2),
-(9, 'EMP009', 'Test User I', 'MALE', '1999-09-15', NULL, NULL, NULL, NULL, '2024-01-01', '0900000009', NULL, 2),
-(10, 'EMP010', 'Test User J', 'FEMALE', '1990-10-15', NULL, NULL, NULL, NULL, '2025-01-01', '0900000010', NULL, 2);
+(1, 'EMP001', 'Test User A', 'MALE', '1991-01-15', 
+ NULL, NULL, 'Vietnam', '0123456781', '2010-01-01', '2030-01-01', 'Hà Nội', 
+ '0900000001', 'usera@example.com', NULL, NULL, '2016-01-01', 1, 1),
+
+(2, 'EMP002', 'Test User B', 'FEMALE', '1992-02-15', 
+ NULL, NULL, 'Vietnam', '0123456782', '2011-01-01', '2031-01-01', 'Hồ Chí Minh', 
+ '0900000002', 'userb@example.com', NULL, NULL, '2017-01-01', 1, 2),
+
+(3, 'EMP003', 'Test User C', 'MALE', '1993-03-15', 
+ NULL, NULL, 'Vietnam', '0123456783', '2012-01-01', '2032-01-01', 'Đà Nẵng', 
+ '0900000003', 'userc@example.com', NULL, NULL, '2018-01-01', 1, 3),
+
+(4, 'EMP004', 'Test User D', 'FEMALE', '1994-04-15', 
+ NULL, NULL, 'Vietnam', '0123456784', '2013-01-01', '2033-01-01', 'Hải Phòng', 
+ '0900000004', 'userd@example.com', NULL, NULL, '2019-01-01', 1, 4),
+
+(5, 'EMP005', 'Test User E', 'MALE', '1995-05-15', 
+ NULL, NULL, 'Vietnam', '0123456785', '2014-01-01', '2034-01-01', 'Cần Thơ', 
+ '0900000005', 'usere@example.com', NULL, NULL, '2020-01-01', 1, 5),
+
+(6, 'EMP006', 'FEMALE', '1996-06-15', 
+ NULL, NULL, 'Vietnam', '0123456786', '2015-01-01', '2035-01-01', 'Huế', 
+ '0900000006', 'userf@example.com', NULL, NULL, '2021-01-01', 2, 6),
+
+(7, 'EMP007', 'MALE', '1997-07-15', 
+ NULL, NULL, 'Vietnam', '0123456787', '2016-01-01', '2036-01-01', 'Quảng Ninh', 
+ '0900000007', 'userg@example.com', NULL, NULL, '2022-01-01', 2, 7),
+
+(8, 'EMP008', 'FEMALE', '1998-08-15', 
+ NULL, NULL, 'Vietnam', '0123456788', '2017-01-01', '2037-01-01', 'Nghệ An', 
+ '0900000008', 'userh@example.com', NULL, NULL, '2023-01-01', 2, 8),
+
+(9, 'EMP009', 'MALE', '1999-09-15', 
+ NULL, NULL, 'Vietnam', '0123456789', '2018-01-01', '2038-01-01', 'Thanh Hóa', 
+ '0900000009', 'useri@example.com', NULL, NULL, '2024-01-01', 2, 9),
+
+(10, 'EMP010', 'FEMALE', '1990-10-15', 
+ NULL, NULL, 'Vietnam', '0123456790', '2009-01-01', '2029-01-01', 'Bắc Ninh', 
+ '0900000010', 'userj@example.com', NULL, NULL, '2025-01-01', 2, 10);
+
 
 -- ====================
 -- Accounts
@@ -76,6 +149,8 @@ INSERT INTO account (account_id, username, password_hash, email, is_active, crea
 (8, 'user8', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user8@example.com', true, NOW(), NOW(), NULL, 0, false, 8, 2),
 (9, 'user9', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user9@example.com', true, NOW(), NOW(), NULL, 0, false, 9, 3),
 (10, 'user10', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user10@example.com', true, NOW(), NOW(), NULL, 0, false, 10, 7);
+
+
 
 -- ====================
 -- Lines
@@ -111,11 +186,12 @@ INSERT INTO recruitment (
 -- Candidate
 -- ====================
 INSERT INTO candidate (
-    candidate_id, candidate_name, email, phone_number
+    candidate_id, candidate_name, gender, dob, email, phone_number
 ) VALUES
-(1, 'Nguyễn Văn A', 'a@gmail.com', '0901234567'),
-(2, 'Trần Thị B', 'b@gmail.com', '0909876543'),
-(3, 'Lê Văn C', 'c@gmail.com', '0912345678');
+(1, 'Nguyễn Văn A', 'Nam', '1990-01-15', 'a@gmail.com', '0901234567'),
+(2, 'Trần Thị B', 'Nữ', '1992-05-20', 'b@gmail.com', '0909876543'),
+(3, 'Lê Văn C', 'Nam', '1988-11-30', 'c@gmail.com', '0912345678');
+
 
 -- ====================
 -- Recruitment-Candidate mapping
