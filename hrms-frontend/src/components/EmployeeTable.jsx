@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import employeeService from "../services/employeeService";
-import "../assets/styles/EmployeeTable.css";
+import "../styles/EmployeeTable.css";
 
 function EmployeeTable() {
   const [employees, setEmployees] = useState([]);

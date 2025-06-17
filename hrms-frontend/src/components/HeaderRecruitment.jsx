@@ -1,4 +1,5 @@
-import "./HeaderRecruitment.css";
+import React from "react";
+import "../styles/HeaderRecruitment.css";
 import imgCongTy from "../assets/imgs/imageCongTy.jpg";
 
 function HeaderRecruitment() {

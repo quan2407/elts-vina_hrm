@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../services/authService";
 import { jwtDecode } from "jwt-decode";
-import "../assets/styles/LoginPage.css";
+import "../styles/LoginPage.css";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -13,19 +13,28 @@ function LoginPage() {
     e.preventDefault();
     try {
       const res = await authService.login({ usernameOrEmail: email, password });
-      console.log("Login successful:", res.data);
+      console.log("Login response:", res.data);
 
       const token = res.data.accessToken;
-      localStorage.setItem("accessToken", token); // ✅ Lưu đúng key đồng bộ axiosClient
+      if (!token) {
+        alert("Server không trả về accessToken");
+        return;
+      }
+
+      localStorage.setItem("accessToken", token);
 
       const decoded = jwtDecode(token);
+      console.log("Decoded token:", decoded);
+
       const roles = decoded.roles || [];
+      console.log("Roles:", roles);
 
       if (roles.includes("ROLE_ADMIN")) {
         navigate("/accounts");
-      } else if (roles.includes("ROLE_EMPLOYEE")) {
+      } else if (roles.includes("ROLE_HR")) {
         navigate("/employee-management");
       } else {
+        console.log("Không tìm thấy role phù hợp, chuyển unauthorized");
         navigate("/unauthorized");
       }
     } catch (err) {
@@ -64,7 +73,7 @@ function LoginPage() {
             <input
               type="email"
               className="input-field email-input"
-              placeholder="Enter your email"
+              placeholder="Enter your email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -88,6 +97,7 @@ function LoginPage() {
               <input
                 type="checkbox"
                 id="remember"
+                className="checkbox-field"
               />
               <label
                 htmlFor="remember"
@@ -96,7 +106,13 @@ function LoginPage() {
                 Remember me
               </label>
             </div>
-            <div className="reset-password-link">Reset Password?</div>
+            <div
+              className="reset-password-link"
+              onClick={() => navigate("/reset-password")}
+              style={{ cursor: "pointer" }}
+            >
+              Reset Password?
+            </div>
           </div>
 
           <div className="form-field">

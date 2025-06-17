@@ -1,101 +1,93 @@
-import React from "react";
-import "../assets/styles/JobDetail.css";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import "../styles/JobDetail.css";
 import { getRecruitmentById } from "../services/recruitmentService";
-import { useParams } from "react-router-dom";
-
-import HeaderRecruitment from "../component/HeaderRecruitment.jsx";
+import { useParams, useNavigate } from "react-router-dom";
+import HeaderRecruitment from "../components/HeaderRecruitment";
+import FooterRecruitment from "../components/FooterRecruitment";
 
 const formatDate = (isoDate) => {
+  if (!isoDate) return "";
   const date = new Date(isoDate);
   return date.toLocaleDateString("vi-VN");
 };
 
 const JobDetail = () => {
-  let params = useParams(); // Lấy ID từ URL
-
-  console.log(params.id);
-
-  const [job, setJob] = useState([]);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [job, setJob] = useState(null);
 
   useEffect(() => {
-    const fetchJobs = async () => {
+    const fetchJob = async () => {
       try {
-        const data = await getRecruitmentById(params.id);
+        const data = await getRecruitmentById(id);
         setJob(data);
       } catch (error) {
-        console.error("Lỗi khi lấy danh sách jobs:", error);
+        console.error("Lỗi khi lấy chi tiết công việc:", error);
       }
     };
-    fetchJobs();
-  }, [params.id]);
-  console.log(job);
+    fetchJob();
+  }, [id]);
+
+  if (!job) {
+    return (
+      <div className="jobDetail-page">
+        <HeaderRecruitment />
+        <main className="jobDetail-container">
+          <p>Đang tải dữ liệu...</p>
+        </main>
+      </div>
+    );
+  }
+
   return (
-    <div className="job-page">
+    <div className="jobDetail-page">
       <HeaderRecruitment />
 
-      <main className="job-container">
-        <div className="job-info">
-
-          <div className="job-card">
-            <h4>Tuyển dụng</h4>
-            <p>{job.title}</p>
-          </div>
-
-          <div className="job-card">
-            <h4>Số lượng tuyển dụng</h4>
-            <p>{job.quantity}</p>
-          </div>
-
-          <div className="job-card">
+      <main className="jobDetail-container">
+        <aside className="jobDetail-sidebar">
+          <div className="jobDetail-card">
             <h4>Địa điểm làm việc</h4>
             <p>{job.workLocation}</p>
           </div>
-
-          {job.salaryRange && (
-            <div className="job-card">
-              <h4>Mức lương</h4>
-              <p>{job.salaryRange}</p>
-            </div>
-          )}
-
-          <div className="job-card">
+          <div className="jobDetail-card">
+            <h4>Mức lương</h4>
+            <p>{job.salaryRange}</p>
+          </div>
+          <div className="jobDetail-card">
             <h4>Loại hình công việc</h4>
             <p>{job.employmentType}</p>
           </div>
-          <button className="back-btn">← Back</button>
-        </div>
+          <div className="jobDetail-card">
+            <h4>Số lượng tuyển dụng</h4>
+            <p>{job.quantity}</p>
+          </div>
+          <button
+            className="jobDetail-back-btn"
+            onClick={() => navigate(-1)}
+          >
+            Quay lại
+          </button>
+        </aside>
 
-        <div className="job-description">
+        <section className="jobDetail-content">
           <h3>Mô tả công việc</h3>
-          <p>
-            {job.jobDescription}
-          </p>
-          <br />
-          
-          <h4>Thời hạn tuyển dụng</h4>
-          <p>{formatDate(job.createAt)} - {formatDate(job.expiredAt)}</p>
+          <p>{job.jobDescription}</p>
 
-          <br />
-          <h4>Yêu cầu công việc</h4>
+          <h4>Thời hạn tuyển dụng</h4>
           <p>
-            {job.jobRequirement}
+            {formatDate(job.createAt)} - {formatDate(job.expiredAt)}
           </p>
-          <br />
+
+          <h4>Yêu cầu công việc</h4>
+          <p>{job.jobRequirement}</p>
 
           <h4>Quyền lợi</h4>
-          <p>
-            {job.benefits}
-          </p>
+          <p>{job.benefits}</p>
 
-          <button className="apply-btn">Ứng tuyển →</button>
-        </div>
+          <button className="jobDetail-apply-btn">Ứng tuyển</button>
+        </section>
       </main>
-
-      <footer className="footer">
-        <span>ELTS VINA</span>
-        <span>Liên hệ: <strong>0987654321</strong></span>
-      </footer>
+      <FooterRecruitment />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import accountService from "../services/accountService";
-import "../assets/styles/AccountTable.css";
+import "../styles/AccountTable.css";
 
 function AccountTable() {
   const [showDropdown, setShowDropdown] = useState(null);
