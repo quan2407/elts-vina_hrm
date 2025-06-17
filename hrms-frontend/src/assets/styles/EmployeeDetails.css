@@ -1,0 +1,148 @@
+.employeedetail-page {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  font-family: Inter, sans-serif;
+  background-color: #e3edf9;
+  overflow-x: hidden;
+}
+
+.employeedetail-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 59px 20px 20px 20px;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.employeedetail-form-container {
+  display: flex;
+  gap: 20px;
+  flex: 1;
+}
+
+.employeedetail-form-navigation {
+  width: 424px;
+  border-radius: 15px;
+  padding: 35px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: #fff;
+}
+
+.employeedetail-nav-item {
+  color: #000;
+  font-size: 18px;
+  font-weight: 400;
+  text-align: center;
+  margin: 0 17px;
+  padding: 25px 30px;
+  border-radius: 15px;
+  cursor: pointer;
+  background-color: #e3edf9;
+}
+
+.employeedetail-nav-item.employeedetail-active {
+  font-weight: 700;
+}
+
+.employeedetail-form-content {
+  flex: 1;
+  border-radius: 15px;
+  padding: 64px 42px;
+  background-color: #fff;
+  min-width: 0;
+  overflow-y: auto;
+  max-height: calc(100vh - 100px);
+}
+
+.employeedetail-form-title {
+  color: #000;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 55px;
+}
+
+.employeedetail-form-row {
+  display: flex;
+  gap: 28px;
+  margin-bottom: 40px;
+}
+
+.employeedetail-input-group {
+  flex: 1;
+}
+
+.employeedetail-input-label {
+  color: #000;
+  font-size: 18px;
+  font-weight: 400;
+  margin-bottom: 15px;
+}
+
+.employeedetail-input-field {
+  color: rgba(0, 0, 0, 0.7);
+  font-size: 18px;
+  font-weight: 400;
+  border-radius: 15px;
+  padding: 20px 36px;
+  height: 68px;
+  background-color: #e3edf9;
+  border: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.employeedetail-datepicker-wrapper {
+  width: 100%;
+}
+
+.employeedetail-datepicker-wrapper input {
+  /* Kế thừa luôn style input cho đồng nhất */
+  color: rgba(0, 0, 0, 0.7);
+  font-size: 18px;
+  font-weight: 400;
+  border-radius: 15px;
+  padding: 20px 36px;
+  height: 68px;
+  background-color: #e3edf9;
+  border: none;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+@media (max-width: 991px) {
+  .employeedetail-page {
+    flex-direction: column;
+  }
+  .employeedetail-main-content {
+    padding: 20px;
+  }
+  .employeedetail-form-navigation {
+    width: 100%;
+  }
+  .employeedetail-form-container {
+    flex-direction: column;
+  }
+  .employeedetail-form-content {
+    padding: 30px 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .employeedetail-form-title {
+    font-size: 18px;
+  }
+  .employeedetail-form-row {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+.employeedetail-form-content .react-datepicker-wrapper {
+  width: 100% !important;
+  display: block;
+}

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
@@ -7,6 +6,7 @@ import EmployeeManagement from "./pages/EmployeeManagement";
 import JobsPage from "./pages/JobsPage";
 import JobDetail from "./pages/JobDetail";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
+import EmployeeDetails from "./pages/EmployeeDetails"; // ✅ Đổi tên import cho đúng
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 
@@ -33,7 +33,7 @@ function App() {
         <Route
           path="/employee-management"
           element={
-            <ProtectedRoute allowedRoles={["ROLE_EMPLOYEE", "ROLE_ADMIN"]}>
+            <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_ADMIN"]}>
               <EmployeeManagement />
             </ProtectedRoute>
           }
@@ -50,6 +50,11 @@ function App() {
         <Route
           path="/unauthorized"
           element={<UnauthorizedPage />}
+        />
+
+        <Route
+          path="/employee-details"
+          element={<EmployeeDetails />} // ✅ Đổi path cho đồng bộ với component
         />
       </Routes>
     </div>
