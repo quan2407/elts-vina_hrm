@@ -27,6 +27,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorDetail errorDetail = new ErrorDetail(new Date(), exception.getMessage(), webRequest.getDescription(false));
         return new ResponseEntity<>(errorDetail, HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(DuplicateEntryException.class)
+    public ResponseEntity<ErrorDetail> handleDuplicateEntryException(DuplicateEntryException ex, WebRequest request) {
+        ErrorDetail errorDetail = new ErrorDetail(new Date(), ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(errorDetail, HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(HRMSAPIException.class)
     public ResponseEntity<ErrorDetail> handleBlogAPIException(HRMSAPIException exception,

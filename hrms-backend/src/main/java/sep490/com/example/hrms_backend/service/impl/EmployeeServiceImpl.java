@@ -10,6 +10,8 @@ import sep490.com.example.hrms_backend.entity.Department;
 import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.entity.Line;
 import sep490.com.example.hrms_backend.entity.Position;
+import sep490.com.example.hrms_backend.exception.DuplicateEntryException;
+import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.mapper.EmployeeMapper;
 import sep490.com.example.hrms_backend.repository.DepartmentRepository;
 import sep490.com.example.hrms_backend.repository.EmployeeRepository;
@@ -39,6 +41,13 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     @Transactional
     public EmployeeResponseDTO createEmployee(EmployeeRequestDTO dto) {
+        if (employeeRepository.existsByEmployeeCode(dto.getEmployeeCode())) {
+            throw new DuplicateEntryException("Mã nhân viên đã tồn tại trong hệ thống");
+        }
+        if (employeeRepository.existsByCitizenId(dto.getCitizenId())) {
+            throw new DuplicateEntryException("Số CMND/CCCD đã tồn tại trong hệ thống");
+        }
+
         Employee employee = EmployeeMapper.mapToEmployee(dto);
         employee.setDepartment(fetchDepartment(dto.getDepartmentId()));
         employee.setPosition(fetchPosition(dto.getPositionId()));
@@ -51,30 +60,46 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     public EmployeeResponseDTO updateEmployee(Long id, EmployeeUpdateDTO dto) {
         Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Employee not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
+
+        // So sánh giá trị thực tế
+        if (!safeEquals(dto.getCitizenId(), employee.getCitizenId())) {
+            if (employeeRepository.existsByCitizenIdAndEmployeeIdNot(dto.getCitizenId(), id)) {
+                throw new DuplicateEntryException("Số CMND/CCCD đã tồn tại trong hệ thống");
+            }
+        }
+
         EmployeeMapper.updateEmployeeFromUpdateDTO(dto, employee);
         employee.setDepartment(fetchDepartment(dto.getDepartmentId()));
         employee.setPosition(fetchPosition(dto.getPositionId()));
         employee.setLine(fetchLine(dto.getLineId()));
+
         employee = employeeRepository.save(employee);
         return EmployeeMapper.mapToEmployeeResponseDTO(employee);
+    }
+
+    private boolean safeEquals(String s1, String s2) {
+        if (s1 == null && s2 == null) return true;
+        if (s1 == null || s2 == null) return false;
+        return s1.equals(s2);
     }
 
 
     private Department fetchDepartment(Long id) {
         return departmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Department not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Department", "id", id));
     }
 
     private Position fetchPosition(Long id) {
         return positionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Position not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Position", "id", id));
     }
 
     private Line fetchLine(Long id) {
         return lineRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Line not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Line", "id", id));
     }
+
 
 
 }
