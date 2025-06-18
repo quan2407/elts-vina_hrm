@@ -2,6 +2,7 @@ package sep490.com.example.hrms_backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import sep490.com.example.hrms_backend.dto.EmployeeRequestDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeResponseDTO;
 import sep490.com.example.hrms_backend.mapper.EmployeeMapper;
 import sep490.com.example.hrms_backend.repository.EmployeeRepository;
@@ -21,6 +22,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeRepository.findAll().stream()
                 .map(EmployeeMapper::mapToEmployeeResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public EmployeeResponseDTO createEmployee(EmployeeRequestDTO dto) {
+        return null;
     }
 
 }

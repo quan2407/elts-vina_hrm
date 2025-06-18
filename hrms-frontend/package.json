@@ -14,6 +14,7 @@
     "bootstrap": "^5.3.7",
     "date-fns": "^4.1.0",
     "jwt-decode": "^4.0.0",
+    "lucide-react": "^0.516.0",
     "react": "^19.1.0",
     "react-datepicker": "^7.6.0",
     "react-dom": "^19.1.0",
@@ -28,6 +29,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vite-plugin-svgr": "^4.3.0"
   }
 }
