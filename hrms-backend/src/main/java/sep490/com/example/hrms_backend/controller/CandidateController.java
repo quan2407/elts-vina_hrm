@@ -19,24 +19,16 @@ public class CandidateController {
     @Autowired
     private CandidateService candidateService;
 
-//    @PostMapping("/{id}")
-//    public ResponseEntity<?> addCandidate(@RequestBody CandidateDto candidateDto, @RequestParam Long id) {
-//        try {
-//
-//            candidateService.saveCandidate(candidateDto, id);
-//
-////            boolean checkCandidate = candidateService.checkCanddateByEmail(candidateDto.getEmail());
-////            if(checkCandidate){
-////                candidateDto.getRecruitmentId().add(id);
-////            candidateService.saveCandidate(candidateDto);
-////            return new ResponseEntity<>(candidateDto, HttpStatus.CREATED);
-////            }
-////            else{
-////
-////            }
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(candidateDto, HttpStatus.BAD_REQUEST);
-//
-//        }
-//    }
+    @PostMapping("/apply/{recruitmentId}")
+    public ResponseEntity<?> applyCandidate(
+            @RequestBody CandidateDto candidateDto,
+            @PathVariable Long recruitmentId) {
+        try {
+            candidateService.saveOrUpdateCandidateByPhone(candidateDto, recruitmentId);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Ứng viên đã ứng tuyển thành công");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Lỗi: " + e.getMessage());
+        }
+    }
+
 }

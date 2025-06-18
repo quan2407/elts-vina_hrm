@@ -38,6 +38,13 @@ const JobDetail = () => {
       </div>
     );
   }
+  const handleBackBtn = () => {
+    navigate(`/jobs`);
+  };
+
+    const handleApplyBtn = () => {
+    navigate(`/applyjob/${id}`);
+  };
 
   return (
     <div className="jobDetail-page">
@@ -63,7 +70,7 @@ const JobDetail = () => {
           </div>
           <button
             className="jobDetail-back-btn"
-            onClick={() => navigate(-1)}
+            onClick={() => handleBackBtn()}
           >
             Quay lại
           </button>
@@ -84,7 +91,7 @@ const JobDetail = () => {
           <h4>Quyền lợi</h4>
           <p>{job.benefits}</p>
 
-          <button className="jobDetail-apply-btn">Ứng tuyển</button>
+          <button className="jobDetail-apply-btn" onClick={() => handleApplyBtn()}>Ứng tuyển</button>
         </section>
       </main>
       <FooterRecruitment />
