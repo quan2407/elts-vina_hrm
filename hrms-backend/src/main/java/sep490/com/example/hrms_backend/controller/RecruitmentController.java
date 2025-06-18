@@ -11,8 +11,6 @@
     import org.springframework.web.bind.annotation.RequestMapping;
     import org.springframework.web.bind.annotation.RestController;
     import sep490.com.example.hrms_backend.dto.RecruitmentDto;
-    import sep490.com.example.hrms_backend.entity.Recruitment;
-    import sep490.com.example.hrms_backend.mapper.RecuitmentMapper;
     import sep490.com.example.hrms_backend.service.RecruitmentService;
 
     import java.util.List;

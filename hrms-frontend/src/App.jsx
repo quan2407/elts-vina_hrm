@@ -14,6 +14,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import EmployeeManagement from "./pages/EmployeeManagement";
 import EmployeeDetails from "./pages/EmployeeDetails"; // ✅ Đổi tên import cho đúng
 import ApplyJob from "./pages/ApplyJob";
+import JobsManagement from "./pages/RecruitmentManagement";
 
 function App() {
   return (
@@ -36,6 +37,15 @@ function App() {
         <Route
           path="/applyjob/:id"
           element={<ApplyJob />}
+        />
+
+        <Route
+          path="/jobs-management"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+              <JobsManagement />
+            </ProtectedRoute>
+          }
         />
 
         <Route

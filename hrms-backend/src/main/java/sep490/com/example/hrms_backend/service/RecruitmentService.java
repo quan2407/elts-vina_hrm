@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.RecruitmentDto;
 import sep490.com.example.hrms_backend.entity.Recruitment;
-import sep490.com.example.hrms_backend.mapper.RecuitmentMapper;
+import sep490.com.example.hrms_backend.mapper.RecruitmentMapper;
 import sep490.com.example.hrms_backend.repository.RecruitmentRepository;
 
 import java.util.List;
@@ -19,12 +19,13 @@ public class RecruitmentService {
 
     public List<RecruitmentDto> getRecruitmentList() {
 
-        return RecuitmentMapper.mapToRecruitmentDtoList(recruitmentRepository.findAll()) ;
+        return RecruitmentMapper.mapToRecruitmentDtoList(recruitmentRepository.findAll()) ;
     }
 
     public RecruitmentDto getRecruitmentDtoById(long id){
         Recruitment recruitment = recruitmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Recruitment not found with id: " + id));
-        return RecuitmentMapper.mapToRecruitmentDto(recruitment, new RecruitmentDto());
+        return RecruitmentMapper.mapToRecruitmentDto(recruitment, new RecruitmentDto());
     }
+
 }

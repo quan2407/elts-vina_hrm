@@ -5,11 +5,13 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.Data;
 import sep490.com.example.hrms_backend.entity.Candidate;
+import sep490.com.example.hrms_backend.entity.CandidateRecruitment;
 import sep490.com.example.hrms_backend.entity.Department;
 import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.enums.RecruitmentStatus;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -55,6 +57,7 @@ public class RecruitmentDto {
 
     private String createdByIdName;
 
-    // Một đợt tuyển dụng có nhiều ứng viên
-     private List<String> candidate_id;
+
+    private List<Long> candidateRecruitmentsId = new ArrayList<>();
+
 }
