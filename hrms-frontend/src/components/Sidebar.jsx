@@ -112,22 +112,6 @@ function Sidebar() {
           );
         })}
       </div>
-
-      <div
-        className="logout-button"
-        onClick={() => {
-          localStorage.removeItem("accessToken");
-          navigate("/");
-        }}
-      >
-        <div className="nav-icon">
-          <LogOut
-            size={20}
-            stroke="white"
-          />
-        </div>
-        <div className="nav-text logout-text">Log Out</div>
-      </div>
     </div>
   );
 }

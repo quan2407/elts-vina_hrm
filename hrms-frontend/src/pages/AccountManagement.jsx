@@ -1,13 +1,11 @@
 import React from "react";
 import MainLayout from "../components/MainLayout";
-import Header from "../components/Header";
 import AccountTable from "../components/AccountTable";
 import "../styles/ManagementLayout.css";
 
 function AccountManagement() {
   return (
     <MainLayout>
-      <Header />
       <div className="content-wrapper">
         <div className="page-header">
           <h1 className="page-title">Account Management</h1>

@@ -1,13 +1,11 @@
 import React from "react";
 import MainLayout from "../components/MainLayout";
-import Header from "../components/Header";
 import EmployeeTable from "../components/EmployeeTable";
 import "../styles/ManagementLayout.css";
 
 function EmployeeManagement() {
   return (
     <MainLayout>
-      <Header />
       <div className="content-wrapper">
         <div className="page-header">
           <h1 className="page-title">Employee Management</h1>

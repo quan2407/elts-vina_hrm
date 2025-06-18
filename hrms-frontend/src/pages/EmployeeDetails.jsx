@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
+import MainLayout from "../components/MainLayout";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { vi } from "date-fns/locale";
@@ -22,10 +21,12 @@ function EmployeeDetails() {
   ));
 
   return (
-    <div className="employeedetail-page">
-      <Sidebar />
-      <div className="employeedetail-main-content">
-        <Header />
+    <MainLayout>
+      <div className="content-wrapper">
+        <div className="page-header">
+          <h1 className="page-title">Employee Details</h1>
+        </div>
+
         <div className="employeedetail-form-container">
           <div className="employeedetail-form-navigation">
             <div className="employeedetail-nav-item employeedetail-active">
@@ -196,7 +197,7 @@ function EmployeeDetails() {
           </div>
         </div>
       </div>
-    </div>
+    </MainLayout>
   );
 }
 
