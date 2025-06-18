@@ -5,6 +5,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -45,8 +46,8 @@ public class Candidate {
 
     // Quan hệ mới
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CandidateRecruitment> candidateRecruitments;
+    private List<CandidateRecruitment> candidateRecruitments = new ArrayList<>();
 
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<InterviewSchedule> interviewSchedules;
+    private List<InterviewSchedule> interviewSchedules = new ArrayList<>();
 }

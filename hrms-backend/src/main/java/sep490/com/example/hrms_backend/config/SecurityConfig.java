@@ -48,6 +48,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults()) // ✅ Thêm dòng này để kích hoạt cấu hình CORS
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/candidate/apply/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )

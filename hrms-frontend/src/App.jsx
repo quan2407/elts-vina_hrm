@@ -13,6 +13,7 @@ import AccountManagement from "./pages/AccountManagement";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import EmployeeManagement from "./pages/EmployeeManagement";
 import EmployeeDetails from "./pages/EmployeeDetails"; // ✅ Đổi tên import cho đúng
+import ApplyJob from "./pages/ApplyJob";
 
 function App() {
   return (
@@ -31,6 +32,12 @@ function App() {
           path="/jobs/:id"
           element={<JobDetail />}
         />
+
+        <Route
+          path="/applyjob/:id"
+          element={<ApplyJob />}
+        />
+
         <Route
           path="/unauthorized"
           element={<UnauthorizedPage />}
