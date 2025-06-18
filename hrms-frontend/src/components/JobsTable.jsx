@@ -5,7 +5,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
 
-const JobsTable = forwardRef((props, ref) => {
+const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
     const [jobs, setJobs] = useState([]);
 
     useEffect(() => {
@@ -19,6 +19,17 @@ const JobsTable = forwardRef((props, ref) => {
         };
         fetchJobs();
     }, []);
+
+    const filteredJobs = jobs.filter(job =>
+        job.title.toLowerCase().includes(searchTerm.toLowerCase())
+    ).sort((a, b) => {
+        const dateA = new Date(a.createAt);
+        const dateB = new Date(b.createAt);
+        return sortOrder === "asc"
+            ? dateA - dateB
+            : dateB - dateA;
+    });
+
     const formatDate = (isoDate) => {
         if (!isoDate) return "";
         const date = new Date(isoDate);
@@ -26,40 +37,40 @@ const JobsTable = forwardRef((props, ref) => {
     };
 
     const exportToExcel = () => {
-    if (!jobs || jobs.length === 0) {
-      alert("Không có dữ liệu để xuất.");
-      return;
-    }
+        if (!jobs || jobs.length === 0) {
+            alert("Không có dữ liệu để xuất.");
+            return;
+        }
 
-    const exportData = jobs.map(job => ({
-      "ID": job.recruitmentId,
-      "Tiêu đề": job.title,
-      "Địa điểm làm việc": job.workLocation,
-      "Loại hình": job.employmentType,
-      "Mô tả": job.jobDescription,
-      "Yêu cầu": job.jobRequirement,
-      "Quyền lợi": job.benefits,
-      "Lương": job.salaryRange,
-      "Số lượng": job.quantity,
-      "Ngày tạo": formatDate(job.createAt),
-      "Ngày hết hạn": formatDate(job.expiredAt),
-      "Trạng thái": job.status,
-      "SL Ứng tuyển": job.candidateRecruitmentsId?.length || 0
+        const exportData = filteredJobs.map(job => ({
+            "ID": job.recruitmentId,
+            "Tiêu đề": job.title,
+            "Địa điểm làm việc": job.workLocation,
+            "Loại hình": job.employmentType,
+            "Mô tả": job.jobDescription,
+            "Yêu cầu": job.jobRequirement,
+            "Quyền lợi": job.benefits,
+            "Lương": job.salaryRange,
+            "Số lượng": job.quantity,
+            "Ngày tạo": formatDate(job.createAt),
+            "Ngày hết hạn": formatDate(job.expiredAt),
+            "Trạng thái": job.status,
+            "SL Ứng tuyển": job.candidateRecruitmentsId?.length || 0
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách tuyển dụng");
+
+        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(blob, "DanhSachTuyenDung.xlsx");
+    };
+
+    // Expose exportToExcel to parent via ref
+    useImperativeHandle(ref, () => ({
+        exportToExcel
     }));
-
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách tuyển dụng");
-
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(blob, "DanhSachTuyenDung.xlsx");
-  };
-
-  // Expose exportToExcel to parent via ref
-  useImperativeHandle(ref, () => ({
-    exportToExcel
-  }));
 
 
     return (
@@ -81,7 +92,7 @@ const JobsTable = forwardRef((props, ref) => {
                     <div className="employee-header-cell">Action</div>
                 </div>
 
-                {jobs.map((job) => (
+                {filteredJobs.map((job) => (
                     <div
                         key={job.recruitmentId}
                         className="employee-table-row"
