@@ -1,5 +1,6 @@
 package sep490.com.example.hrms_backend.mapper;
 
+import sep490.com.example.hrms_backend.dto.EmployeeRequestDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeResponseDTO;
 import sep490.com.example.hrms_backend.entity.Employee;
 
@@ -25,4 +26,25 @@ public class EmployeeMapper {
                 .accountUsername(employee.getAccount() != null ? employee.getAccount().getUsername() : null)
                 .build();
     }
+    public static Employee mapToEmployee(EmployeeRequestDTO dto) {
+        return Employee.builder()
+                .employeeCode(dto.getEmployeeCode())
+                .employeeName(dto.getEmployeeName())
+                .gender(dto.getGender() != null ? dto.getGender().name() : null)
+                .dob(dto.getDob())
+                .placeOfBirth(dto.getPlaceOfBirth())
+                .originPlace(dto.getOriginPlace())
+                .nationality(dto.getNationality())
+                .citizenId(dto.getCitizenId())
+                .citizenIssueDate(dto.getCitizenIssueDate())
+                .citizenExpiryDate(dto.getCitizenExpiryDate())
+                .citizenIssuePlace(dto.getCitizenIssuePlace())
+                .address(dto.getAddress())
+                .image(dto.getImage())
+                .startWorkAt(dto.getStartWorkAt())
+                .phoneNumber(dto.getPhoneNumber())
+                .email(dto.getEmail())
+                .build();
+    }
+
 }
