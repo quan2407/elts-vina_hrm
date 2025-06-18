@@ -1,9 +1,11 @@
 package sep490.com.example.hrms_backend.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import sep490.com.example.hrms_backend.dto.EmployeeRequestDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeResponseDTO;
 import sep490.com.example.hrms_backend.service.EmployeeService;
 
@@ -22,4 +24,11 @@ public class EmployeeController {
         List<EmployeeResponseDTO> employeeList = employeeService.getAllEmployees();
         return ResponseEntity.ok(employeeList);
     }
+
+    @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
+    public ResponseEntity<?> createEmployee(@Valid @RequestBody EmployeeRequestDTO dto) {
+        return ResponseEntity.ok("Tạo thành công");
+    }
+
 }
