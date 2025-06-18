@@ -30,7 +30,7 @@ public class EmployeeMapper {
         return Employee.builder()
                 .employeeCode(dto.getEmployeeCode())
                 .employeeName(dto.getEmployeeName())
-                .gender(dto.getGender() != null ? dto.getGender().name() : null)
+                .gender(dto.getGender().name())
                 .dob(dto.getDob())
                 .placeOfBirth(dto.getPlaceOfBirth())
                 .originPlace(dto.getOriginPlace())
