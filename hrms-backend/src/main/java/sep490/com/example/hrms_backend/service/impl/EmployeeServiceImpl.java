@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.EmployeeRequestDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeResponseDTO;
+import sep490.com.example.hrms_backend.dto.EmployeeUpdateDTO;
 import sep490.com.example.hrms_backend.entity.Department;
 import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.entity.Line;
@@ -45,6 +46,20 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee = employeeRepository.save(employee);
         return EmployeeMapper.mapToEmployeeResponseDTO(employee);
     }
+
+    @Override
+    @Transactional
+    public EmployeeResponseDTO updateEmployee(Long id, EmployeeUpdateDTO dto) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found with ID: " + id));
+        EmployeeMapper.updateEmployeeFromUpdateDTO(dto, employee);
+        employee.setDepartment(fetchDepartment(dto.getDepartmentId()));
+        employee.setPosition(fetchPosition(dto.getPositionId()));
+        employee.setLine(fetchLine(dto.getLineId()));
+        employee = employeeRepository.save(employee);
+        return EmployeeMapper.mapToEmployeeResponseDTO(employee);
+    }
+
 
     private Department fetchDepartment(Long id) {
         return departmentRepository.findById(id)
