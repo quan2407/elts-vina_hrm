@@ -1,5 +1,6 @@
 package sep490.com.example.hrms_backend.mapper;
 
+import sep490.com.example.hrms_backend.dto.EmployeeDetailDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeRequestDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeResponseDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeUpdateDTO;
@@ -63,6 +64,31 @@ public class EmployeeMapper {
         employee.setStartWorkAt(dto.getStartWorkAt());
         employee.setPhoneNumber(dto.getPhoneNumber());
         employee.setEmail(dto.getEmail());
+    }
+    public static EmployeeDetailDTO mapToEmployeeDetailDTO(Employee employee) {
+        return EmployeeDetailDTO.builder()
+                .employeeId(employee.getEmployeeId())
+                .employeeCode(employee.getEmployeeCode())
+                .employeeName(employee.getEmployeeName())
+                .gender(employee.getGender())
+                .dob(employee.getDob())
+                .placeOfBirth(employee.getPlaceOfBirth())
+                .originPlace(employee.getOriginPlace())
+                .nationality(employee.getNationality())
+                .citizenId(employee.getCitizenId())
+                .citizenIssueDate(employee.getCitizenIssueDate())
+                .citizenExpiryDate(employee.getCitizenExpiryDate())
+                .citizenIssuePlace(employee.getCitizenIssuePlace())
+                .address(employee.getAddress())
+                .image(employee.getImage())
+                .startWorkAt(employee.getStartWorkAt())
+                .phoneNumber(employee.getPhoneNumber())
+                .email(employee.getEmail())
+                .departmentName(employee.getDepartment() != null ? employee.getDepartment().getDepartmentName() : null)
+                .positionName(employee.getPosition() != null ? employee.getPosition().getPositionName() : null)
+                .lineName(employee.getLine() != null ? employee.getLine().getLineName() : null)
+                .accountUsername(employee.getAccount() != null ? employee.getAccount().getUsername() : null)
+                .build();
     }
 
 
