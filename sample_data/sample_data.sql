@@ -118,65 +118,66 @@ INSERT INTO employee (
     address, image, start_work_at, phone_number, email,
     department_id, position_id
 ) VALUES
-(1, 'ELTSSX0001', 'Test User A', 'MALE', '1991-01-15',
+(1, 'ELTSSX0001', 'Test User A', 'NAM', '1991-01-15',
  NULL, NULL, 'Vietnam', '0123456781',
  '2010-01-01', '2030-01-01', 'Hà Nội',
  NULL, NULL, '2016-01-01', '0900000001', 'usera@example.com',
  1, 1), -- Bán Tự Động - Công Nhân
 
-(2, 'ELTSSX0002', 'Test User B', 'FEMALE', '1992-02-15',
+(2, 'ELTSSX0002', 'Test User B', 'NỮ', '1992-02-15',
  NULL, NULL, 'Vietnam', '0123456782',
  '2011-01-01', '2031-01-01', 'Hồ Chí Minh',
  NULL, NULL, '2017-01-01', '0900000002', 'userb@example.com',
  2, 2), -- IQC - Công Nhân Kiểm Tra
 
-(3, 'ELTSSX0003', 'Test User C', 'MALE', '1993-03-15',
+(3, 'ELTSSX0003', 'Test User C', 'NAM', '1993-03-15',
  NULL, NULL, 'Vietnam', '0123456783',
  '2012-01-01', '2032-01-01', 'Đà Nẵng',
  NULL, NULL, '2018-01-01', '0900000003', 'userc@example.com',
  4, 3), -- QC - Data
 
-(4, 'ELTSSX0004', 'Test User D', 'FEMALE', '1994-04-15',
+(4, 'ELTSSX0004', 'Test User D', 'NỮ', '1994-04-15',
  NULL, NULL, 'Vietnam', '0123456784',
  '2013-01-01', '2033-01-01', 'Hải Phòng',
  NULL, NULL, '2019-01-01', '0900000004', 'userd@example.com',
  1, 4), -- Bán Tự Động - Hỗ Trợ Lái Xe
 
-(5, 'ELTSSX0005', 'Test User E', 'MALE', '1995-05-15',
+(5, 'ELTSSX0005', 'Test User E', 'NAM', '1995-05-15',
  NULL, NULL, 'Vietnam', '0123456785',
  '2014-01-01', '2034-01-01', 'Cần Thơ',
  NULL, NULL, '2020-01-01', '0900000005', 'usere@example.com',
  3, 5), -- Lái Xe - Lái Xe
 
-(6, 'ELTSSX0006', 'Test User F', 'FEMALE', '1996-06-15',
+(6, 'ELTSSX0006', 'Test User F', 'NỮ', '1996-06-15',
  NULL, NULL, 'Vietnam', '0123456786',
  '2015-01-01', '2035-01-01', 'Huế',
  NULL, NULL, '2021-01-01', '0900000006', 'userf@example.com',
  5, 6), -- Sản Xuất - Nhân Viên Vệ Sinh
 
-(7, 'ELTSSX0007', 'Test User G', 'MALE', '1997-07-15',
+(7, 'ELTSSX0007', 'Test User G', 'NAM', '1997-07-15',
  NULL, NULL, 'Vietnam', '0123456787',
  '2016-01-01', '2036-01-01', 'Quảng Ninh',
  NULL, NULL, '2022-01-01', '0900000007', 'userg@example.com',
  4, 7), -- QC - Nhân Viên QC
 
-(8, 'ELTSSX0008', 'Test User H', 'FEMALE', '1998-08-15',
+(8, 'ELTSSX0008', 'Test User H', 'NỮ', '1998-08-15',
  NULL, NULL, 'Vietnam', '0123456788',
  '2017-01-01', '2037-01-01', 'Nghệ An',
  NULL, NULL, '2023-01-01', '0900000008', 'userh@example.com',
  5, 8), -- Sản Xuất - Nhân Viên Sản Xuất
 
-(9, 'ELTSSX0009', 'Test User I', 'MALE', '1999-09-15',
+(9, 'ELTSSX0009', 'Test User I', 'NAM', '1999-09-15',
  NULL, NULL, 'Vietnam', '0123456789',
  '2018-01-01', '2038-01-01', 'Thanh Hóa',
  NULL, NULL, '2024-01-01', '0900000009', 'useri@example.com',
  5, 9), -- Sản Xuất - Phó Phòng Sản Xuất
 
-(10, 'ELTSSX0010', 'Test User J', 'FEMALE', '1990-10-15',
+(10, 'ELTSSX0010', 'Test User J', 'NỮ', '1990-10-15',
  NULL, NULL, 'Vietnam', '0123456790',
  '2009-01-01', '2029-01-01', 'Bắc Ninh',
  NULL, NULL, '2025-01-01', '0900000010', 'userj@example.com',
  5, 10); -- Sản Xuất - Quản Lý
+
 
 
 
