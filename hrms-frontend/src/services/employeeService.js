@@ -12,6 +12,10 @@ const employeeService = {
   getEmployeeById: (id) => {
     return axiosClient.get(`/employees/${id}`);
   },
+
+  updateEmployee: (id, payload) => {
+    return axiosClient.put(`/employees/${id}`, payload);
+  },
 };
 
 export default employeeService;

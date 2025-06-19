@@ -84,10 +84,49 @@ function EmployeeCreate() {
       resetForm();
     } catch (err) {
       console.error("❌ Lỗi tạo nhân viên:", err);
+
       if (err.response && err.response.data) {
-        setErrors(err.response.data);
+        console.log("📌 err.response.data:", err.response.data);
+
+        const serverData = err.response.data;
+
+        if (serverData.errors) {
+          // ✅ Trường hợp trả về { errors: { field: [messages] } }
+          setErrors(serverData.errors);
+        } else if (typeof serverData === "object" && !serverData.message) {
+          // ✅ Trường hợp trả thẳng { field: [messages] }
+          setErrors(serverData);
+        } else if (serverData.message) {
+          // ✅ Trường hợp lỗi nghiệp vụ
+          const fieldErrorMap = [
+            { keyword: "CMND/CCCD", field: "citizenId" },
+            { keyword: "CMND", field: "citizenId" },
+            { keyword: "CCCD", field: "citizenId" },
+            { keyword: "Email", field: "email" },
+            { keyword: "Số điện thoại", field: "phoneNumber" },
+            { keyword: "Mã nhân viên", field: "employeeCode" },
+            { keyword: "Chức vụ", field: "positionId" },
+            { keyword: "Phòng ban", field: "departmentId" },
+            { keyword: "Chuyền sản xuất", field: "lineId" },
+          ];
+
+          const matched = fieldErrorMap.find((rule) =>
+            serverData.message.includes(rule.keyword)
+          );
+
+          if (matched) {
+            setErrors((prev) => ({
+              ...prev,
+              [matched.field]: [serverData.message],
+            }));
+          } else {
+            alert(serverData.message);
+          }
+        } else {
+          alert("Server trả về lỗi nhưng không có message!");
+        }
       } else {
-        alert("Có lỗi xảy ra khi tạo nhân viên!");
+        alert("Không nhận được phản hồi từ server!");
       }
     }
   };
@@ -548,7 +587,7 @@ function EmployeeCreate() {
                 </div>
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Chuyền sản xuất<span className="required-star">*</span>
+                    Chuyền sản xuất
                   </div>
                   <select
                     className="employeedetail-input-field"

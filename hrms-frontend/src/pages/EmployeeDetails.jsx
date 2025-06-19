@@ -8,6 +8,7 @@ import "../styles/EmployeeDetails.css";
 import employeeService from "../services/employeeService";
 import departmentService from "../services/departmentService";
 import { Save } from "lucide-react"; // ✅ Icon đẹp từ lucide
+import { format } from "date-fns";
 
 function EmployeeDetails() {
   const { id } = useParams();
@@ -61,19 +62,92 @@ function EmployeeDetails() {
     console.log("📌 Payload gửi đi:", payload);
 
     try {
-      await employeeService.createEmployee(payload);
-      alert("Tạo nhân viên thành công!");
+      await employeeService.updateEmployee(id, payload);
+      alert("Cập nhật nhân viên thành công!");
+
+      // ✅ Tải lại dữ liệu sau cập nhật
+      const res = await employeeService.getEmployeeById(id);
+      const data = res.data;
+      setFullName(data.employeeName || "");
+      setGender(data.gender || "");
+      setBirthDate(data.dob ? new Date(data.dob) : null);
+      setBirthPlace(data.placeOfBirth || "");
+      setOriginPlace(data.originPlace || "");
+      setNationality(data.nationality || "");
+      setIdNumber(data.citizenId || "");
+      setIssueDate(
+        data.citizenIssueDate ? new Date(data.citizenIssueDate) : null
+      );
+      setExpiryDate(
+        data.citizenExpiryDate ? new Date(data.citizenExpiryDate) : null
+      );
+      setAddress(data.address || "");
+      setPhone(data.phoneNumber || "");
+      setEmail(data.email || "");
+      setStartWorkAt(data.startWorkAt ? new Date(data.startWorkAt) : null);
+      setDepartmentId(data.departmentId || "");
+      setPositionId(data.positionId || "");
+      setLineId(data.lineId || "");
       setErrors({});
-      resetForm();
     } catch (err) {
-      console.error("❌ Lỗi tạo nhân viên:", err);
+      console.error("❌ Lỗi cập nhật nhân viên:", err);
       if (err.response && err.response.data) {
-        setErrors(err.response.data);
+        const serverData = err.response.data;
+
+        // ✅ Lỗi validate dạng field: [errors]
+        if (serverData.errors) {
+          setErrors(serverData.errors);
+        }
+        // ✅ Lỗi nghiệp vụ (throw exception)
+        else if (serverData.message) {
+          const fieldErrorMap = [
+            { keyword: "CMND", field: "citizenId" },
+            { keyword: "CCCD", field: "citizenId" },
+            { keyword: "Email", field: "email" },
+            { keyword: "Số điện thoại", field: "phoneNumber" },
+            // thêm các mapping khác nếu cần
+          ];
+
+          const matched = fieldErrorMap.find((rule) =>
+            serverData.message.includes(rule.keyword)
+          );
+
+          if (matched) {
+            setErrors((prev) => ({
+              ...prev,
+              [matched.field]: [serverData.message],
+            }));
+          } else {
+            alert(serverData.message);
+          }
+        }
       } else {
-        alert("Có lỗi xảy ra khi tạo nhân viên!");
+        alert("Có lỗi xảy ra khi cập nhật nhân viên!");
       }
     }
   };
+
+  useEffect(() => {
+    const contentEl = document.querySelector(".employeedetail-form-content");
+    const handleScroll = () => {
+      if (isClickScrolling.current) return;
+      const sections = ["basic-info", "contact-info", "job-info"];
+      for (let id of sections) {
+        const el = document.getElementById(id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top >= 150 && rect.top < window.innerHeight / 2) {
+            setActiveSection(id);
+            break;
+          }
+        }
+      }
+    };
+    if (contentEl) {
+      contentEl.addEventListener("scroll", handleScroll);
+      return () => contentEl.removeEventListener("scroll", handleScroll);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchEmployeeDetail = async () => {
@@ -216,12 +290,14 @@ function EmployeeDetails() {
                     Mã nhân viên<span className="required-star">*</span>
                   </div>
                   <input
-                    className="employeedetail-input-field"
+                    className={`employeedetail-input-field disabled-input`}
                     type="text"
                     value={employeeCode}
                     placeholder="Nhập mã nhân viên"
                     onChange={(e) => setEmployeeCode(e.target.value)}
+                    disabled
                   />
+
                   {errors.employeeCode && (
                     <div className="error-message">
                       {errors.employeeCode.join(", ")}
@@ -403,7 +479,7 @@ function EmployeeDetails() {
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Số điện thoại
+                    Số điện thoại<span className="required-star">*</span>
                   </div>
                   <input
                     className="employeedetail-input-field"
@@ -419,7 +495,9 @@ function EmployeeDetails() {
                   )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Email</div>
+                  <div className="employeedetail-input-label">
+                    Email<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="email"
@@ -496,12 +574,6 @@ function EmployeeDetails() {
                     value={departmentId}
                     onChange={(e) => setDepartmentId(e.target.value)}
                   >
-                    {/* Giữ option hiện tại nếu chưa load ra trong danh sách */}
-                    {departmentId &&
-                      !departments.some(
-                        (d) => d.id === Number(departmentId)
-                      ) && <option value={departmentId}>Đang tải...</option>}
-
                     <option value="">-- Chọn phòng ban --</option>
                     {departments.map((d) => (
                       <option
@@ -531,11 +603,6 @@ function EmployeeDetails() {
                     value={positionId}
                     onChange={(e) => setPositionId(e.target.value)}
                   >
-                    {positionId &&
-                      !positions.some((p) => p.id === Number(positionId)) && (
-                        <option value={positionId}>Đang tải...</option>
-                      )}
-
                     <option value="">-- Chọn vị trí --</option>
                     {positions.map((p) => (
                       <option
@@ -555,7 +622,7 @@ function EmployeeDetails() {
                 </div>
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Chuyền sản xuất<span className="required-star">*</span>
+                    Chuyền sản xuất
                   </div>
                   <select
                     className="employeedetail-input-field"
