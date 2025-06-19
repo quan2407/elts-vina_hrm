@@ -118,65 +118,66 @@ INSERT INTO employee (
     address, image, start_work_at, phone_number, email,
     department_id, position_id
 ) VALUES
-(1, 'EMP001', 'Test User A', 'MALE', '1991-01-15',
+(1, 'ELTSSX0001', 'Test User A', 'MALE', '1991-01-15',
  NULL, NULL, 'Vietnam', '0123456781',
  '2010-01-01', '2030-01-01', 'Hà Nội',
  NULL, NULL, '2016-01-01', '0900000001', 'usera@example.com',
  1, 1), -- Bán Tự Động - Công Nhân
 
-(2, 'EMP002', 'Test User B', 'FEMALE', '1992-02-15',
+(2, 'ELTSSX0002', 'Test User B', 'FEMALE', '1992-02-15',
  NULL, NULL, 'Vietnam', '0123456782',
  '2011-01-01', '2031-01-01', 'Hồ Chí Minh',
  NULL, NULL, '2017-01-01', '0900000002', 'userb@example.com',
  2, 2), -- IQC - Công Nhân Kiểm Tra
 
-(3, 'EMP003', 'Test User C', 'MALE', '1993-03-15',
+(3, 'ELTSSX0003', 'Test User C', 'MALE', '1993-03-15',
  NULL, NULL, 'Vietnam', '0123456783',
  '2012-01-01', '2032-01-01', 'Đà Nẵng',
  NULL, NULL, '2018-01-01', '0900000003', 'userc@example.com',
  4, 3), -- QC - Data
 
-(4, 'EMP004', 'Test User D', 'FEMALE', '1994-04-15',
+(4, 'ELTSSX0004', 'Test User D', 'FEMALE', '1994-04-15',
  NULL, NULL, 'Vietnam', '0123456784',
  '2013-01-01', '2033-01-01', 'Hải Phòng',
  NULL, NULL, '2019-01-01', '0900000004', 'userd@example.com',
  1, 4), -- Bán Tự Động - Hỗ Trợ Lái Xe
 
-(5, 'EMP005', 'Test User E', 'MALE', '1995-05-15',
+(5, 'ELTSSX0005', 'Test User E', 'MALE', '1995-05-15',
  NULL, NULL, 'Vietnam', '0123456785',
  '2014-01-01', '2034-01-01', 'Cần Thơ',
  NULL, NULL, '2020-01-01', '0900000005', 'usere@example.com',
  3, 5), -- Lái Xe - Lái Xe
 
-(6, 'EMP006', 'Test User F', 'FEMALE', '1996-06-15',
+(6, 'ELTSSX0006', 'Test User F', 'FEMALE', '1996-06-15',
  NULL, NULL, 'Vietnam', '0123456786',
  '2015-01-01', '2035-01-01', 'Huế',
  NULL, NULL, '2021-01-01', '0900000006', 'userf@example.com',
  5, 6), -- Sản Xuất - Nhân Viên Vệ Sinh
 
-(7, 'EMP007', 'Test User G', 'MALE', '1997-07-15',
+(7, 'ELTSSX0007', 'Test User G', 'MALE', '1997-07-15',
  NULL, NULL, 'Vietnam', '0123456787',
  '2016-01-01', '2036-01-01', 'Quảng Ninh',
  NULL, NULL, '2022-01-01', '0900000007', 'userg@example.com',
  4, 7), -- QC - Nhân Viên QC
 
-(8, 'EMP008', 'Test User H', 'FEMALE', '1998-08-15',
+(8, 'ELTSSX0008', 'Test User H', 'FEMALE', '1998-08-15',
  NULL, NULL, 'Vietnam', '0123456788',
  '2017-01-01', '2037-01-01', 'Nghệ An',
  NULL, NULL, '2023-01-01', '0900000008', 'userh@example.com',
  5, 8), -- Sản Xuất - Nhân Viên Sản Xuất
 
-(9, 'EMP009', 'Test User I', 'MALE', '1999-09-15',
+(9, 'ELTSSX0009', 'Test User I', 'MALE', '1999-09-15',
  NULL, NULL, 'Vietnam', '0123456789',
  '2018-01-01', '2038-01-01', 'Thanh Hóa',
  NULL, NULL, '2024-01-01', '0900000009', 'useri@example.com',
  5, 9), -- Sản Xuất - Phó Phòng Sản Xuất
 
-(10, 'EMP010', 'Test User J', 'FEMALE', '1990-10-15',
+(10, 'ELTSSX0010', 'Test User J', 'FEMALE', '1990-10-15',
  NULL, NULL, 'Vietnam', '0123456790',
  '2009-01-01', '2029-01-01', 'Bắc Ninh',
  NULL, NULL, '2025-01-01', '0900000010', 'userj@example.com',
  5, 10); -- Sản Xuất - Quản Lý
+
 
 
 
@@ -211,6 +212,20 @@ INSERT INTO `lines` (line_id, line_name, department_id, leader_id) VALUES
 (7, 'Line 7', 1, 9),
 (8, 'Line 8', 6, 7),
 (9, 'Line 9', 6, 8);
+
+
+-- Gán line phù hợp theo department
+UPDATE employee SET line_id = 1 WHERE employee_id = 1; -- Bán Tự Động
+UPDATE employee SET line_id = 2 WHERE employee_id = 2; -- IQC (nếu có line cho IQC)
+UPDATE employee SET line_id = 6 WHERE employee_id = 3; -- QC
+UPDATE employee SET line_id = 1 WHERE employee_id = 4; -- Bán Tự Động
+UPDATE employee SET line_id = 3 WHERE employee_id = 5; -- Lái Xe
+UPDATE employee SET line_id = 4 WHERE employee_id = 6; -- Sản Xuất
+UPDATE employee SET line_id = 6 WHERE employee_id = 7; -- QC
+UPDATE employee SET line_id = 5 WHERE employee_id = 8; -- Sản Xuất
+UPDATE employee SET line_id = 4 WHERE employee_id = 9; -- Sản Xuất
+UPDATE employee SET line_id = 4 WHERE employee_id = 10; -- Sản Xuất
+
 
 -- ====================
 -- Recruitment

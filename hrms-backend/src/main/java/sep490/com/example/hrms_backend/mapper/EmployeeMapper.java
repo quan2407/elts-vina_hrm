@@ -78,17 +78,23 @@ public class EmployeeMapper {
                 .citizenId(employee.getCitizenId())
                 .citizenIssueDate(employee.getCitizenIssueDate())
                 .citizenExpiryDate(employee.getCitizenExpiryDate())
-                .citizenIssuePlace(employee.getCitizenIssuePlace())
                 .address(employee.getAddress())
-                .image(employee.getImage())
                 .startWorkAt(employee.getStartWorkAt())
                 .phoneNumber(employee.getPhoneNumber())
                 .email(employee.getEmail())
+
+                .departmentId(employee.getDepartment() != null ? employee.getDepartment().getDepartmentId() : null)
                 .departmentName(employee.getDepartment() != null ? employee.getDepartment().getDepartmentName() : null)
+
+                .positionId(employee.getPosition() != null ? employee.getPosition().getPositionId() : null)
                 .positionName(employee.getPosition() != null ? employee.getPosition().getPositionName() : null)
+
+                .lineId(employee.getLine() != null ? employee.getLine().getLineId() : null)
                 .lineName(employee.getLine() != null ? employee.getLine().getLineName() : null)
+
                 .build();
     }
+
 
 
 }

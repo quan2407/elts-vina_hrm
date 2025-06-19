@@ -496,6 +496,12 @@ function EmployeeDetails() {
                     value={departmentId}
                     onChange={(e) => setDepartmentId(e.target.value)}
                   >
+                    {/* Giữ option hiện tại nếu chưa load ra trong danh sách */}
+                    {departmentId &&
+                      !departments.some(
+                        (d) => d.id === Number(departmentId)
+                      ) && <option value={departmentId}>Đang tải...</option>}
+
                     <option value="">-- Chọn phòng ban --</option>
                     {departments.map((d) => (
                       <option
@@ -506,6 +512,7 @@ function EmployeeDetails() {
                       </option>
                     ))}
                   </select>
+
                   {errors.departmentId && (
                     <div className="error-message">
                       {errors.departmentId.join(", ")}
@@ -524,6 +531,11 @@ function EmployeeDetails() {
                     value={positionId}
                     onChange={(e) => setPositionId(e.target.value)}
                   >
+                    {positionId &&
+                      !positions.some((p) => p.id === Number(positionId)) && (
+                        <option value={positionId}>Đang tải...</option>
+                      )}
+
                     <option value="">-- Chọn vị trí --</option>
                     {positions.map((p) => (
                       <option
@@ -534,6 +546,7 @@ function EmployeeDetails() {
                       </option>
                     ))}
                   </select>
+
                   {errors.positionId && (
                     <div className="error-message">
                       {errors.positionId.join(", ")}
@@ -548,17 +561,25 @@ function EmployeeDetails() {
                     className="employeedetail-input-field"
                     value={lineId}
                     onChange={(e) => setLineId(e.target.value)}
+                    disabled={lines.length === 0} // Disable khi không có line
                   >
-                    <option value="">-- Chọn line --</option>
-                    {lines.map((l) => (
-                      <option
-                        key={l.id}
-                        value={l.id}
-                      >
-                        {l.name}
-                      </option>
-                    ))}
+                    {lines.length === 0 ? (
+                      <option value="">Không có chuyền sản xuất</option>
+                    ) : (
+                      <>
+                        <option value="">-- Chọn line --</option>
+                        {lines.map((l) => (
+                          <option
+                            key={l.id}
+                            value={String(l.id)}
+                          >
+                            {l.name}
+                          </option>
+                        ))}
+                      </>
+                    )}
                   </select>
+
                   {errors.lineId && (
                     <div className="error-message">
                       {errors.lineId.join(", ")}

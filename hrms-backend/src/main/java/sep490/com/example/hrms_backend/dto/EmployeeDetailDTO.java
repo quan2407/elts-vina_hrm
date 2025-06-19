@@ -21,14 +21,20 @@ public class EmployeeDetailDTO {
     private String citizenId;
     private LocalDate citizenIssueDate;
     private LocalDate citizenExpiryDate;
-    private String citizenIssuePlace;
     private String address;
-    private String image;
-    private LocalDate startWorkAt;
     private String phoneNumber;
     private String email;
+    private LocalDate startWorkAt;
 
+    private Long departmentId;
     private String departmentName;
+
+    private Long positionId;
     private String positionName;
+
+    private Long lineId;
     private String lineName;
+
+    // getters + setters
 }
+
