@@ -14,34 +14,20 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import EmployeeManagement from "./pages/EmployeeManagement";
 import EmployeeDetails from "./pages/EmployeeDetails"; // ✅ Đổi tên import cho đúng
 import ApplyJob from "./pages/ApplyJob";
+import Targets from "./pages/Targets";
 
 function App() {
   return (
     <Router>
       <Routes>
         {/* Public routes */}
-        <Route
-          path="/"
-          element={<LoginPage />}
-        />
-        <Route
-          path="/jobs"
-          element={<JobsPage />}
-        />
-        <Route
-          path="/jobs/:id"
-          element={<JobDetail />}
-        />
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/jobs" element={<JobsPage />} />
+        <Route path="/jobs/:id" element={<JobDetail />} />
 
-        <Route
-          path="/applyjob/:id"
-          element={<ApplyJob />}
-        />
+        <Route path="/applyjob/:id" element={<ApplyJob />} />
 
-        <Route
-          path="/unauthorized"
-          element={<UnauthorizedPage />}
-        />
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
         {/* Protected route for admin */}
         <Route
@@ -62,18 +48,18 @@ function App() {
         />
 
         {/* Catch all unmatched routes */}
-        <Route
-          path="*"
-          element={
-            <Navigate
-              to="/"
-              replace
-            />
-          }
-        />
+        <Route path="*" element={<Navigate to="/" replace />} />
         <Route
           path="/employee-details"
           element={<EmployeeDetails />} // ✅ Đổi path cho đồng bộ với component
+        />
+        <Route
+          path="/targets"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_ADMIN"]}>
+              <Targets />
+            </ProtectedRoute>
+          }
         />
       </Routes>
     </Router>

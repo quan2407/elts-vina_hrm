@@ -27,8 +27,8 @@ public class BenefitRegistration {
     private LocalDateTime registeredAt; // thời điểm đăng ký
 
     @NotBlank
-    @Column(name = "status")
-    private String status; // trạng thái đăng ký (đang chờ, đã duyệt, từ chối...)
+    @Column(name = "isRegister")
+    private Boolean isRegister = false ;
 
     @Column(name = "note")
     private String note; // ghi chú (nếu có)
