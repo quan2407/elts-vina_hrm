@@ -17,6 +17,7 @@ public class HRMSAPIException extends RuntimeException{
         this.message = message1;
     }
 
+
     public HttpStatus getStatus() {
         return status;
     }

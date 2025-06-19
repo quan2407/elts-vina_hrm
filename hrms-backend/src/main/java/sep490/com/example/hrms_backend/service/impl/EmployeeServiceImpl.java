@@ -2,6 +2,7 @@ package sep490.com.example.hrms_backend.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.EmployeeRequestDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeResponseDTO;
@@ -11,20 +12,20 @@ import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.entity.Line;
 import sep490.com.example.hrms_backend.entity.Position;
 import sep490.com.example.hrms_backend.exception.DuplicateEntryException;
+import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.mapper.EmployeeMapper;
 import sep490.com.example.hrms_backend.repository.DepartmentRepository;
 import sep490.com.example.hrms_backend.repository.EmployeeRepository;
 import sep490.com.example.hrms_backend.repository.LineRepository;
 import sep490.com.example.hrms_backend.repository.PositionRepository;
-import sep490.com.example.hrms_backend.service.EmployeeService;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class EmployeeServiceImpl implements EmployeeService {
+public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.service.EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
@@ -48,10 +49,16 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new DuplicateEntryException("Số CMND/CCCD đã tồn tại trong hệ thống");
         }
 
+        // Check cặp position - department
+        if (!positionRepository.existsDepartmentPositionMapping(dto.getDepartmentId(), dto.getPositionId())) {
+            throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Chức vụ không thuộc phòng ban đã chọn");
+        }
+
         Employee employee = EmployeeMapper.mapToEmployee(dto);
         employee.setDepartment(fetchDepartment(dto.getDepartmentId()));
         employee.setPosition(fetchPosition(dto.getPositionId()));
         employee.setLine(fetchLine(dto.getLineId()));
+
         employee = employeeRepository.save(employee);
         return EmployeeMapper.mapToEmployeeResponseDTO(employee);
     }
@@ -62,11 +69,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
 
-        // So sánh giá trị thực tế
         if (!safeEquals(dto.getCitizenId(), employee.getCitizenId())) {
             if (employeeRepository.existsByCitizenIdAndEmployeeIdNot(dto.getCitizenId(), id)) {
                 throw new DuplicateEntryException("Số CMND/CCCD đã tồn tại trong hệ thống");
             }
+        }
+
+        // Check cặp position - department
+        if (!positionRepository.existsDepartmentPositionMapping(dto.getDepartmentId(), dto.getPositionId())) {
+            throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Chức vụ không thuộc phòng ban đã chọn");
         }
 
         EmployeeMapper.updateEmployeeFromUpdateDTO(dto, employee);
@@ -84,7 +95,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         return s1.equals(s2);
     }
 
-
     private Department fetchDepartment(Long id) {
         return departmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Department", "id", id));
@@ -99,7 +109,4 @@ public class EmployeeServiceImpl implements EmployeeService {
         return lineRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Line", "id", id));
     }
-
-
-
 }

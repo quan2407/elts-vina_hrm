@@ -14,6 +14,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import EmployeeManagement from "./pages/EmployeeManagement";
 import EmployeeDetails from "./pages/EmployeeDetails"; // ✅ Đổi tên import cho đúng
 import ApplyJob from "./pages/ApplyJob";
+import EmployeeCreate from "./pages/EmployeeCreate"; // thêm dòng này
 
 function App() {
   return (
@@ -57,6 +58,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_ADMIN"]}>
               <EmployeeManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/employee-create"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+              <EmployeeCreate />
             </ProtectedRoute>
           }
         />
