@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import sep490.com.example.hrms_backend.dto.EmployeeDetailDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeRequestDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeResponseDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeUpdateDTO;
@@ -88,6 +89,13 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         employee = employeeRepository.save(employee);
         return EmployeeMapper.mapToEmployeeResponseDTO(employee);
     }
+    @Override
+    public EmployeeDetailDTO getEmployeeDetailById(Long id) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
+        return EmployeeMapper.mapToEmployeeDetailDTO(employee);
+    }
+
 
     private boolean safeEquals(String s1, String s2) {
         if (s1 == null && s2 == null) return true;
