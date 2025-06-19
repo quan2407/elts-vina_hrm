@@ -87,7 +87,6 @@ public class EmployeeMapper {
                 .departmentName(employee.getDepartment() != null ? employee.getDepartment().getDepartmentName() : null)
                 .positionName(employee.getPosition() != null ? employee.getPosition().getPositionName() : null)
                 .lineName(employee.getLine() != null ? employee.getLine().getLineName() : null)
-                .accountUsername(employee.getAccount() != null ? employee.getAccount().getUsername() : null)
                 .build();
     }
 

@@ -31,5 +31,4 @@ public class EmployeeDetailDTO {
     private String departmentName;
     private String positionName;
     private String lineName;
-    private String accountUsername;
 }
