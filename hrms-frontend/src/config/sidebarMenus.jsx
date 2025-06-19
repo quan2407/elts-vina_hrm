@@ -53,7 +53,7 @@ export const hrMenus = [
     ),
   },
   {
-    text: "Jobs",
+    text: "Tuyển dụng",
     path: "/jobs-management",
     icon: (isActive) => (
       <Briefcase
