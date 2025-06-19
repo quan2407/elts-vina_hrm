@@ -4,6 +4,13 @@ import { getAllRecruitments } from "../services/recruitmentService";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
+function removeVietnameseTones(str) {
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D");
+}
 
 const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
     const [jobs, setJobs] = useState([]);
@@ -20,15 +27,17 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
         fetchJobs();
     }, []);
 
-    const filteredJobs = jobs.filter(job =>
-        job.title.toLowerCase().includes(searchTerm.toLowerCase())
-    ).sort((a, b) => {
-        const dateA = new Date(a.createAt);
-        const dateB = new Date(b.createAt);
-        return sortOrder === "asc"
-            ? dateA - dateB
-            : dateB - dateA;
-    });
+const filteredJobs = jobs
+  .filter(job =>
+    removeVietnameseTones(job.title.toLowerCase()).includes(
+      removeVietnameseTones(searchTerm.toLowerCase())
+    )
+  )
+  .sort((a, b) => {
+    const dateA = new Date(a.createAt);
+    const dateB = new Date(b.createAt);
+    return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+  });
 
     const formatDate = (isoDate) => {
         if (!isoDate) return "";

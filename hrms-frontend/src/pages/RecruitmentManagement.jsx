@@ -15,6 +15,10 @@ function JobsManagement() {
       tableRef.current.exportToExcel();
     }
   };
+
+  const handleAddClick = () => {
+    
+  };
   return (
     <MainLayout>
       <div className="content-wrapper">
@@ -38,10 +42,12 @@ function JobsManagement() {
               <option value="asc">Cũ - mới</option>
             </select>
 
+            <div className="add-button " style={{ height: "55px"}} onClick={handleAddClick}>
+              <span className="export-text">Thêm bài tuyển dụng</span>
+            </div>
 
-            <div className="export-button" onClick={handleExportClick}>
+            <div className="export-button " style={{ height: "55px"}} onClick={handleExportClick}>
               <span className="export-text">Export</span>
-
             </div>
           </div>
         </div>

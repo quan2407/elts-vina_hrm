@@ -67,8 +67,8 @@ const JobsPage = () => {
     const fetchJobs = async () => {
       try {
         const data = await getAllRecruitments();
-        setJobs(data);
-        setFilteredJobs(data);
+        setJobs(data.filter(job => job.status === "OPEN"));
+        setFilteredJobs(data.filter(job => job.status === "OPEN"));
       } catch (error) {
         console.error("Lỗi khi load danh sách công việc:", error);
       }

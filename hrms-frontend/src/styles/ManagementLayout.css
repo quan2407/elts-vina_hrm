@@ -47,6 +47,18 @@
   background-color: #3f861e;
 }
 
+.add-button {
+  border-radius: 14px;
+  padding: 23px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  box-shadow: 11px 4px 14px 0px rgba(0, 0, 0, 0.12);
+  background-color: #3f861e;
+}
+
+
 .export-text {
   color: #fff;
   font-size: 18px;
