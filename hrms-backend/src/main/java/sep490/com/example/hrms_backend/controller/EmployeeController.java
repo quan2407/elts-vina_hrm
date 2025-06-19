@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import sep490.com.example.hrms_backend.dto.EmployeeDetailDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeRequestDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeResponseDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeUpdateDTO;
@@ -40,5 +41,12 @@ public class EmployeeController {
         EmployeeResponseDTO updatedEmployee = employeeService.updateEmployee(id, dto);
         return ResponseEntity.ok(updatedEmployee);
     }
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
+    public ResponseEntity<EmployeeDetailDTO> getEmployeeById(@PathVariable Long id) {
+        EmployeeDetailDTO employeeDetail = employeeService.getEmployeeDetailById(id);
+        return ResponseEntity.ok(employeeDetail);
+    }
+
 
 }
