@@ -9,7 +9,7 @@ import {
 
 export const systemMenus = [
   {
-    text: "Account List",
+    text: "Danh sách tài khoản",
     path: "/",
     icon: (isActive) => (
       <Users
@@ -19,7 +19,7 @@ export const systemMenus = [
     ),
   },
   {
-    text: "Messages",
+    text: "Tin nhắn",
     path: "/messages",
     icon: (isActive) => (
       <MessageSquare
@@ -33,7 +33,7 @@ export const systemMenus = [
 
 export const hrMenus = [
   {
-    text: "Dashboard",
+    text: "Tổng quan",
     path: "/",
     icon: (isActive) => (
       <LayoutDashboard
@@ -43,7 +43,7 @@ export const hrMenus = [
     ),
   },
   {
-    text: "Employee Management",
+    text: "Quản lý nhân viên",
     path: "/employee-management",
     icon: (isActive) => (
       <Users
@@ -53,7 +53,7 @@ export const hrMenus = [
     ),
   },
   {
-    text: "Jobs",
+    text: "Tuyển dụng",
     path: "/jobs",
     icon: (isActive) => (
       <Briefcase
