@@ -12,9 +12,9 @@ import UnauthorizedPage from "./pages/UnauthorizedPage";
 import AccountManagement from "./pages/AccountManagement";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import EmployeeManagement from "./pages/EmployeeManagement";
-import EmployeeDetails from "./pages/EmployeeDetails"; // ✅ Đổi tên import cho đúng
+import EmployeeDetails from "./pages/EmployeeDetails"; // ✅ Đổi tên cho đồng bộ
 import ApplyJob from "./pages/ApplyJob";
-import EmployeeCreate from "./pages/EmployeeCreate"; // thêm dòng này
+import EmployeeCreate from "./pages/EmployeeCreate";
 import JobsManagement from "./pages/RecruitmentManagement";
 
 function App() {
@@ -34,12 +34,10 @@ function App() {
           path="/jobs/:id"
           element={<JobDetail />}
         />
-
         <Route
           path="/applyjob/:id"
           element={<ApplyJob />}
         />
-
         <Route
           path="/jobs-management"
           element={
@@ -48,13 +46,12 @@ function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/unauthorized"
           element={<UnauthorizedPage />}
         />
 
-        {/* Protected route for admin */}
+        {/* Protected routes */}
         <Route
           path="/accounts"
           element={
@@ -79,6 +76,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/employees/:id"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_ADMIN"]}>
+              <EmployeeDetails />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Catch all unmatched routes */}
         <Route
@@ -89,10 +94,6 @@ function App() {
               replace
             />
           }
-        />
-        <Route
-          path="/employee-details"
-          element={<EmployeeDetails />} // ✅ Đổi path cho đồng bộ với component
         />
       </Routes>
     </Router>

@@ -1,59 +1,42 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
 import MainLayout from "../components/MainLayout";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { vi } from "date-fns/locale";
-import { Save } from "lucide-react"; // ✅ Icon đẹp từ lucide
 import "../styles/EmployeeDetails.css";
 import employeeService from "../services/employeeService";
 import departmentService from "../services/departmentService";
-import { format } from "date-fns";
+import { Save } from "lucide-react"; // ✅ Icon đẹp từ lucide
 
-function EmployeeCreate() {
+function EmployeeDetails() {
+  const { id } = useParams();
+
   const [employeeCode, setEmployeeCode] = useState("");
   const [fullName, setFullName] = useState("");
   const [gender, setGender] = useState("");
   const [birthDate, setBirthDate] = useState(null);
   const [birthPlace, setBirthPlace] = useState("");
   const [originPlace, setOriginPlace] = useState("");
-  const [departmentId, setDepartmentId] = useState("");
-  const [positionId, setPositionId] = useState("");
-  const [lineId, setLineId] = useState("");
-  const [errors, setErrors] = useState({});
-
   const [nationality, setNationality] = useState("");
   const [idNumber, setIdNumber] = useState("");
   const [issueDate, setIssueDate] = useState(null);
   const [expiryDate, setExpiryDate] = useState(null);
+  const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [startWorkAt, setStartWorkAt] = useState(null);
+  const [departmentId, setDepartmentId] = useState("");
+  const [positionId, setPositionId] = useState("");
+  const [lineId, setLineId] = useState("");
+
   const [departments, setDepartments] = useState([]);
   const [positions, setPositions] = useState([]);
   const [lines, setLines] = useState([]);
-
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
+  const [errors, setErrors] = useState({});
   const [activeSection, setActiveSection] = useState("basic-info");
-  const resetForm = () => {
-    setEmployeeCode("");
-    setFullName("");
-    setGender("");
-    setBirthDate(null);
-    setBirthPlace("");
-    setOriginPlace("");
-    setNationality("");
-    setIdNumber("");
-    setIssueDate(null);
-    setExpiryDate(null);
-    setAddress("");
-    setPhone("");
-    setEmail("");
-    setStartWorkAt(null);
-    setDepartmentId("");
-    setPositionId("");
-    setLineId("");
-  };
 
+  const isClickScrolling = useRef(false);
   const handleSubmit = async () => {
     const payload = {
       employeeCode: employeeCode?.trim() ? employeeCode : null,
@@ -93,26 +76,40 @@ function EmployeeCreate() {
   };
 
   useEffect(() => {
-    const contentEl = document.querySelector(".employeedetail-form-content");
-    const handleScroll = () => {
-      if (isClickScrolling.current) return;
-      const sections = ["basic-info", "contact-info", "job-info"];
-      for (let id of sections) {
-        const el = document.getElementById(id);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top >= 150 && rect.top < window.innerHeight / 2) {
-            setActiveSection(id);
-            break;
-          }
-        }
+    const fetchEmployeeDetail = async () => {
+      try {
+        const res = await employeeService.getEmployeeById(id);
+        const data = res.data;
+
+        setEmployeeCode(data.employeeCode || "");
+        setFullName(data.employeeName || "");
+        setGender(data.gender || "");
+        setBirthDate(data.dob ? new Date(data.dob) : null);
+        setBirthPlace(data.placeOfBirth || "");
+        setOriginPlace(data.originPlace || "");
+        setNationality(data.nationality || "");
+        setIdNumber(data.citizenId || "");
+        setIssueDate(
+          data.citizenIssueDate ? new Date(data.citizenIssueDate) : null
+        );
+        setExpiryDate(
+          data.citizenExpiryDate ? new Date(data.citizenExpiryDate) : null
+        );
+        setAddress(data.address || "");
+        setPhone(data.phoneNumber || "");
+        setEmail(data.email || "");
+        setStartWorkAt(data.startWorkAt ? new Date(data.startWorkAt) : null);
+        // Nếu backend trả về id thì set, còn không thì có thể giữ nguyên ""
+        setDepartmentId(data.departmentId || "");
+        setPositionId(data.positionId || "");
+        setLineId(data.lineId || "");
+      } catch (err) {
+        console.error("❌ Lỗi load chi tiết nhân viên:", err);
       }
     };
-    if (contentEl) {
-      contentEl.addEventListener("scroll", handleScroll);
-      return () => contentEl.removeEventListener("scroll", handleScroll);
-    }
-  }, []);
+
+    fetchEmployeeDetail();
+  }, [id]);
 
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -147,18 +144,15 @@ function EmployeeCreate() {
     }
   }, [departmentId]);
 
-  const isClickScrolling = useRef(false);
-
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
     if (el) {
       isClickScrolling.current = true;
       el.scrollIntoView({ behavior: "smooth", block: "start" });
       setActiveSection(id);
-      // Sau một khoảng delay đủ để scrollIntoView hoàn thành
       setTimeout(() => {
         isClickScrolling.current = false;
-      }, 500); // 500ms là đủ cho smooth scroll
+      }, 500);
     }
   };
 
@@ -179,7 +173,7 @@ function EmployeeCreate() {
     <MainLayout>
       <div className="content-wrapper">
         <div className="page-header">
-          <h1 className="page-title">NHẬP HỒ SƠ NHÂN VIÊN</h1>
+          <h1 className="page-title">HỒ SƠ NHÂN VIÊN</h1>
         </div>
 
         <div className="employeedetail-form-container">
@@ -593,4 +587,4 @@ function EmployeeCreate() {
   );
 }
 
-export default EmployeeCreate;
+export default EmployeeDetails;

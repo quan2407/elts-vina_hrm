@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import employeeService from "../services/employeeService";
 import "../styles/EmployeeTable.css";
 
 function EmployeeTable() {
   const [employees, setEmployees] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     employeeService
@@ -15,6 +17,10 @@ function EmployeeTable() {
         console.error("Failed to fetch employees", error);
       });
   }, []);
+
+  const handleRowClick = (id) => {
+    navigate(`/employees/${id}`);
+  };
 
   return (
     <div className="employee-table-wrapper">
@@ -40,6 +46,8 @@ function EmployeeTable() {
           <div
             key={emp.employeeId}
             className="employee-table-row"
+            onClick={() => handleRowClick(emp.employeeId)}
+            style={{ cursor: "pointer" }}
           >
             <div className="employee-table-cell">{emp.employeeCode}</div>
             <div className="employee-table-cell">{emp.employeeName}</div>
