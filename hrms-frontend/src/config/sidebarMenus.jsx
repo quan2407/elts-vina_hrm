@@ -54,7 +54,8 @@ export const hrMenus = [
   },
   {
     text: "Tuyển dụng",
-    path: "/jobs",
+    path: "/jobs-management",
+
     icon: (isActive) => (
       <Briefcase
         size={20}

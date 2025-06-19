@@ -1,5 +1,6 @@
 package sep490.com.example.hrms_backend.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ public class CandidateController {
 
     @PostMapping("/apply/{recruitmentId}")
     public ResponseEntity<?> applyCandidate(
-            @RequestBody CandidateDto candidateDto,
+            @Valid @RequestBody CandidateDto candidateDto,
             @PathVariable Long recruitmentId) {
         try {
             candidateService.saveOrUpdateCandidateByPhone(candidateDto, recruitmentId);
