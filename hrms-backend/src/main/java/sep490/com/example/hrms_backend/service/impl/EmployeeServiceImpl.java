@@ -43,14 +43,9 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     @Override
     @Transactional
     public EmployeeResponseDTO createEmployee(EmployeeRequestDTO dto) {
-        if (employeeRepository.existsByEmployeeCode(dto.getEmployeeCode())) {
-            throw new DuplicateEntryException("Mã nhân viên đã tồn tại trong hệ thống");
-        }
-        if (employeeRepository.existsByCitizenId(dto.getCitizenId())) {
-            throw new DuplicateEntryException("Số CMND/CCCD đã tồn tại trong hệ thống");
-        }
+        checkDuplicateFieldsForCreate(dto);
+        checkPositionLineRequirements(dto.getDepartmentId(), dto.getPositionId(), dto.getLineId());
 
-        // Check cặp position - department
         if (!positionRepository.existsDepartmentPositionMapping(dto.getDepartmentId(), dto.getPositionId())) {
             throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Chức vụ không thuộc phòng ban đã chọn");
         }
@@ -70,13 +65,9 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
 
-        if (!safeEquals(dto.getCitizenId(), employee.getCitizenId())) {
-            if (employeeRepository.existsByCitizenIdAndEmployeeIdNot(dto.getCitizenId(), id)) {
-                throw new DuplicateEntryException("Số CMND/CCCD đã tồn tại trong hệ thống");
-            }
-        }
+        checkDuplicateFieldsForUpdate(dto, id, employee);
+        checkPositionLineRequirements(dto.getDepartmentId(), dto.getPositionId(), dto.getLineId());
 
-        // Check cặp position - department
         if (!positionRepository.existsDepartmentPositionMapping(dto.getDepartmentId(), dto.getPositionId())) {
             throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Chức vụ không thuộc phòng ban đã chọn");
         }
@@ -89,6 +80,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         employee = employeeRepository.save(employee);
         return EmployeeMapper.mapToEmployeeResponseDTO(employee);
     }
+
     @Override
     public EmployeeDetailDTO getEmployeeDetailById(Long id) {
         Employee employee = employeeRepository.findById(id)
@@ -96,6 +88,42 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         return EmployeeMapper.mapToEmployeeDetailDTO(employee);
     }
 
+    private void checkDuplicateFieldsForCreate(EmployeeRequestDTO dto) {
+        if (employeeRepository.existsByEmployeeCode(dto.getEmployeeCode())) {
+            throw new DuplicateEntryException("Mã nhân viên đã tồn tại trong hệ thống");
+        }
+        if (employeeRepository.existsByCitizenId(dto.getCitizenId())) {
+            throw new DuplicateEntryException("Số CMND/CCCD đã tồn tại trong hệ thống");
+        }
+        if (employeeRepository.existsByEmail(dto.getEmail())) {
+            throw new DuplicateEntryException("Email đã tồn tại trong hệ thống");
+        }
+    }
+
+    private void checkDuplicateFieldsForUpdate(EmployeeUpdateDTO dto, Long id, Employee employee) {
+        if (!safeEquals(dto.getCitizenId(), employee.getCitizenId())) {
+            if (employeeRepository.existsByCitizenIdAndEmployeeIdNot(dto.getCitizenId(), id)) {
+                throw new DuplicateEntryException("Số CMND/CCCD đã tồn tại trong hệ thống");
+            }
+        }
+        if (!safeEquals(dto.getEmail(), employee.getEmail())) {
+            if (employeeRepository.existsByEmailAndEmployeeIdNot(dto.getEmail(), id)) {
+                throw new DuplicateEntryException("Email đã tồn tại trong hệ thống");
+            }
+        }
+    }
+
+    private void checkPositionLineRequirements(Long departmentId, Long positionId, Long lineId) {
+        List<Position> positions = positionRepository.findByDepartments_DepartmentId(departmentId);
+        if (!positions.isEmpty() && positionId == null) {
+            throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Vui lòng chọn chức vụ cho nhân viên");
+        }
+
+        List<Line> lines = lineRepository.findByDepartment_DepartmentId(departmentId);
+        if (!lines.isEmpty() && lineId == null) {
+            throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Vui lòng chọn chuyền sản xuất cho nhân viên");
+        }
+    }
 
     private boolean safeEquals(String s1, String s2) {
         if (s1 == null && s2 == null) return true;
@@ -109,11 +137,13 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     }
 
     private Position fetchPosition(Long id) {
+        if (id == null) return null;
         return positionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Position", "id", id));
     }
 
     private Line fetchLine(Long id) {
+        if (id == null) return null;
         return lineRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Line", "id", id));
     }
