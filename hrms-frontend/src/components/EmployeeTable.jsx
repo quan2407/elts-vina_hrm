@@ -27,6 +27,7 @@ function EmployeeTable() {
       <div className="employee-table">
         <div className="employee-table-header">
           <div className="employee-header-cell">Mã nhân viên</div>
+          <div className="employee-header-cell">Tài khoản</div>
           <div className="employee-header-cell">Họ và tên</div>
           <div className="employee-header-cell">Giới tính</div>
           <div className="employee-header-cell">Ngày sinh</div>
@@ -35,11 +36,9 @@ function EmployeeTable() {
           <div className="employee-header-cell">Địa chỉ</div>
           <div className="employee-header-cell">Ngày vào công ty</div>
           <div className="employee-header-cell">Số điện thoại</div>
-          <div className="employee-header-cell">Số CCCD</div>
           <div className="employee-header-cell">Phòng ban</div>
           <div className="employee-header-cell">Chuyền sản xuất</div>
           <div className="employee-header-cell">Vị trí</div>
-          <div className="employee-header-cell">Tài khoản</div>
         </div>
 
         {employees.map((emp) => (
@@ -50,6 +49,7 @@ function EmployeeTable() {
             style={{ cursor: "pointer" }}
           >
             <div className="employee-table-cell">{emp.employeeCode}</div>
+            <div className="employee-table-cell">{emp.accountUsername}</div>
             <div className="employee-table-cell">{emp.employeeName}</div>
             <div className="employee-table-cell">{emp.gender}</div>
             <div className="employee-table-cell">{emp.dob}</div>
@@ -58,11 +58,9 @@ function EmployeeTable() {
             <div className="employee-table-cell">{emp.address}</div>
             <div className="employee-table-cell">{emp.startWorkAt}</div>
             <div className="employee-table-cell">{emp.phoneNumber}</div>
-            <div className="employee-table-cell">{emp.citizenId}</div>
             <div className="employee-table-cell">{emp.departmentName}</div>
             <div className="employee-table-cell">{emp.lineName}</div>
             <div className="employee-table-cell">{emp.positionName}</div>
-            <div className="employee-table-cell">{emp.accountUsername}</div>
           </div>
         ))}
       </div>
