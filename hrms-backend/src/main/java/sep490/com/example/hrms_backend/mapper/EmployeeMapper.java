@@ -39,7 +39,7 @@ public class EmployeeMapper {
                 .citizenId(dto.getCitizenId())
                 .citizenIssueDate(dto.getCitizenIssueDate())
                 .citizenExpiryDate(dto.getCitizenExpiryDate())
-                .citizenIssuePlace(dto.getCitizenIssuePlace())
+//                .citizenIssuePlace(dto.getCitizenIssuePlace())
                 .address(dto.getAddress())
                 .image(dto.getImage())
                 .startWorkAt(dto.getStartWorkAt())
@@ -57,7 +57,7 @@ public class EmployeeMapper {
         employee.setCitizenId(dto.getCitizenId());
         employee.setCitizenIssueDate(dto.getCitizenIssueDate());
         employee.setCitizenExpiryDate(dto.getCitizenExpiryDate());
-        employee.setCitizenIssuePlace(dto.getCitizenIssuePlace());
+//        employee.setCitizenIssuePlace(dto.getCitizenIssuePlace());
         employee.setAddress(dto.getAddress());
         employee.setImage(dto.getImage());
         employee.setStartWorkAt(dto.getStartWorkAt());

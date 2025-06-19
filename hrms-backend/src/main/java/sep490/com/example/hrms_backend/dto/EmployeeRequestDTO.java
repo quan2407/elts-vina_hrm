@@ -40,15 +40,13 @@ public class EmployeeRequestDTO {
     private String nationality;
 
     @Pattern(regexp = "^[0-9]{9,12}$", message = "Số CMND/CCCD phải gồm 9-12 chữ số")
-    private String citizenId;
+    private String citizenId; // ✅ Có thể null, nếu có thì phải đúng định dạng
 
     @PastOrPresent(message = "Ngày cấp CMND/CCCD phải là ngày trong quá khứ hoặc hiện tại")
-    private LocalDate citizenIssueDate;
+    private LocalDate citizenIssueDate; // ✅ Có thể null
 
-    private LocalDate citizenExpiryDate;
-
-    @Size(max = 255, message = "Nơi cấp CMND/CCCD không được vượt quá 255 ký tự")
-    private String citizenIssuePlace;
+    @FutureOrPresent(message = "Ngày hết hạn CMND/CCCD phải là ngày hiện tại hoặc tương lai")
+    private LocalDate citizenExpiryDate; // ✅ Có thể null
 
     @Size(max = 255, message = "Địa chỉ không được vượt quá 255 ký tự")
     private String address;

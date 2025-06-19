@@ -104,6 +104,12 @@
 .employeedetail-datepicker-wrapper {
   width: 100%;
 }
+.error-message {
+  color: red;
+  font-size: 14px; /* tăng kích thước chữ */
+  margin-top: 2px;
+  font-weight: 500; /* đậm hơn nếu muốn nổi bật */
+}
 
 .employeedetail-datepicker-wrapper input {
   /* Kế thừa luôn style input cho đồng nhất */
@@ -173,4 +179,8 @@
 
 .submit-button:hover {
   background-color: #0353e9;
+}
+.required-star {
+  color: red;
+  margin-left: 2px;
 }

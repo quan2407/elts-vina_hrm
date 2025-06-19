@@ -5,6 +5,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import { vi } from "date-fns/locale";
 import { Save } from "lucide-react"; // ✅ Icon đẹp từ lucide
 import "../styles/EmployeeDetails.css";
+import employeeService from "../services/employeeService";
+import departmentService from "../services/departmentService";
+import { format } from "date-fns";
 
 function EmployeeCreate() {
   const [employeeCode, setEmployeeCode] = useState("");
@@ -12,29 +15,92 @@ function EmployeeCreate() {
   const [gender, setGender] = useState("");
   const [birthDate, setBirthDate] = useState(null);
   const [birthPlace, setBirthPlace] = useState("");
-  const [hometown, setHometown] = useState("");
+  const [originPlace, setOriginPlace] = useState("");
+  const [departmentId, setDepartmentId] = useState("");
+  const [positionId, setPositionId] = useState("");
+  const [lineId, setLineId] = useState("");
+  const [errors, setErrors] = useState({});
+
   const [nationality, setNationality] = useState("");
   const [idNumber, setIdNumber] = useState("");
   const [issueDate, setIssueDate] = useState(null);
   const [expiryDate, setExpiryDate] = useState(null);
   const [startWorkAt, setStartWorkAt] = useState(null);
-  const [departmentId, setDepartmentId] = useState("");
-  const [positionId, setPositionId] = useState("");
-  const [lineId, setLineId] = useState("");
+  const [departments, setDepartments] = useState([]);
+  const [positions, setPositions] = useState([]);
+  const [lines, setLines] = useState([]);
+
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
   const [activeSection, setActiveSection] = useState("basic-info");
+  const resetForm = () => {
+    setEmployeeCode("");
+    setFullName("");
+    setGender("");
+    setBirthDate(null);
+    setBirthPlace("");
+    setOriginPlace("");
+    setNationality("");
+    setIdNumber("");
+    setIssueDate(null);
+    setExpiryDate(null);
+    setAddress("");
+    setPhone("");
+    setEmail("");
+    setStartWorkAt(null);
+    setDepartmentId("");
+    setPositionId("");
+    setLineId("");
+  };
+
+  const handleSubmit = async () => {
+    const payload = {
+      employeeCode: employeeCode?.trim() ? employeeCode : null,
+      employeeName: fullName?.trim() ? fullName : null,
+      gender: gender?.trim() ? gender : null,
+      dob: birthDate ? format(birthDate, "yyyy-MM-dd") : null,
+      placeOfBirth: birthPlace?.trim() ? birthPlace : null,
+      originPlace: originPlace?.trim() ? originPlace : null,
+      nationality: nationality?.trim() ? nationality : null,
+      citizenId: idNumber?.trim() ? idNumber : null,
+      citizenIssueDate: issueDate ? format(issueDate, "yyyy-MM-dd") : null,
+      citizenExpiryDate: expiryDate ? format(expiryDate, "yyyy-MM-dd") : null,
+      address: address?.trim() ? address : null,
+      phoneNumber: phone?.trim() ? phone : null,
+      email: email?.trim() ? email : null,
+      startWorkAt: startWorkAt ? format(startWorkAt, "yyyy-MM-dd") : null,
+      departmentId: departmentId !== "" ? Number(departmentId) : null,
+      positionId: positionId !== "" ? Number(positionId) : null,
+      lineId: lineId !== "" ? Number(lineId) : null,
+    };
+
+    console.log("📌 Payload gửi đi:", payload);
+
+    try {
+      await employeeService.createEmployee(payload);
+      alert("Tạo nhân viên thành công!");
+      setErrors({});
+      resetForm();
+    } catch (err) {
+      console.error("❌ Lỗi tạo nhân viên:", err);
+      if (err.response && err.response.data) {
+        setErrors(err.response.data);
+      } else {
+        alert("Có lỗi xảy ra khi tạo nhân viên!");
+      }
+    }
+  };
 
   useEffect(() => {
+    const contentEl = document.querySelector(".employeedetail-form-content");
     const handleScroll = () => {
-      if (isClickScrolling.current) return; // Đang scroll từ click thì bỏ qua
-
+      if (isClickScrolling.current) return;
       const sections = ["basic-info", "contact-info", "job-info"];
       for (let id of sections) {
         const el = document.getElementById(id);
         if (el) {
           const rect = el.getBoundingClientRect();
-          // Khi top của section nằm trong nửa trên viewport
           if (rect.top >= 150 && rect.top < window.innerHeight / 2) {
             setActiveSection(id);
             break;
@@ -42,13 +108,44 @@ function EmployeeCreate() {
         }
       }
     };
-
-    const contentEl = document.querySelector(".employeedetail-form-content");
     if (contentEl) {
       contentEl.addEventListener("scroll", handleScroll);
       return () => contentEl.removeEventListener("scroll", handleScroll);
     }
   }, []);
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const res = await departmentService.getAllDepartments();
+        setDepartments(res.data);
+      } catch (err) {
+        console.error("Lỗi load phòng ban:", err);
+      }
+    };
+    fetchDepartments();
+  }, []);
+
+  useEffect(() => {
+    if (departmentId) {
+      const fetchPosLine = async () => {
+        try {
+          const [posRes, lineRes] = await Promise.all([
+            departmentService.getPositionsByDepartment(departmentId),
+            departmentService.getLinesByDepartment(departmentId),
+          ]);
+          setPositions(posRes.data);
+          setLines(lineRes.data);
+        } catch (err) {
+          console.error("Lỗi load vị trí hoặc line:", err);
+        }
+      };
+      fetchPosLine();
+    } else {
+      setPositions([]);
+      setLines([]);
+    }
+  }, [departmentId]);
 
   const isClickScrolling = useRef(false);
 
@@ -121,7 +218,9 @@ function EmployeeCreate() {
               <div className="employeedetail-form-title">Thông tin cơ bản</div>
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Mã nhân viên</div>
+                  <div className="employeedetail-input-label">
+                    Mã nhân viên<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -129,9 +228,16 @@ function EmployeeCreate() {
                     placeholder="Nhập mã nhân viên"
                     onChange={(e) => setEmployeeCode(e.target.value)}
                   />
+                  {errors.employeeCode && (
+                    <div className="error-message">
+                      {errors.employeeCode.join(", ")}
+                    </div>
+                  )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Họ và tên</div>
+                  <div className="employeedetail-input-label">
+                    Họ và tên<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -139,21 +245,33 @@ function EmployeeCreate() {
                     placeholder="Nhập họ và tên"
                     onChange={(e) => setFullName(e.target.value)}
                   />
+                  {errors.employeeName && (
+                    <div className="error-message">
+                      {errors.employeeName.join(", ")}
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Giới tính</div>
+                  <div className="employeedetail-input-label">
+                    Giới tính<span className="required-star">*</span>
+                  </div>
                   <select
                     className="employeedetail-input-field"
                     value={gender}
                     onChange={(e) => setGender(e.target.value)}
                   >
                     <option value="">-- Chọn giới tính --</option>
-                    <option>Nam</option>
-                    <option>Nữ</option>
+                    <option>NAM</option>
+                    <option>NỮ</option>
                   </select>
+                  {errors.gender && (
+                    <div className="error-message">
+                      {errors.gender.join(", ")}
+                    </div>
+                  )}
                 </div>
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">Ngày sinh</div>
@@ -168,6 +286,9 @@ function EmployeeCreate() {
                     showYearDropdown
                     dropdownMode="select"
                   />
+                  {errors.dob && (
+                    <div className="error-message">{errors.dob.join(", ")}</div>
+                  )}
                 </div>
               </div>
 
@@ -181,16 +302,26 @@ function EmployeeCreate() {
                     placeholder="Nhập nơi sinh"
                     onChange={(e) => setBirthPlace(e.target.value)}
                   />
+                  {errors.placeOfBirth && (
+                    <div className="error-message">
+                      {errors.placeOfBirth.join(", ")}
+                    </div>
+                  )}
                 </div>
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">Nguyên quán</div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
-                    value={hometown}
+                    value={originPlace}
                     placeholder="Nhập nguyên quán"
-                    onChange={(e) => setHometown(e.target.value)}
+                    onChange={(e) => setOriginPlace(e.target.value)}
                   />
+                  {errors.originPlace && (
+                    <div className="error-message">
+                      {errors.originPlace.join(", ")}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -204,6 +335,11 @@ function EmployeeCreate() {
                     placeholder="Nhập quốc tịch"
                     onChange={(e) => setNationality(e.target.value)}
                   />
+                  {errors.nationality && (
+                    <div className="error-message">
+                      {errors.nationality.join(", ")}
+                    </div>
+                  )}
                 </div>
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">Số CCCD</div>
@@ -214,6 +350,11 @@ function EmployeeCreate() {
                     placeholder="Nhập số CCCD"
                     onChange={(e) => setIdNumber(e.target.value)}
                   />
+                  {errors.citizenId && (
+                    <div className="error-message">
+                      {errors.citizenId.join(", ")}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -231,6 +372,11 @@ function EmployeeCreate() {
                     showYearDropdown
                     dropdownMode="select"
                   />
+                  {errors.citizenIssueDate && (
+                    <div className="error-message">
+                      {errors.citizenIssueDate.join(", ")}
+                    </div>
+                  )}
                 </div>
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">Ngày hết hạn</div>
@@ -245,6 +391,11 @@ function EmployeeCreate() {
                     showYearDropdown
                     dropdownMode="select"
                   />
+                  {errors.citizenExpiryDate && (
+                    <div className="error-message">
+                      {errors.citizenExpiryDate.join(", ")}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -254,6 +405,7 @@ function EmployeeCreate() {
               className="employeedetail-contact-information"
             >
               <div className="employeedetail-form-title">Thông tin liên hệ</div>
+
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
@@ -266,6 +418,11 @@ function EmployeeCreate() {
                     placeholder="Nhập số điện thoại"
                     onChange={(e) => setPhone(e.target.value)}
                   />
+                  {errors.phoneNumber && (
+                    <div className="error-message">
+                      {errors.phoneNumber.join(", ")}
+                    </div>
+                  )}
                 </div>
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">Email</div>
@@ -276,6 +433,32 @@ function EmployeeCreate() {
                     placeholder="Nhập email liên hệ"
                     onChange={(e) => setEmail(e.target.value)}
                   />
+                  {errors.email && (
+                    <div className="error-message">
+                      {errors.email.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="employeedetail-form-row">
+                <div
+                  className="employeedetail-input-group"
+                  style={{ width: "100%" }}
+                >
+                  <div className="employeedetail-input-label">Địa chỉ</div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="text"
+                    value={address}
+                    placeholder="Nhập địa chỉ"
+                    onChange={(e) => setAddress(e.target.value)}
+                  />
+                  {errors.address && (
+                    <div className="error-message">
+                      {errors.address.join(", ")}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -304,39 +487,68 @@ function EmployeeCreate() {
                     showYearDropdown
                     dropdownMode="select"
                   />
+                  {errors.startWorkAt && (
+                    <div className="error-message">
+                      {errors.startWorkAt.join(", ")}
+                    </div>
+                  )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Phòng ban</div>
+                  <div className="employeedetail-input-label">
+                    Phòng ban<span className="required-star">*</span>
+                  </div>
                   <select
                     className="employeedetail-input-field"
                     value={departmentId}
                     onChange={(e) => setDepartmentId(e.target.value)}
                   >
                     <option value="">-- Chọn phòng ban --</option>
-                    <option value="1">Nhân sự</option>
-                    <option value="2">Sản xuất</option>
-                    <option value="3">Kế toán</option>
+                    {departments.map((d) => (
+                      <option
+                        key={d.id}
+                        value={d.id}
+                      >
+                        {d.name}
+                      </option>
+                    ))}
                   </select>
+                  {errors.departmentId && (
+                    <div className="error-message">
+                      {errors.departmentId.join(", ")}
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Vị trí</div>
+                  <div className="employeedetail-input-label">
+                    Vị trí<span className="required-star">*</span>
+                  </div>
                   <select
                     className="employeedetail-input-field"
                     value={positionId}
                     onChange={(e) => setPositionId(e.target.value)}
                   >
                     <option value="">-- Chọn vị trí --</option>
-                    <option value="1">Công nhân</option>
-                    <option value="2">Tổ trưởng</option>
-                    <option value="3">Quản lý</option>
+                    {positions.map((p) => (
+                      <option
+                        key={p.id}
+                        value={p.id}
+                      >
+                        {p.name}
+                      </option>
+                    ))}
                   </select>
+                  {errors.positionId && (
+                    <div className="error-message">
+                      {errors.positionId.join(", ")}
+                    </div>
+                  )}
                 </div>
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Chuyền sản xuất
+                    Chuyền sản xuất<span className="required-star">*</span>
                   </div>
                   <select
                     className="employeedetail-input-field"
@@ -344,16 +556,29 @@ function EmployeeCreate() {
                     onChange={(e) => setLineId(e.target.value)}
                   >
                     <option value="">-- Chọn line --</option>
-                    <option value="1">Line A</option>
-                    <option value="2">Line B</option>
-                    <option value="3">Line C</option>
+                    {lines.map((l) => (
+                      <option
+                        key={l.id}
+                        value={l.id}
+                      >
+                        {l.name}
+                      </option>
+                    ))}
                   </select>
+                  {errors.lineId && (
+                    <div className="error-message">
+                      {errors.lineId.join(", ")}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
             <div className="employeedetail-form-actions">
-              <button className="submit-button">
+              <button
+                className="submit-button"
+                onClick={handleSubmit}
+              >
                 <Save
                   size={16}
                   style={{ marginRight: "8px" }}

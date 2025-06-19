@@ -40,8 +40,8 @@ public class EmployeeUpdateDTO {
 
     private LocalDate citizenExpiryDate;
 
-    @Size(max = 255, message = "Nơi cấp CMND/CCCD không được vượt quá 255 ký tự")
-    private String citizenIssuePlace;
+//    @Size(max = 255, message = "Nơi cấp CMND/CCCD không được vượt quá 255 ký tự")
+//    private String citizenIssuePlace;
 
     @Size(max = 255, message = "Địa chỉ không được vượt quá 255 ký tự")
     private String address;
