@@ -30,4 +30,13 @@ public class Position {
     // Một chức vụ có thể gán cho nhiều nhân viên
     @OneToMany(mappedBy = "position")
     private List<Employee> employees;
+
+    // Nhiều chức vụ thuộc nhiều phòng ban
+    @ManyToMany
+    @JoinTable(
+            name = "department_position",
+            joinColumns = @JoinColumn(name = "position_id"),
+            inverseJoinColumns = @JoinColumn(name = "department_id")
+    )
+    private List<Department> departments;
 }
