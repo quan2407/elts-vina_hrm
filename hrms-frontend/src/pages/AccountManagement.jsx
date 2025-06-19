@@ -1,6 +1,7 @@
 import React from "react";
 import MainLayout from "../components/MainLayout";
 import AccountTable from "../components/AccountTable";
+import { Plus } from "lucide-react";
 import "../styles/ManagementLayout.css";
 
 function AccountManagement() {
@@ -37,6 +38,15 @@ function AccountManagement() {
                 </defs>
               </svg>
             </div>
+
+            <button className="create-button">
+              <Plus
+                size={16}
+                style={{ marginRight: "6px" }}
+              />
+              <span className="create-text">Create</span>
+            </button>
+
             <div className="export-button">
               <span className="export-text">Export</span>
               <svg

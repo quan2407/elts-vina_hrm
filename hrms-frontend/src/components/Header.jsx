@@ -65,20 +65,20 @@ function Header() {
               <div className="profile-name">{username}</div>
             </div>
             <div className="profile-item">
-              <User size={16} /> <span>Edit profile</span>
+              <User size={16} /> <span>Chỉnh sửa hồ sơ</span>
             </div>
             <div className="profile-item">
-              <Settings size={16} /> <span>Account settings</span>
+              <Settings size={16} /> <span>Cài đặt tài khoản</span>
             </div>
             <div className="profile-item">
-              <HelpCircle size={16} /> <span>Support</span>
+              <HelpCircle size={16} /> <span>Hỗ trợ</span>
             </div>
             <div className="profile-divider"></div>
             <div
               className="profile-item profile-logout"
               onClick={handleSignOut}
             >
-              <LogOut size={16} /> <span>Sign out</span>
+              <LogOut size={16} /> <span>Đăng xuất</span>
             </div>
           </div>
         )}

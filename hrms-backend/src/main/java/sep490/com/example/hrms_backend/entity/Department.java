@@ -15,8 +15,6 @@ import java.util.List;
 @Builder
 public class Department {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "department_id")
@@ -26,17 +24,16 @@ public class Department {
     @Column(name = "department_name", nullable = false, unique = true)
     private String departmentName; // tên phòng ban (ví dụ: Kế toán, IT, Nhân sự)
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
-
-    // Một phòng ban có thể có nhiều line
     @OneToMany(mappedBy = "department")
     private List<Line> lines;
 
-    // Một phòng ban có thể có nhiều nhân viên
     @OneToMany(mappedBy = "department")
     private List<Employee> employees;
 
-    // Một phòng ban có thể có nhiều đợt tuyển dụng
     @OneToMany(mappedBy = "department")
     private List<Recruitment> recruitments;
+
+    // Nhiều phòng ban có nhiều chức vụ
+    @ManyToMany(mappedBy = "departments")
+    private List<Position> positions;
 }

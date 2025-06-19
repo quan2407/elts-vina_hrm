@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.EmployeeRequestDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeResponseDTO;
+import sep490.com.example.hrms_backend.dto.EmployeeUpdateDTO;
 import sep490.com.example.hrms_backend.service.EmployeeService;
 
 import java.util.List;
@@ -27,8 +28,17 @@ public class EmployeeController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
-    public ResponseEntity<?> createEmployee(@Valid @RequestBody EmployeeRequestDTO dto) {
-        return ResponseEntity.ok("Tạo thành công");
+    public ResponseEntity<EmployeeResponseDTO> createEmployee(@Valid @RequestBody EmployeeRequestDTO dto) {
+        EmployeeResponseDTO createdEmployee = employeeService.createEmployee(dto);
+        return ResponseEntity.ok(createdEmployee);
+    }
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
+    public ResponseEntity<EmployeeResponseDTO> updateEmployee(
+            @PathVariable Long id,
+            @Valid @RequestBody EmployeeUpdateDTO dto) {
+        EmployeeResponseDTO updatedEmployee = employeeService.updateEmployee(id, dto);
+        return ResponseEntity.ok(updatedEmployee);
     }
 
 }

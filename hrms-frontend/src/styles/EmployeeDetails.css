@@ -44,9 +44,14 @@
   cursor: pointer;
   background-color: #e3edf9;
 }
+.employeedetail-job-information {
+  min-height: 500px;
+}
 
 .employeedetail-nav-item.employeedetail-active {
   font-weight: 700;
+  background-color: #d0e2ff;
+  color: #000;
 }
 
 .employeedetail-form-content {
@@ -99,6 +104,12 @@
 .employeedetail-datepicker-wrapper {
   width: 100%;
 }
+.error-message {
+  color: red;
+  font-size: 14px; /* tăng kích thước chữ */
+  margin-top: 2px;
+  font-weight: 500; /* đậm hơn nếu muốn nổi bật */
+}
 
 .employeedetail-datepicker-wrapper input {
   /* Kế thừa luôn style input cho đồng nhất */
@@ -145,4 +156,31 @@
 .employeedetail-form-content .react-datepicker-wrapper {
   width: 100% !important;
   display: block;
+}
+.employeedetail-form-actions {
+  margin-top: 0px;
+  text-align: right;
+  padding-bottom: 24px;
+}
+
+.submit-button {
+  background-color: #0f62fe;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.submit-button:hover {
+  background-color: #0353e9;
+}
+.required-star {
+  color: red;
+  margin-left: 2px;
 }
