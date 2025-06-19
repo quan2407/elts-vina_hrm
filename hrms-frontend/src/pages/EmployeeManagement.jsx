@@ -17,25 +17,26 @@ function EmployeeManagement() {
       <div className="content-wrapper">
         <div className="page-header">
           <h1 className="page-title">Employee Management</h1>
-          <div className="page-actions">
-            {/* Button Create có điều hướng */}
+          <div className="employee-page-actions">
+            {/* Button Create */}
             <button
-              className="create-button"
+              className="employee-add-button"
               onClick={handleCreate}
             >
               <Plus
                 size={16}
                 style={{ marginRight: "6px" }}
               />
-              <span className="create-text">Create</span>
+              <span className="employee-create-text">Create</span>
             </button>
-            {/* Button Export giữ nguyên */}
-            <button className="export-button">
+
+            {/* Button Export */}
+            <button className="employee-export-button">
               <Download
                 size={16}
                 style={{ marginRight: "6px" }}
               />
-              <span className="export-text">Export</span>
+              <span className="employee-export-text">Export</span>
             </button>
           </div>
         </div>
