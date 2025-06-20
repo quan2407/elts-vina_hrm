@@ -12,11 +12,11 @@ import UnauthorizedPage from "./pages/UnauthorizedPage";
 import AccountManagement from "./pages/AccountManagement";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import EmployeeManagement from "./pages/EmployeeManagement";
-import EmployeeDetails from "./pages/EmployeeDetails"; // ✅ Đổi tên import cho đúng
+import EmployeeDetails from "./pages/EmployeeDetails";
 import ApplyJob from "./pages/ApplyJob";
-import EmployeeCreate from "./pages/EmployeeCreate"; // thêm dòng này
+import EmployeeCreate from "./pages/EmployeeCreate";
 import JobsManagement from "./pages/RecruitmentManagement";
-
+import RecruitmentCreate from "./pages/RecruitmentCreate"; 
 function App() {
   return (
     <Router>
@@ -45,6 +45,15 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["ROLE_HR"]}>
               <JobsManagement />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/recruitment-create"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+              <RecruitmentCreate />
             </ProtectedRoute>
           }
         />

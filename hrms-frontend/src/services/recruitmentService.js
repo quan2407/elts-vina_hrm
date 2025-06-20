@@ -16,3 +16,20 @@ export const getRecruitmentById = async (id) => {
     throw error;
   }
 };
+
+export const getAllCity = async () => {
+  const response = await axios.get("https://esgoo.net/api-tinhthanh/1/0.htm");
+  return response.data;
+};
+
+export const CreateRecruitment = async (payload) => {
+  const response = await axios.post(
+    `${API_URL}`, payload,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};

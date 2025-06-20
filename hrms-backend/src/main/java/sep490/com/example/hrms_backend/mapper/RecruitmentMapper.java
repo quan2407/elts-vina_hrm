@@ -22,8 +22,8 @@ public class RecruitmentMapper {
         recruitmentDto.setCreateAt(recruitment.getCreateAt());
         recruitmentDto.setUpdateAt(recruitment.getUpdateAt());
         recruitmentDto.setStatus(recruitment.getStatus());
-        recruitmentDto.setDepartmentName(recruitment.getDepartment().getDepartmentName());
-        recruitmentDto.setCreatedByIdName(recruitment.getCreatedBy().getEmployeeName());
+        recruitmentDto.setDepartmentId(recruitment.getDepartment().getDepartmentId());
+        recruitmentDto.setCreatedById(recruitment.getCreatedBy().getEmployeeId());
         if (recruitment.getCandidateRecruitments() != null) {
             recruitmentDto.setCandidateRecruitmentsId(
                     recruitment.getCandidateRecruitments().stream()

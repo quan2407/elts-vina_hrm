@@ -1,8 +1,6 @@
 package sep490.com.example.hrms_backend.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import sep490.com.example.hrms_backend.entity.Candidate;
 import sep490.com.example.hrms_backend.entity.CandidateRecruitment;
@@ -16,27 +14,31 @@ import java.util.List;
 
 @Data
 public class RecruitmentDto {
-    @NotEmpty(message = "id không đc trống")
     private Long recruitmentId;
 
-    @NotEmpty(message = "Recruitment title không đc trống")
+    @NotBlank(message = "Tiêu đề không đc trống")
     private String title; // tiêu đề đợt tuyển dụng
+    @NotBlank(message = "Địa điểm làm việc không đc trống")
 
     private String workLocation; // địa điôngm làm việc
+    @NotBlank(message = "Loại hình công việc không đc trống")
 
     private String employmentType; // loại hình (toàn thời gian, part-time,...)
+    @NotBlank(message = "Mô tả công việc không đc trống")
 
     private String jobDescription; // mô tả công việc
 
     private String jobRequirement; // yêu cầu tuyển dụng
 
     private String benefits; // quyền lợi
+    @NotBlank(message = "Khoảng lương không đc trống")
 
     private String salaryRange; // khoảng lương
-
-    @Min(value = 1, message = "Quantity phải lớn hơn 0")
+    @NotNull(message = "Số lượng tuyển dụng không đc trống")
+    @Min(value = 1, message = "Số lượng tuyển dụng phải lớn hơn 0")
     private Integer quantity; // số lượng cần tuyển
-
+    @NotNull(message = "Hạn tuyển dụng không đc trống")
+    @FutureOrPresent(message = "Hạn tuyển dụng phải là ngày trong tương lai")
     private LocalDateTime expiredAt; // ngày hết hạn tuyển dụng
 
     @PastOrPresent
@@ -50,12 +52,12 @@ public class RecruitmentDto {
     // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
     // Mỗi đợt tuyển dụng thuộc về 1 phòng ban
-
-    private String departmentName;
+    @NotNull(message = "Phòng ban không đc trống")
+    private Long departmentId;
 
     // Người tạo là một nhân viên cụ thể
 
-    private String createdByIdName;
+    private Long createdById;
 
 
     private List<Long> candidateRecruitmentsId = new ArrayList<>();

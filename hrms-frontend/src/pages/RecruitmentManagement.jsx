@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import MainLayout from "../components/MainLayout";
 import JobsTable from "../components/JobsTable";
 import "../styles/ManagementLayout.css";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -9,6 +10,7 @@ function JobsManagement() {
   const tableRef = useRef();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("desc"); // mặc định mới -> cũ
+  const navigate = useNavigate();
 
   const handleExportClick = () => {
     if (tableRef.current) {
@@ -17,7 +19,7 @@ function JobsManagement() {
   };
 
   const handleAddClick = () => {
-    
+    navigate("/recruitment-create");
   };
   return (
     <MainLayout>
