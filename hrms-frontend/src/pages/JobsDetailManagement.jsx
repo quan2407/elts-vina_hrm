@@ -9,7 +9,7 @@ import { getAllCity } from "../services/recruitmentService";
 import { CreateRecruitment } from "../services/recruitmentService";
 import departmentService from "../services/departmentService";
 
-function RecruitmentCreate() {
+function RecruitmentDetailManagement() {
     const [title, setTitle] = useState("");
     const [workLocation, setWorkLocation] = useState("");
     const [employmentType, setEmploymentType] = useState("");
@@ -121,7 +121,7 @@ function RecruitmentCreate() {
         <MainLayout>
             <div className="content-wrapper">
                 <div className="page-header">
-                    <h1 className="page-title">NHẬP TIN TUYỂN DỤNG</h1>
+                    <h1 className="page-title">THÔNG TIN TUYỂN DỤNG</h1>
                 </div>
 
                 <div className="employeedetail-form-container">
@@ -360,4 +360,4 @@ function RecruitmentCreate() {
     );
 }
 
-export default RecruitmentCreate;
+export default RecruitmentDetailManagement;

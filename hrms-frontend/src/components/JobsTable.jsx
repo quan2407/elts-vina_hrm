@@ -3,17 +3,19 @@ import "../styles/JobsTable.css";
 import { getAllRecruitments } from "../services/recruitmentService";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { useNavigate } from "react-router-dom";
 
 function removeVietnameseTones(str) {
-  return str
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/Đ/g, "D");
+    return str
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D");
 }
 
 const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
     const [jobs, setJobs] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchJobs = async () => {
@@ -27,17 +29,17 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
         fetchJobs();
     }, []);
 
-const filteredJobs = jobs
-  .filter(job =>
-    removeVietnameseTones(job.title.toLowerCase()).includes(
-      removeVietnameseTones(searchTerm.toLowerCase())
-    )
-  )
-  .sort((a, b) => {
-    const dateA = new Date(a.createAt);
-    const dateB = new Date(b.createAt);
-    return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
-  });
+    const filteredJobs = jobs
+        .filter(job =>
+            removeVietnameseTones(job.title.toLowerCase()).includes(
+                removeVietnameseTones(searchTerm.toLowerCase())
+            )
+        )
+        .sort((a, b) => {
+            const dateA = new Date(a.createAt);
+            const dateB = new Date(b.createAt);
+            return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+        });
 
     const formatDate = (isoDate) => {
         if (!isoDate) return "";
@@ -81,7 +83,9 @@ const filteredJobs = jobs
         exportToExcel
     }));
 
-
+    const handleDetailClisk = (jobId) => {
+        navigate(`/jobsdetail-management/${jobId}`);
+    };
     return (
         <div className="employee-table-wrapper">
             <div className="employee-table">
@@ -118,7 +122,7 @@ const filteredJobs = jobs
                         <div className="employee-table-cell">{formatDate(job.createAt)} - {formatDate(job.expiredAt)}</div>
                         <div className="employee-table-cell">{job.status}</div>
                         <div className="employee-table-cell">{job.candidateRecruitmentsId.length}</div>
-                        <div className="employee-table-cell"><button className="viewdetail-button" >Xem chi tiết</button></div>
+                        <div className="employee-table-cell"><button className="viewdetail-button" onClick={() => handleDetailClisk(job.recruitmentId)}>Xem chi tiết</button></div>
                     </div>
                 ))}
             </div>
