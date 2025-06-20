@@ -66,6 +66,7 @@ public class AccountServiceImpl implements AccountService {
                 .employee(employee)
                 .role(role)
                 .isActive(true)
+                .loginAttempts(5)
                 .mustChangePassword(true)
                 .createdAt(LocalDateTime.now())
                 .build();
