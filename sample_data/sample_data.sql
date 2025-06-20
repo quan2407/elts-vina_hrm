@@ -45,6 +45,7 @@ INSERT INTO role (role_id, role_name) VALUES
 (6, 'ROLE_EMPLOYEE'),
 (7, 'ROLE_PMC');
 
+
 -- ====================
 -- Department
 -- ====================
@@ -55,7 +56,10 @@ INSERT INTO department (department_id, department_name) VALUES
 (4, 'QC'),
 (5, 'Sản Xuất'),
 (6, 'Tự Động'),
-(7, 'Vật Tư');
+(7, 'Vật Tư'),
+(8, 'Nhân Sự'),
+(9, 'PMC'),
+(10, 'Canteen');
 
 INSERT INTO position (position_id, position_name, description) VALUES
 (1, 'Công Nhân', NULL),
@@ -73,8 +77,10 @@ INSERT INTO position (position_id, position_name, description) VALUES
 (13, 'Trưởng Ca Sản Xuất', NULL),
 (14, 'Tổ Phó', NULL),
 (15, 'Tổ Trưởng', NULL),
-(16, 'Tổng Quản Lý Cấp 2', NULL);
-
+(16, 'Tổng Quản Lý Cấp 2', NULL),
+(17, 'HR', 'Nhân viên nhân sự'),
+(18, 'PMC', 'Nhân viên phòng kế hoạch sản xuất & vật tư'),
+(19, 'Canteen', 'Nhân viên nhà ăn');
 
 
 INSERT INTO department_position (department_id, position_id) VALUES
@@ -107,7 +113,10 @@ INSERT INTO department_position (department_id, position_id) VALUES
 (6, 1),  -- Tự Động - Công Nhân
 
 (7, 1),  -- Vật Tư - Công Nhân
-(7, 12); -- Vật Tư - Quản Lý Vật Tư
+(7, 12), -- Vật Tư - Quản Lý Vật Tư
+(8, 17),
+(9, 18),
+(10, 19);
 
 
 

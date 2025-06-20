@@ -20,6 +20,7 @@ import sep490.com.example.hrms_backend.repository.DepartmentRepository;
 import sep490.com.example.hrms_backend.repository.EmployeeRepository;
 import sep490.com.example.hrms_backend.repository.LineRepository;
 import sep490.com.example.hrms_backend.repository.PositionRepository;
+import sep490.com.example.hrms_backend.service.AccountService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +33,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     private final DepartmentRepository departmentRepository;
     private final LineRepository lineRepository;
     private final PositionRepository positionRepository;
+    private final AccountService accountService;
 
     @Override
     public List<EmployeeResponseDTO> getAllEmployees() {
@@ -54,7 +56,8 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         employee.setDepartment(fetchDepartment(dto.getDepartmentId()));
         employee.setPosition(fetchPosition(dto.getPositionId()));
         employee.setLine(fetchLine(dto.getLineId()));
-
+// ✅ Gọi tạo account tự động
+        accountService.createAutoAccountForEmployee(employee);
         employee = employeeRepository.save(employee);
         return EmployeeMapper.mapToEmployeeResponseDTO(employee);
     }

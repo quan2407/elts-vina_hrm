@@ -63,7 +63,7 @@ public class EmployeeUpdateDTO {
     @NotNull(message = "ID phòng ban không được để trống")
     private Long departmentId;
 
-    @NotBlank(message = "Vị trí không được để trống")
+    @NotNull(message = "Vị trí không được để trống")
     private Long positionId;
 
 
