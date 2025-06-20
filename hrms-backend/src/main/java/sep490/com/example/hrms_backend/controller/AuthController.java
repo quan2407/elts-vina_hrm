@@ -1,5 +1,6 @@
 package sep490.com.example.hrms_backend.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +19,7 @@ public class AuthController {
 
     // Build Login REST API
     @PostMapping("login")
-    public ResponseEntity<JWTAuthResponse> login(@RequestBody LoginDto loginDto){
+    public ResponseEntity<JWTAuthResponse> login(@Valid @RequestBody LoginDto loginDto){
         String token = authService.login(loginDto);
 
         JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
