@@ -3,7 +3,7 @@ import MainLayout from "../components/MainLayout";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { vi } from "date-fns/locale";
-import { Save } from "lucide-react"; // ✅ Icon đẹp từ lucide
+import { Save } from "lucide-react";
 import "../styles/EmployeeDetails.css";
 import { getAllCity } from "../services/recruitmentService";
 import { CreateRecruitment } from "../services/recruitmentService";
@@ -54,7 +54,7 @@ function RecruitmentCreate() {
             departmentId: departmentId !== "" ? Number(departmentId) : null
         };
 
-        console.log("📌 Payload gửi đi:", payload);
+        console.log(" Payload gửi đi:", payload);
 
         try {
             await CreateRecruitment(payload);
@@ -62,7 +62,7 @@ function RecruitmentCreate() {
             setErrors({});
             resetForm();
         } catch (err) {
-            console.error("❌ Lỗi tạo tin tuyển dụng:", err);
+            console.error(" Lỗi tạo tin tuyển dụng:", err);
             if (err.response && err.response.data) {
                 const rawErrors = err.response.data;
                 const normalizedErrors = {};

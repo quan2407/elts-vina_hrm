@@ -46,7 +46,7 @@ public class RecruitmentDto {
 
     @PastOrPresent
     private LocalDateTime updateAt; // ngày cập nhật
-
+    @NotNull(message = "Trạng thái tuyển dụng không được để trống")
     private RecruitmentStatus status; // trạng thái (đang mở, đã đóng, v.v.)
 
     // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======

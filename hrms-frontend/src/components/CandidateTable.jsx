@@ -13,7 +13,7 @@ function removeVietnameseTones(str) {
         .replace(/Đ/g, "D");
 }
 
-const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
+const CandidateTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
     const [jobs, setJobs] = useState([]);
     const navigate = useNavigate();
 
@@ -130,4 +130,4 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
     );
 });
 
-export default JobsTable;
+export default CandidateTable;

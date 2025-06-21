@@ -3,7 +3,7 @@ import MainLayout from "../components/MainLayout";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { vi } from "date-fns/locale";
-import { Save } from "lucide-react"; // ✅ Icon đẹp từ lucide
+import { Save } from "lucide-react";
 import "../styles/EmployeeDetails.css";
 import employeeService from "../services/employeeService";
 import departmentService from "../services/departmentService";
@@ -75,7 +75,7 @@ function EmployeeCreate() {
       lineId: lineId !== "" ? Number(lineId) : null,
     };
 
-    console.log("📌 Payload gửi đi:", payload);
+    console.log(" Payload gửi đi:", payload);
 
     try {
       await employeeService.createEmployee(payload);
@@ -83,7 +83,7 @@ function EmployeeCreate() {
       setErrors({});
       resetForm();
     } catch (err) {
-      console.error("❌ Lỗi tạo nhân viên:", err);
+      console.error("Lỗi tạo nhân viên:", err);
       if (err.response && err.response.data) {
         setErrors(err.response.data);
       } else {

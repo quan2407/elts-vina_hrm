@@ -48,7 +48,7 @@ public class Recruitment {
     @Column(name = "update_at")
     private LocalDateTime updateAt;
 
-    @NotBlank
+    @NotNull
     @Enumerated(EnumType.STRING)
     private RecruitmentStatus status;
 

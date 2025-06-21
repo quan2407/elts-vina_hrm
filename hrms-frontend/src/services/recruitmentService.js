@@ -33,3 +33,15 @@ export const CreateRecruitment = async (payload) => {
   );
   return response.data;
 };
+
+export const EditRecruitment = async (payload, id) => {
+  const response = await axios.put(
+    `${API_URL}/${id}`, payload,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
