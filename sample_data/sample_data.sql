@@ -196,16 +196,16 @@ INSERT INTO employee (
 -- Accounts
 -- ====================
 INSERT INTO account (account_id, username, password_hash, email, is_active, created_at, updated_at, last_login_at, login_attempts, must_change_password, employee_id, role_id) VALUES
-(1, 'user1', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user1@example.com', true, NOW(), NOW(), NULL, 0, false, 1, 1),
-(2, 'user2', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user2@example.com', true, NOW(), NOW(), NULL, 0, false, 2, 2),
-(3, 'user3', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user3@example.com', true, NOW(), NOW(), NULL, 0, false, 3, 3),
-(4, 'user4', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user4@example.com', true, NOW(), NOW(), NULL, 0, false, 4, 4),
-(5, 'user5', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user5@example.com', true, NOW(), NOW(), NULL, 0, false, 5, 5),
-(6, 'user6', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user6@example.com', true, NOW(), NOW(), NULL, 0, false, 6, 6),
-(7, 'user7', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user7@example.com', true, NOW(), NOW(), NULL, 0, false, 7, 1),
-(8, 'user8', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user8@example.com', true, NOW(), NOW(), NULL, 0, false, 8, 2),
-(9, 'user9', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user9@example.com', true, NOW(), NOW(), NULL, 0, false, 9, 3),
-(10, 'user10', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user10@example.com', true, NOW(), NOW(), NULL, 0, false, 10, 7);
+(1, 'user1', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user1@example.com', true, NOW(), NOW(), NULL, 5, false, 1, 1),
+(2, 'user2', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user2@example.com', true, NOW(), NOW(), NULL, 5, false, 2, 2),
+(3, 'user3', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user3@example.com', true, NOW(), NOW(), NULL, 5, false, 3, 3),
+(4, 'user4', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user4@example.com', true, NOW(), NOW(), NULL, 5, false, 4, 4),
+(5, 'user5', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user5@example.com', true, NOW(), NOW(), NULL, 5, false, 5, 5),
+(6, 'user6', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user6@example.com', true, NOW(), NOW(), NULL, 5, false, 6, 6),
+(7, 'user7', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user7@example.com', true, NOW(), NOW(), NULL, 5, false, 7, 1),
+(8, 'user8', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user8@example.com', true, NOW(), NOW(), NULL, 5, false, 8, 2),
+(9, 'user9', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user9@example.com', true, NOW(), NOW(), NULL, 5, false, 9, 3),
+(10, 'user10', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user10@example.com', true, NOW(), NOW(), NULL, 5, false, 10, 7);
 
 
 

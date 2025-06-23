@@ -72,8 +72,25 @@ public class AccountServiceImpl implements AccountService {
                 .build();
 
         accountRepository.save(account);
-        sendPasswordEmail(email, username, rawPassword);
+        sendPasswordEmail(email, username, rawPassword, "CREATE");
     }
+    @Override
+    @Transactional
+    public void resetPasswordByEmail(String email) {
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new HRMSAPIException(HttpStatus.BAD_REQUEST, "Không tìm thấy tài khoản với email: " + email));
+
+        String rawPassword = generateRandomPassword(8);
+        String hashedPassword = passwordEncoder.encode(rawPassword);
+
+        account.setPasswordHash(hashedPassword);
+        account.setMustChangePassword(true);
+        account.setLoginAttempts(5);
+        accountRepository.save(account);
+
+        sendPasswordEmail(account.getEmail(), account.getUsername(), rawPassword, "RESET");
+    }
+
 
     private String generateRandomPassword(int length) {
         return RandomStringUtils.randomAlphanumeric(length);
@@ -97,21 +114,39 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-    private void sendPasswordEmail(String to, String username, String password) {
+    private void sendPasswordEmail(String to, String username, String password, String type) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(to);
-            message.setSubject("Tài khoản HRMS của bạn đã được tạo");
-            message.setText(String.format(
-                    "Xin chào,\n\nTài khoản HRMS của bạn đã được tạo thành công.\n" +
-                            "Tên đăng nhập: %s\n" +
-                            "Mật khẩu tạm thời: %s\n\n" +
-                            "Vui lòng đăng nhập và đổi mật khẩu ngay.\n\nTrân trọng.",
-                    username, password
-            ));
+
+            if ("CREATE".equals(type)) {
+                message.setSubject("Tài khoản HRMS của bạn đã được tạo");
+                message.setText(String.format(
+                        "Xin chào %s,\n\n" +
+                                "Tài khoản HRMS của bạn đã được khởi tạo thành công.\n\n" +
+                                "🔹 Tên đăng nhập: %s\n" +
+                                "🔹 Mật khẩu tạm thời: %s\n\n" +
+                                "Vui lòng đăng nhập và đổi mật khẩu ngay.\n\n" +
+                                "Trân trọng,\nPhòng Hành chính - Nhân sự",
+                        username, username, password
+                ));
+            } else if ("RESET".equals(type)) {
+                message.setSubject("Yêu cầu reset mật khẩu HRMS");
+                message.setText(String.format(
+                        "Xin chào %s,\n\n" +
+                                "Mật khẩu mới cho tài khoản HRMS của bạn đã được tạo.\n\n" +
+                                "🔹 Tên đăng nhập: %s\n" +
+                                "🔹 Mật khẩu mới: %s\n\n" +
+                                "Vui lòng đăng nhập và đổi mật khẩu ngay để đảm bảo bảo mật.\n\n" +
+                                "Trân trọng,\nPhòng Hành chính - Nhân sự",
+                        username, username, password
+                ));
+            }
+
             mailSender.send(message);
         } catch (Exception e) {
             throw new HRMSAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi khi gửi email tài khoản: " + e.getMessage());
         }
     }
+
 }
