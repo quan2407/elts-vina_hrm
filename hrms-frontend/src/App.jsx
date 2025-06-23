@@ -18,6 +18,7 @@ import EmployeeCreate from "./pages/EmployeeCreate";
 import JobsManagement from "./pages/RecruitmentManagement";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProfilePage from "./pages/ProfilePage";
+import ChangePasswordPage from "./pages/ChangePasswordPage";
 function App() {
   return (
     <Router>
@@ -61,6 +62,24 @@ function App() {
         />
 
         {/* Protected routes */}
+        <Route
+          path="/change-password"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "ROLE_ADMIN",
+                "ROLE_HR",
+                "ROLE_EMPLOYEE",
+                "ROLE_LINE_LEADER",
+                "ROLE_PMC",
+                "ROLE_CANTEEN",
+                "ROLE_PRODUCTION_MANAGER",
+              ]}
+            >
+              <ChangePasswordPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/accounts"
           element={

@@ -1,13 +1,6 @@
 import React, { useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import {
-  Bell,
-  ChevronDown,
-  User,
-  Settings,
-  HelpCircle,
-  LogOut,
-} from "lucide-react";
+import { Bell, ChevronDown, User, Key, HelpCircle, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Header.css";
 
@@ -30,12 +23,17 @@ function Header() {
 
   const handleSignOut = () => {
     localStorage.removeItem("accessToken");
-    window.location.href = "/"; // hoặc navigate("/")
+    window.location.href = "/";
   };
 
   const handleGoToProfile = () => {
     navigate("/profile");
-    setIsDropdownOpen(false); // đóng dropdown sau khi nhấn
+    setIsDropdownOpen(false);
+  };
+
+  const handleChangePassword = () => {
+    navigate("/change-password");
+    setIsDropdownOpen(false);
   };
 
   return (
@@ -79,8 +77,11 @@ function Header() {
               <User size={16} /> <span>Hồ sơ cá nhân</span>
             </div>
 
-            <div className="profile-item">
-              <Settings size={16} /> <span>Cài đặt tài khoản</span>
+            <div
+              className="profile-item"
+              onClick={handleChangePassword}
+            >
+              <Key size={16} /> <span>Đổi mật khẩu</span>
             </div>
 
             <div className="profile-item">
