@@ -5,10 +5,12 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sep490.com.example.hrms_backend.dto.AccountResponseDTO;
+import sep490.com.example.hrms_backend.dto.ChangePasswordRequest;
 import sep490.com.example.hrms_backend.entity.Account;
 import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.entity.Role;
@@ -148,5 +150,25 @@ public class AccountServiceImpl implements AccountService {
             throw new HRMSAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi khi gửi email tài khoản: " + e.getMessage());
         }
     }
+
+    @Transactional
+    public void changePassword(ChangePasswordRequest dto) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Account account = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "Không tìm thấy tài khoản"));
+
+        if (!passwordEncoder.matches(dto.getOldPassword(), account.getPasswordHash())) {
+            throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Mật khẩu cũ không chính xác");
+        }
+
+        if (!dto.getNewPassword().equals(dto.getConfirmNewPassword())) {
+            throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Xác nhận mật khẩu mới không khớp");
+        }
+
+        account.setPasswordHash(passwordEncoder.encode(dto.getNewPassword()));
+        accountRepository.save(account);
+    }
+
 
 }

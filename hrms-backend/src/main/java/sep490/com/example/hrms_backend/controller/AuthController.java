@@ -3,10 +3,9 @@ package sep490.com.example.hrms_backend.controller;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import sep490.com.example.hrms_backend.dto.ChangePasswordRequest;
 import sep490.com.example.hrms_backend.dto.JWTAuthResponse;
 import sep490.com.example.hrms_backend.dto.LoginDto;
 import sep490.com.example.hrms_backend.service.AccountService;
@@ -37,6 +36,13 @@ public class AuthController {
         accountService.resetPasswordByEmail(email);
         return ResponseEntity.ok("Mật khẩu mới đã được gửi tới email.");
     }
+    @PutMapping("/change-password")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'EMPLOYEE', 'LINE_LEADER', 'PMC', 'CANTEEN', 'PRODUCTION_MANAGER')")
+    public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequest dto) {
+        accountService.changePassword(dto);
+        return ResponseEntity.ok("Đổi mật khẩu thành công");
+    }
+
 
 
 }
