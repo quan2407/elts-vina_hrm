@@ -17,7 +17,7 @@ import ApplyJob from "./pages/ApplyJob";
 import EmployeeCreate from "./pages/EmployeeCreate";
 import JobsManagement from "./pages/RecruitmentManagement";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
-
+import ProfilePage from "./pages/ProfilePage";
 function App() {
   return (
     <Router>
@@ -54,6 +54,10 @@ function App() {
         <Route
           path="/unauthorized"
           element={<UnauthorizedPage />}
+        />
+        <Route
+          path="/profile"
+          element={<ProfilePage />}
         />
 
         {/* Protected routes */}

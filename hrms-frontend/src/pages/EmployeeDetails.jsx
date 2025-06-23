@@ -7,7 +7,7 @@ import { vi } from "date-fns/locale";
 import "../styles/EmployeeDetails.css";
 import employeeService from "../services/employeeService";
 import departmentService from "../services/departmentService";
-import { Save } from "lucide-react"; // ✅ Icon đẹp từ lucide
+import { Save } from "lucide-react";
 import { format } from "date-fns";
 
 function EmployeeDetails() {
@@ -64,8 +64,6 @@ function EmployeeDetails() {
     try {
       await employeeService.updateEmployee(id, payload);
       alert("Cập nhật nhân viên thành công!");
-
-      // ✅ Tải lại dữ liệu sau cập nhật
       const res = await employeeService.getEmployeeById(id);
       const data = res.data;
       setFullName(data.employeeName || "");
@@ -90,7 +88,7 @@ function EmployeeDetails() {
       setLineId(data.lineId || "");
       setErrors({});
     } catch (err) {
-      console.error("❌ Lỗi cập nhật nhân viên:", err);
+      console.error("Lỗi cập nhật nhân viên:", err);
       if (err.response && err.response.data) {
         const serverData = err.response.data;
 

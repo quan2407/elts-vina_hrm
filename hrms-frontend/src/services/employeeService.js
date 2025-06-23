@@ -16,6 +16,8 @@ const employeeService = {
   updateEmployee: (id, payload) => {
     return axiosClient.put(`/employees/${id}`, payload);
   },
+  getOwnProfile: () => axiosClient.get("/employees/profile"),
+  updateOwnProfile: (data) => axiosClient.put("/employees/profile", data),
 };
 
 export default employeeService;

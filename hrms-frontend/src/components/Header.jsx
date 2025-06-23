@@ -8,10 +8,12 @@ import {
   HelpCircle,
   LogOut,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import "../styles/Header.css";
 
 function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
   // Lấy username từ token
   const token = localStorage.getItem("accessToken");
@@ -28,7 +30,12 @@ function Header() {
 
   const handleSignOut = () => {
     localStorage.removeItem("accessToken");
-    window.location.href = "/"; // Hoặc navigate("/") nếu dùng hook
+    window.location.href = "/"; // hoặc navigate("/")
+  };
+
+  const handleGoToProfile = () => {
+    navigate("/profile");
+    setIsDropdownOpen(false); // đóng dropdown sau khi nhấn
   };
 
   return (
@@ -64,16 +71,24 @@ function Header() {
             <div className="profile-info">
               <div className="profile-name">{username}</div>
             </div>
-            <div className="profile-item">
-              <User size={16} /> <span>Chỉnh sửa hồ sơ</span>
+
+            <div
+              className="profile-item"
+              onClick={handleGoToProfile}
+            >
+              <User size={16} /> <span>Hồ sơ cá nhân</span>
             </div>
+
             <div className="profile-item">
               <Settings size={16} /> <span>Cài đặt tài khoản</span>
             </div>
+
             <div className="profile-item">
               <HelpCircle size={16} /> <span>Hỗ trợ</span>
             </div>
+
             <div className="profile-divider"></div>
+
             <div
               className="profile-item profile-logout"
               onClick={handleSignOut}
