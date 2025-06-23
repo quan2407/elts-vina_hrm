@@ -12,10 +12,11 @@ import UnauthorizedPage from "./pages/UnauthorizedPage";
 import AccountManagement from "./pages/AccountManagement";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import EmployeeManagement from "./pages/EmployeeManagement";
-import EmployeeDetails from "./pages/EmployeeDetails"; // ✅ Đổi tên cho đồng bộ
+import EmployeeDetails from "./pages/EmployeeDetails";
 import ApplyJob from "./pages/ApplyJob";
 import EmployeeCreate from "./pages/EmployeeCreate";
 import JobsManagement from "./pages/RecruitmentManagement";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 function App() {
   return (
@@ -25,6 +26,10 @@ function App() {
         <Route
           path="/"
           element={<LoginPage />}
+        />
+        <Route
+          path="/reset-password"
+          element={<ResetPasswordPage />}
         />
         <Route
           path="/jobs"
