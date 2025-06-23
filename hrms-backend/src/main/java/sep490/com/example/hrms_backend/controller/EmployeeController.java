@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import sep490.com.example.hrms_backend.dto.EmployeeDetailDTO;
-import sep490.com.example.hrms_backend.dto.EmployeeRequestDTO;
-import sep490.com.example.hrms_backend.dto.EmployeeResponseDTO;
-import sep490.com.example.hrms_backend.dto.EmployeeUpdateDTO;
+import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.service.EmployeeService;
 
 import java.util.List;
@@ -46,6 +43,19 @@ public class EmployeeController {
     public ResponseEntity<EmployeeDetailDTO> getEmployeeById(@PathVariable Long id) {
         EmployeeDetailDTO employeeDetail = employeeService.getEmployeeDetailById(id);
         return ResponseEntity.ok(employeeDetail);
+    }
+    @GetMapping("/profile")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'EMPLOYEE', 'LINE_LEADER', 'PMC', 'CANTEEN', 'PRODUCTION_MANAGER')")
+    public ResponseEntity<EmployeeDetailDTO> getOwnProfile() {
+        EmployeeDetailDTO employeeDetail = employeeService.getOwnProfile();
+        return ResponseEntity.ok(employeeDetail);
+    }
+
+    @PutMapping("/profile")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'EMPLOYEE', 'LINE_LEADER', 'PMC', 'CANTEEN', 'PRODUCTION_MANAGER')")
+    public ResponseEntity<EmployeeDetailDTO> updateOwnProfile(@Valid @RequestBody EmployeeOwnProfileUpdateDTO dto) {
+        EmployeeDetailDTO updated = employeeService.updateOwnProfile(dto);
+        return ResponseEntity.ok(updated);
     }
 
 

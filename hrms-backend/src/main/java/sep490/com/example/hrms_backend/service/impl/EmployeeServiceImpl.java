@@ -3,23 +3,15 @@ package sep490.com.example.hrms_backend.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import sep490.com.example.hrms_backend.dto.EmployeeDetailDTO;
-import sep490.com.example.hrms_backend.dto.EmployeeRequestDTO;
-import sep490.com.example.hrms_backend.dto.EmployeeResponseDTO;
-import sep490.com.example.hrms_backend.dto.EmployeeUpdateDTO;
-import sep490.com.example.hrms_backend.entity.Department;
-import sep490.com.example.hrms_backend.entity.Employee;
-import sep490.com.example.hrms_backend.entity.Line;
-import sep490.com.example.hrms_backend.entity.Position;
+import sep490.com.example.hrms_backend.dto.*;
+import sep490.com.example.hrms_backend.entity.*;
 import sep490.com.example.hrms_backend.exception.DuplicateEntryException;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.mapper.EmployeeMapper;
-import sep490.com.example.hrms_backend.repository.DepartmentRepository;
-import sep490.com.example.hrms_backend.repository.EmployeeRepository;
-import sep490.com.example.hrms_backend.repository.LineRepository;
-import sep490.com.example.hrms_backend.repository.PositionRepository;
+import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.AccountService;
 
 import java.util.List;
@@ -33,6 +25,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     private final DepartmentRepository departmentRepository;
     private final LineRepository lineRepository;
     private final PositionRepository positionRepository;
+    private final AccountRepository accountRepository;
     private final AccountService accountService;
 
     @Override
@@ -56,7 +49,6 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         employee.setDepartment(fetchDepartment(dto.getDepartmentId()));
         employee.setPosition(fetchPosition(dto.getPositionId()));
         employee.setLine(fetchLine(dto.getLineId()));
-// ✅ Gọi tạo account tự động
         accountService.createAutoAccountForEmployee(employee);
         employee = employeeRepository.save(employee);
         return EmployeeMapper.mapToEmployeeResponseDTO(employee);
@@ -150,4 +142,37 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         return lineRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Line", "id", id));
     }
+    @Override
+    public EmployeeDetailDTO getOwnProfile() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Account account = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "Không tìm thấy tài khoản"));
+
+        Employee employee = account.getEmployee();
+        if (employee == null) {
+            throw new HRMSAPIException(HttpStatus.NOT_FOUND, "Không tìm thấy hồ sơ nhân viên");
+        }
+
+        return EmployeeMapper.mapToEmployeeDetailDTO(employee);
+    }
+    @Override
+    @Transactional
+    public EmployeeDetailDTO updateOwnProfile(EmployeeOwnProfileUpdateDTO dto) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Employee employee = employeeRepository.findByAccount_Username(username)
+                .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "Không tìm thấy hồ sơ nhân viên"));
+
+        if (dto.getEmployeeName() != null) employee.setEmployeeName(dto.getEmployeeName());
+        if (dto.getPhoneNumber() != null) employee.setPhoneNumber(dto.getPhoneNumber());
+        if (dto.getEmail() != null) employee.setEmail(dto.getEmail());
+        if (dto.getAddress() != null) employee.setAddress(dto.getAddress());
+
+        employee = employeeRepository.save(employee);
+
+        return EmployeeMapper.mapToEmployeeDetailDTO(employee);
+    }
+
+
+
 }
