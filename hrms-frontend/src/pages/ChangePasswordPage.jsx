@@ -13,6 +13,8 @@ function ChangePasswordPage() {
     const newErrors = {};
     if (!oldPassword) newErrors.oldPassword = "Vui lòng nhập mật khẩu cũ";
     if (!newPassword) newErrors.newPassword = "Vui lòng nhập mật khẩu mới";
+    if (!confirmPassword)
+      newErrors.confirmPassword = "Vui lòng nhập xác nhận mật khẩu mới";
     if (newPassword !== confirmPassword) {
       newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
     }
@@ -22,10 +24,17 @@ function ChangePasswordPage() {
       return;
     }
 
+    console.log("📌 Payload gửi đi:", {
+      oldPassword,
+      newPassword,
+      confirmNewPassword: confirmPassword,
+    });
+
     try {
       await authService.changePassword({
         oldPassword,
         newPassword,
+        confirmNewPassword: confirmPassword,
       });
       alert("Đổi mật khẩu thành công!");
       setOldPassword("");
@@ -34,6 +43,7 @@ function ChangePasswordPage() {
       setErrors({});
     } catch (err) {
       console.error("❌ Lỗi đổi mật khẩu:", err);
+      console.error("❌ Response từ server:", err.response?.data);
       alert(
         err.response?.data?.message ||
           "Có lỗi xảy ra khi đổi mật khẩu. Vui lòng thử lại."
