@@ -24,8 +24,7 @@ public class RecruitmentDto {
     @NotBlank(message = "Loại hình công việc không đc trống")
 
     private String employmentType; // loại hình (toàn thời gian, part-time,...)
-    @NotBlank(message = "Mô tả công việc không đc trống")
-
+    @NotBlank(message = "Mô tả công việc không đc trống")   
     private String jobDescription; // mô tả công việc
 
     private String jobRequirement; // yêu cầu tuyển dụng
@@ -46,7 +45,7 @@ public class RecruitmentDto {
 
     @PastOrPresent
     private LocalDateTime updateAt; // ngày cập nhật
-    @NotNull(message = "Trạng thái tuyển dụng không được để trống")
+//    @NotNull(message = "Trạng thái tuyển dụng không được để trống")
     private RecruitmentStatus status; // trạng thái (đang mở, đã đóng, v.v.)
 
     // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======

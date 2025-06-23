@@ -12,21 +12,21 @@ const formatDate = (isoDate) => {
 };
 
 const JobDetail = () => {
-  const { jobId } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const [job, setJob] = useState(null);
 
   useEffect(() => {
     const fetchJob = async () => {
       try {
-        const data = await getRecruitmentById(jobId);
+        const data = await getRecruitmentById(id);
         setJob(data);
       } catch (error) {
         console.error("Lỗi khi lấy chi tiết công việc:", error);
       }
     };
     fetchJob();
-  }, [jobId]);
+  }, [id]);
 
   if (!job) {
     return (
@@ -43,7 +43,7 @@ const JobDetail = () => {
   };
 
     const handleApplyBtn = () => {
-    navigate(`/applyjob/${jobId}`);
+    navigate(`/applyjob/${id}`);
   };
 
   return (

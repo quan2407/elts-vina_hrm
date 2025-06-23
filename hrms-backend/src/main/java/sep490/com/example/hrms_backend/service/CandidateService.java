@@ -37,8 +37,6 @@ public class CandidateService {
             candidate = CandidateMapper.mapToCandidate(new Candidate(), dto);
         }
 
-        // TODO: ánh xạ thêm recruitment
-        // giả sử bạn đã có hàm repository.findById(recruitmentId)
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Recruitment not found"));
         // Kiểm tra nếu đã ứng tuyển công việc này

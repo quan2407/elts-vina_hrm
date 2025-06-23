@@ -41,6 +41,23 @@ function RecruitmentCreate() {
     };
 
     const handleSubmit = async () => {
+
+        const newErrors = {};
+
+        if (!minSalary || !maxSalary) {
+            newErrors.salaryRange = ["Vui lòng nhập đầy đủ mức lương tối thiểu và tối đa"];
+        } else if (parseInt(minSalary) >= parseInt(maxSalary)) {
+            newErrors.salaryRange = ["Mức lương tối thiểu phải nhỏ hơn mức lương tối đa"];
+        }
+
+        if (parseInt(minSalary) < 0 || parseInt(maxSalary) < 0) {
+            newErrors.salaryRange = ["Mức lương không được âm"];
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+        }
+
         const payload = {
             title: title?.trim() ? title : null,
             workLocation: workLocation?.trim() ? workLocation : null,
@@ -49,7 +66,7 @@ function RecruitmentCreate() {
             jobRequirement: jobRequirement?.trim() ? jobRequirement : null,
             benefits: benefits?.trim() ? benefits : null,
             salaryRange: minSalary?.trim() && maxSalary?.trim() ? `${minSalary}-${maxSalary}` + " vnd" : null,
-            quantity: quantity?.trim() ? quantity : null,
+            quantity: quantity?.trim() ? parseInt(quantity.trim(), 10) : null,
             expiredAt: expiredAt ? expiredAt.toISOString() : null,
             departmentId: departmentId !== "" ? Number(departmentId) : null
         };
@@ -217,6 +234,24 @@ function RecruitmentCreate() {
 
                         <div className="employeedetail-form-row">
                             <div className="employeedetail-input-group">
+                                <div className="employeedetail-input-label">Yêu cầu công việc</div>
+                                <textarea
+                                    className="employeedetail-input-field"
+                                    type="text"
+                                    value={jobRequirement}
+                                    placeholder="Nhập yêu cầu công việc"
+                                    onChange={(e) => setJobRequirement(e.target.value)}
+                                />
+                                {errors.benefits && (
+                                    <div className="error-message">
+                                        {errors.benefits.join(", ")}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="employeedetail-form-row">
+                            <div className="employeedetail-input-group">
                                 <div className="employeedetail-input-label">Quyền lợi</div>
                                 <textarea
                                     className="employeedetail-input-field"
@@ -267,6 +302,11 @@ function RecruitmentCreate() {
                                         {errors.maxSalary.join(", ")}
                                     </div>
                                 )}
+                                {errors.salaryRange && (
+                                    <div className="error-message">
+                                        {errors.salaryRange.join(", ")}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -282,9 +322,9 @@ function RecruitmentCreate() {
                                     placeholder="0"
                                     onChange={(e) => setQuantity(e.target.value)}
                                 />
-                                {errors.phoneNumber && (
+                                {errors.quantity && (
                                     <div className="error-message">
-                                        {errors.phoneNumber.join(", ")}
+                                        {errors.quantity.join(", ")}
                                     </div>
                                 )}
                             </div>
