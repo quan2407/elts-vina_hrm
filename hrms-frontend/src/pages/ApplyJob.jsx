@@ -92,7 +92,7 @@ const ApplyJob = () => {
           </div>
           <div className="jobDetail-card">
             <h4>Mức lương</h4>
-            <p>{job.salaryRange}</p>
+            <p>{job.minSalary} - {job.maxSalary} VND</p>
           </div>
           <div className="jobDetail-card">
             <h4>Loại hình công việc</h4>

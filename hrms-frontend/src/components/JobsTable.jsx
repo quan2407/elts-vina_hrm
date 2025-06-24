@@ -8,17 +8,21 @@ import "../styles/JobsTable.css";
 import { getAllRecruitments } from "../services/recruitmentService";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { useNavigate } from "react-router-dom";
 
 function removeVietnameseTones(str) {
-  return str
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/Đ/g, "D");
+    return str
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D");
 }
 
 const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
-  const [jobs, setJobs] = useState([]);
+
+    const [jobs, setJobs] = useState([]);
+    const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -32,17 +36,25 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
     fetchJobs();
   }, []);
 
-  const filteredJobs = jobs
-    .filter((job) =>
-      removeVietnameseTones(job.title.toLowerCase()).includes(
-        removeVietnameseTones(searchTerm.toLowerCase())
-      )
-    )
-    .sort((a, b) => {
-      const dateA = new Date(a.createAt);
-      const dateB = new Date(b.createAt);
-      return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
-    });
+
+    const filteredJobs = jobs
+        .filter(job =>
+            removeVietnameseTones(job.title.toLowerCase()).includes(
+                removeVietnameseTones(searchTerm.toLowerCase())
+            )
+        )
+        .sort((a, b) => {
+            const dateA = new Date(a.createAt);
+            const dateB = new Date(b.createAt);
+            return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+        });
+
+    const formatDate = (isoDate) => {
+        if (!isoDate) return "";
+        const date = new Date(isoDate);
+        return date.toLocaleDateString("vi-VN");
+    };
+
 
   const formatDate = (isoDate) => {
     if (!isoDate) return "";
@@ -55,6 +67,7 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
       alert("Không có dữ liệu để xuất.");
       return;
     }
+
 
     const exportData = filteredJobs.map((job) => ({
       ID: job.recruitmentId,
@@ -84,45 +97,59 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
     saveAs(blob, "DanhSachTuyenDung.xlsx");
   };
 
-  useImperativeHandle(ref, () => ({
-    exportToExcel,
-  }));
+const handleCandidateClick = (jobId) => {
+        navigate(`/candidates-management/${jobId}`);
+}
 
-  return (
-    <div className="jobs-table-wrapper">
-      <div className="jobs-table">
-        <div className="jobs-table-header">
-          <div className="jobs-header-cell">Id</div>
-          <div className="jobs-header-cell">Nội dung</div>
-          <div className="jobs-header-cell">Địa điểm làm việc</div>
-          <div className="jobs-header-cell">Loại hình công việc</div>
-          <div className="jobs-header-cell">Mô tả công việc</div>
-          <div className="jobs-header-cell">Yêu cầu</div>
-          <div className="jobs-header-cell">Quyền lợi</div>
-          <div className="jobs-header-cell">Mức lương</div>
-          <div className="jobs-header-cell">Số lượng tuyển dụng</div>
-          <div className="jobs-header-cell">Thời gian tuyển dụng</div>
-          <div className="jobs-header-cell">Trạng thái</div>
-          <div className="jobs-header-cell">Số lượng ứng tuyển</div>
-          <div className="jobs-header-cell">Action</div>
-        </div>
+    const handleDetailClick = (jobId) => {
+        navigate(`/jobsdetail-management/${jobId}`);
+    };
+    return (
+        <div className="employee-table-wrapper">
+            <div className="employee-table">
+                <div className="employee-table-header">
+                    <div className="employee-header-cell">Id</div>
+                    <div className="employee-header-cell">Nội dung</div>
+                    <div className="employee-header-cell">Địa điểm làm việc</div>
+                    <div className="employee-header-cell">Loại hình công việc</div>
+                    <div className="employee-header-cell">Mô tả công việc</div>
+                    <div className="employee-header-cell">Yêu cầu</div>
+                    <div className="employee-header-cell">Quyền lợi</div>
+                    <div className="employee-header-cell">Mức lương</div>
+                    <div className="employee-header-cell">Số lượng tuyển dụng</div>
+                    <div className="employee-header-cell">Thời gian tuyển dụng</div>
+                    <div className="employee-header-cell">Trạng thái</div>
+                    <div className="employee-header-cell">Số lượng ứng tuyển</div>
+                    <div className="employee-header-cell">Action</div>
+                </div>
 
-        {filteredJobs.map((job) => (
-          <div
-            key={job.recruitmentId}
-            className="jobs-table-row"
-          >
-            <div className="jobs-table-cell">{job.recruitmentId}</div>
-            <div className="jobs-table-cell">{job.title}</div>
-            <div className="jobs-table-cell">{job.workLocation}</div>
-            <div className="jobs-table-cell">{job.employmentType}</div>
-            <div className="jobs-table-cell">{job.jobDescription}</div>
-            <div className="jobs-table-cell">{job.jobRequirement}</div>
-            <div className="jobs-table-cell">{job.benefits}</div>
-            <div className="jobs-table-cell">{job.salaryRange}</div>
-            <div className="jobs-table-cell">{job.quantity}</div>
-            <div className="jobs-table-cell">
-              {formatDate(job.createAt)} - {formatDate(job.expiredAt)}
+                {filteredJobs.map((job) => (
+                    <div
+                        key={job.recruitmentId}
+                        className="employee-table-row"
+                    >
+                        <div className="employee-table-cell">{job.recruitmentId}</div>
+                        <div className="employee-table-cell">{job.title}</div>
+                        <div className="employee-table-cell">{job.workLocation}</div>
+                        <div className="employee-table-cell">{job.employmentType}</div>
+                        <div className="employee-table-cell">{job.jobDescription}</div>
+                        <div className="employee-table-cell">{job.jobRequirement}</div>
+                        <div className="employee-table-cell">{job.benefits}</div>
+                        <div className="employee-table-cell">{job.minSalary} - {job.maxSalary} VND</div>
+                        <div className="employee-table-cell">{job.quantity}</div>
+                        <div className="employee-table-cell">{formatDate(job.createAt)} - {formatDate(job.expiredAt)}</div>
+                        <div className="employee-table-cell">{job.status}</div>
+                        <div className="employee-table-cell">{job.candidateRecruitmentsId.length}</div>
+                        <div className="employee-table-cell">
+
+                            <button className="viewcandidate-button" onClick={() => handleCandidateClick(job.recruitmentId)}>Danh sách ứng viên</button>
+
+                            <button className="viewdetail-button" onClick={() => handleDetailClick(job.recruitmentId)}>Xem chi tiết</button>
+                        
+                        </div>
+                    </div>
+                ))}
+
             </div>
             <div className="jobs-table-cell">{job.status}</div>
             <div className="jobs-table-cell">

@@ -138,7 +138,7 @@ const JobsPage = () => {
                 expiredAt={job.expiredAt}
                 title={job.title}
                 location={job.workLocation}
-                salary={job.salaryRange}
+                salary={`${job.minSalary} - ${job.maxSalary} VND`}
                 description={job.jobDescription}
                 onClick={() => handleViewDetails(job.recruitmentId)}
               />

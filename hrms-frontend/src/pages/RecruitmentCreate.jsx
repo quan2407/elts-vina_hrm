@@ -1,34 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
 import MainLayout from "../components/MainLayout";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { vi } from "date-fns/locale";
 import { Save } from "lucide-react";
 import "../styles/EmployeeDetails.css";
-import { EditRecruitment, getAllCity } from "../services/recruitmentService";
+import { getAllCity } from "../services/recruitmentService";
 import { CreateRecruitment } from "../services/recruitmentService";
 import departmentService from "../services/departmentService";
-import { getRecruitmentById } from "../services/recruitmentService";
 
-
-function RecruitmentDetailManagement() {
-    const { jobId } = useParams();
-    const [job, setJob] = useState(null);
-
-    console.log("ID từ params:", jobId);
-    useEffect(() => {
-        const fetchJob = async () => {
-            try {
-                const data = await getRecruitmentById(jobId);
-                setJob(data);
-            } catch (error) {
-                console.error("Lỗi khi lấy chi tiết công việc:", error);
-            }
-        };
-        fetchJob();
-    }, [jobId]);
-
+function RecruitmentCreate() {
     const [title, setTitle] = useState("");
     const [workLocation, setWorkLocation] = useState("");
     const [employmentType, setEmploymentType] = useState("");
@@ -39,30 +20,27 @@ function RecruitmentDetailManagement() {
     const [maxSalary, setMaxSalary] = useState("");
     const [quantity, setQuantity] = useState("");
     const [errors, setErrors] = useState({});
-    const [expiredAt, setExpiredAt] = useState(null);
+    const [expiredAt, setExpiredAt] = useState("");
     const [departments, setDepartments] = useState([]);
     const [departmentId, setDepartmentId] = useState("");
     const [cities, setCities] = useState([]);
 
-    useEffect(() => {
-        if (job) {
-            setTitle(job.title || "");
-            setWorkLocation(job.workLocation || "");
-            setEmploymentType(job.employmentType || "");
-            setJobDescription(job.jobDescription || "");
-            setJobRequirement(job.jobRequirement || "");
-            setBenefits(job.benefits || "");
-            setMinSalary(job.minSalary ? job.minSalary.toString() : "");
-            setMaxSalary(job.maxSalary ? job.maxSalary.toString() : "");
-            setQuantity(job.quantity || "");
-            setExpiredAt(job.expiredAt ? new Date(job.expiredAt) : null);
-            setDepartmentId(job.departmentId || "");
+    const resetForm = () => {
+        setTitle("");
+        setWorkLocation("");
+        setEmploymentType("");
+        setExpiredAt(null);
+        setJobDescription("");
+        setJobRequirement("");
+        setBenefits("");
+        setMinSalary("");
+        setMaxSalary("");
+        setQuantity("");
+        setDepartmentId("");
 
-        }
-    }, [job]);
+    };
 
     const handleSubmit = async () => {
-
 
         const payload = {
             title: title?.trim() ? title : null,
@@ -71,9 +49,9 @@ function RecruitmentDetailManagement() {
             jobDescription: jobDescription?.trim() ? jobDescription : null,
             jobRequirement: jobRequirement?.trim() ? jobRequirement : null,
             benefits: benefits?.trim() ? benefits : null,
-            minSalary: minSalary !== "" && minSalary !== null ? parseInt(minSalary, 10) : null,
-            maxSalary: maxSalary !== "" && maxSalary !== null ? parseInt(maxSalary, 10) : null,
-            quantity: quantity !== "" && quantity !== null ? parseInt(quantity, 10) : null,
+            minSalary: minSalary?.trim() ? parseInt(minSalary.trim(), 10) : null,
+            maxSalary: maxSalary?.trim() ? parseInt(maxSalary.trim(), 10) : null,
+            quantity: quantity?.trim() ? parseInt(quantity.trim(), 10) : null,
             expiredAt: expiredAt ? expiredAt.toISOString() : null,
             departmentId: departmentId !== "" ? Number(departmentId) : null
         };
@@ -81,11 +59,12 @@ function RecruitmentDetailManagement() {
         console.log(" Payload gửi đi:", payload);
 
         try {
-            await EditRecruitment(payload, jobId);
-            alert("Sửa tin tuyển dụng thành công!");
+            await CreateRecruitment(payload);
+            alert("Tạo tin tuyển dụng thành công!");
             setErrors({});
+            resetForm();
         } catch (err) {
-            console.error(" Lỗi sửa tin tuyển dụng:", err);
+            console.error(" Lỗi tạo tin tuyển dụng:", err);
             if (err.response && err.response.data) {
                 const rawErrors = err.response.data;
                 const normalizedErrors = {};
@@ -93,7 +72,7 @@ function RecruitmentDetailManagement() {
                 for (const key in rawErrors) {
                     normalizedErrors[key] = Array.isArray(rawErrors[key])
                         ? rawErrors[key]
-                        : [rawErrors[key]]; 
+                        : [rawErrors[key]]; // ⚠️ ép string thành mảng
                 }
 
                 setErrors(normalizedErrors);
@@ -144,7 +123,7 @@ function RecruitmentDetailManagement() {
         <MainLayout>
             <div className="content-wrapper">
                 <div className="page-header">
-                    <h1 className="page-title">THÔNG TIN TUYỂN DỤNG</h1>
+                    <h1 className="page-title">NHẬP TIN TUYỂN DỤNG</h1>
                 </div>
 
                 <div className="employeedetail-form-container">
@@ -161,6 +140,7 @@ function RecruitmentDetailManagement() {
                                     className="employeedetail-input-field"
                                     type="text"
                                     value={title}
+                                    placeholder="Nhập nội dung tuyển dụng"
                                     onChange={(e) => setTitle(e.target.value)}
                                 />
                                 {errors.title && (
@@ -181,6 +161,7 @@ function RecruitmentDetailManagement() {
                                     value={workLocation}
                                     onChange={(e) => setWorkLocation(e.target.value)}
                                 >
+                                    <option value="">-- Chọn địa điểm làm việc --</option>
                                     {cities.map((d) => (
                                         <option
                                             key={d.id}
@@ -206,6 +187,7 @@ function RecruitmentDetailManagement() {
                                     value={employmentType}
                                     onChange={(e) => setEmploymentType(e.target.value)}
                                 >
+                                    <option value="">-- Chọn loại hình công việc --</option>
                                     <option>FULLTIME</option>
                                     <option>PARTTIME</option>
                                 </select>
@@ -224,6 +206,7 @@ function RecruitmentDetailManagement() {
                                     className="employeedetail-input-field"
                                     type="text"
                                     value={jobDescription}
+                                    placeholder="Nhập mô tả công việc"
                                     onChange={(e) => setJobDescription(e.target.value)}
                                 />
                                 {errors.jobDescription && (
@@ -279,7 +262,7 @@ function RecruitmentDetailManagement() {
                                     className="employeedetail-input-field"
                                     type="number"
                                     value={minSalary}
-                                    placeholder="Nhập mức lương tối thiểu"
+                                    placeholder="Mức lương tối thiểu"
                                     onChange={(e) => setMinSalary(e.target.value)}
                                 />
                                 {errors.minSalary && (
@@ -296,7 +279,7 @@ function RecruitmentDetailManagement() {
                                     className="employeedetail-input-field"
                                     type="text"
                                     value={maxSalary}
-                                    placeholder="Nhập mức lương tối đa"
+                                    placeholder="Mức lương tối đa"
                                     onChange={(e) => setMaxSalary(e.target.value)}
                                 />
                                 {errors.maxSalary && (
@@ -304,7 +287,7 @@ function RecruitmentDetailManagement() {
                                         {errors.maxSalary.join(", ")}
                                     </div>
                                 )}
-
+ 
                             </div>
                         </div>
 
@@ -328,7 +311,7 @@ function RecruitmentDetailManagement() {
                             </div>
                             <div className="employeedetail-input-group">
                                 <div className="employeedetail-input-label">
-                                    Hạn tuyển dụng   <span className="required-star">*</span>                                 </div>
+                                    Hạn tuyển dụng               <span className="required-star">*</span>                     </div>
                                 <DatePicker
                                     selected={expiredAt}
                                     onChange={(date) => setExpiredAt(date)}
@@ -393,10 +376,9 @@ function RecruitmentDetailManagement() {
                         </div>
                     </div>
                 </div>
-
             </div>
         </MainLayout>
     );
 }
 
-export default RecruitmentDetailManagement;
+export default RecruitmentCreate;

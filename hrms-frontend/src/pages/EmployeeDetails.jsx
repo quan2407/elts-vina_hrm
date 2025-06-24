@@ -59,7 +59,7 @@ function EmployeeDetails() {
       lineId: lineId !== "" ? Number(lineId) : null,
     };
 
-    console.log("📌 Payload gửi đi:", payload);
+    console.log(" Payload gửi đi:", payload);
 
     try {
       await employeeService.updateEmployee(id, payload);

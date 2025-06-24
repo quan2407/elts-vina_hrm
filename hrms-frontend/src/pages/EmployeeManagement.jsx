@@ -1,15 +1,15 @@
 import React from "react";
-import { useNavigate } from "react-router-dom"; // ✅
+import { useNavigate } from "react-router-dom"; 
 import MainLayout from "../components/MainLayout";
 import EmployeeTable from "../components/EmployeeTable";
 import "../styles/ManagementLayout.css";
 import { Plus, Download } from "lucide-react";
 
 function EmployeeManagement() {
-  const navigate = useNavigate(); // ✅
+  const navigate = useNavigate(); 
 
   const handleCreate = () => {
-    navigate("/employee-create"); // ✅
+    navigate("/employee-create"); 
   };
 
   return (
@@ -17,8 +17,10 @@ function EmployeeManagement() {
       <div className="content-wrapper">
         <div className="page-header">
           <h1 className="page-title">Employee Management</h1>
+
           <div className="employee-page-actions">
             {/* Button Create */}
+
             <button
               className="employee-add-button"
               onClick={handleCreate}
@@ -29,9 +31,9 @@ function EmployeeManagement() {
               />
               <span className="employee-create-text">Create</span>
             </button>
-
             {/* Button Export */}
             <button className="employee-export-button">
+
               <Download
                 size={16}
                 style={{ marginRight: "6px" }}

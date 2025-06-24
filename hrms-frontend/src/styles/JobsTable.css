@@ -5,22 +5,24 @@
   border-radius: 24px;
   padding: 20px;
   font-family: "Product Sans", sans-serif;
+
 }
 
 .jobs-table {
   min-width: 1800px;
+
 }
 
 .jobs-table-header,
 .jobs-table-row {
   display: grid;
   grid-template-columns:
-    120px 180px 180px 180px 150px 150px 200px 150px
-    200px 200px 150px 200px 300px;
+    120px 180px 180px 180px 150px 150px 200px 150px 200px 200px 150px 200px 300px;
   gap: 10px;
   padding: 18px 30px;
   margin-bottom: 20px;
   border-radius: 6px;
+
 }
 
 .jobs-header-cell {
@@ -44,6 +46,7 @@
   white-space: normal;
 }
 
+
 .jobs-viewdetail-button {
   background-color: #486df0;
   color: #fff;
@@ -51,4 +54,18 @@
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
+
+  margin: 5px;
 }
+
+.viewcandidate-button {
+  width: 250px;
+  margin: 5px;
+  background-color: #26f78e;
+  color: #fff;
+  padding: 6px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+

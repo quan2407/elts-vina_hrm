@@ -3,16 +3,19 @@ package sep490.com.example.hrms_backend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.CandidateDto;
+import sep490.com.example.hrms_backend.dto.CandidateResponseDTO;
 import sep490.com.example.hrms_backend.entity.Candidate;
 import sep490.com.example.hrms_backend.entity.CandidateRecruitment;
 import sep490.com.example.hrms_backend.entity.Recruitment;
 import sep490.com.example.hrms_backend.enums.CandidateStatus;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.mapper.CandidateMapper;
+import sep490.com.example.hrms_backend.repository.CandidateRecruitmentRepository;
 import sep490.com.example.hrms_backend.repository.CandidateRepository;
 import sep490.com.example.hrms_backend.repository.RecruitmentRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class CandidateService {
@@ -22,6 +25,9 @@ public class CandidateService {
 
     @Autowired
     private RecruitmentRepository recruitmentRepository;
+
+    @Autowired
+    private CandidateRecruitmentRepository candidateRecruitmentRepository;
 
     public boolean checkCandidateByEmail(String email) {
         return candidateRepository.existsByEmail(email);
@@ -37,8 +43,6 @@ public class CandidateService {
             candidate = CandidateMapper.mapToCandidate(new Candidate(), dto);
         }
 
-        // TODO: ánh xạ thêm recruitment
-        // giả sử bạn đã có hàm repository.findById(recruitmentId)
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Recruitment not found"));
         // Kiểm tra nếu đã ứng tuyển công việc này
@@ -62,6 +66,12 @@ public class CandidateService {
         candidateRepository.save(candidate);
     }
 
+    public List<CandidateResponseDTO> getCandidatesByRecruitmentId(Long recruitmentId) {
+        List<CandidateRecruitment> crList = candidateRecruitmentRepository.findByRecruitmentId(recruitmentId);
+        return crList.stream()
+                .map(CandidateMapper::toCandidateResponseDTO)
+                .toList();
+    }
 
 
     public void saveCandidate(CandidateDto candidateDto) {

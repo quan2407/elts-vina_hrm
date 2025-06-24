@@ -16,9 +16,13 @@ import EmployeeDetails from "./pages/EmployeeDetails";
 import ApplyJob from "./pages/ApplyJob";
 import EmployeeCreate from "./pages/EmployeeCreate";
 import JobsManagement from "./pages/RecruitmentManagement";
+import RecruitmentCreate from "./pages/RecruitmentCreate";
+import RecruitmentDetailManagement from "./pages/JobsDetailManagement";
+import CandidateManagement from "./pages/CandidateManagement";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProfilePage from "./pages/ProfilePage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
+
 function App() {
   return (
     <Router>
@@ -52,6 +56,33 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/recruitment-create"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+              <RecruitmentCreate />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/jobsdetail-management/:jobId"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+              <RecruitmentDetailManagement />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="candidates-management/:jobId"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+              <CandidateManagement />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/unauthorized"
           element={<UnauthorizedPage />}
