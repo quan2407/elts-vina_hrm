@@ -7,17 +7,22 @@ import "../styles/LoginPage.css";
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [errorFields, setErrorFields] = useState({});
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setErrorMessage("");
+    setErrorFields({});
+
     try {
       const res = await authService.login({ usernameOrEmail: email, password });
       console.log("Login response:", res.data);
 
       const token = res.data.accessToken;
       if (!token) {
-        alert("Server không trả về accessToken");
+        setErrorMessage("Server không trả về accessToken");
         return;
       }
 
@@ -34,12 +39,30 @@ function LoginPage() {
       } else if (roles.includes("ROLE_HR")) {
         navigate("/employee-management");
       } else {
-        console.log("Không tìm thấy role phù hợp, chuyển unauthorized");
         navigate("/unauthorized");
       }
     } catch (err) {
       console.error("Login failed:", err.response || err);
-      alert("Đăng nhập thất bại! Vui lòng kiểm tra lại email hoặc mật khẩu.");
+      if (err.response && err.response.data) {
+        const serverData = err.response.data;
+
+        if (serverData.errors) {
+          setErrorFields(serverData.errors);
+        } else if (
+          typeof serverData === "object" &&
+          (serverData.password || serverData.usernameOrEmail)
+        ) {
+          setErrorFields(serverData);
+        } else if (serverData.message) {
+          setErrorMessage(serverData.message);
+        } else {
+          setErrorMessage(
+            "Đăng nhập thất bại! Vui lòng kiểm tra lại thông tin."
+          );
+        }
+      } else {
+        setErrorMessage("Không thể kết nối server. Vui lòng thử lại sau.");
+      }
     }
   };
 
@@ -66,31 +89,48 @@ function LoginPage() {
             alt="Company Logo"
             className="company-logo"
           />
-          <div className="login-title">Login to your account.</div>
+          <div className="login-title">Đăng nhập tài khoản.</div>
 
           <div className="form-field">
-            <div className="field-label">E-mail Address</div>
+            <div className="field-label">Tên đăng nhập hoặc email</div>
             <input
-              type="email"
+              type="text" // ✅ Cho phép nhập cả username hoặc email
               className="input-field email-input"
-              placeholder="Enter your email address"
+              placeholder="Nhập tên đăng nhập của bạn hoặc email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+            {errorFields.usernameOrEmail && (
+              <div className="login-error-inline">
+                {errorFields.usernameOrEmail.join(", ")}
+              </div>
+            )}
           </div>
 
           <div className="form-field">
-            <div className="field-label">Password</div>
+            <div className="field-label">Mật khẩu</div>{" "}
+            {/* ✅ Đổi nhãn thành Mật khẩu */}
             <input
               type="password"
               className="input-field password-input"
-              placeholder="Enter your password"
+              placeholder="Nhập mật khẩu của bạn (độ dài từ 4 - 50 ký tự)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            {errorFields.password && (
+              <div className="login-error-inline">
+                {errorFields.password.join(", ")}
+              </div>
+            )}
           </div>
+
+          {errorMessage && (
+            <div className="login-error-inline form-level-error">
+              {errorMessage}
+            </div>
+          )}
 
           <div className="form-options">
             <div className="remember-me-section">
@@ -120,7 +160,7 @@ function LoginPage() {
               type="submit"
               className="sign-in-button"
             >
-              Sign In
+              Đăng nhập
             </button>
           </div>
         </form>

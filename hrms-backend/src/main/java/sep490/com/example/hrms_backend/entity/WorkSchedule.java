@@ -15,7 +15,6 @@ import java.time.LocalDate;
 @Builder
 public class WorkSchedule {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,19 +23,15 @@ public class WorkSchedule {
 
     @FutureOrPresent
     @Column(name = "date_work")
-    private LocalDate dateWork; // ngày làm việc cụ thể
+    private LocalDate dateWork;
 
     @Column(name = "note")
-    private String note; // ghi chú lịch làm (nếu có)
+    private String note;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
-
-    // Lịch làm thuộc về một nhân viên cụ thể
     @ManyToOne
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    // Lịch làm ứng với một ca làm cụ thể
     @ManyToOne
     @JoinColumn(name = "work_shift_id")
     private WorkShift workShift;

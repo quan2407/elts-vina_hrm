@@ -13,7 +13,6 @@ import lombok.*;
 @Builder
 public class AttendanceType {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,11 +21,11 @@ public class AttendanceType {
 
     @NotBlank
     @Column(name = "attendance_type_name", nullable = false)
-    private String name; // tên loại công (ví dụ: Công thường, Nghỉ phép, OT, v.v.)
+    private String name;
 
     @NotNull
     @DecimalMin(value = "0.0")
     @DecimalMax(value = "1.0")
     @Column(name = "attendance_ratio")
-    private Double ratio; // hệ số tính công (ví dụ: 1.0, 0.5)
+    private Double ratio;
 }

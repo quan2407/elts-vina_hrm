@@ -1,4 +1,9 @@
-import React, { useEffect, useState, useImperativeHandle, forwardRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
 import "../styles/JobsTable.css";
 import { getAllRecruitments } from "../services/recruitmentService";
 import * as XLSX from "xlsx";
@@ -14,20 +19,23 @@ function removeVietnameseTones(str) {
 }
 
 const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
+
     const [jobs, setJobs] = useState([]);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchJobs = async () => {
-            try {
-                const data = await getAllRecruitments();
-                setJobs(data);
-            } catch (error) {
-                console.error("Lỗi khi load danh sách công việc:", error);
-            }
-        };
-        fetchJobs();
-    }, []);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const data = await getAllRecruitments();
+        setJobs(data);
+      } catch (error) {
+        console.error("Lỗi khi load danh sách công việc:", error);
+      }
+    };
+    fetchJobs();
+  }, []);
+
 
     const filteredJobs = jobs
         .filter(job =>
@@ -47,41 +55,47 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
         return date.toLocaleDateString("vi-VN");
     };
 
-    const exportToExcel = () => {
-        if (!jobs || jobs.length === 0) {
-            alert("Không có dữ liệu để xuất.");
-            return;
-        }
 
-        const exportData = filteredJobs.map(job => ({
-            "ID": job.recruitmentId,
-            "Tiêu đề": job.title,
-            "Địa điểm làm việc": job.workLocation,
-            "Loại hình": job.employmentType,
-            "Mô tả": job.jobDescription,
-            "Yêu cầu": job.jobRequirement,
-            "Quyền lợi": job.benefits,
-            "Lương": job.minSalary + " - " + job.maxSalary + " VND",
-            "Số lượng": job.quantity,
-            "Ngày tạo": formatDate(job.createAt),
-            "Ngày hết hạn": formatDate(job.expiredAt),
-            "Trạng thái": job.status,
-            "SL Ứng tuyển": job.candidateRecruitmentsId?.length || 0
-        }));
+  const formatDate = (isoDate) => {
+    if (!isoDate) return "";
+    const date = new Date(isoDate);
+    return date.toLocaleDateString("vi-VN");
+  };
 
-        const worksheet = XLSX.utils.json_to_sheet(exportData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách tuyển dụng");
+  const exportToExcel = () => {
+    if (!jobs || jobs.length === 0) {
+      alert("Không có dữ liệu để xuất.");
+      return;
+    }
 
-        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-        const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
-        saveAs(blob, "DanhSachTuyenDung.xlsx");
-    };
 
-    // Expose exportToExcel to parent via ref
-    useImperativeHandle(ref, () => ({
-        exportToExcel
+    const exportData = filteredJobs.map((job) => ({
+      ID: job.recruitmentId,
+      "Tiêu đề": job.title,
+      "Địa điểm làm việc": job.workLocation,
+      "Loại hình": job.employmentType,
+      "Mô tả": job.jobDescription,
+      "Yêu cầu": job.jobRequirement,
+      "Quyền lợi": job.benefits,
+      Lương: job.salaryRange,
+      "Số lượng": job.quantity,
+      "Ngày tạo": formatDate(job.createAt),
+      "Ngày hết hạn": formatDate(job.expiredAt),
+      "Trạng thái": job.status,
+      "SL Ứng tuyển": job.candidateRecruitmentsId?.length || 0,
     }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách tuyển dụng");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(blob, "DanhSachTuyenDung.xlsx");
+  };
 
 const handleCandidateClick = (jobId) => {
         navigate(`/candidates-management/${jobId}`);
@@ -135,9 +149,20 @@ const handleCandidateClick = (jobId) => {
                         </div>
                     </div>
                 ))}
+
             </div>
-        </div>
-    );
+            <div className="jobs-table-cell">{job.status}</div>
+            <div className="jobs-table-cell">
+              {job.candidateRecruitmentsId?.length || 0}
+            </div>
+            <div className="jobs-table-cell">
+              <button className="jobs-viewdetail-button">Xem chi tiết</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 });
 
 export default JobsTable;

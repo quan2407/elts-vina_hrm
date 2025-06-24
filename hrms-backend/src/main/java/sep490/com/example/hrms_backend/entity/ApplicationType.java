@@ -15,7 +15,6 @@ import java.util.List;
 @Builder
 public class ApplicationType {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,14 +23,13 @@ public class ApplicationType {
 
     @NotBlank
     @Column(name = "application_type_name", nullable = false)
-    private String name; // tên loại đơn (VD: Nghỉ phép, OT, công tác...)
+    private String name;
 
     @Column(name = "description")
-    private String description; // mô tả chi tiết (nếu cần)
+    private String description;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
-    // Một loại đơn có thể có nhiều đơn được gửi thuộc loại đó
+
     @OneToMany(mappedBy = "applicationType")
     private List<Application> applications;
 }

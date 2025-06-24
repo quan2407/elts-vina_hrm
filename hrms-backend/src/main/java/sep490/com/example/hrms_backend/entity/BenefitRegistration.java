@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @Builder
 public class BenefitRegistration {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,23 +23,20 @@ public class BenefitRegistration {
 
     @PastOrPresent
     @Column(name = "registered_at")
-    private LocalDateTime registeredAt; // thời điểm đăng ký
+    private LocalDateTime registeredAt;
 
     @NotBlank
     @Column(name = "status")
-    private String status; // trạng thái đăng ký (đang chờ, đã duyệt, từ chối...)
+    private String status;
 
     @Column(name = "note")
-    private String note; // ghi chú (nếu có)
+    private String note;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
-    // Đăng ký này thuộc về một phúc lợi
     @ManyToOne
     @JoinColumn(name = "benefit_id")
     private Benefit benefit;
 
-    // Đăng ký này được tạo bởi một nhân viên
     @ManyToOne
     @JoinColumn(name = "employee_id")
     private Employee employee;

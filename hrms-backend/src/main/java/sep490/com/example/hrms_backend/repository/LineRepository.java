@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface LineRepository extends JpaRepository<Line,Long> {
     List<Line> findByDepartmentDepartmentId(Long departmentId);
+
+    List<Line> findByDepartment_DepartmentId(Long departmentId);
 }

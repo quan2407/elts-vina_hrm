@@ -17,7 +17,7 @@ import java.util.List;
 @Builder
 public class Salary {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,32 +26,28 @@ public class Salary {
 
     @DecimalMin(value = "0.0", inclusive = true)
     @Column(name = "basic_salary")
-    private BigDecimal basicSalary; // lương cơ bản
+    private BigDecimal basicSalary;
 
     @PastOrPresent
     @Column(name = "date_paid_at")
-    private LocalDateTime datePaidAt; // ngày trả lương
+    private LocalDateTime datePaidAt;
 
     @PastOrPresent
     @Column(name = "created_at")
-    private LocalDateTime createdAt; // ngày tạo
+    private LocalDateTime createdAt;
 
     @PastOrPresent
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt; // ngày cập nhật gần nhất
+    private LocalDateTime updatedAt;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
-    // Lương này gắn với một bảng công tháng
     @OneToOne
     @JoinColumn(name = "monthly_attendance_id")
     private MonthlyAttendance monthlyAttendance;
 
-    // Một bảng lương có thể có nhiều khoản phụ cấp
     @OneToMany(mappedBy = "salary", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Allowance> allowances;
 
-    // Một bảng lương có thể có nhiều khoản trừ
     @OneToMany(mappedBy = "salary", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Deduction> deductions;
 }

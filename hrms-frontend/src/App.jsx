@@ -19,6 +19,10 @@ import JobsManagement from "./pages/RecruitmentManagement";
 import RecruitmentCreate from "./pages/RecruitmentCreate";
 import RecruitmentDetailManagement from "./pages/JobsDetailManagement";
 import CandidateManagement from "./pages/CandidateManagement";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
+import ProfilePage from "./pages/ProfilePage";
+import ChangePasswordPage from "./pages/ChangePasswordPage";
+
 function App() {
   return (
     <Router>
@@ -29,6 +33,10 @@ function App() {
           element={<LoginPage />}
         />
         <Route
+          path="/reset-password"
+          element={<ResetPasswordPage />}
+        />
+        <Route
           path="/jobs"
           element={<JobsPage />}
         />
@@ -36,12 +44,10 @@ function App() {
           path="/jobs/:id"
           element={<JobDetail />}
         />
-
         <Route
           path="/applyjob/:id"
           element={<ApplyJob />}
         />
-
         <Route
           path="/jobs-management"
           element={
@@ -50,7 +56,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/recruitment-create"
           element={
@@ -82,8 +87,30 @@ function App() {
           path="/unauthorized"
           element={<UnauthorizedPage />}
         />
+        <Route
+          path="/profile"
+          element={<ProfilePage />}
+        />
 
-        {/* Protected route for admin */}
+        {/* Protected routes */}
+        <Route
+          path="/change-password"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "ROLE_ADMIN",
+                "ROLE_HR",
+                "ROLE_EMPLOYEE",
+                "ROLE_LINE_LEADER",
+                "ROLE_PMC",
+                "ROLE_CANTEEN",
+                "ROLE_PRODUCTION_MANAGER",
+              ]}
+            >
+              <ChangePasswordPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/accounts"
           element={
@@ -108,6 +135,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/employees/:id"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_ADMIN"]}>
+              <EmployeeDetails />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Catch all unmatched routes */}
         <Route
@@ -118,10 +153,6 @@ function App() {
               replace
             />
           }
-        />
-        <Route
-          path="/employee-details"
-          element={<EmployeeDetails />} // ✅ Đổi path cho đồng bộ với component
         />
       </Routes>
     </Router>

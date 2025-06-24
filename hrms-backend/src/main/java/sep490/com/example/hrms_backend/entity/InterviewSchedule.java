@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @Builder
 public class InterviewSchedule {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,14 +23,13 @@ public class InterviewSchedule {
 
     @NotNull
     @Column(name = "scheduled_at")
-    private LocalDateTime scheduledAt; // thời gian phỏng vấn
+    private LocalDateTime scheduledAt;
 
     @NotBlank
-    private String status; // trạng thái buổi phỏng vấn (v.d. chờ phỏng vấn, đã hoàn tất...)
+    private String status;
 
-    private String feedback; // nhận xét từ người phỏng vấn
+    private String feedback;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
     @ManyToOne
     @JoinColumn(name = "candidate_id")

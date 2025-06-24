@@ -53,17 +53,19 @@ public class EmployeeUpdateDTO {
     private LocalDate startWorkAt;
 
     @Pattern(regexp = "^[0-9\\-\\+]{9,15}$", message = "Số điện thoại không đúng định dạng")
+    @NotBlank(message = "Số điện thoại không được để trống")
     private String phoneNumber;
 
     @Email(message = "Email không đúng định dạng")
+    @NotBlank(message = "Email không được để trống")
     private String email;
 
     @NotNull(message = "ID phòng ban không được để trống")
     private Long departmentId;
 
-    @NotNull(message = "ID vị trí không được để trống")
+    @NotNull(message = "Vị trí không được để trống")
     private Long positionId;
 
-    @NotNull(message = "ID line không được để trống")
+
     private Long lineId;
 }

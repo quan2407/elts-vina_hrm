@@ -1,59 +1,43 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
 import MainLayout from "../components/MainLayout";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { vi } from "date-fns/locale";
-import { Save } from "lucide-react";
 import "../styles/EmployeeDetails.css";
 import employeeService from "../services/employeeService";
 import departmentService from "../services/departmentService";
+import { Save } from "lucide-react";
 import { format } from "date-fns";
 
-function EmployeeCreate() {
+function EmployeeDetails() {
+  const { id } = useParams();
+
   const [employeeCode, setEmployeeCode] = useState("");
   const [fullName, setFullName] = useState("");
   const [gender, setGender] = useState("");
   const [birthDate, setBirthDate] = useState(null);
   const [birthPlace, setBirthPlace] = useState("");
   const [originPlace, setOriginPlace] = useState("");
-  const [departmentId, setDepartmentId] = useState("");
-  const [positionId, setPositionId] = useState("");
-  const [lineId, setLineId] = useState("");
-  const [errors, setErrors] = useState({});
-
   const [nationality, setNationality] = useState("");
   const [idNumber, setIdNumber] = useState("");
   const [issueDate, setIssueDate] = useState(null);
   const [expiryDate, setExpiryDate] = useState(null);
+  const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [startWorkAt, setStartWorkAt] = useState(null);
+  const [departmentId, setDepartmentId] = useState("");
+  const [positionId, setPositionId] = useState("");
+  const [lineId, setLineId] = useState("");
+
   const [departments, setDepartments] = useState([]);
   const [positions, setPositions] = useState([]);
   const [lines, setLines] = useState([]);
-
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
+  const [errors, setErrors] = useState({});
   const [activeSection, setActiveSection] = useState("basic-info");
-  const resetForm = () => {
-    setEmployeeCode("");
-    setFullName("");
-    setGender("");
-    setBirthDate(null);
-    setBirthPlace("");
-    setOriginPlace("");
-    setNationality("");
-    setIdNumber("");
-    setIssueDate(null);
-    setExpiryDate(null);
-    setAddress("");
-    setPhone("");
-    setEmail("");
-    setStartWorkAt(null);
-    setDepartmentId("");
-    setPositionId("");
-    setLineId("");
-  };
 
+  const isClickScrolling = useRef(false);
   const handleSubmit = async () => {
     const payload = {
       employeeCode: employeeCode?.trim() ? employeeCode : null,
@@ -78,16 +62,65 @@ function EmployeeCreate() {
     console.log(" Payload gửi đi:", payload);
 
     try {
-      await employeeService.createEmployee(payload);
-      alert("Tạo nhân viên thành công!");
+      await employeeService.updateEmployee(id, payload);
+      alert("Cập nhật nhân viên thành công!");
+      const res = await employeeService.getEmployeeById(id);
+      const data = res.data;
+      setFullName(data.employeeName || "");
+      setGender(data.gender || "");
+      setBirthDate(data.dob ? new Date(data.dob) : null);
+      setBirthPlace(data.placeOfBirth || "");
+      setOriginPlace(data.originPlace || "");
+      setNationality(data.nationality || "");
+      setIdNumber(data.citizenId || "");
+      setIssueDate(
+        data.citizenIssueDate ? new Date(data.citizenIssueDate) : null
+      );
+      setExpiryDate(
+        data.citizenExpiryDate ? new Date(data.citizenExpiryDate) : null
+      );
+      setAddress(data.address || "");
+      setPhone(data.phoneNumber || "");
+      setEmail(data.email || "");
+      setStartWorkAt(data.startWorkAt ? new Date(data.startWorkAt) : null);
+      setDepartmentId(data.departmentId || "");
+      setPositionId(data.positionId || "");
+      setLineId(data.lineId || "");
       setErrors({});
-      resetForm();
     } catch (err) {
-      console.error("Lỗi tạo nhân viên:", err);
+      console.error("Lỗi cập nhật nhân viên:", err);
       if (err.response && err.response.data) {
-        setErrors(err.response.data);
+        const serverData = err.response.data;
+
+        // ✅ Lỗi validate dạng field: [errors]
+        if (serverData.errors) {
+          setErrors(serverData.errors);
+        }
+        // ✅ Lỗi nghiệp vụ (throw exception)
+        else if (serverData.message) {
+          const fieldErrorMap = [
+            { keyword: "CMND", field: "citizenId" },
+            { keyword: "CCCD", field: "citizenId" },
+            { keyword: "Email", field: "email" },
+            { keyword: "Số điện thoại", field: "phoneNumber" },
+            // thêm các mapping khác nếu cần
+          ];
+
+          const matched = fieldErrorMap.find((rule) =>
+            serverData.message.includes(rule.keyword)
+          );
+
+          if (matched) {
+            setErrors((prev) => ({
+              ...prev,
+              [matched.field]: [serverData.message],
+            }));
+          } else {
+            alert(serverData.message);
+          }
+        }
       } else {
-        alert("Có lỗi xảy ra khi tạo nhân viên!");
+        alert("Có lỗi xảy ra khi cập nhật nhân viên!");
       }
     }
   };
@@ -113,6 +146,42 @@ function EmployeeCreate() {
       return () => contentEl.removeEventListener("scroll", handleScroll);
     }
   }, []);
+
+  useEffect(() => {
+    const fetchEmployeeDetail = async () => {
+      try {
+        const res = await employeeService.getEmployeeById(id);
+        const data = res.data;
+
+        setEmployeeCode(data.employeeCode || "");
+        setFullName(data.employeeName || "");
+        setGender(data.gender || "");
+        setBirthDate(data.dob ? new Date(data.dob) : null);
+        setBirthPlace(data.placeOfBirth || "");
+        setOriginPlace(data.originPlace || "");
+        setNationality(data.nationality || "");
+        setIdNumber(data.citizenId || "");
+        setIssueDate(
+          data.citizenIssueDate ? new Date(data.citizenIssueDate) : null
+        );
+        setExpiryDate(
+          data.citizenExpiryDate ? new Date(data.citizenExpiryDate) : null
+        );
+        setAddress(data.address || "");
+        setPhone(data.phoneNumber || "");
+        setEmail(data.email || "");
+        setStartWorkAt(data.startWorkAt ? new Date(data.startWorkAt) : null);
+        // Nếu backend trả về id thì set, còn không thì có thể giữ nguyên ""
+        setDepartmentId(data.departmentId || "");
+        setPositionId(data.positionId || "");
+        setLineId(data.lineId || "");
+      } catch (err) {
+        console.error("❌ Lỗi load chi tiết nhân viên:", err);
+      }
+    };
+
+    fetchEmployeeDetail();
+  }, [id]);
 
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -147,8 +216,6 @@ function EmployeeCreate() {
     }
   }, [departmentId]);
 
-  const isClickScrolling = useRef(false);
-
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
     if (el) {
@@ -178,7 +245,7 @@ function EmployeeCreate() {
     <MainLayout>
       <div className="content-wrapper">
         <div className="page-header">
-          <h1 className="page-title">NHẬP HỒ SƠ NHÂN VIÊN</h1>
+          <h1 className="page-title">HỒ SƠ NHÂN VIÊN</h1>
         </div>
 
         <div className="employeedetail-form-container">
@@ -221,12 +288,14 @@ function EmployeeCreate() {
                     Mã nhân viên<span className="required-star">*</span>
                   </div>
                   <input
-                    className="employeedetail-input-field"
+                    className={`employeedetail-input-field disabled-input`}
                     type="text"
                     value={employeeCode}
                     placeholder="Nhập mã nhân viên"
                     onChange={(e) => setEmployeeCode(e.target.value)}
+                    disabled
                   />
+
                   {errors.employeeCode && (
                     <div className="error-message">
                       {errors.employeeCode.join(", ")}
@@ -408,7 +477,7 @@ function EmployeeCreate() {
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Số điện thoại
+                    Số điện thoại<span className="required-star">*</span>
                   </div>
                   <input
                     className="employeedetail-input-field"
@@ -424,7 +493,9 @@ function EmployeeCreate() {
                   )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Email</div>
+                  <div className="employeedetail-input-label">
+                    Email<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="email"
@@ -511,6 +582,7 @@ function EmployeeCreate() {
                       </option>
                     ))}
                   </select>
+
                   {errors.departmentId && (
                     <div className="error-message">
                       {errors.departmentId.join(", ")}
@@ -539,6 +611,7 @@ function EmployeeCreate() {
                       </option>
                     ))}
                   </select>
+
                   {errors.positionId && (
                     <div className="error-message">
                       {errors.positionId.join(", ")}
@@ -547,23 +620,31 @@ function EmployeeCreate() {
                 </div>
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Chuyền sản xuất<span className="required-star">*</span>
+                    Chuyền sản xuất
                   </div>
                   <select
                     className="employeedetail-input-field"
                     value={lineId}
                     onChange={(e) => setLineId(e.target.value)}
+                    disabled={lines.length === 0} // Disable khi không có line
                   >
-                    <option value="">-- Chọn line --</option>
-                    {lines.map((l) => (
-                      <option
-                        key={l.id}
-                        value={l.id}
-                      >
-                        {l.name}
-                      </option>
-                    ))}
+                    {lines.length === 0 ? (
+                      <option value="">Không có chuyền sản xuất</option>
+                    ) : (
+                      <>
+                        <option value="">-- Chọn line --</option>
+                        {lines.map((l) => (
+                          <option
+                            key={l.id}
+                            value={String(l.id)}
+                          >
+                            {l.name}
+                          </option>
+                        ))}
+                      </>
+                    )}
                   </select>
+
                   {errors.lineId && (
                     <div className="error-message">
                       {errors.lineId.join(", ")}
@@ -592,4 +673,4 @@ function EmployeeCreate() {
   );
 }
 
-export default EmployeeCreate;
+export default EmployeeDetails;

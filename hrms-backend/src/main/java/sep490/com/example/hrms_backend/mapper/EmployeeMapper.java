@@ -1,5 +1,6 @@
 package sep490.com.example.hrms_backend.mapper;
 
+import sep490.com.example.hrms_backend.dto.EmployeeDetailDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeRequestDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeResponseDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeUpdateDTO;
@@ -64,6 +65,36 @@ public class EmployeeMapper {
         employee.setPhoneNumber(dto.getPhoneNumber());
         employee.setEmail(dto.getEmail());
     }
+    public static EmployeeDetailDTO mapToEmployeeDetailDTO(Employee employee) {
+        return EmployeeDetailDTO.builder()
+                .employeeId(employee.getEmployeeId())
+                .employeeCode(employee.getEmployeeCode())
+                .employeeName(employee.getEmployeeName())
+                .gender(employee.getGender())
+                .dob(employee.getDob())
+                .placeOfBirth(employee.getPlaceOfBirth())
+                .originPlace(employee.getOriginPlace())
+                .nationality(employee.getNationality())
+                .citizenId(employee.getCitizenId())
+                .citizenIssueDate(employee.getCitizenIssueDate())
+                .citizenExpiryDate(employee.getCitizenExpiryDate())
+                .address(employee.getAddress())
+                .startWorkAt(employee.getStartWorkAt())
+                .phoneNumber(employee.getPhoneNumber())
+                .email(employee.getEmail())
+
+                .departmentId(employee.getDepartment() != null ? employee.getDepartment().getDepartmentId() : null)
+                .departmentName(employee.getDepartment() != null ? employee.getDepartment().getDepartmentName() : null)
+
+                .positionId(employee.getPosition() != null ? employee.getPosition().getPositionId() : null)
+                .positionName(employee.getPosition() != null ? employee.getPosition().getPositionName() : null)
+
+                .lineId(employee.getLine() != null ? employee.getLine().getLineId() : null)
+                .lineName(employee.getLine() != null ? employee.getLine().getLineName() : null)
+
+                .build();
+    }
+
 
 
 }
