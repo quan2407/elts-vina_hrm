@@ -57,6 +57,12 @@ public class EmployeeController {
         EmployeeDetailDTO updated = employeeService.updateOwnProfile(dto);
         return ResponseEntity.ok(updated);
     }
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
+    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
+        employeeService.softDeleteEmployee(id);
+        return ResponseEntity.noContent().build();
+    }
 
 
 }

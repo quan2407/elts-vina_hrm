@@ -12,4 +12,6 @@ public interface EmployeeService {
 
     EmployeeDetailDTO getOwnProfile();
     EmployeeDetailDTO updateOwnProfile(EmployeeOwnProfileUpdateDTO dto);
+    void softDeleteEmployee(Long id);
+
 }

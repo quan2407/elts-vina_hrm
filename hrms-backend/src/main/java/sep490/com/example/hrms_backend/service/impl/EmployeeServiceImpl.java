@@ -30,10 +30,11 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
 
     @Override
     public List<EmployeeResponseDTO> getAllEmployees() {
-        return employeeRepository.findAll().stream()
+        return employeeRepository.findByIsDeletedFalse().stream()
                 .map(EmployeeMapper::mapToEmployeeResponseDTO)
                 .collect(Collectors.toList());
     }
+
 
     @Override
     @Transactional
@@ -171,6 +172,13 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         employee = employeeRepository.save(employee);
 
         return EmployeeMapper.mapToEmployeeDetailDTO(employee);
+    }
+    @Override
+    public void softDeleteEmployee(Long id) {
+        Employee employee = employeeRepository.findByEmployeeIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found or already deleted"));
+        employee.setDeleted(true);
+        employeeRepository.save(employee);
     }
 
 

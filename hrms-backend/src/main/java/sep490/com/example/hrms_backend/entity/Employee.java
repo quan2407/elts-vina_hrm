@@ -112,6 +112,9 @@ public class Employee {
 
     @OneToMany(mappedBy = "employee")
     private List<WorkSchedule> workSchedules;
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
+
 
 
     public String getCitizenIssuePlaceSafe() {
