@@ -62,7 +62,6 @@ public class Recruitment {
     @JoinColumn(name = "created_by")
     private Employee createdBy;
 
-    // Quan hệ mới
     @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CandidateRecruitment> candidateRecruitments;
 }
