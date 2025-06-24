@@ -16,8 +16,6 @@ import java.util.List;
 @Builder
 public class Account {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "account_id")
@@ -25,35 +23,34 @@ public class Account {
 
     @NotBlank
     @Column(name = "username", nullable = false, unique = true)
-    private String username; // tên đăng nhập
+    private String username;
 
     @NotBlank
     @Column(name = "password_hash", nullable = false)
-    private String passwordHash; // mật khẩu đã mã hoá
+    private String passwordHash;
 
     @Email
     @Column(name = "email")
-    private String email; // email dùng để khôi phục mật khẩu
+    private String email;
 
     @Column(name = "is_active")
-    private Boolean isActive; // tài khoản có đang hoạt động không
+    private Boolean isActive;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt; // thời điểm tạo tài khoản
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt; // thời điểm cập nhật gần nhất
+    private LocalDateTime updatedAt;
 
     @Column(name = "last_login_at")
-    private LocalDateTime lastLoginAt; // lần đăng nhập cuối
+    private LocalDateTime lastLoginAt;
 
     @Column(name = "login_attempts")
-    private Integer loginAttempts; // số lần đăng nhập thất bại
+    private Integer loginAttempts;
 
     @Column(name = "must_change_password")
-    private Boolean mustChangePassword; // có yêu cầu đổi mật khẩu khi đăng nhập?
+    private Boolean mustChangePassword;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
     @OneToOne
     @JoinColumn(name = "employee_id")
@@ -61,7 +58,7 @@ public class Account {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
-    private Role role; // tài khoản thuộc 1 vai trò
+    private Role role;
 
     @OneToMany(mappedBy = "account")
     private List<Notification> notifications;

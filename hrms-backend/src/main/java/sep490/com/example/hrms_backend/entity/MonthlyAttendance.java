@@ -16,7 +16,7 @@ import java.util.List;
 @Builder
 public class MonthlyAttendance {
 
-    // 🧩 ====== THUỘC TÍNH ======
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,23 +26,22 @@ public class MonthlyAttendance {
     @Min(1)
     @Max(12)
     @Column(name = "month", nullable = false)
-    private int month; // tháng của kỳ công
+    private int month;
 
     @Min(2000)
     @Column(name = "year", nullable = false)
-    private int year; // năm của kỳ công
+    private int year;
 
     @NotNull
     @Column(name = "start_date")
-    private LocalDate startDate; // ngày bắt đầu kỳ công
+    private LocalDate startDate;
 
     @Column(name = "is_locked")
-    private Boolean isLocked; // khoá kỳ công
+    private Boolean isLocked;
 
     @Min(0)
     @Column(name = "leave_days")
-    private Integer leaveDays; // số nghỉ phép
-
+    private Integer leaveDays;
     @Lob @Column(name = "D1")  private String D1;
     @Lob @Column(name = "D2")  private String D2;
     @Lob @Column(name = "D3")  private String D3;
@@ -75,7 +74,6 @@ public class MonthlyAttendance {
     @Lob @Column(name = "D30") private String D30;
     @Lob @Column(name = "D31") private String D31;
 
-    // 🔗 ====== QUAN HỆ ======
 
     @ManyToOne
     @JoinColumn(name = "employee_id")

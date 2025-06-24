@@ -17,7 +17,6 @@ import java.util.List;
 @Builder
 public class Application {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,45 +25,42 @@ public class Application {
 
     @NotBlank
     @Column(name = "title", nullable = false)
-    private String title; // tiêu đề đơn (VD: Đơn xin nghỉ phép)
+    private String title;
 
     @NotBlank
     @Column(name = "content", columnDefinition = "TEXT")
-    private String content; // nội dung lý do xin
-
+    private String content;
     @NotNull
     @Column(name = "start_date")
-    private LocalDate startDate; // ngày bắt đầu áp dụng đơn
+    private LocalDate startDate;
 
     @NotNull
     @Column(name = "end_date")
-    private LocalDate endDate; // ngày kết thúc áp dụng đơn
+    private LocalDate endDate;
 
     @NotBlank
     @Column(name = "status")
-    private String status; // trạng thái đơn (đang chờ, đã duyệt, từ chối...)
+    private String status;
 
     @PastOrPresent
     @Column(name = "created_at")
-    private LocalDateTime createdAt; // thời điểm gửi đơn
+    private LocalDateTime createdAt;
 
     @PastOrPresent
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt; // thời điểm cập nhật gần nhất
+    private LocalDateTime updatedAt;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
-    // Đơn được gửi bởi một nhân viên
     @ManyToOne
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    // Đơn thuộc về một loại đơn xác định
+
     @ManyToOne
     @JoinColumn(name = "application_type_id")
     private ApplicationType applicationType;
 
-    // Đơn này có thể có nhiều bước duyệt
+
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ApplicationApprovalStep> approvalSteps;
 }

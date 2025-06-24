@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @Builder
 public class ApplicationApprovalStep {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,26 +23,22 @@ public class ApplicationApprovalStep {
 
     @Min(1)
     @Column(name = "step")
-    private int step; // thứ tự bước phê duyệt
+    private int step;
 
     @NotBlank
     @Column(name = "status")
-    private String status; // trạng thái bước này (đang chờ, đã duyệt, từ chối...)
+    private String status;
 
     @Column(name = "note")
-    private String note; // ghi chú hoặc nhận xét của người duyệt
+    private String note;
 
     @Column(name = "approved_at")
-    private LocalDateTime approvedAt; // thời điểm duyệt
+    private LocalDateTime approvedAt;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
-
-    // Bước duyệt này thuộc về một đơn cụ thể
     @ManyToOne
     @JoinColumn(name = "application_id")
     private Application application;
 
-    // Người phê duyệt là một nhân viên trong công ty
     @ManyToOne
     @JoinColumn(name = "approver_id")
     private Employee approver;

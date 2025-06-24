@@ -17,8 +17,6 @@ import java.util.List;
 @Builder
 public class WorkShift {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "work_shift_id")
@@ -26,19 +24,17 @@ public class WorkShift {
 
     @NotBlank
     @Column(name = "work_shift_name", nullable = false)
-    private String name; // tên ca làm (ví dụ: Ca sáng, Ca tối)
+    private String name;
 
     @NotNull
     @Column(name = "start_time")
-    private LocalTime startTime; // thời gian bắt đầu ca
+    private LocalTime startTime;
 
     @NotNull
     @Column(name = "end_time")
-    private LocalTime endTime; // thời gian kết thúc ca
+    private LocalTime endTime;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
-    // Một ca làm có thể được sử dụng trong nhiều lịch làm việc
     @OneToMany(mappedBy = "workShift")
     private List<WorkSchedule> workSchedules;
 }

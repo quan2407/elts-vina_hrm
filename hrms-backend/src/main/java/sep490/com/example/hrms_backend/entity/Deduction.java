@@ -13,7 +13,7 @@ import lombok.*;
 @Builder
 public class Deduction {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,13 +22,12 @@ public class Deduction {
 
     @NotBlank
     @Column(name = "deduction_type")
-    private String deductionType; // loại khấu trừ (VD: bảo hiểm, trừ đi muộn...)
+    private String deductionType;
 
     @DecimalMin(value = "0.0", inclusive = true)
     @Column(name = "amount")
-    private Double amount; // số tiền khấu trừ cụ thể
+    private Double amount;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
     @ManyToOne
     @JoinColumn(name = "salary_id")

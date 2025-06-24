@@ -30,16 +30,16 @@ const JobCard = ({
   <div
     className="job-card"
     style={{ backgroundColor: "#eeeeee" }}
-    onClick={onClick}
+    
   >
     <div className="job-ref">
       {formatDate(createAt)} - {formatDate(expiredAt)}
     </div>
     <div className="job-title">{title}</div>
-    <div className="job-location">{location}</div>
-    <div className="job-salary">{salary}</div>
-    <div className="job-description">{description}</div>
-    <div className="job-arrow-button">
+    <div className="job-location"><b>Địa điểm làm việc: </b>{location}</div>
+    <div className="job-salary"><b>Mức lương: </b>{salary}</div>
+    <div className="job-description"><b>Mô tả công việc: </b>{description}</div>
+    <div className="job-arrow-button" onClick={onClick}>
       <svg
         width="31"
         height="31"
@@ -67,8 +67,8 @@ const JobsPage = () => {
     const fetchJobs = async () => {
       try {
         const data = await getAllRecruitments();
-        setJobs(data);
-        setFilteredJobs(data);
+        setJobs(data.filter(job => job.status === "OPEN"));
+        setFilteredJobs(data.filter(job => job.status === "OPEN"));
       } catch (error) {
         console.error("Lỗi khi load danh sách công việc:", error);
       }
@@ -138,7 +138,7 @@ const JobsPage = () => {
                 expiredAt={job.expiredAt}
                 title={job.title}
                 location={job.workLocation}
-                salary={job.salaryRange}
+                salary={`${job.minSalary} - ${job.maxSalary} VND`}
                 description={job.jobDescription}
                 onClick={() => handleViewDetails(job.recruitmentId)}
               />

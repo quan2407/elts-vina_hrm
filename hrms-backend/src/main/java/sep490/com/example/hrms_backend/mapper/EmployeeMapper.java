@@ -1,6 +1,9 @@
 package sep490.com.example.hrms_backend.mapper;
 
+import sep490.com.example.hrms_backend.dto.EmployeeDetailDTO;
+import sep490.com.example.hrms_backend.dto.EmployeeRequestDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeResponseDTO;
+import sep490.com.example.hrms_backend.dto.EmployeeUpdateDTO;
 import sep490.com.example.hrms_backend.entity.Employee;
 
 public class EmployeeMapper {
@@ -25,4 +28,73 @@ public class EmployeeMapper {
                 .accountUsername(employee.getAccount() != null ? employee.getAccount().getUsername() : null)
                 .build();
     }
+    public static Employee mapToEmployee(EmployeeRequestDTO dto) {
+        return Employee.builder()
+                .employeeCode(dto.getEmployeeCode())
+                .employeeName(dto.getEmployeeName())
+                .gender(dto.getGender().name())
+                .dob(dto.getDob())
+                .placeOfBirth(dto.getPlaceOfBirth())
+                .originPlace(dto.getOriginPlace())
+                .nationality(dto.getNationality())
+                .citizenId(dto.getCitizenId())
+                .citizenIssueDate(dto.getCitizenIssueDate())
+                .citizenExpiryDate(dto.getCitizenExpiryDate())
+//                .citizenIssuePlace(dto.getCitizenIssuePlace())
+                .address(dto.getAddress())
+                .image(dto.getImage())
+                .startWorkAt(dto.getStartWorkAt())
+                .phoneNumber(dto.getPhoneNumber())
+                .email(dto.getEmail())
+                .build();
+    }
+    public static void updateEmployeeFromUpdateDTO(EmployeeUpdateDTO dto, Employee employee) {
+        employee.setEmployeeName(dto.getEmployeeName());
+        employee.setGender(dto.getGender().name());
+        employee.setDob(dto.getDob());
+        employee.setPlaceOfBirth(dto.getPlaceOfBirth());
+        employee.setOriginPlace(dto.getOriginPlace());
+        employee.setNationality(dto.getNationality());
+        employee.setCitizenId(dto.getCitizenId());
+        employee.setCitizenIssueDate(dto.getCitizenIssueDate());
+        employee.setCitizenExpiryDate(dto.getCitizenExpiryDate());
+//        employee.setCitizenIssuePlace(dto.getCitizenIssuePlace());
+        employee.setAddress(dto.getAddress());
+        employee.setImage(dto.getImage());
+        employee.setStartWorkAt(dto.getStartWorkAt());
+        employee.setPhoneNumber(dto.getPhoneNumber());
+        employee.setEmail(dto.getEmail());
+    }
+    public static EmployeeDetailDTO mapToEmployeeDetailDTO(Employee employee) {
+        return EmployeeDetailDTO.builder()
+                .employeeId(employee.getEmployeeId())
+                .employeeCode(employee.getEmployeeCode())
+                .employeeName(employee.getEmployeeName())
+                .gender(employee.getGender())
+                .dob(employee.getDob())
+                .placeOfBirth(employee.getPlaceOfBirth())
+                .originPlace(employee.getOriginPlace())
+                .nationality(employee.getNationality())
+                .citizenId(employee.getCitizenId())
+                .citizenIssueDate(employee.getCitizenIssueDate())
+                .citizenExpiryDate(employee.getCitizenExpiryDate())
+                .address(employee.getAddress())
+                .startWorkAt(employee.getStartWorkAt())
+                .phoneNumber(employee.getPhoneNumber())
+                .email(employee.getEmail())
+
+                .departmentId(employee.getDepartment() != null ? employee.getDepartment().getDepartmentId() : null)
+                .departmentName(employee.getDepartment() != null ? employee.getDepartment().getDepartmentName() : null)
+
+                .positionId(employee.getPosition() != null ? employee.getPosition().getPositionId() : null)
+                .positionName(employee.getPosition() != null ? employee.getPosition().getPositionName() : null)
+
+                .lineId(employee.getLine() != null ? employee.getLine().getLineId() : null)
+                .lineName(employee.getLine() != null ? employee.getLine().getLineName() : null)
+
+                .build();
+    }
+
+
+
 }
