@@ -93,7 +93,7 @@ function RecruitmentDetailManagement() {
                 for (const key in rawErrors) {
                     normalizedErrors[key] = Array.isArray(rawErrors[key])
                         ? rawErrors[key]
-                        : [rawErrors[key]]; //  ép string thành mảng
+                        : [rawErrors[key]]; 
                 }
 
                 setErrors(normalizedErrors);

@@ -8,7 +8,7 @@ import CandidateTable from "../components/CandidateTable";
 function CandidateManagement() {
   const tableRef = useRef();
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortOrder, setSortOrder] = useState("desc"); // mặc định mới -> cũ
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const handleExportClick = () => {
     if (tableRef.current) {

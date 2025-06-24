@@ -18,7 +18,6 @@ function EmployeeManagement() {
         <div className="page-header">
           <h1 className="page-title">Employee Management</h1>
           <div className="page-actions">
-            {/* Button Create có điều hướng */}
             <button
               className="create-button"
               onClick={handleCreate}
@@ -29,7 +28,6 @@ function EmployeeManagement() {
               />
               <span className="create-text">Create</span>
             </button>
-            {/* Button Export giữ nguyên */}
             <button className="export-button">
               <Download
                 size={16}

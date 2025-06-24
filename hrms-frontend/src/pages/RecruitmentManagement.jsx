@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 function JobsManagement() {
   const tableRef = useRef();
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortOrder, setSortOrder] = useState("desc"); // mặc định mới -> cũ
+  const [sortOrder, setSortOrder] = useState("desc");
   const navigate = useNavigate();
 
   const handleExportClick = () => {

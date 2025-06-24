@@ -155,10 +155,9 @@ function EmployeeCreate() {
       isClickScrolling.current = true;
       el.scrollIntoView({ behavior: "smooth", block: "start" });
       setActiveSection(id);
-      // Sau một khoảng delay đủ để scrollIntoView hoàn thành
       setTimeout(() => {
         isClickScrolling.current = false;
-      }, 500); // 500ms là đủ cho smooth scroll
+      }, 500);
     }
   };
 

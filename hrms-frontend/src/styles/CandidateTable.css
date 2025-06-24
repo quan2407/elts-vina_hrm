@@ -4,11 +4,11 @@
   background-color: #fff;
   border-radius: 24px;
   padding: 20px;
-  font-family: "Product Sans", sans-serif; /* Hoặc font giống Account */
+  font-family: "Product Sans", sans-serif; 
 }
 
 .candidate-table {
-  min-width: 1800px; /* Đảm bảo đủ rộng để tạo scroll */
+  min-width: 1800px; 
 }
 
 .candidate-table-header,
@@ -27,7 +27,7 @@
   font-size: 20px;
   font-weight: 700;
   text-align: center;
-  max-height: 24px; /* Hoặc giá trị phù hợp font-size */
+  max-height: 24px; 
   line-height: 24px;
   overflow: hidden;
   white-space: nowrap;
