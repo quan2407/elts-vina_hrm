@@ -9,10 +9,11 @@ import employeeService from "../services/employeeService";
 import departmentService from "../services/departmentService";
 import { Save } from "lucide-react";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 function EmployeeDetails() {
   const { id } = useParams();
-
+  const navigate = useNavigate();
   const [employeeCode, setEmployeeCode] = useState("");
   const [fullName, setFullName] = useState("");
   const [gender, setGender] = useState("");
@@ -655,6 +656,42 @@ function EmployeeDetails() {
             </div>
 
             <div className="employeedetail-form-actions">
+              <button
+                className="delete-button"
+                onClick={async () => {
+                  if (
+                    window.confirm(
+                      "Bạn có chắc chắn muốn xoá nhân viên này không?"
+                    )
+                  ) {
+                    try {
+                      await employeeService.deleteEmployee(id);
+                      alert("Xóa nhân viên thành công!");
+                      navigate("/employee-management");
+                    } catch (err) {
+                      console.error("Lỗi xóa nhân viên:", err);
+                      alert("Có lỗi xảy ra khi xoá nhân viên!");
+                    }
+                  }
+                }}
+                style={{
+                  backgroundColor: "#ff4d4f",
+                  color: "#fff",
+                  marginRight: "8px",
+                  padding: "10px 20px",
+                  fontSize: "16px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  border: "none",
+                  borderRadius: "8px",
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  transition: "background-color 0.2s ease",
+                }}
+              >
+                Xóa nhân viên
+              </button>
+
               <button
                 className="submit-button"
                 onClick={handleSubmit}

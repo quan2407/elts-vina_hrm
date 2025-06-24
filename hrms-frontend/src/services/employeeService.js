@@ -18,6 +18,9 @@ const employeeService = {
   },
   getOwnProfile: () => axiosClient.get("/employees/profile"),
   updateOwnProfile: (data) => axiosClient.put("/employees/profile", data),
+  deleteEmployee: (id) => {
+    return axiosClient.delete(`/employees/${id}`);
+  },
 };
 
 export default employeeService;
