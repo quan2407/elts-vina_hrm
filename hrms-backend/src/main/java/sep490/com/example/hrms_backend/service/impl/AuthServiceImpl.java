@@ -25,11 +25,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String login(LoginDto loginDto) {
-        // Tìm account theo username hoặc email
         Account account = accountRepository.findByUsernameOrEmail(loginDto.getUsernameOrEmail(),loginDto.getUsernameOrEmail())
                 .orElseThrow(() -> new HRMSAPIException(HttpStatus.UNAUTHORIZED, "Tài khoản không tồn tại"));
 
-        // Check trạng thái
         if (Boolean.FALSE.equals(account.getIsActive())) {
             throw new HRMSAPIException(HttpStatus.UNAUTHORIZED, "Tài khoản đã bị khóa");
         }
@@ -41,7 +39,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
         try {
-            // Xác thực
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginDto.getUsernameOrEmail(),
@@ -49,18 +46,13 @@ public class AuthServiceImpl implements AuthService {
                     )
             );
 
-            // Xác thực thành công
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // Reset loginAttempts
             account.setLoginAttempts(5);
             accountRepository.save(account);
-
-            // Tạo token
             return jwtTokenProvider.generateToken(authentication);
 
         } catch (BadCredentialsException e) {
-            // Sai mật khẩu
             int remainingAttempts = account.getLoginAttempts() - 1;
             account.setLoginAttempts(remainingAttempts);
 

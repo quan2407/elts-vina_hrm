@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 public class Notification {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,15 +24,12 @@ public class Notification {
 
     @NotBlank
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
-    private String content; // nội dung thông báo
+    private String content;
 
     @PastOrPresent
     @Column(name = "created_at")
-    private LocalDateTime createdAt; // thời điểm tạo thông báo
+    private LocalDateTime createdAt;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
-
-    // Thông báo này được gửi đến một tài khoản cụ thể
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;

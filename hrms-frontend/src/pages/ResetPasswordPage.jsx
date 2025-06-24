@@ -15,7 +15,7 @@ function ResetPasswordPage() {
     setSuccessMessage("");
 
     try {
-      await authService.resetPassword({ email }); // Giả định có method resetPassword trong authService
+      await authService.resetPassword({ email });
       setSuccessMessage("Mật khẩu mới đã được gửi tới email của bạn.");
     } catch (err) {
       console.error("Reset password failed:", err.response || err);
@@ -41,11 +41,6 @@ function ResetPasswordPage() {
           className="resetpw-form-wrapper"
           onSubmit={handleResetPassword}
         >
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/11da01531e0457dff7f19452706b1cf360116459?placeholderIfAbsent=true&apiKey=305fd9be184a488087180f4b7cfd2d98"
-            alt="Company Logo"
-            className="resetpw-company-logo"
-          />
           <div className="resetpw-title">Reset mật khẩu</div>
 
           <div className="resetpw-form-field">

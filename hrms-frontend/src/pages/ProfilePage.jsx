@@ -176,7 +176,7 @@ function ProfilePage() {
     <MainLayout>
       <div className="content-wrapper">
         <div className="page-header">
-          <h1 className="page-title">HỒ SƠ NHÂN VIÊN</h1>
+          <h1 className="page-title">Thông tin cá nhân</h1>
         </div>
 
         <div className="employeedetail-form-container">

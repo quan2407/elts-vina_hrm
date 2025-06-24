@@ -8,27 +8,20 @@ function ChangePasswordPage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleSubmit = async () => {
-    const newErrors = {};
-    if (!oldPassword) newErrors.oldPassword = "Vui lòng nhập mật khẩu cũ";
-    if (!newPassword) newErrors.newPassword = "Vui lòng nhập mật khẩu mới";
-    if (!confirmPassword)
-      newErrors.confirmPassword = "Vui lòng nhập xác nhận mật khẩu mới";
-    if (newPassword !== confirmPassword) {
-      newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    setErrors({});
+    setSuccessMessage("");
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      const fieldErrors = {};
+      if (!oldPassword) fieldErrors.oldPassword = "Vui lòng nhập mật khẩu cũ";
+      if (!newPassword) fieldErrors.newPassword = "Vui lòng nhập mật khẩu mới";
+      if (!confirmPassword)
+        fieldErrors.confirmPassword = "Vui lòng nhập xác nhận mật khẩu mới";
+      setErrors(fieldErrors);
       return;
     }
-
-    console.log("📌 Payload gửi đi:", {
-      oldPassword,
-      newPassword,
-      confirmNewPassword: confirmPassword,
-    });
 
     try {
       await authService.changePassword({
@@ -36,18 +29,26 @@ function ChangePasswordPage() {
         newPassword,
         confirmNewPassword: confirmPassword,
       });
-      alert("Đổi mật khẩu thành công!");
+
+      setSuccessMessage("Đổi mật khẩu thành công!");
       setOldPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      setErrors({});
     } catch (err) {
-      console.error("❌ Lỗi đổi mật khẩu:", err);
-      console.error("❌ Response từ server:", err.response?.data);
-      alert(
-        err.response?.data?.message ||
-          "Có lỗi xảy ra khi đổi mật khẩu. Vui lòng thử lại."
-      );
+      console.error("Lỗi đổi mật khẩu:", err.response?.data);
+      const message =
+        err.response?.data?.message || "Có lỗi xảy ra. Vui lòng thử lại.";
+      const backendErrors = {};
+
+      if (message.includes("Mật khẩu cũ không chính xác")) {
+        backendErrors.oldPassword = message;
+      } else if (message.includes("Xác nhận mật khẩu mới không khớp")) {
+        backendErrors.confirmPassword = message;
+      } else {
+        backendErrors.general = message;
+      }
+
+      setErrors(backendErrors);
     }
   };
 
@@ -56,6 +57,18 @@ function ChangePasswordPage() {
       <div className="change-password-container">
         <div className="change-password-card">
           <h2>Đổi mật khẩu</h2>
+
+          {errors.general && (
+            <div className="error-message form-level-error">
+              {errors.general}
+            </div>
+          )}
+          {successMessage && (
+            <div className="success-message form-level-success">
+              {successMessage}
+            </div>
+          )}
+
           <div className="form-group">
             <label>Mật khẩu cũ</label>
             <input
@@ -96,7 +109,7 @@ function ChangePasswordPage() {
           </div>
 
           <button
-            className="submit-button"
+            className="change-pass-submit-button"
             onClick={handleSubmit}
           >
             Đổi mật khẩu
