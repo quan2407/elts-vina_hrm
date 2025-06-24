@@ -1,16 +1,20 @@
 package sep490.com.example.hrms_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import sep490.com.example.hrms_backend.enums.CandidateStatus;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class CandidateDto {
-
+public class CandidateResponseDTO {
 
     private Long id;
 
@@ -32,14 +36,13 @@ public class CandidateDto {
     @Pattern(regexp = "^[0-9\\-\\+]{9,15}$", message = "Số điện thoại không hợp lệ")
     private String phoneNumber; // số điện thoại ứng viên
 
+    // Thông tin về việc ứng tuyển
+    private CandidateStatus status;
+    private LocalDateTime submittedAt;
+    private String note;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
+    private Long recruitmentId;
+    private Long candidateRecruitmentId;
 
-    // Một ứng viên ứng tuyển vào một đợt tuyển dụng
 
-    private List<Long> recruitmentId = new ArrayList<>();
-
-    // Một ứng viên có thể được phỏng vấn nhiều lần (1 - n)
-
-    private List<Long> interviewScheduleId = new ArrayList<>();
 }

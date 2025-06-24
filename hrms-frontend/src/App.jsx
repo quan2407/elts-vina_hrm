@@ -16,8 +16,9 @@ import EmployeeDetails from "./pages/EmployeeDetails";
 import ApplyJob from "./pages/ApplyJob";
 import EmployeeCreate from "./pages/EmployeeCreate";
 import JobsManagement from "./pages/RecruitmentManagement";
-import RecruitmentCreate from "./pages/RecruitmentCreate"; 
+import RecruitmentCreate from "./pages/RecruitmentCreate";
 import RecruitmentDetailManagement from "./pages/JobsDetailManagement";
+import CandidateManagement from "./pages/CandidateManagement";
 function App() {
   return (
     <Router>
@@ -64,6 +65,15 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["ROLE_HR"]}>
               <RecruitmentDetailManagement />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="candidates-management/:jobId"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+              <CandidateManagement />
             </ProtectedRoute>
           }
         />

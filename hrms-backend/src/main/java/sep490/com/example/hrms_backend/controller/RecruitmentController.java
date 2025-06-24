@@ -52,6 +52,11 @@ public class RecruitmentController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> editRecruitment(@PathVariable Long id, @Valid @RequestBody RecruitmentDto recruitmentDto) {
-        return null;
+        try {
+            RecruitmentDto updatedDto = recruitmentService.editRecruitment(id, recruitmentDto);
+            return new ResponseEntity<>(updatedDto, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

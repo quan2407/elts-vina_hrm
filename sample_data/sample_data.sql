@@ -217,15 +217,15 @@ INSERT INTO `lines` (line_id, line_name, department_id, leader_id) VALUES
 -- ====================
 INSERT INTO recruitment (
     recruitment_id, title, work_location, employment_type, job_description,
-    job_requirement, benefits, salary_range, quantity,
+    job_requirement, benefits, min_salary, max_salary, quantity,
     expired_at, create_at, update_at, status,
     department_id, created_by
 ) VALUES
 (1, 'Tuyển công nhân QC', 'Bắc Ninh', 'Full-time', 'Kiểm tra chất lượng sản phẩm.',
- 'Tốt nghiệp THPT, chịu khó.', 'Phụ cấp ăn trưa, thưởng lễ.', '8-10 triệu', 5,
+ 'Tốt nghiệp THPT, chịu khó.', 'Phụ cấp ăn trưa, thưởng lễ.', 8000000, 10000000, 5,
  '2025-07-15 00:00:00', NOW(), NOW(), 'OPEN', 2, 2),
 (2, 'Tuyển kỹ sư bảo trì', 'Hà Nội', 'Full-time', 'Bảo trì dây chuyền bán tự động.',
- 'CĐ/ĐH chuyên ngành cơ khí', 'Bảo hiểm full, đào tạo nội bộ.', '12-15 triệu', 2,
+ 'CĐ/ĐH chuyên ngành cơ khí', 'Bảo hiểm full, đào tạo nội bộ.', 12000000, 15000000, 2,
  '2025-07-01 00:00:00', NOW(), NOW(), 'OPEN', 4, 5);
 
 -- ====================

@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useImperativeHandle, forwardRef } from "react";
-import "../styles/JobsTable.css";
-import { getAllRecruitments } from "../services/recruitmentService";
+import "../styles/CandidateTable.css";
+import { getAllCandidateRecrutment } from "../services/candidateRecruitmentService";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 function removeVietnameseTones(str) {
     return str
@@ -14,30 +14,30 @@ function removeVietnameseTones(str) {
 }
 
 const CandidateTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
-    const [jobs, setJobs] = useState([]);
-    const navigate = useNavigate();
+    const [candidates, setCandidates] = useState([]);
+    const { jobId } = useParams();
 
     useEffect(() => {
-        const fetchJobs = async () => {
+        const fetchCandidates = async () => {
             try {
-                const data = await getAllRecruitments();
-                setJobs(data);
+                const data = await getAllCandidateRecrutment(jobId);
+                setCandidates(data);
             } catch (error) {
-                console.error("Lỗi khi load danh sách công việc:", error);
+                console.error("Lỗi khi load danh sách ứng viên:", error);
             }
         };
-        fetchJobs();
-    }, []);
+        fetchCandidates();
+    }, [jobId]);
 
-    const filteredJobs = jobs
-        .filter(job =>
-            removeVietnameseTones(job.title.toLowerCase()).includes(
+    const filteredCandidates = candidates
+        .filter(candidate =>
+            removeVietnameseTones(candidate.candidateName.toLowerCase()).includes(
                 removeVietnameseTones(searchTerm.toLowerCase())
             )
         )
         .sort((a, b) => {
-            const dateA = new Date(a.createAt);
-            const dateB = new Date(b.createAt);
+            const dateA = new Date(a.submittedAt);
+            const dateB = new Date(b.submittedAt);
             return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
         });
 
@@ -48,34 +48,30 @@ const CandidateTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
     };
 
     const exportToExcel = () => {
-        if (!jobs || jobs.length === 0) {
+        if (!candidates || candidates.length === 0) {
             alert("Không có dữ liệu để xuất.");
             return;
         }
 
-        const exportData = filteredJobs.map(job => ({
-            "ID": job.recruitmentId,
-            "Tiêu đề": job.title,
-            "Địa điểm làm việc": job.workLocation,
-            "Loại hình": job.employmentType,
-            "Mô tả": job.jobDescription,
-            "Yêu cầu": job.jobRequirement,
-            "Quyền lợi": job.benefits,
-            "Lương": job.salaryRange,
-            "Số lượng": job.quantity,
-            "Ngày tạo": formatDate(job.createAt),
-            "Ngày hết hạn": formatDate(job.expiredAt),
-            "Trạng thái": job.status,
-            "SL Ứng tuyển": job.candidateRecruitmentsId?.length || 0
+        const exportData = filteredCandidates.map(candidate => ({
+            "ID": candidate.id,
+            "Tên ứng viên": candidate.candidateName,
+            "Giới tính": candidate.gender,
+            "Ngày sinh": formatDate(candidate.dob),
+            "Email": candidate.email,
+            "Số điện thoại": candidate.phoneNumber,
+            "Ngày ứng tuyển": candidate.submittedAt,
+            "Note": candidate.note,
+            "Trạng thái": candidate.status,
         }));
 
         const worksheet = XLSX.utils.json_to_sheet(exportData);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách tuyển dụng");
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách ứng viên");
 
         const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
         const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
-        saveAs(blob, "DanhSachTuyenDung.xlsx");
+        saveAs(blob, "DanhSachUngVien.xlsx");
     };
 
     // Expose exportToExcel to parent via ref
@@ -83,46 +79,37 @@ const CandidateTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
         exportToExcel
     }));
 
-    const handleDetailClick = (jobId) => {
-        navigate(`/jobsdetail-management/${jobId}`);
-    };
     return (
-        <div className="employee-table-wrapper">
-            <div className="employee-table">
-                <div className="employee-table-header">
-                    <div className="employee-header-cell">Id</div>
-                    <div className="employee-header-cell">Nội dung</div>
-                    <div className="employee-header-cell">Địa điểm làm việc</div>
-                    <div className="employee-header-cell">Loại hình công việc</div>
-                    <div className="employee-header-cell">Mô tả công việc</div>
-                    <div className="employee-header-cell">Yêu cầu</div>
-                    <div className="employee-header-cell">Quyền lợi</div>
-                    <div className="employee-header-cell">Mức lương</div>
-                    <div className="employee-header-cell">Số lượng tuyển dụng</div>
-                    <div className="employee-header-cell">Thời gian tuyển dụng</div>
-                    <div className="employee-header-cell">Trạng thái</div>
-                    <div className="employee-header-cell">Số lượng ứng tuyển</div>
-                    <div className="employee-header-cell">Action</div>
+        <div className="candidate-table-wrapper">
+            <div className="candidate-table">
+                <div className="candidate-table-header">
+                    <div className="candidate-header-cell">Id</div>
+                    <div className="candidate-header-cell">Tên ứng viên</div>
+                    <div className="candidate-header-cell">Giới tính</div>
+                    <div className="candidate-header-cell">Ngày sinh</div>
+                    <div className="candidate-header-cell">Email</div>
+                    <div className="candidate-header-cell">Số điện thoại</div>
+                    <div className="candidate-header-cell">Ngày ứng tuyển</div>
+                    <div className="candidate-header-cell">Note</div>
+                    <div className="candidate-header-cell">Trạng thái</div>
+
                 </div>
 
-                {filteredJobs.map((job) => (
+                {filteredCandidates.map((candidate) => (
                     <div
-                        key={job.recruitmentId}
-                        className="employee-table-row"
+                        key={candidate.candidateRecruitmentId}
+                        className="candidate-table-row"
                     >
-                        <div className="employee-table-cell">{job.recruitmentId}</div>
-                        <div className="employee-table-cell">{job.title}</div>
-                        <div className="employee-table-cell">{job.workLocation}</div>
-                        <div className="employee-table-cell">{job.employmentType}</div>
-                        <div className="employee-table-cell">{job.jobDescription}</div>
-                        <div className="employee-table-cell">{job.jobRequirement}</div>
-                        <div className="employee-table-cell">{job.benefits}</div>
-                        <div className="employee-table-cell">{job.salaryRange}</div>
-                        <div className="employee-table-cell">{job.quantity}</div>
-                        <div className="employee-table-cell">{formatDate(job.createAt)} - {formatDate(job.expiredAt)}</div>
-                        <div className="employee-table-cell">{job.status}</div>
-                        <div className="employee-table-cell">{job.candidateRecruitmentsId.length}</div>
-                        <div className="employee-table-cell"><button className="viewdetail-button" onClick={() => handleDetailClick(job.recruitmentId)}>Xem chi tiết</button></div>
+                        <div className="candidate-table-cell">{candidate.id}</div>
+                        <div className="candidate-table-cell">{candidate.candidateName}</div>
+                        <div className="candidate-table-cell">{candidate.gender}</div>
+                        <div className="candidate-table-cell">{candidate.dob}</div>
+                        <div className="candidate-table-cell">{candidate.email}</div>
+                        <div className="candidate-table-cell">{candidate.phoneNumber}</div>
+                        <div className="candidate-table-cell">{formatDate(candidate.submittedAt)}</div>
+                        <div className="candidate-table-cell">{candidate.note}</div>
+                        <div className="candidate-table-cell">{candidate.status}</div>
+
                     </div>
                 ))}
             </div>

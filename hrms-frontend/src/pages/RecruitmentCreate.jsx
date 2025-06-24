@@ -42,22 +42,6 @@ function RecruitmentCreate() {
 
     const handleSubmit = async () => {
 
-        const newErrors = {};
-
-        if (!minSalary || !maxSalary) {
-            newErrors.salaryRange = ["Vui lòng nhập đầy đủ mức lương tối thiểu và tối đa"];
-        } else if (parseInt(minSalary) >= parseInt(maxSalary)) {
-            newErrors.salaryRange = ["Mức lương tối thiểu phải nhỏ hơn mức lương tối đa"];
-        }
-
-        if (parseInt(minSalary) < 0 || parseInt(maxSalary) < 0) {
-            newErrors.salaryRange = ["Mức lương không được âm"];
-        }
-
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-        }
-
         const payload = {
             title: title?.trim() ? title : null,
             workLocation: workLocation?.trim() ? workLocation : null,
@@ -65,7 +49,8 @@ function RecruitmentCreate() {
             jobDescription: jobDescription?.trim() ? jobDescription : null,
             jobRequirement: jobRequirement?.trim() ? jobRequirement : null,
             benefits: benefits?.trim() ? benefits : null,
-            salaryRange: minSalary?.trim() && maxSalary?.trim() ? `${minSalary}-${maxSalary}` + " vnd" : null,
+            minSalary: minSalary?.trim() ? parseInt(minSalary.trim(), 10) : null,
+            maxSalary: maxSalary?.trim() ? parseInt(maxSalary.trim(), 10) : null,
             quantity: quantity?.trim() ? parseInt(quantity.trim(), 10) : null,
             expiredAt: expiredAt ? expiredAt.toISOString() : null,
             departmentId: departmentId !== "" ? Number(departmentId) : null
@@ -271,13 +256,13 @@ function RecruitmentCreate() {
                         <div className="employeedetail-form-row">
                             <div className="employeedetail-input-group">
                                 <div className="employeedetail-input-label">
-                                    Mức lương nhỏ nhất(VNĐ)<span className="required-star">*</span>
+                                    Mức lương tối thiểu(VNĐ)<span className="required-star">*</span>
                                 </div>
                                 <input
                                     className="employeedetail-input-field"
                                     type="number"
                                     value={minSalary}
-                                    placeholder="Nhập mã nhân viên"
+                                    placeholder="Mức lương tối thiểu"
                                     onChange={(e) => setMinSalary(e.target.value)}
                                 />
                                 {errors.minSalary && (
@@ -288,13 +273,13 @@ function RecruitmentCreate() {
                             </div>
                             <div className="employeedetail-input-group">
                                 <div className="employeedetail-input-label">
-                                    Mức lương lớn nhất(VNĐ)<span className="required-star">*</span>
+                                    Mức lương tối đa(VNĐ)<span className="required-star">*</span>
                                 </div>
                                 <input
                                     className="employeedetail-input-field"
                                     type="text"
                                     value={maxSalary}
-                                    placeholder="Nhập mã nhân viên"
+                                    placeholder="Mức lương tối đa"
                                     onChange={(e) => setMaxSalary(e.target.value)}
                                 />
                                 {errors.maxSalary && (
@@ -302,18 +287,14 @@ function RecruitmentCreate() {
                                         {errors.maxSalary.join(", ")}
                                     </div>
                                 )}
-                                {errors.salaryRange && (
-                                    <div className="error-message">
-                                        {errors.salaryRange.join(", ")}
-                                    </div>
-                                )}
+ 
                             </div>
                         </div>
 
                         <div className="employeedetail-form-row">
                             <div className="employeedetail-input-group">
                                 <div className="employeedetail-input-label">
-                                    Số lượng tuyển dụng
+                                    Số lượng tuyển dụng<span className="required-star">*</span>
                                 </div>
                                 <input
                                     className="employeedetail-input-field"
@@ -330,7 +311,7 @@ function RecruitmentCreate() {
                             </div>
                             <div className="employeedetail-input-group">
                                 <div className="employeedetail-input-label">
-                                    Hạn tuyển dụng                                    </div>
+                                    Hạn tuyển dụng               <span className="required-star">*</span>                     </div>
                                 <DatePicker
                                     selected={expiredAt}
                                     onChange={(date) => setExpiredAt(date)}

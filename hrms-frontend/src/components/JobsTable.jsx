@@ -61,7 +61,7 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
             "Mô tả": job.jobDescription,
             "Yêu cầu": job.jobRequirement,
             "Quyền lợi": job.benefits,
-            "Lương": job.salaryRange,
+            "Lương": job.minSalary + " - " + job.maxSalary + " VND",
             "Số lượng": job.quantity,
             "Ngày tạo": formatDate(job.createAt),
             "Ngày hết hạn": formatDate(job.expiredAt),
@@ -82,6 +82,10 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
     useImperativeHandle(ref, () => ({
         exportToExcel
     }));
+
+const handleCandidateClick = (jobId) => {
+        navigate(`/candidates-management/${jobId}`);
+}
 
     const handleDetailClick = (jobId) => {
         navigate(`/jobsdetail-management/${jobId}`);
@@ -117,12 +121,18 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
                         <div className="employee-table-cell">{job.jobDescription}</div>
                         <div className="employee-table-cell">{job.jobRequirement}</div>
                         <div className="employee-table-cell">{job.benefits}</div>
-                        <div className="employee-table-cell">{job.salaryRange}</div>
+                        <div className="employee-table-cell">{job.minSalary} - {job.maxSalary} VND</div>
                         <div className="employee-table-cell">{job.quantity}</div>
                         <div className="employee-table-cell">{formatDate(job.createAt)} - {formatDate(job.expiredAt)}</div>
                         <div className="employee-table-cell">{job.status}</div>
                         <div className="employee-table-cell">{job.candidateRecruitmentsId.length}</div>
-                        <div className="employee-table-cell"><button className="viewdetail-button" onClick={() => handleDetailClick(job.recruitmentId)}>Xem chi tiết</button></div>
+                        <div className="employee-table-cell">
+
+                            <button className="viewcandidate-button" onClick={() => handleCandidateClick(job.recruitmentId)}>Danh sách ứng viên</button>
+
+                            <button className="viewdetail-button" onClick={() => handleDetailClick(job.recruitmentId)}>Xem chi tiết</button>
+                        
+                        </div>
                     </div>
                 ))}
             </div>

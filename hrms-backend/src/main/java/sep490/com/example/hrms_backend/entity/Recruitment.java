@@ -34,7 +34,9 @@ public class Recruitment {
 
     private String benefits;
 
-    private String salaryRange;
+    private Long minSalary;
+
+    private Long maxSalary;
 
     @Min(1)
     private Integer quantity;

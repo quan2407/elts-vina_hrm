@@ -59,4 +59,29 @@ public class RecruitmentService {
 
         return RecruitmentMapper.mapToRecruitmentDto(saved, new RecruitmentDto());
     }
+
+    public RecruitmentDto editRecruitment(Long id, @Valid RecruitmentDto recruitmentDto) {
+
+        Recruitment recruitment = recruitmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy Recruitment với ID: " + id));
+
+        recruitment.setTitle(recruitmentDto.getTitle());
+        recruitment.setWorkLocation(recruitmentDto.getWorkLocation());
+        recruitment.setEmploymentType(recruitmentDto.getEmploymentType());
+        recruitment.setJobDescription(recruitmentDto.getJobDescription());
+        recruitment.setJobRequirement(recruitmentDto.getJobRequirement());
+        recruitment.setBenefits(recruitmentDto.getBenefits());
+        recruitment.setMinSalary(recruitmentDto.getMinSalary());
+        recruitment.setMaxSalary(recruitmentDto.getMaxSalary());
+        recruitment.setQuantity(recruitmentDto.getQuantity());
+        recruitment.setExpiredAt(recruitmentDto.getExpiredAt());
+        recruitment.setUpdateAt(LocalDateTime.now());
+        // Cập nhật phòng ban nếu thay đổi
+        if (recruitmentDto.getDepartmentId() != null) {
+            Department department = departmentRepository.findById(recruitmentDto.getDepartmentId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy phòng ban với ID: " + recruitmentDto.getDepartmentId()));
+            recruitment.setDepartment(department);
+        }
+        Recruitment updated = recruitmentRepository.save(recruitment);
+        return RecruitmentMapper.mapToRecruitmentDto(updated, new RecruitmentDto());
+    }
 }

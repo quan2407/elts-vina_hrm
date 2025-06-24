@@ -1,44 +1,40 @@
-.employee-table-wrapper {
+.candidate-table-wrapper {
   overflow-x: auto;
   max-width: 100%;
   background-color: #fff;
   border-radius: 24px;
   padding: 20px;
-  font-family: "Product Sans", sans-serif;
-  /* Hoặc font giống Account */
+  font-family: "Product Sans", sans-serif; /* Hoặc font giống Account */
 }
 
-.employee-table {
-  min-width: 1800px;
-  /* Đảm bảo đủ rộng để tạo scroll */
+.candidate-table {
+  min-width: 1800px; /* Đảm bảo đủ rộng để tạo scroll */
 }
 
-.employee-table-header,
-.employee-table-row {
+.candidate-table-header,
+.candidate-table-row {
   display: grid;
   grid-template-columns:
-    120px 180px 180px 180px 150px 150px 200px 150px 200px 200px 150px 200px 300px;
+    100px 180px 150px 180px 250px 150px 200px 300px 150px;
   gap: 10px;
   padding: 18px 30px;
   margin-bottom: 20px;
   border-radius: 6px;
-
 }
 
-.employee-header-cell {
+.candidate-header-cell {
   color: #000;
   font-size: 20px;
   font-weight: 700;
   text-align: center;
-  max-height: 24px;
-  /* Hoặc giá trị phù hợp font-size */
+  max-height: 24px; /* Hoặc giá trị phù hợp font-size */
   line-height: 24px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
-.employee-table-cell {
+.candidate-table-cell {
   color: #000;
   font-size: 20px;
   font-weight: 400;
@@ -47,11 +43,11 @@
   white-space: normal;
 }
 
-.employee-actions-wrapper {
+.candidate-actions-wrapper {
   position: relative;
 }
 
-.employee-actions-button {
+.candidate-actions-button {
   background-color: #253d90;
   color: #fff;
   padding: 6px 12px;
@@ -60,7 +56,7 @@
   font-weight: 600;
 }
 
-.employee-dropdown-menu {
+.candidate-dropdown-menu {
   position: absolute;
   top: 100%;
   left: 50%;
@@ -72,41 +68,19 @@
   z-index: 10;
 }
 
-.employee-dropdown-item {
+.candidate-dropdown-item {
   color: #fff;
   padding: 8px;
   text-align: center;
   cursor: pointer;
 }
 
-.employee-dropdown-item:hover {
+.candidate-dropdown-item:hover {
   background-color: #1a2b6c;
 }
 
-.employee-dropdown-divider {
+.candidate-dropdown-divider {
   height: 1px;
   background: #fff;
   margin: 0;
-}
-
-.viewdetail-button {
-  width: 250px;
-  background-color: #486df0;
-  color: #fff;
-  padding: 6px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  margin: 5px;
-}
-
-.viewcandidate-button {
-  width: 250px;
-  margin: 5px;
-  background-color: #26f78e;
-  color: #fff;
-  padding: 6px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
 }
