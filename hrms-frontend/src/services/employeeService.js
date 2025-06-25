@@ -21,6 +21,11 @@ const employeeService = {
   deleteEmployee: (id) => {
     return axiosClient.delete(`/employees/${id}`);
   },
+  exportFile: () => {
+    return axiosClient.get("/employees/export", {
+      responseType: "blob",
+    });
+  },
 };
 
 export default employeeService;
