@@ -6,6 +6,7 @@ import {
   UserPlus,
   MessageSquare,
   Target,
+  Gift
 } from "lucide-react";
 
 export const systemMenus = [
@@ -55,4 +56,11 @@ export const hrMenus = [
       <Target size={20} stroke={isActive ? "#4f46e5" : "white"} />
     ),
   },
+  {
+    text: "Benefit Management",
+    path: "/benefit",
+    icon: (isActive) => (
+      <Gift size={20} stroke={isActive ? "#4f46e5" : "white"} />
+    ),
+  }
 ];

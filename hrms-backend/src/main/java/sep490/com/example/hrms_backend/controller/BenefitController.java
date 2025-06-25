@@ -31,7 +31,7 @@ public class BenefitController {
     private final CurrentUserUtils currentUserUtils;
 
 
-    //View Benefit (Employee, HR)
+    //1.View Benefit (Employee, HR)
 //    @PreAuthorize("hasAnyRole('EMPLOYEE', 'HR')")
     @GetMapping
     public ResponseEntity<BenefitResponse> getAllBenefit(@RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false)Integer pageNumber,
@@ -49,7 +49,7 @@ public class BenefitController {
 
 
 
-    //create Benefit (HR)
+    //2. create Benefit (HR)
     @PreAuthorize("hasAnyRole('HR')")
     @PostMapping
     public ResponseEntity<BenefitDTO> addBenefit(@Valid @RequestBody BenefitDTO benefitDTO , Authentication authentication){
@@ -60,7 +60,7 @@ public class BenefitController {
         return new ResponseEntity<>(createdBenefitDTO, HttpStatus.CREATED);
     }
 
-//    //update Benefit (HR)
+//  3. update Benefit (HR)
     @PreAuthorize("hasAnyRole('HR')")
     @PutMapping("/{benefitId}")
     public ResponseEntity<BenefitDTO> updateBenefit(@Valid @RequestBody BenefitDTO benefitDTO, @PathVariable Long benefitId){
@@ -70,19 +70,19 @@ public class BenefitController {
     }
 
 
-    //change the status Benefit (Active/InActive) (HR)
+    //4. change the status Benefit (Active/InActive) (HR)
     @PreAuthorize("hasAnyRole('HR')")
-    @PatchMapping("/{id}/inactive")
+    @PatchMapping("/{benefitId}")
     public ResponseEntity<BenefitDTO> updateInactiveStatus(
-            @PathVariable Long id,
+            @PathVariable Long benefitId,
             @RequestBody BenefitStatusUpdateRequestDTO benefitStatusUpdateRequestDTO
     ) {
 
-        BenefitDTO updated = benefitService.updateInactiveStatus(id, benefitStatusUpdateRequestDTO.isActive());
+        BenefitDTO updated = benefitService.updateInactiveStatus(benefitId, benefitStatusUpdateRequestDTO.isActive());
         return ResponseEntity.ok(updated);
     }
 
-    //get benefits by keyword
+    //5. get benefits by keyword
     @GetMapping ("/keyword/{keyword}")
     public ResponseEntity<BenefitResponse> getBenefitsByKeyword(@PathVariable String keyword,
                                                                 @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false)Integer pageNumber,
@@ -94,16 +94,7 @@ public class BenefitController {
                                             return new ResponseEntity<>(benefitResponse, HttpStatus.FOUND );
                                 }
 
-    //get benefits by employee
-    @GetMapping("/employees/{employeeId}")
-    public ResponseEntity<BenefitResponse> getBenefitByEmployee(@PathVariable Long employeeId,@RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false)Integer pageNumber,
-                                                                  @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
-                                                                  @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
-                                                                  @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIRECTION, required = false) String sortOrder){
 
-        BenefitResponse benefitResponse = benefitService.searchBenefitByEmployee(employeeId, pageNumber, pageSize, sortBy, sortOrder);
-        return new ResponseEntity<>(benefitResponse, HttpStatus.FOUND );
-    }
 
     
 

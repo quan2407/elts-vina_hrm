@@ -15,6 +15,7 @@ import EmployeeManagement from "./pages/EmployeeManagement";
 import EmployeeDetails from "./pages/EmployeeDetails"; // ✅ Đổi tên import cho đúng
 import ApplyJob from "./pages/ApplyJob";
 import Targets from "./pages/Targets";
+import BenefitManagement from "./pages/BenefitManagementHR.jsx";
 
 function App() {
   return (
@@ -43,6 +44,16 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_ADMIN"]}>
               <EmployeeManagement />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Protected route for HR */}
+        <Route
+          path="/benefit"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_ADMIN", "ROLE_USER"]}>
+              <BenefitManagement />
             </ProtectedRoute>
           }
         />

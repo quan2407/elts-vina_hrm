@@ -143,9 +143,5 @@ public class BenefitServiceImpl implements BenefitService {
         return benefitResponse;
     }
 
-    @Override
-    public BenefitResponse searchBenefitByEmployee(Long employeeId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
-        return null;
 
-    }
 }
