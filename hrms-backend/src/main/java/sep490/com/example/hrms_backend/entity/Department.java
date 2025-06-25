@@ -35,4 +35,6 @@ public class Department {
 
     @ManyToMany(mappedBy = "departments")
     private List<Position> positions;
+    @OneToMany(mappedBy = "department")
+    private List<WorkSchedule> workSchedules;
 }

@@ -3,6 +3,8 @@ package sep490.com.example.hrms_backend.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -69,10 +71,16 @@ public class EmployeeController {
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<InputStreamResource> exportEmployeesToExcel() {
         ByteArrayInputStream in = employeeService.exportEmployeesToExcel();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=danhsachnhanvien.xlsx");
+
         return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=employees.xlsx")
+                .headers(headers)
+                .contentType(MediaType.parseMediaType(
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(new InputStreamResource(in));
     }
+
 
 
 }

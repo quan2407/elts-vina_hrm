@@ -14,7 +14,6 @@ import java.util.List;
 @Builder
 public class WorkSchedule {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "work_schedule_id")
@@ -25,6 +24,14 @@ public class WorkSchedule {
 
     @Column(name = "year", nullable = false)
     private int year;
+
+    @ManyToOne
+    @JoinColumn(name = "line_id")
+    private Line line;
+
+    @ManyToOne
+    @JoinColumn(name = "department_id", nullable = false)
+    private Department department;
 
     @OneToMany(mappedBy = "workSchedule", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WorkScheduleDetail> workScheduleDetails;

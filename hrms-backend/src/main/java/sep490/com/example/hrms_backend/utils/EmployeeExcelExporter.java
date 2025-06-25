@@ -1,12 +1,15 @@
 package sep490.com.example.hrms_backend.utils;
 
+import org.apache.commons.compress.utils.IOUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.core.io.ClassPathResource;
 import sep490.com.example.hrms_backend.dto.EmployeeDetailDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -22,11 +25,32 @@ public class EmployeeExcelExporter {
         };
 
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            Sheet sheet = workbook.createSheet("Employees");
-            Row headerRow = sheet.createRow(0);
+            Sheet sheet = workbook.createSheet("Danhsachnhanvien");
+
+            try (InputStream logoStream = new ClassPathResource("elts_logo.png").getInputStream()) {
+                byte[] imageBytes = IOUtils.toByteArray(logoStream);
+                int pictureIdx = workbook.addPicture(imageBytes, Workbook.PICTURE_TYPE_PNG);
+
+                Drawing<?> drawing = sheet.createDrawingPatriarch();
+                ClientAnchor anchor = workbook.getCreationHelper().createClientAnchor();
+
+
+                anchor.setCol1(0);
+                anchor.setRow1(0);
+                anchor.setCol2(5);
+                anchor.setRow2(4);
+                anchor.setAnchorType(ClientAnchor.AnchorType.MOVE_DONT_RESIZE);
+
+                Picture pict = drawing.createPicture(anchor, pictureIdx);
+
+            }
+
+
+            Row headerRow = sheet.createRow(5);
             for (int col = 0; col < columns.length; col++) {
                 Cell cell = headerRow.createCell(col);
                 cell.setCellValue(columns[col]);
+
                 CellStyle style = workbook.createCellStyle();
                 Font font = workbook.createFont();
                 font.setBold(true);
@@ -34,9 +58,8 @@ public class EmployeeExcelExporter {
                 cell.setCellStyle(style);
             }
 
-            // Data rows
             DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            int rowIdx = 1;
+            int rowIdx = 6;
             for (EmployeeDetailDTO emp : employees) {
                 Row row = sheet.createRow(rowIdx++);
                 row.createCell(0).setCellValue(emp.getEmployeeCode());
@@ -58,7 +81,6 @@ public class EmployeeExcelExporter {
                 row.createCell(16).setCellValue(emp.getLineName());
             }
 
-            // Auto-size columns
             for (int i = 0; i < columns.length; i++) {
                 sheet.autoSizeColumn(i);
             }
