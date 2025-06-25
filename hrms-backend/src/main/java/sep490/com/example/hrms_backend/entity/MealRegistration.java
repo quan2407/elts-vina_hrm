@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @Builder
 public class MealRegistration {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,15 +25,12 @@ public class MealRegistration {
 
     @NotNull
     @Column(name = "meal_date", nullable = false)
-    private LocalDate mealDate; // ngày đăng ký ăn ca
+    private LocalDate mealDate;
 
     @PastOrPresent
     @Column(name = "created_at")
-    private LocalDateTime createdAt; // thời điểm đăng ký
+    private LocalDateTime createdAt;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
-
-    // Mỗi đăng ký ăn ca liên kết với một bản ghi chấm công
     @ManyToOne
     @JoinColumn(name = "attendance_log_id")
     private AttendanceLog attendanceLog;

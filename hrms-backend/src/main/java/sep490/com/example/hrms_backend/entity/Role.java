@@ -15,7 +15,6 @@ import java.util.List;
 @Builder
 public class Role {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,13 +23,13 @@ public class Role {
 
     @NotBlank
     @Column(name = "role_name", nullable = false, unique = true)
-    private String roleName; // tên role, ví dụ: ROLE_ADMIN, ROLE_EMPLOYEE
+    private String roleName;
 
     @Column(name = "description")
-    private String description; // mô tả vai trò
+    private String description;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
+
 
     @OneToMany(mappedBy = "role")
-    private List<Account> accounts; // role này có nhiều account
+    private List<Account> accounts;
 }

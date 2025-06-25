@@ -22,7 +22,7 @@ public class Department {
 
     @NotBlank
     @Column(name = "department_name", nullable = false, unique = true)
-    private String departmentName; // tên phòng ban (ví dụ: Kế toán, IT, Nhân sự)
+    private String departmentName;
 
     @OneToMany(mappedBy = "department")
     private List<Line> lines;
@@ -33,7 +33,6 @@ public class Department {
     @OneToMany(mappedBy = "department")
     private List<Recruitment> recruitments;
 
-    // Nhiều phòng ban có nhiều chức vụ
     @ManyToMany(mappedBy = "departments")
     private List<Position> positions;
 }

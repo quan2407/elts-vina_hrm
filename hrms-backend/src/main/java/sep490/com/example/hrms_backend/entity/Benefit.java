@@ -17,7 +17,6 @@ import java.util.List;
 @Builder
 public class Benefit {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,10 +25,10 @@ public class Benefit {
 
     @NotBlank
     @Column(name = "title", nullable = false)
-    private String title; // tiêu đề phúc lợi
+    private String title;
 
     @Column(name = "description")
-    private String description; // mô tả chi tiết
+    private String description;
 
     @NotNull
     @Column(name = "start_date")

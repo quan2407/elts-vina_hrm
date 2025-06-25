@@ -184,3 +184,8 @@
   color: red;
   margin-left: 2px;
 }
+.disabled-input {
+  background-color: #f0f0f0; /* Xám nhẹ để phân biệt */
+  color: #888; /* Chữ xám nhạt */
+  cursor: not-allowed; /* Con trỏ thành dấu cấm */
+}
