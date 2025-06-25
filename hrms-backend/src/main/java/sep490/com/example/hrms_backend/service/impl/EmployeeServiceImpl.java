@@ -14,6 +14,8 @@ import sep490.com.example.hrms_backend.mapper.EmployeeMapper;
 import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.AccountService;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -179,6 +181,18 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
                 .orElseThrow(() -> new RuntimeException("Employee not found or already deleted"));
         employee.setDeleted(true);
         employeeRepository.save(employee);
+    }
+    @Override
+    public ByteArrayInputStream exportEmployeesToExcel() {
+        List<EmployeeDetailDTO> list = employeeRepository.findByIsDeletedFalse().stream()
+                .map(EmployeeMapper::mapToEmployeeDetailDTO)
+                .collect(Collectors.toList());
+
+        try {
+            return sep490.com.example.hrms_backend.utils.EmployeeExcelExporter.export(list);
+        } catch (IOException e) {
+            throw new HRMSAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi xuất file Excel");
+        }
     }
 
 

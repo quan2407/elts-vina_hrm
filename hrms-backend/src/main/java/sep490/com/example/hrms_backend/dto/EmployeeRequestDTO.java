@@ -5,7 +5,6 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import sep490.com.example.hrms_backend.enums.Gender;
 import sep490.com.example.hrms_backend.enums.GenderDeserializer;
-
 import java.time.LocalDate;
 
 @Getter

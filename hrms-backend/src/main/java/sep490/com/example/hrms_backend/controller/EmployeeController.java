@@ -2,12 +2,14 @@ package sep490.com.example.hrms_backend.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.service.EmployeeService;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 
 @RestController
@@ -62,6 +64,14 @@ public class EmployeeController {
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
         employeeService.softDeleteEmployee(id);
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/export")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
+    public ResponseEntity<InputStreamResource> exportEmployeesToExcel() {
+        ByteArrayInputStream in = employeeService.exportEmployeesToExcel();
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=employees.xlsx")
+                .body(new InputStreamResource(in));
     }
 
 
