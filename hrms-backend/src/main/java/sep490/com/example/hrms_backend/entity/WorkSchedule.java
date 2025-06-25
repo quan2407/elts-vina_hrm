@@ -1,10 +1,9 @@
 package sep490.com.example.hrms_backend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.FutureOrPresent;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "work_schedule")
@@ -21,18 +20,12 @@ public class WorkSchedule {
     @Column(name = "work_schedule_id")
     private Long id;
 
-    @FutureOrPresent
-    @Column(name = "date_work")
-    private LocalDate dateWork;
+    @Column(name = "month", nullable = false)
+    private int month;
 
-    @Column(name = "note")
-    private String note;
+    @Column(name = "year", nullable = false)
+    private int year;
 
-    @ManyToOne
-    @JoinColumn(name = "employee_id")
-    private Employee employee;
-
-    @ManyToOne
-    @JoinColumn(name = "work_shift_id")
-    private WorkShift workShift;
+    @OneToMany(mappedBy = "workSchedule", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WorkScheduleDetail> workScheduleDetails;
 }

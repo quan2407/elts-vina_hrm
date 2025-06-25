@@ -35,4 +35,8 @@ public class Line {
 
     @OneToMany(mappedBy = "line")
     private List<Employee> employees;
+
+    @OneToMany(mappedBy = "line")
+    private List<WorkScheduleDetail> workScheduleDetails;
+
 }
