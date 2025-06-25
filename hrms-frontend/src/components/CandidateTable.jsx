@@ -103,7 +103,7 @@ const CandidateTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
                         <div className="candidate-table-cell">{candidate.id}</div>
                         <div className="candidate-table-cell">{candidate.candidateName}</div>
                         <div className="candidate-table-cell">{candidate.gender}</div>
-                        <div className="candidate-table-cell">{candidate.dob}</div>
+                        <div className="candidate-table-cell">{formatDate(candidate.dob)}</div>
                         <div className="candidate-table-cell">{candidate.email}</div>
                         <div className="candidate-table-cell">{candidate.phoneNumber}</div>
                         <div className="candidate-table-cell">{formatDate(candidate.submittedAt)}</div>

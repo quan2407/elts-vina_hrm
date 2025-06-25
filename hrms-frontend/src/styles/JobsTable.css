@@ -17,7 +17,7 @@
 .jobs-table-row {
   display: grid;
   grid-template-columns:
-    120px 180px 180px 180px 150px 150px 200px 150px 200px 200px 150px 200px 300px;
+    120px 180px 180px 180px 200px 250px 150px 200px 300px;
   gap: 10px;
   padding: 18px 30px;
   margin-bottom: 20px;
@@ -27,7 +27,7 @@
 
 .jobs-header-cell {
   color: #000;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 700;
   text-align: center;
   max-height: 24px;
@@ -39,7 +39,7 @@
 
 .jobs-table-cell {
   color: #000;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 400;
   text-align: center;
   word-break: break-word;
@@ -47,19 +47,19 @@
 }
 
 
-.jobs-viewdetail-button {
-  background-color: #486df0;
+.viewdetail-button {
+  width: 200px;
+  margin: 5px;
+  background-color: #5a48ff;
   color: #fff;
   padding: 6px 20px;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
-
-  margin: 5px;
 }
 
 .viewcandidate-button {
-  width: 250px;
+  width: 200px;
   margin: 5px;
   background-color: #26f78e;
   color: #fff;

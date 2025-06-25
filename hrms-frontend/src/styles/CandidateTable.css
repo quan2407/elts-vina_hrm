@@ -24,7 +24,7 @@
 
 .candidate-header-cell {
   color: #000;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 700;
   text-align: center;
   max-height: 24px; 
@@ -36,7 +36,7 @@
 
 .candidate-table-cell {
   color: #000;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 400;
   text-align: center;
   word-break: break-word;
