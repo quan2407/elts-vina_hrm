@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import MainLayout from "../components/MainLayout";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -10,11 +10,13 @@ import { EditRecruitment, getAllCity } from "../services/recruitmentService";
 import { CreateRecruitment } from "../services/recruitmentService";
 import departmentService from "../services/departmentService";
 import { getRecruitmentById } from "../services/recruitmentService";
+import { useNavigate } from "react-router-dom";
 
 
 function RecruitmentDetailManagement() {
     const { jobId } = useParams();
     const [job, setJob] = useState(null);
+    const navigate = useNavigate();
 
     console.log("ID từ params:", jobId);
     useEffect(() => {
@@ -83,6 +85,7 @@ function RecruitmentDetailManagement() {
         try {
             await EditRecruitment(payload, jobId);
             alert("Sửa tin tuyển dụng thành công!");
+            navigate(-1);
             setErrors({});
         } catch (err) {
             console.error(" Lỗi sửa tin tuyển dụng:", err);

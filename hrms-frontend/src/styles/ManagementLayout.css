@@ -6,20 +6,17 @@
 }
 .create-button,
 .export-button {
-  background-color: #1a73e8;
-  color: white;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 500;
+  border-radius: 14px;
+  padding: 23px 78px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 16px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  box-shadow: 11px 4px 14px 0px rgba(0, 0, 0, 0.12);
+  background-color: #3f861e;
 }
 
-.create-button:hover,
+.add-button:hover,
 .export-button:hover {
   background-color: #155ab6;
 }
