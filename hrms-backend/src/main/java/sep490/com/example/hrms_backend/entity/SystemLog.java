@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @Builder
 public class SystemLog {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,23 +24,20 @@ public class SystemLog {
 
     @NotBlank
     @Column(name = "action")
-    private String action; // hành động (VD: CREATE, UPDATE, DELETE)
+    private String action;
 
     @NotBlank
     @Column(name = "table_name", nullable = false)
     private String tableName;
-    // bảng bị ảnh hưởng (VD: employee, salary...)
+
 
     @Column(name = "attribute_name")
-    private String attribute; // thuộc tính cụ thể (VD: email, basic_salary...)
+    private String attribute;
 
     @PastOrPresent
     @Column(name = "action_at")
-    private LocalDateTime actionAt; // thời điểm xảy ra hành động
+    private LocalDateTime actionAt;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
-
-    // Hành động này được thực hiện bởi một tài khoản
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;

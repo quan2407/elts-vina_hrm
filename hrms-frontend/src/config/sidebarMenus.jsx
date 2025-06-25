@@ -11,14 +11,14 @@ import {
 
 export const systemMenus = [
   {
-    text: "Account List",
+    text: "Danh sách tài khoản",
     path: "/",
     icon: (isActive) => (
       <Users size={20} stroke={isActive ? "#4f46e5" : "white"} />
     ),
   },
   {
-    text: "Messages",
+    text: "Tin nhắn",
     path: "/messages",
     icon: (isActive) => (
       <MessageSquare size={20} stroke={isActive ? "#4f46e5" : "white"} />
@@ -29,22 +29,23 @@ export const systemMenus = [
 
 export const hrMenus = [
   {
-    text: "Dashboard",
+    text: "Tổng quan",
     path: "/",
     icon: (isActive) => (
       <LayoutDashboard size={20} stroke={isActive ? "#4f46e5" : "white"} />
     ),
   },
   {
-    text: "Employee Management",
+    text: "Quản lý nhân viên",
     path: "/employee-management",
     icon: (isActive) => (
       <Users size={20} stroke={isActive ? "#4f46e5" : "white"} />
     ),
   },
   {
-    text: "Jobs",
-    path: "/jobs",
+    text: "Tuyển dụng",
+    path: "/jobs-management",
+
     icon: (isActive) => (
       <Briefcase size={20} stroke={isActive ? "#4f46e5" : "white"} />
     ),

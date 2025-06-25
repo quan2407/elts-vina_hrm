@@ -1,10 +1,9 @@
 package sep490.com.example.hrms_backend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.FutureOrPresent;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "work_schedule")
@@ -15,29 +14,18 @@ import java.time.LocalDate;
 @Builder
 public class WorkSchedule {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "work_schedule_id")
     private Long id;
 
-    @FutureOrPresent
-    @Column(name = "date_work")
-    private LocalDate dateWork; // ngày làm việc cụ thể
+    @Column(name = "month", nullable = false)
+    private int month;
 
-    @Column(name = "note")
-    private String note; // ghi chú lịch làm (nếu có)
+    @Column(name = "year", nullable = false)
+    private int year;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
-
-    // Lịch làm thuộc về một nhân viên cụ thể
-    @ManyToOne
-    @JoinColumn(name = "employee_id")
-    private Employee employee;
-
-    // Lịch làm ứng với một ca làm cụ thể
-    @ManyToOne
-    @JoinColumn(name = "work_shift_id")
-    private WorkShift workShift;
+    @OneToMany(mappedBy = "workSchedule", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WorkScheduleDetail> workScheduleDetails;
 }

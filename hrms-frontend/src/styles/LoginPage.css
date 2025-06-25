@@ -169,3 +169,17 @@
     font-size: 18px;
   }
 }
+
+.login-error-inline {
+  color: #e53935; /* Đỏ đậm */
+  background: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  margin-top: 4px;
+  padding-left: 2px;
+  text-align: left;
+}
+
+.form-level-error {
+  text-align: center;
+  margin-top: 8px;
+}

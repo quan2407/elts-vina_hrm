@@ -22,12 +22,20 @@ public class Position {
 
     @NotBlank
     @Column(name = "position_name", nullable = false, unique = true)
-    private String positionName; // Tên chức vụ
+    private String positionName;
 
     @Column(name = "description")
-    private String description; // Mô tả chức vụ
+    private String description;
 
-    // Một chức vụ có thể gán cho nhiều nhân viên
+
     @OneToMany(mappedBy = "position")
     private List<Employee> employees;
+
+    @ManyToMany
+    @JoinTable(
+            name = "department_position",
+            joinColumns = @JoinColumn(name = "position_id"),
+            inverseJoinColumns = @JoinColumn(name = "department_id")
+    )
+    private List<Department> departments;
 }

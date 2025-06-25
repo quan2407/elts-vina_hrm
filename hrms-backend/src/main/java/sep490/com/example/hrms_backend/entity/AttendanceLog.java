@@ -17,7 +17,6 @@ import java.util.List;
 @Builder
 public class AttendanceLog {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,8 +25,7 @@ public class AttendanceLog {
 
     @PastOrPresent
     @Column(name = "date")
-    private LocalDate date; // ngày làm việc
-
+    private LocalDate date;
     @Column(name = "check_in")
     private LocalTime checkIn;
 
@@ -36,29 +34,23 @@ public class AttendanceLog {
 
 
     @Column(name = "overtime_out")
-    private LocalTime overtimeOut; // giờ tăng ca kết thúc (nếu có)
+    private LocalTime overtimeOut;
 
     @Column(name = "note")
-    private String note; // ghi chú chấm công
+    private String note;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
-
-    // Chấm công này thuộc về một bảng chấm công tháng
     @ManyToOne
     @JoinColumn(name = "monthly_attendance_id")
     private MonthlyAttendance monthlyAttendance;
 
-    // Loại công áp dụng cho ban ngày
     @ManyToOne
     @JoinColumn(name = "day_attendance_type_id")
     private AttendanceType dayAttendanceType;
 
-    // Loại công áp dụng cho ban đêm (nếu có)
     @ManyToOne
     @JoinColumn(name = "night_attendance_type_id")
     private AttendanceType nightAttendanceType;
 
-    // Một bản ghi chấm công có thể có nhiều đăng ký ăn ca
     @OneToMany(mappedBy = "attendanceLog")
     private List<MealRegistration> mealRegistrations;
 }

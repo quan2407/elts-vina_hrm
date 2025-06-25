@@ -16,8 +16,6 @@ import java.util.List;
 @Builder
 public class Employee {
 
-    // ======= THÔNG TIN CƠ BẢN =======
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "employee_id")
@@ -62,15 +60,13 @@ public class Employee {
     private String citizenIssuePlace;
     @Column(name = "address")
 
-    private String address; // địa chỉ hiện tại
+    private String address;
     @Column(name = "image")
-    private String image; // link ảnh
+    private String image;
 
     @PastOrPresent
     @Column(name = "start_work_at")
-    private LocalDate startWorkAt; // ngày bắt đầu làm việc
-
-    // ======= THÔNG TIN LIÊN HỆ =======
+    private LocalDate startWorkAt;
 
     @Pattern(regexp = "^[0-9\\-\\+]{9,15}$", message = "Invalid phone number format")
     @Column(name = "phone_number")
@@ -80,7 +76,6 @@ public class Employee {
     @Column(name = "email")
     private String email;
 
-    // ======= QUAN HỆ =======
 
     @ManyToOne
     @JoinColumn(name = "line_id")
@@ -117,8 +112,10 @@ public class Employee {
 
     @OneToMany(mappedBy = "employee")
     private List<WorkSchedule> workSchedules;
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
-    // ======= CUSTOM GETTER AN TOÀN (tuỳ mục đích sử dụng) =======
+
 
     public String getCitizenIssuePlaceSafe() {
         return citizenIssuePlace != null ? citizenIssuePlace : "";

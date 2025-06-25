@@ -15,7 +15,6 @@ import java.math.BigDecimal;
 @Builder
 public class Allowance {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,15 +23,12 @@ public class Allowance {
 
     @NotBlank
     @Column(name = "allowance_type")
-    private String allowanceType; // loại phụ cấp (VD: ăn trưa, xăng xe...)
+    private String allowanceType;
 
     @DecimalMin(value = "0.0")
     @Column(name = "amount")
-    private BigDecimal amount; // số tiền phụ cấp
+    private BigDecimal amount;
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
-
-    // Khoản phụ cấp này thuộc về một bảng lương
     @ManyToOne
     @JoinColumn(name = "salary_id")
     private Salary salary;

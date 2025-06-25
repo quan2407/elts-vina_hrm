@@ -42,12 +42,14 @@ function AccountTable() {
   return (
     <div className="account-table-container">
       <div className="account-table-header">
-        <div className="account-header-cell username-column">Username</div>
+        <div className="account-header-cell username-column">Tên đăng nhập</div>
         <div className="account-header-cell email-column">Email</div>
-        <div className="account-header-cell role-column">Roles</div>
-        <div className="account-header-cell active-column">Active</div>
-        <div className="account-header-cell login-column">Last Login</div>
-        <div className="account-header-cell actions-column">Actions</div>
+        <div className="account-header-cell role-column">Vai trò</div>
+        <div className="account-header-cell active-column">Kích hoạt</div>
+        <div className="account-header-cell login-column">
+          Đăng nhập lần cuối
+        </div>
+        <div className="account-header-cell actions-column">Hành động</div>
       </div>
 
       {accounts.map((acc) => (

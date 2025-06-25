@@ -34,7 +34,9 @@ public class Recruitment {
 
     private String benefits;
 
-    private String salaryRange;
+    private Long minSalary;
+
+    private Long maxSalary;
 
     @Min(1)
     private Integer quantity;
@@ -48,7 +50,7 @@ public class Recruitment {
     @Column(name = "update_at")
     private LocalDateTime updateAt;
 
-    @NotBlank
+    @NotNull
     @Enumerated(EnumType.STRING)
     private RecruitmentStatus status;
 
@@ -60,7 +62,6 @@ public class Recruitment {
     @JoinColumn(name = "created_by")
     private Employee createdBy;
 
-    // Quan hệ mới
     @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CandidateRecruitment> candidateRecruitments;
 }

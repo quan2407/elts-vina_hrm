@@ -1,47 +1,62 @@
-    package sep490.com.example.hrms_backend.controller;
+package sep490.com.example.hrms_backend.controller;
 
-    import lombok.AllArgsConstructor;
-    import org.springframework.beans.factory.annotation.Autowired;
-    import org.springframework.http.HttpStatus;
-    import org.springframework.http.MediaType;
-    import org.springframework.http.ResponseEntity;
-    import org.springframework.validation.annotation.Validated;
-    import org.springframework.web.bind.annotation.GetMapping;
-    import org.springframework.web.bind.annotation.PathVariable;
-    import org.springframework.web.bind.annotation.RequestMapping;
-    import org.springframework.web.bind.annotation.RestController;
-    import sep490.com.example.hrms_backend.dto.RecruitmentDto;
-    import sep490.com.example.hrms_backend.entity.Recruitment;
-    import sep490.com.example.hrms_backend.mapper.RecuitmentMapper;
-    import sep490.com.example.hrms_backend.service.RecruitmentService;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import sep490.com.example.hrms_backend.dto.RecruitmentDto;
+import sep490.com.example.hrms_backend.service.RecruitmentService;
 
-    import java.util.List;
+import java.util.List;
 
-    @RestController
-    @RequestMapping(path = "/api/recruitment", produces = (MediaType.APPLICATION_JSON_VALUE))
-    @AllArgsConstructor
-    @Validated
-    public class RecruitmentController {
+@RestController
+@RequestMapping(path = "/api/recruitment", produces = (MediaType.APPLICATION_JSON_VALUE))
+@AllArgsConstructor
+@Validated
+public class RecruitmentController {
 
-        @Autowired
-        private RecruitmentService recruitmentService;
+    @Autowired
+    private RecruitmentService recruitmentService;
 
 
+    @GetMapping()
+    public ResponseEntity<?> getRecruitmentList() {
+        List<RecruitmentDto> recruitmentDtoList = recruitmentService.getRecruitmentList();
+        if (recruitmentDtoList != null && !recruitmentDtoList.isEmpty()) {
+            return new ResponseEntity<>(recruitmentDtoList, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
-        @GetMapping()
-        public ResponseEntity<?> getRecruitmentList() {
-            List<RecruitmentDto> recruitmentDtoList = recruitmentService.getRecruitmentList() ;
-            if(recruitmentDtoList != null && !recruitmentDtoList.isEmpty()){
-                return new ResponseEntity<>(recruitmentDtoList, HttpStatus.OK);
-            }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);    }
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getRecruitmentById(@PathVariable Long id) {
 
-        @GetMapping("/{id}")
-        public ResponseEntity<?> getRecruitmentById(@PathVariable Long id) {
+        RecruitmentDto recruitmentDto = recruitmentService.getRecruitmentDtoById(id);
+        if (recruitmentDto != null) {
+            return new ResponseEntity<>(recruitmentDto, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
-            RecruitmentDto recruitmentDto= recruitmentService.getRecruitmentDtoById(id);
-            if(recruitmentDto != null){
-            return new ResponseEntity<>(recruitmentDto, HttpStatus.OK);}
-            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @PostMapping
+    @PreAuthorize("hasAnyRole('HR')")
+    public ResponseEntity<RecruitmentDto> createRecruitment(@Valid @RequestBody RecruitmentDto recruitmentDto) {
+        RecruitmentDto created = recruitmentService.createRecruitment(recruitmentDto);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> editRecruitment(@PathVariable Long id, @Valid @RequestBody RecruitmentDto recruitmentDto) {
+        try {
+            RecruitmentDto updatedDto = recruitmentService.editRecruitment(id, recruitmentDto);
+            return new ResponseEntity<>(updatedDto, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+}

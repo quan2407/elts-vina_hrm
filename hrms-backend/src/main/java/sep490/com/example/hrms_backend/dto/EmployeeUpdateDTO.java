@@ -40,8 +40,8 @@ public class EmployeeUpdateDTO {
 
     private LocalDate citizenExpiryDate;
 
-    @Size(max = 255, message = "Nơi cấp CMND/CCCD không được vượt quá 255 ký tự")
-    private String citizenIssuePlace;
+//    @Size(max = 255, message = "Nơi cấp CMND/CCCD không được vượt quá 255 ký tự")
+//    private String citizenIssuePlace;
 
     @Size(max = 255, message = "Địa chỉ không được vượt quá 255 ký tự")
     private String address;
@@ -53,17 +53,19 @@ public class EmployeeUpdateDTO {
     private LocalDate startWorkAt;
 
     @Pattern(regexp = "^[0-9\\-\\+]{9,15}$", message = "Số điện thoại không đúng định dạng")
+    @NotBlank(message = "Số điện thoại không được để trống")
     private String phoneNumber;
 
     @Email(message = "Email không đúng định dạng")
+    @NotBlank(message = "Email không được để trống")
     private String email;
 
     @NotNull(message = "ID phòng ban không được để trống")
     private Long departmentId;
 
-    @NotNull(message = "ID vị trí không được để trống")
+    @NotNull(message = "Vị trí không được để trống")
     private Long positionId;
 
-    @NotNull(message = "ID line không được để trống")
+
     private Long lineId;
 }

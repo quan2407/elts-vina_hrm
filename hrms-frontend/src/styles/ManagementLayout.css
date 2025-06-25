@@ -47,6 +47,17 @@
   background-color: #3f861e;
 }
 
+.add-button {
+  border-radius: 14px;
+  padding: 23px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  box-shadow: 11px 4px 14px 0px rgba(0, 0, 0, 0.12);
+  background-color: #3f861e;
+}
+
 .export-text {
   color: #fff;
   font-size: 18px;
@@ -77,4 +88,45 @@
   .export-button {
     padding: 12px 24px;
   }
+}
+
+.employee-page-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.employee-add-button {
+  background-color: #2563eb;
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.employee-add-button:hover {
+  background-color: #1e40af;
+}
+
+.employee-export-button {
+  background-color: #22c55e;
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.employee-export-button:hover {
+  background-color: #16a34a;
 }

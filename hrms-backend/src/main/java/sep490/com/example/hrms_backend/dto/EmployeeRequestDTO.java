@@ -5,7 +5,6 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import sep490.com.example.hrms_backend.enums.Gender;
 import sep490.com.example.hrms_backend.enums.GenderDeserializer;
-
 import java.time.LocalDate;
 
 @Getter
@@ -40,15 +39,13 @@ public class EmployeeRequestDTO {
     private String nationality;
 
     @Pattern(regexp = "^[0-9]{9,12}$", message = "Số CMND/CCCD phải gồm 9-12 chữ số")
-    private String citizenId;
+    private String citizenId; // ✅ Có thể null, nếu có thì phải đúng định dạng
 
     @PastOrPresent(message = "Ngày cấp CMND/CCCD phải là ngày trong quá khứ hoặc hiện tại")
-    private LocalDate citizenIssueDate;
+    private LocalDate citizenIssueDate; // ✅ Có thể null
 
-    private LocalDate citizenExpiryDate;
-
-    @Size(max = 255, message = "Nơi cấp CMND/CCCD không được vượt quá 255 ký tự")
-    private String citizenIssuePlace;
+    @FutureOrPresent(message = "Ngày hết hạn CMND/CCCD phải là ngày hiện tại hoặc tương lai")
+    private LocalDate citizenExpiryDate; // ✅ Có thể null
 
     @Size(max = 255, message = "Địa chỉ không được vượt quá 255 ký tự")
     private String address;
@@ -60,17 +57,19 @@ public class EmployeeRequestDTO {
     private LocalDate startWorkAt;
 
     @Pattern(regexp = "^[0-9\\-\\+]{9,15}$", message = "Số điện thoại không đúng định dạng")
+    @NotBlank(message = "Số điện thoại không được để trống")
     private String phoneNumber;
 
     @Email(message = "Email không đúng định dạng")
+    @NotBlank(message = "Email không được để trống")
     private String email;
 
     @NotNull(message = "ID phòng ban không được để trống")
     private Long departmentId;
 
-    @NotNull(message = "ID vị trí không được để trống")
+    @NotNull(message = "Vị trí không được để trống")
     private Long positionId;
 
-    @NotNull(message = "ID line không được để trống")
+
     private Long lineId;
 }
