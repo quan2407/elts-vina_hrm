@@ -612,31 +612,6 @@ function EmployeeCreate() {
                     </div>
                   )}
                 </div>
-                <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">
-                    Chuyền sản xuất
-                  </div>
-                  <select
-                    className="employeedetail-input-field"
-                    value={lineId}
-                    onChange={(e) => setLineId(e.target.value)}
-                  >
-                    <option value="">-- Chọn line --</option>
-                    {lines.map((l) => (
-                      <option
-                        key={l.id}
-                        value={l.id}
-                      >
-                        {l.name}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.lineId && (
-                    <div className="error-message">
-                      {errors.lineId.join(", ")}
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
 

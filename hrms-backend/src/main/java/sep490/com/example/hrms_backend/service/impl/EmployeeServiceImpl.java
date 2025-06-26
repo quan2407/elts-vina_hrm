@@ -37,12 +37,11 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
                 .collect(Collectors.toList());
     }
 
-
     @Override
     @Transactional
     public EmployeeResponseDTO createEmployee(EmployeeRequestDTO dto) {
         checkDuplicateFieldsForCreate(dto);
-        checkPositionLineRequirements(dto.getDepartmentId(), dto.getPositionId(), dto.getLineId());
+        checkPositionRequirements(dto.getDepartmentId(), dto.getPositionId());
 
         if (!positionRepository.existsDepartmentPositionMapping(dto.getDepartmentId(), dto.getPositionId())) {
             throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Chức vụ không thuộc phòng ban đã chọn");
@@ -51,9 +50,9 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         Employee employee = EmployeeMapper.mapToEmployee(dto);
         employee.setDepartment(fetchDepartment(dto.getDepartmentId()));
         employee.setPosition(fetchPosition(dto.getPositionId()));
-        employee.setLine(fetchLine(dto.getLineId()));
         accountService.createAutoAccountForEmployee(employee);
         employee = employeeRepository.save(employee);
+
         return EmployeeMapper.mapToEmployeeResponseDTO(employee);
     }
 
@@ -64,7 +63,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
 
         checkDuplicateFieldsForUpdate(dto, id, employee);
-        checkPositionLineRequirements(dto.getDepartmentId(), dto.getPositionId(), dto.getLineId());
+        checkPositionRequirements(dto.getDepartmentId(), dto.getPositionId());
 
         if (!positionRepository.existsDepartmentPositionMapping(dto.getDepartmentId(), dto.getPositionId())) {
             throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Chức vụ không thuộc phòng ban đã chọn");
@@ -73,9 +72,8 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         EmployeeMapper.updateEmployeeFromUpdateDTO(dto, employee);
         employee.setDepartment(fetchDepartment(dto.getDepartmentId()));
         employee.setPosition(fetchPosition(dto.getPositionId()));
-        employee.setLine(fetchLine(dto.getLineId()));
-
         employee = employeeRepository.save(employee);
+
         return EmployeeMapper.mapToEmployeeResponseDTO(employee);
     }
 
@@ -111,15 +109,10 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         }
     }
 
-    private void checkPositionLineRequirements(Long departmentId, Long positionId, Long lineId) {
+    private void checkPositionRequirements(Long departmentId, Long positionId) {
         List<Position> positions = positionRepository.findByDepartments_DepartmentId(departmentId);
         if (!positions.isEmpty() && positionId == null) {
             throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Vui lòng chọn chức vụ cho nhân viên");
-        }
-
-        List<Line> lines = lineRepository.findByDepartment_DepartmentId(departmentId);
-        if (!lines.isEmpty() && lineId == null) {
-            throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Vui lòng chọn chuyền sản xuất cho nhân viên");
         }
     }
 
@@ -140,11 +133,6 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
                 .orElseThrow(() -> new ResourceNotFoundException("Position", "id", id));
     }
 
-    private Line fetchLine(Long id) {
-        if (id == null) return null;
-        return lineRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Line", "id", id));
-    }
     @Override
     public EmployeeDetailDTO getOwnProfile() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -159,6 +147,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
 
         return EmployeeMapper.mapToEmployeeDetailDTO(employee);
     }
+
     @Override
     @Transactional
     public EmployeeDetailDTO updateOwnProfile(EmployeeOwnProfileUpdateDTO dto) {
@@ -172,9 +161,9 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         if (dto.getAddress() != null) employee.setAddress(dto.getAddress());
 
         employee = employeeRepository.save(employee);
-
         return EmployeeMapper.mapToEmployeeDetailDTO(employee);
     }
+
     @Override
     public void softDeleteEmployee(Long id) {
         Employee employee = employeeRepository.findByEmployeeIdAndIsDeletedFalse(id)
@@ -182,6 +171,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         employee.setDeleted(true);
         employeeRepository.save(employee);
     }
+
     @Override
     public ByteArrayInputStream exportEmployeesToExcel() {
         List<EmployeeDetailDTO> list = employeeRepository.findByIsDeletedFalse().stream()
@@ -194,7 +184,4 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
             throw new HRMSAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi xuất file Excel");
         }
     }
-
-
-
 }
