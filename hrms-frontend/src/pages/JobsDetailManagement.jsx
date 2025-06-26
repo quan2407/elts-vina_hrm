@@ -222,7 +222,7 @@ function RecruitmentDetailManagement() {
 
                         <div className="employeedetail-form-row">
                             <div className="employeedetail-input-group">
-                                <div className="employeedetail-input-label">Mô tả công việc</div>
+                                <div className="employeedetail-input-label">Mô tả công việc <span className="required-star">*</span></div>
                                 <textarea
                                     className="employeedetail-input-field"
                                     type="text"

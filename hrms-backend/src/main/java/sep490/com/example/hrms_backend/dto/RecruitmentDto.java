@@ -26,6 +26,7 @@ public class RecruitmentDto {
     @NotBlank(message = "Loại hình công việc không được trống")
 
     private String employmentType; // loại hình (toàn thời gian, part-time,...)
+
     @NotBlank(message = "Mô tả công việc không được trống")
     private String jobDescription; // mô tả công việc
 

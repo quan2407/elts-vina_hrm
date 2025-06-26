@@ -17,7 +17,7 @@
 .jobs-table-row {
   display: grid;
   grid-template-columns:
-    120px 180px 180px 180px 200px 250px 150px 200px 300px;
+    120px 180px 180px 180px 200px 250px 150px 200px 500px;
   gap: 10px;
   padding: 18px 30px;
   margin-bottom: 20px;
@@ -49,23 +49,23 @@
 
 .viewdetail-button {
   width: 200px;
-  margin: 5px;
   background-color: #5a48ff;
   color: #fff;
   padding: 6px 20px;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
+  margin: 0 2.5px;
 }
 
 .viewcandidate-button {
   width: 200px;
-  margin: 5px;
   background-color: #26f78e;
   color: #fff;
   padding: 6px 20px;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
-}
+  margin: 0 2.5px;
 
+}

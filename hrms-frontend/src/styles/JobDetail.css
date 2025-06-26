@@ -56,17 +56,21 @@
   cursor: pointer;
 }
 
+.jobDetail-content h1 {
+  margin-bottom: 40px;
+}
+
 .jobDetail-content h3 {
   font-size: 25px;
   margin-bottom: 10px;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .jobDetail-content h4 {
   font-size: 25px;
   margin-top: 20px;
   margin-bottom: 5px;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .jobDetail-content p {

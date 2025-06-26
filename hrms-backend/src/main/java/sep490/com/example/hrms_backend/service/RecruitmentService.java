@@ -76,6 +76,7 @@ public class RecruitmentService {
         recruitment.setQuantity(recruitmentDto.getQuantity());
         recruitment.setExpiredAt(recruitmentDto.getExpiredAt());
         recruitment.setUpdateAt(LocalDateTime.now());
+        recruitment.setStatus(RecruitmentStatus.OPEN);
         // Cập nhật phòng ban nếu thay đổi
         if (recruitmentDto.getDepartmentId() != null) {
             Department department = departmentRepository.findById(recruitmentDto.getDepartmentId())
