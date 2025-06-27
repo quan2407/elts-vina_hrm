@@ -105,7 +105,7 @@ const JobsPage = () => {
         <div className="search-container">
           <input
             type="text"
-            placeholder="Tìm kiếm theo tên công việc"
+            placeholder="Tìm kiếm công việc"
             className="search-input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}

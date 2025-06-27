@@ -11,6 +11,7 @@ function EmployeeManagement() {
 
   const handleCreate = () => {
     navigate("/employee-create");
+
   };
   const handleExport = async () => {
     try {
@@ -30,37 +31,34 @@ function EmployeeManagement() {
       console.error("Export failed:", error);
       alert("Export failed. Please try again.");
     }
+
   };
 
   return (
     <MainLayout>
       <div className="content-wrapper">
         <div className="page-header">
+
           <h1 className="page-title"> Danh sách nhân viên</h1>
 
-          <div className="employee-page-actions">
+          <div className="page-actions">
             {/* Button Create */}
 
             <button
-              className="employee-add-button"
+              className="add-button"
               onClick={handleCreate}
             >
-              <Plus
-                size={16}
-                style={{ marginRight: "6px" }}
-              />
-              <span className="employee-create-text">Create</span>
+              <span className="export-text">Thêm nhân viên</span>
             </button>
-            {/* Button Export */}
             <button
-              className="employee-export-button"
+              className="export-button"
               onClick={handleExport}
             >
               <Download
                 size={16}
                 style={{ marginRight: "6px" }}
               />
-              <span className="employee-export-text">Export</span>
+              <span className="export-text">Export</span>
             </button>
           </div>
         </div>

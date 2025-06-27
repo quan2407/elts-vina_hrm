@@ -4,6 +4,7 @@ import { getRecruitmentById } from "../services/recruitmentService";
 import { useParams, useNavigate } from "react-router-dom";
 import HeaderRecruitment from "../components/HeaderRecruitment";
 import FooterRecruitment from "../components/FooterRecruitment";
+import Breadcrumb from "../components/Breadcrumb";
 
 const formatDate = (isoDate) => {
   if (!isoDate) return "";
@@ -50,6 +51,13 @@ const JobDetail = () => {
     <div className="jobDetail-page">
       <HeaderRecruitment />
 
+      <Breadcrumb
+        paths={[
+          { name: "Danh sách công việc", url: "/jobs" },
+          { name: "Chi tiết "+ job.title },
+        ]}
+      />
+
       <main className="jobDetail-container">
         <aside className="jobDetail-sidebar">
           <div className="jobDetail-card">
@@ -77,6 +85,8 @@ const JobDetail = () => {
         </aside>
 
         <section className="jobDetail-content">
+                    <h1>{job.title}</h1>
+
           <h3>Mô tả công việc</h3>
           <p>{job.jobDescription}</p>
 

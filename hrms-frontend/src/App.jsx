@@ -22,6 +22,7 @@ import CandidateManagement from "./pages/CandidateManagement";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProfilePage from "./pages/ProfilePage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
+import AboutUs from "./pages/AboutUs";
 
 function App() {
   return (
@@ -36,6 +37,11 @@ function App() {
           path="/reset-password"
           element={<ResetPasswordPage />}
         />
+
+        <Route
+          path="/about-us"
+          element={<AboutUs />} />
+
         <Route
           path="/jobs"
           element={<JobsPage />}
@@ -81,6 +87,16 @@ function App() {
               <CandidateManagement />
             </ProtectedRoute>
           }
+        />
+
+        <Route
+          path="/add-interview/:jobId"
+          element={
+          <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+            
+
+            
+          </ProtectedRoute>}
         />
 
         <Route

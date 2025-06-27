@@ -1,8 +1,8 @@
 import React, {
   useEffect,
   useState,
-  forwardRef,
   useImperativeHandle,
+  forwardRef,
 } from "react";
 import "../styles/JobsTable.css";
 import { getAllRecruitments } from "../services/recruitmentService";
@@ -18,9 +18,11 @@ function removeVietnameseTones(str) {
     .replace(/Đ/g, "D");
 }
 
-const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
+const JobsTable = forwardRef(({ searchTerm, sortOrder, sortField }, ref) => {
+
   const [jobs, setJobs] = useState([]);
   const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -34,17 +36,32 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
     fetchJobs();
   }, []);
 
+
   const filteredJobs = jobs
-    .filter((job) =>
+    .filter(job =>
       removeVietnameseTones(job.title.toLowerCase()).includes(
         removeVietnameseTones(searchTerm.toLowerCase())
       )
     )
     .sort((a, b) => {
-      const dateA = new Date(a.createAt);
-      const dateB = new Date(b.createAt);
-      return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+      const aValue = a[sortField];
+      const bValue = b[sortField];
+
+      // Sắp xếp theo kiểu chuỗi, số hoặc ngày
+      if (typeof aValue === "string") {
+        return sortOrder === "asc"
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      } else if (typeof aValue === "number") {
+        return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+      } else if (aValue instanceof Date) {
+        return sortOrder === "asc"
+          ? new Date(aValue) - new Date(bValue)
+          : new Date(bValue) - new Date(aValue);
+      }
+      return 0;
     });
+
 
   const formatDate = (isoDate) => {
     if (!isoDate) return "";
@@ -58,6 +75,7 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
       return;
     }
 
+
     const exportData = filteredJobs.map((job) => ({
       ID: job.recruitmentId,
       "Tiêu đề": job.title,
@@ -66,7 +84,7 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
       "Mô tả": job.jobDescription,
       "Yêu cầu": job.jobRequirement,
       "Quyền lợi": job.benefits,
-      Lương: job.salaryRange,
+      "Lương": job.minSalary +" - "+ job.maxSalary +"VND",
       "Số lượng": job.quantity,
       "Ngày tạo": formatDate(job.createAt),
       "Ngày hết hạn": formatDate(job.expiredAt),
@@ -92,12 +110,11 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
 
   const handleCandidateClick = (jobId) => {
     navigate(`/candidates-management/${jobId}`);
-  };
+  }
 
   const handleDetailClick = (jobId) => {
     navigate(`/jobsdetail-management/${jobId}`);
   };
-
   return (
     <div className="jobs-table-wrapper">
       <div className="jobs-table">
@@ -106,10 +123,6 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
           <div className="jobs-header-cell">Nội dung</div>
           <div className="jobs-header-cell">Địa điểm làm việc</div>
           <div className="jobs-header-cell">Loại hình công việc</div>
-          <div className="jobs-header-cell">Mô tả công việc</div>
-          <div className="jobs-header-cell">Yêu cầu</div>
-          <div className="jobs-header-cell">Quyền lợi</div>
-          <div className="jobs-header-cell">Mức lương</div>
           <div className="jobs-header-cell">Số lượng tuyển dụng</div>
           <div className="jobs-header-cell">Thời gian tuyển dụng</div>
           <div className="jobs-header-cell">Trạng thái</div>
@@ -126,36 +139,20 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
             <div className="jobs-table-cell">{job.title}</div>
             <div className="jobs-table-cell">{job.workLocation}</div>
             <div className="jobs-table-cell">{job.employmentType}</div>
-            <div className="jobs-table-cell">{job.jobDescription}</div>
-            <div className="jobs-table-cell">{job.jobRequirement}</div>
-            <div className="jobs-table-cell">{job.benefits}</div>
-            <div className="jobs-table-cell">
-              {job.minSalary} - {job.maxSalary} VND
-            </div>
             <div className="jobs-table-cell">{job.quantity}</div>
-            <div className="jobs-table-cell">
-              {formatDate(job.createAt)} - {formatDate(job.expiredAt)}
-            </div>
+            <div className="jobs-table-cell">{formatDate(job.createAt)} - {formatDate(job.expiredAt)}</div>
             <div className="jobs-table-cell">{job.status}</div>
+            <div className="jobs-table-cell">{job.candidateRecruitmentsId.length}</div>
             <div className="jobs-table-cell">
-              {job.candidateRecruitmentsId?.length || 0}
-            </div>
-            <div className="jobs-table-cell">
-              <button
-                className="viewcandidate-button"
-                onClick={() => handleCandidateClick(job.recruitmentId)}
-              >
-                Danh sách ứng viên
-              </button>
-              <button
-                className="jobs-viewdetail-button"
-                onClick={() => handleDetailClick(job.recruitmentId)}
-              >
-                Xem chi tiết
-              </button>
+
+              <button className="viewcandidate-button" onClick={() => handleCandidateClick(job.recruitmentId)}>Danh sách ứng viên</button>
+
+              <button className="viewdetail-button" onClick={() => handleDetailClick(job.recruitmentId)}>Xem chi tiết</button>
+
             </div>
           </div>
         ))}
+
       </div>
     </div>
   );
