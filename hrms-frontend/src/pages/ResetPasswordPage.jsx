@@ -46,12 +46,10 @@ function ResetPasswordPage() {
           <div className="resetpw-form-field">
             <div className="resetpw-field-label">Email</div>
             <input
-              type="email"
               className="resetpw-input-field"
               placeholder="Nhập email đăng ký của bạn"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
             />
           </div>
 

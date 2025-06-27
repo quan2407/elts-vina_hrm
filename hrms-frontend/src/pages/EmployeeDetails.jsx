@@ -64,10 +64,8 @@ function EmployeeDetails() {
     console.log(" Payload gửi đi:", payload);
 
     try {
-      await employeeService.createEmployee(payload);
-      alert("Tạo nhân viên thành công!");
+      await employeeService.updateEmployee(Number(id), payload);
       setErrors({});
-      resetForm();
     } catch (err) {
       console.error("Lỗi tạo nhân viên:", err);
 
@@ -388,7 +386,9 @@ function EmployeeDetails() {
                   )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Ngày sinh</div>
+                  <div className="employeedetail-input-label">
+                    Ngày sinh<span className="required-star">*</span>
+                  </div>
                   <DatePicker
                     selected={birthDate}
                     onChange={(date) => setBirthDate(date)}
@@ -408,7 +408,9 @@ function EmployeeDetails() {
 
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Nơi sinh</div>
+                  <div className="employeedetail-input-label">
+                    Nơi sinh<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -423,7 +425,9 @@ function EmployeeDetails() {
                   )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Nguyên quán</div>
+                  <div className="employeedetail-input-label">
+                    Nguyên quán<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -441,7 +445,9 @@ function EmployeeDetails() {
 
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Quốc tịch</div>
+                  <div className="employeedetail-input-label">
+                    Quốc tịch<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -456,7 +462,9 @@ function EmployeeDetails() {
                   )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Số CCCD</div>
+                  <div className="employeedetail-input-label">
+                    Số CCCD<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -474,7 +482,9 @@ function EmployeeDetails() {
 
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Ngày cấp</div>
+                  <div className="employeedetail-input-label">
+                    Ngày cấp<span className="required-star">*</span>
+                  </div>
                   <DatePicker
                     selected={issueDate}
                     onChange={(date) => setIssueDate(date)}
@@ -493,7 +503,9 @@ function EmployeeDetails() {
                   )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Ngày hết hạn</div>
+                  <div className="employeedetail-input-label">
+                    Ngày hết hạn<span className="required-star">*</span>
+                  </div>
                   <DatePicker
                     selected={expiryDate}
                     onChange={(date) => setExpiryDate(date)}
@@ -562,7 +574,9 @@ function EmployeeDetails() {
                   className="employeedetail-input-group"
                   style={{ width: "100%" }}
                 >
-                  <div className="employeedetail-input-label">Địa chỉ</div>
+                  <div className="employeedetail-input-label">
+                    Địa chỉ<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -590,7 +604,7 @@ function EmployeeDetails() {
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Ngày vào công ty
+                    Ngày vào công ty<span className="required-star">*</span>
                   </div>
                   <DatePicker
                     selected={startWorkAt}
@@ -664,39 +678,7 @@ function EmployeeDetails() {
                     </div>
                   )}
                 </div>
-                <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">
-                    Chuyền sản xuất
-                  </div>
-                  <select
-                    className="employeedetail-input-field"
-                    value={lineId}
-                    onChange={(e) => setLineId(e.target.value)}
-                    disabled={lines.length === 0} // Disable khi không có line
-                  >
-                    {lines.length === 0 ? (
-                      <option value="">Không có chuyền sản xuất</option>
-                    ) : (
-                      <>
-                        <option value="">-- Chọn line --</option>
-                        {lines.map((l) => (
-                          <option
-                            key={l.id}
-                            value={String(l.id)}
-                          >
-                            {l.name}
-                          </option>
-                        ))}
-                      </>
-                    )}
-                  </select>
-
-                  {errors.lineId && (
-                    <div className="error-message">
-                      {errors.lineId.join(", ")}
-                    </div>
-                  )}
-                </div>
+                <div className="employeedetail-input-group"></div>
               </div>
             </div>
 

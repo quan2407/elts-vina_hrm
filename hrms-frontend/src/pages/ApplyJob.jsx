@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import HeaderRecruitment from "../components/HeaderRecruitment";
 import FooterRecruitment from "../components/FooterRecruitment";
 import { applyJob } from "../services/candidateRecruitmentService";
-
+import Breadcrumb from "../components/Breadcrumb";
 const formatDate = (dateString) => {
   if (!dateString) return "";
   const [year, month, day] = dateString.split("-");
@@ -84,6 +84,15 @@ const ApplyJob = () => {
   return (
     <div className="jobDetail-page">
       <HeaderRecruitment />
+
+      <Breadcrumb
+        paths={[
+          { name: "Danh sách công việc", url: "/jobs" },
+          {name: "Chi tiết "+ job.title, url: `/jobs/${id}`},
+          { name: job.title },
+        ]}
+      />
+
       <main className="jobDetail-container">
         <aside className="jobDetail-sidebar">
           <div className="jobDetail-card">
@@ -108,6 +117,7 @@ const ApplyJob = () => {
         </aside>
 
         <section className="jobDetail-content">
+          <h1>{job.title}</h1>
           <h3>Thông tin ứng tuyển</h3>
 
           <div className="form-group mb-4">

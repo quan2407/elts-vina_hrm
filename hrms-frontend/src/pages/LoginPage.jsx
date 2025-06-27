@@ -94,12 +94,11 @@ function LoginPage() {
           <div className="form-field">
             <div className="field-label">Tên đăng nhập hoặc email</div>
             <input
-              type="text" // ✅ Cho phép nhập cả username hoặc email
+              type="text"
               className="input-field email-input"
               placeholder="Nhập tên đăng nhập của bạn hoặc email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
             />
             {errorFields.usernameOrEmail && (
               <div className="login-error-inline">
@@ -110,14 +109,12 @@ function LoginPage() {
 
           <div className="form-field">
             <div className="field-label">Mật khẩu</div>{" "}
-            {/* ✅ Đổi nhãn thành Mật khẩu */}
             <input
               type="password"
               className="input-field password-input"
               placeholder="Nhập mật khẩu của bạn (độ dài từ 4 - 50 ký tự)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
             />
             {errorFields.password && (
               <div className="login-error-inline">
@@ -133,19 +130,7 @@ function LoginPage() {
           )}
 
           <div className="form-options">
-            <div className="remember-me-section">
-              <input
-                type="checkbox"
-                id="remember"
-                className="checkbox-field"
-              />
-              <label
-                htmlFor="remember"
-                className="remember-me-text"
-              >
-                Remember me
-              </label>
-            </div>
+            <div className="remember-me-section"></div>
             <div
               className="reset-password-link"
               onClick={() => navigate("/reset-password")}

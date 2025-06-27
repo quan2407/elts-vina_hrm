@@ -4,6 +4,7 @@ import { getAllCandidateRecrutment } from "../services/candidateRecruitmentServi
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function removeVietnameseTones(str) {
     return str
@@ -16,6 +17,7 @@ function removeVietnameseTones(str) {
 const CandidateTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
     const [candidates, setCandidates] = useState([]);
     const { jobId } = useParams();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchCandidates = async () => {
@@ -79,6 +81,9 @@ const CandidateTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
         exportToExcel
     }));
 
+    const handleCandidateClick = (jobId) => {
+        navigate(`/add-interview/${jobId}`);
+    }
     return (
         <div className="candidate-table-wrapper">
             <div className="candidate-table">
@@ -92,6 +97,7 @@ const CandidateTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
                     <div className="candidate-header-cell">Ngày ứng tuyển</div>
                     <div className="candidate-header-cell">Note</div>
                     <div className="candidate-header-cell">Trạng thái</div>
+                    <div className="candidate-header-cell">Hành động</div>
 
                 </div>
 
@@ -103,12 +109,16 @@ const CandidateTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
                         <div className="candidate-table-cell">{candidate.id}</div>
                         <div className="candidate-table-cell">{candidate.candidateName}</div>
                         <div className="candidate-table-cell">{candidate.gender}</div>
-                        <div className="candidate-table-cell">{candidate.dob}</div>
+                        <div className="candidate-table-cell">{formatDate(candidate.dob)}</div>
                         <div className="candidate-table-cell">{candidate.email}</div>
                         <div className="candidate-table-cell">{candidate.phoneNumber}</div>
                         <div className="candidate-table-cell">{formatDate(candidate.submittedAt)}</div>
                         <div className="candidate-table-cell">{candidate.note}</div>
                         <div className="candidate-table-cell">{candidate.status}</div>
+                        <div className="candidate-table-cell">
+                            <button className="viewcandidate-button" onClick={() => handleCandidateClick(candidate.candidateRecruitmentId)}>Tạo lịch phỏng vấn</button>
+
+                        </div>
 
                     </div>
                 ))}
