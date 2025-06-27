@@ -27,7 +27,7 @@ public class BenefitRegistration {
     private LocalDateTime registeredAt; // thời điểm đăng ký
 
     @NotBlank
-    @Column(name = "isRegister")
+    @Column(name = "is_register")
     private Boolean isRegister = false ;
 
     @Column(name = "note")

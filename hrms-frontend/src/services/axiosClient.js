@@ -8,6 +8,8 @@ const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use((config) => {
+
+
   const token = localStorage.getItem("accessToken");
 
   // Chỉ gắn token nếu gọi API nội bộ (VITE_API_URL hoặc localhost:8080)
@@ -18,6 +20,7 @@ axiosClient.interceptors.request.use((config) => {
   if (token && isInternalAPI && !config.url.includes("/auth/login")) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
 
   return config;
 });

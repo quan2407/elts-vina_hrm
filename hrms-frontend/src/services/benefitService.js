@@ -1,7 +1,15 @@
 import axiosClient from "./axiosClient";
 
 const benefitService = {
-    getAll: () => axiosClient.get("/benefit"),
+    getAll: ({page, size}) => axiosClient.get("/benefit", {
+
+        params: {
+            page:page,
+            size
+        }
+
+    }),
+
     create: (createdBenefit) => axiosClient.post("/benefit", createdBenefit),
     update: (updatedBenefit, benefitId) => axiosClient.put(`/benefit/${benefitId}`
         , updatedBenefit),

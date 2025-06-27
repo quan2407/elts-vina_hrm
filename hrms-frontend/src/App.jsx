@@ -163,11 +163,11 @@ function App() {
         />
 
 
-          {/* Protected route for HR */}
+          {/* Module's Benefit */}
           <Route
               path="/benefit"
               element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_ADMIN", "ROLE_USER"]}>
+                  <ProtectedRoute allowedRoles={["ROLE_HR",  "ROLE_USER"]}>
                       <BenefitManagement />
                   </ProtectedRoute>
               }
