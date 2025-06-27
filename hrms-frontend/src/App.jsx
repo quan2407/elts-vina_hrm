@@ -90,6 +90,16 @@ function App() {
         />
 
         <Route
+          path="/add-interview/:jobId"
+          element={
+          <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+            
+
+            
+          </ProtectedRoute>}
+        />
+
+        <Route
           path="/unauthorized"
           element={<UnauthorizedPage />}
         />
