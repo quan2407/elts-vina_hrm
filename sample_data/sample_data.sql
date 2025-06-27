@@ -6,8 +6,8 @@ UPDATE employee SET line_id = NULL;
 UPDATE `lines` SET leader_id = NULL;
 ALTER TABLE employee MODIFY COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0;
 
-
-
+DELETE FROM work_schedule_detail;
+DELETE FROM work_schedule;
 DELETE FROM department_position;
 DELETE FROM interview_schedule;
 DELETE FROM candidate_recruitment;
@@ -21,7 +21,10 @@ DELETE FROM position;
 DELETE FROM department;
 DELETE FROM role;
 
+
 -- Reset AUTO_INCREMENT cho các bảng
+ALTER TABLE work_schedule AUTO_INCREMENT = 1;
+ALTER TABLE work_schedule_detail AUTO_INCREMENT = 1;
 ALTER TABLE department_position AUTO_INCREMENT = 1;
 ALTER TABLE interview_schedule AUTO_INCREMENT = 1;
 ALTER TABLE candidate_recruitment AUTO_INCREMENT = 1;
@@ -183,13 +186,13 @@ INSERT INTO account (account_id, username, password_hash, email, is_active, crea
 
 
 INSERT INTO `lines` (line_id, line_name, department_id, leader_id) VALUES
-(1, 'Line 1', 1, 10),  
-(2, 'Line 2', 7, 1),   
+(1, 'Line 1', 5, 10),  
+(2, 'Line 2', 5, 1),   
 (4, 'Line 4', 5, 3),  
-(6, 'Line 6', 4, 6),  
-(7, 'Line 7', 1, 9),   
-(8, 'Line 8', 6, 7),   
-(9, 'Line 9', 6, 8);   
+(6, 'Line 6', 5, 6),  
+(7, 'Line 7', 5, 9),   
+(8, 'Line 8', 5, 7),   
+(9, 'Line 9', 5, 8);   
 
 
 
