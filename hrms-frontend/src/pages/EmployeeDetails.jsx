@@ -9,10 +9,12 @@ import employeeService from "../services/employeeService";
 import departmentService from "../services/departmentService";
 import { Save } from "lucide-react";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function EmployeeDetails() {
   const { id } = useParams();
-
+  const navigate = useNavigate();
   const [employeeCode, setEmployeeCode] = useState("");
   const [fullName, setFullName] = useState("");
   const [gender, setGender] = useState("");
@@ -62,48 +64,31 @@ function EmployeeDetails() {
     console.log(" Payload gửi đi:", payload);
 
     try {
-      await employeeService.updateEmployee(id, payload);
-      alert("Cập nhật nhân viên thành công!");
-      const res = await employeeService.getEmployeeById(id);
-      const data = res.data;
-      setFullName(data.employeeName || "");
-      setGender(data.gender || "");
-      setBirthDate(data.dob ? new Date(data.dob) : null);
-      setBirthPlace(data.placeOfBirth || "");
-      setOriginPlace(data.originPlace || "");
-      setNationality(data.nationality || "");
-      setIdNumber(data.citizenId || "");
-      setIssueDate(
-        data.citizenIssueDate ? new Date(data.citizenIssueDate) : null
-      );
-      setExpiryDate(
-        data.citizenExpiryDate ? new Date(data.citizenExpiryDate) : null
-      );
-      setAddress(data.address || "");
-      setPhone(data.phoneNumber || "");
-      setEmail(data.email || "");
-      setStartWorkAt(data.startWorkAt ? new Date(data.startWorkAt) : null);
-      setDepartmentId(data.departmentId || "");
-      setPositionId(data.positionId || "");
-      setLineId(data.lineId || "");
+      await employeeService.updateEmployee(Number(id), payload);
       setErrors({});
     } catch (err) {
-      console.error("Lỗi cập nhật nhân viên:", err);
+      console.error("Lỗi tạo nhân viên:", err);
+
       if (err.response && err.response.data) {
+        console.log("err.response.data:", err.response.data);
+
         const serverData = err.response.data;
 
-        // ✅ Lỗi validate dạng field: [errors]
         if (serverData.errors) {
           setErrors(serverData.errors);
-        }
-        // ✅ Lỗi nghiệp vụ (throw exception)
-        else if (serverData.message) {
+        } else if (typeof serverData === "object" && !serverData.message) {
+          setErrors(serverData);
+        } else if (serverData.message) {
           const fieldErrorMap = [
+            { keyword: "CMND/CCCD", field: "citizenId" },
             { keyword: "CMND", field: "citizenId" },
             { keyword: "CCCD", field: "citizenId" },
             { keyword: "Email", field: "email" },
             { keyword: "Số điện thoại", field: "phoneNumber" },
-            // thêm các mapping khác nếu cần
+            { keyword: "Mã nhân viên", field: "employeeCode" },
+            { keyword: "Chức vụ", field: "positionId" },
+            { keyword: "Phòng ban", field: "departmentId" },
+            { keyword: "Chuyền sản xuất", field: "lineId" },
           ];
 
           const matched = fieldErrorMap.find((rule) =>
@@ -118,9 +103,69 @@ function EmployeeDetails() {
           } else {
             alert(serverData.message);
           }
+        } else {
+          alert("Server trả về lỗi nhưng không có message!");
         }
       } else {
-        alert("Có lỗi xảy ra khi cập nhật nhân viên!");
+        alert("Không nhận được phản hồi từ server!");
+      }
+    }
+  };
+  const confirmSave = async () => {
+    const result = await Swal.fire({
+      title: "Xác nhận lưu?",
+      text: "Bạn có muốn lưu thay đổi?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Lưu",
+      cancelButtonText: "Hủy",
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#aaa",
+    });
+
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: "Đang lưu dữ liệu...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const success = await handleSubmit();
+      Swal.close();
+      if (success) {
+        await Swal.fire({
+          icon: "success",
+          title: "Đã lưu thành công!",
+          confirmButtonText: "OK",
+        });
+      }
+    }
+  };
+
+  const confirmDelete = async () => {
+    const result = await Swal.fire({
+      title: "Bạn có chắc chắn?",
+      text: "Hành động này không thể hoàn tác!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await employeeService.deleteEmployee(id);
+        await Swal.fire(
+          "Đã xóa!",
+          "Nhân viên đã được xóa thành công.",
+          "success"
+        );
+        navigate("/employee-management");
+      } catch (err) {
+        console.error("Lỗi xóa nhân viên:", err);
+        await Swal.fire("Lỗi!", "Có lỗi xảy ra khi xóa nhân viên.", "error");
       }
     }
   };
@@ -171,12 +216,11 @@ function EmployeeDetails() {
         setPhone(data.phoneNumber || "");
         setEmail(data.email || "");
         setStartWorkAt(data.startWorkAt ? new Date(data.startWorkAt) : null);
-        // Nếu backend trả về id thì set, còn không thì có thể giữ nguyên ""
         setDepartmentId(data.departmentId || "");
         setPositionId(data.positionId || "");
         setLineId(data.lineId || "");
       } catch (err) {
-        console.error("❌ Lỗi load chi tiết nhân viên:", err);
+        console.error("Lỗi load chi tiết nhân viên:", err);
       }
     };
 
@@ -342,7 +386,9 @@ function EmployeeDetails() {
                   )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Ngày sinh</div>
+                  <div className="employeedetail-input-label">
+                    Ngày sinh<span className="required-star">*</span>
+                  </div>
                   <DatePicker
                     selected={birthDate}
                     onChange={(date) => setBirthDate(date)}
@@ -362,7 +408,9 @@ function EmployeeDetails() {
 
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Nơi sinh</div>
+                  <div className="employeedetail-input-label">
+                    Nơi sinh<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -377,7 +425,9 @@ function EmployeeDetails() {
                   )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Nguyên quán</div>
+                  <div className="employeedetail-input-label">
+                    Nguyên quán<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -395,7 +445,9 @@ function EmployeeDetails() {
 
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Quốc tịch</div>
+                  <div className="employeedetail-input-label">
+                    Quốc tịch<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -410,7 +462,9 @@ function EmployeeDetails() {
                   )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Số CCCD</div>
+                  <div className="employeedetail-input-label">
+                    Số CCCD<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -428,7 +482,9 @@ function EmployeeDetails() {
 
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Ngày cấp</div>
+                  <div className="employeedetail-input-label">
+                    Ngày cấp<span className="required-star">*</span>
+                  </div>
                   <DatePicker
                     selected={issueDate}
                     onChange={(date) => setIssueDate(date)}
@@ -447,7 +503,9 @@ function EmployeeDetails() {
                   )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Ngày hết hạn</div>
+                  <div className="employeedetail-input-label">
+                    Ngày hết hạn<span className="required-star">*</span>
+                  </div>
                   <DatePicker
                     selected={expiryDate}
                     onChange={(date) => setExpiryDate(date)}
@@ -516,7 +574,9 @@ function EmployeeDetails() {
                   className="employeedetail-input-group"
                   style={{ width: "100%" }}
                 >
-                  <div className="employeedetail-input-label">Địa chỉ</div>
+                  <div className="employeedetail-input-label">
+                    Địa chỉ<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -544,7 +604,7 @@ function EmployeeDetails() {
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Ngày vào công ty
+                    Ngày vào công ty<span className="required-star">*</span>
                   </div>
                   <DatePicker
                     selected={startWorkAt}
@@ -618,46 +678,35 @@ function EmployeeDetails() {
                     </div>
                   )}
                 </div>
-                <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">
-                    Chuyền sản xuất
-                  </div>
-                  <select
-                    className="employeedetail-input-field"
-                    value={lineId}
-                    onChange={(e) => setLineId(e.target.value)}
-                    disabled={lines.length === 0} // Disable khi không có line
-                  >
-                    {lines.length === 0 ? (
-                      <option value="">Không có chuyền sản xuất</option>
-                    ) : (
-                      <>
-                        <option value="">-- Chọn line --</option>
-                        {lines.map((l) => (
-                          <option
-                            key={l.id}
-                            value={String(l.id)}
-                          >
-                            {l.name}
-                          </option>
-                        ))}
-                      </>
-                    )}
-                  </select>
-
-                  {errors.lineId && (
-                    <div className="error-message">
-                      {errors.lineId.join(", ")}
-                    </div>
-                  )}
-                </div>
+                <div className="employeedetail-input-group"></div>
               </div>
             </div>
 
             <div className="employeedetail-form-actions">
               <button
+                className="delete-button"
+                onClick={confirmDelete}
+                style={{
+                  backgroundColor: "#ff4d4f",
+                  color: "#fff",
+                  marginRight: "8px",
+                  padding: "10px 20px",
+                  fontSize: "16px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  border: "none",
+                  borderRadius: "8px",
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  transition: "background-color 0.2s ease",
+                }}
+              >
+                Xóa nhân viên
+              </button>
+
+              <button
                 className="submit-button"
-                onClick={handleSubmit}
+                onClick={confirmSave}
               >
                 <Save
                   size={16}

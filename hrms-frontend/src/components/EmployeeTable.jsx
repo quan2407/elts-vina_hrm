@@ -31,9 +31,6 @@ function EmployeeTable() {
           <div className="employee-header-cell">Họ và tên</div>
           <div className="employee-header-cell">Giới tính</div>
           <div className="employee-header-cell">Ngày sinh</div>
-          <div className="employee-header-cell">Nơi sinh</div>
-          <div className="employee-header-cell">Quốc tịch</div>
-          <div className="employee-header-cell">Địa chỉ</div>
           <div className="employee-header-cell">Ngày vào công ty</div>
           <div className="employee-header-cell">Số điện thoại</div>
           <div className="employee-header-cell">Phòng ban</div>
@@ -53,9 +50,6 @@ function EmployeeTable() {
             <div className="employee-table-cell">{emp.employeeName}</div>
             <div className="employee-table-cell">{emp.gender}</div>
             <div className="employee-table-cell">{emp.dob}</div>
-            <div className="employee-table-cell">{emp.placeOfBirth}</div>
-            <div className="employee-table-cell">{emp.nationality}</div>
-            <div className="employee-table-cell">{emp.address}</div>
             <div className="employee-table-cell">{emp.startWorkAt}</div>
             <div className="employee-table-cell">{emp.phoneNumber}</div>
             <div className="employee-table-cell">{emp.departmentName}</div>

@@ -35,6 +35,5 @@ public class EmployeeDetailDTO {
     private Long lineId;
     private String lineName;
 
-    // getters + setters
 }
 

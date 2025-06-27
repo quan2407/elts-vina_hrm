@@ -3,11 +3,12 @@ import MainLayout from "../components/MainLayout";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { vi } from "date-fns/locale";
-import { Save } from "lucide-react"; 
+import { Save } from "lucide-react";
 import "../styles/EmployeeDetails.css";
 import employeeService from "../services/employeeService";
 import departmentService from "../services/departmentService";
 import { format } from "date-fns";
+import Swal from "sweetalert2";
 
 function EmployeeCreate() {
   const [employeeCode, setEmployeeCode] = useState("");
@@ -83,7 +84,6 @@ function EmployeeCreate() {
       setErrors({});
       resetForm();
     } catch (err) {
-
       console.error("Lỗi tạo nhân viên:", err);
 
       if (err.response && err.response.data) {
@@ -125,6 +125,36 @@ function EmployeeCreate() {
         }
       } else {
         alert("Không nhận được phản hồi từ server!");
+      }
+    }
+  };
+  const confirmSave = async () => {
+    const result = await Swal.fire({
+      title: "Xác nhận lưu?",
+      text: "Bạn có muốn lưu thay đổi?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Lưu",
+      cancelButtonText: "Hủy",
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#aaa",
+    });
+
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: "Đang lưu dữ liệu...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const success = await handleSubmit();
+      Swal.close();
+      if (success) {
+        await Swal.fire({
+          icon: "success",
+          title: "Đã lưu thành công!",
+          confirmButtonText: "OK",
+        });
       }
     }
   };
@@ -582,38 +612,13 @@ function EmployeeCreate() {
                     </div>
                   )}
                 </div>
-                <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">
-                    Chuyền sản xuất
-                  </div>
-                  <select
-                    className="employeedetail-input-field"
-                    value={lineId}
-                    onChange={(e) => setLineId(e.target.value)}
-                  >
-                    <option value="">-- Chọn line --</option>
-                    {lines.map((l) => (
-                      <option
-                        key={l.id}
-                        value={l.id}
-                      >
-                        {l.name}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.lineId && (
-                    <div className="error-message">
-                      {errors.lineId.join(", ")}
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
 
             <div className="employeedetail-form-actions">
               <button
                 className="submit-button"
-                onClick={handleSubmit}
+                onClick={confirmSave}
               >
                 <Save
                   size={16}
