@@ -1,4 +1,4 @@
-USE hrms;
+
 SET SQL_SAFE_UPDATES = 0;
 
 
@@ -236,6 +236,7 @@ INSERT INTO candidate_recruitment (
 (3, 2, 'APPLIED', '2025-06-05 09:00:00');
 
 
+
 INSERT INTO interview_schedule (
     interview_schedule_id, scheduled_at, status, feedback,
     candidate_id, interviewer_id, recruitment_id
@@ -243,3 +244,22 @@ INSERT INTO interview_schedule (
 (1, '2025-06-10 09:00:00', 'COMPLETED', 'Ứng viên phù hợp vị trí QC.', 1, 4, 1),
 (2, '2025-06-12 10:30:00', 'SCHEDULED', NULL, 2, 3, 1),
 (3, '2025-06-14 14:00:00', 'COMPLETED', 'Ứng viên chưa đủ kỹ năng kỹ thuật.', 3, 6, 2);
+
+
+-- ALTER TABLE benefit 
+-- MODIFY COLUMN created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE benefit
+MODIFY COLUMN created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6);
+
+ALTER TABLE benefit
+MODIFY COLUMN updated_at TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
+
+
+
+INSERT INTO benefit(title, description, end_date, is_active, max_participants, start_date ) values
+ ('Bảo hiểm sức khỏe mở rộng', 'Cung cấp gói bảo hiểm sức khỏe cao cấp cho nhân viên và người thân.', '2025-12-31', 1, 200, '2025-06-29'),
+('Khóa học nâng cao kỹ năng', 'Tài trợ 100% chi phí các khóa học trực tuyến hoặc offline để nâng cao kỹ năng mềm và chuyên môn.', '2025-09-30', 1, 150, '2025-06-30'),
+('Du lịch công ty 2025', 'Chuyến du lịch thường niên cùng công ty đến Đà Nẵng trong 3 ngày 2 đêm.', '2025-08-15', 0, 100, '2025-06-28'),
+('Gói hỗ trợ sức khỏe tinh thần', 'Miễn phí 5 buổi tư vấn tâm lý cùng chuyên gia.', '2026-01-15', 1, 300, '2025-07-01'),
+('Phụ cấp thể thao', 'Hỗ trợ chi phí tham gia phòng gym, yoga, hoặc các hoạt động thể thao.', '2025-11-01', 1, 5, '2025-06-28');
