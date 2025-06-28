@@ -1,20 +1,25 @@
 package sep490.com.example.hrms_backend.service.impl;
 
+import com.example.hrms_backend.dto.WorkScheduleMonthDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.WorkScheduleCreateDTO;
 import sep490.com.example.hrms_backend.dto.WorkScheduleResponseDTO;
 import sep490.com.example.hrms_backend.entity.Department;
 import sep490.com.example.hrms_backend.entity.Line;
 import sep490.com.example.hrms_backend.entity.WorkSchedule;
+import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.mapper.WorkScheduleMapper;
 import sep490.com.example.hrms_backend.repository.DepartmentRepository;
 import sep490.com.example.hrms_backend.repository.LineRepository;
 import sep490.com.example.hrms_backend.repository.WorkScheduleRepository;
 import sep490.com.example.hrms_backend.service.WorkScheduleService;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +36,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         int year = dto.getYear();
 
         List<Department> departments = departmentRepository.findAll();
-        List<Line> allLines = lineRepository.findAllWithDepartment(); // cần viết custom query nếu chưa có
+        List<Line> allLines = lineRepository.findAllWithDepartment();
         List<WorkScheduleResponseDTO> createdList = new ArrayList<>();
 
         for (Department dept : departments) {
@@ -75,6 +80,29 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
 
         return createdList;
     }
+
+    @Override
+    public List<WorkScheduleMonthDTO> getAvailableMonths() {
+        return workScheduleRepository.findAllAvailableMonths();
+    }
+    @Override
+    public Long resolveWorkScheduleId(Long departmentId, Long lineId, LocalDate dateWork) {
+        int month = dateWork.getMonthValue();
+        int year = dateWork.getYear();
+
+        Optional<WorkSchedule> existing;
+
+        if (lineId != null) {
+            existing = workScheduleRepository.findByDepartment_DepartmentIdAndLine_LineIdAndMonthAndYear(departmentId, lineId, month, year);
+        } else {
+            existing = workScheduleRepository.findByDepartment_DepartmentIdAndLineIsNullAndMonthAndYear(departmentId, month, year);
+        }
+
+        return existing
+                .map(WorkSchedule::getId)
+                .orElseThrow(() -> new HRMSAPIException(HttpStatus.BAD_REQUEST, "WorkSchedule chưa được tạo"));
+    }
+
 
 
 }

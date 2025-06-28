@@ -1,6 +1,5 @@
 package sep490.com.example.hrms_backend.dto;
 
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -15,7 +14,6 @@ import java.time.LocalTime;
 public class WorkScheduleDetailCreateDTO {
 
     @NotNull(message = "Vui lòng chọn ngày làm việc")
-    @FutureOrPresent(message = "Ngày làm không được ở quá khứ")
     private LocalDate dateWork;
 
     @NotNull(message = "Vui lòng chọn giờ bắt đầu")

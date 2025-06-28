@@ -45,8 +45,7 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
         }
 
 
-        boolean isWeekend = dto.getDateWork().getDayOfWeek() == DayOfWeek.SATURDAY
-                || dto.getDateWork().getDayOfWeek() == DayOfWeek.SUNDAY;
+        boolean isWeekend = dto.getDateWork().getDayOfWeek() == DayOfWeek.SUNDAY;
         boolean isLate = dto.getEndTime().isAfter(LocalTime.of(17, 0));
         boolean isOvertime = isWeekend || isLate;
 
