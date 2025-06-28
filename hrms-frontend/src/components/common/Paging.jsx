@@ -1,7 +1,10 @@
 import { Pagination } from "antd";
 
  const Paging = ({totalElements, pageNumber, pageSize,setPageNumber, setPageSize }) => {
-   return(<div style={{ textAlign: 'center', marginTop: 16 }}>
+   return(<div style={{
+       textAlign: 'center', marginTop: 16
+   , marginBottom: 16
+   , display: 'flex', justifyContent: 'center'}}>
        <Pagination
            current={pageNumber}
            pageSize={pageSize}

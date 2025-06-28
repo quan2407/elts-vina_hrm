@@ -4,8 +4,8 @@ const benefitService = {
     getAll: ({page, size}) => axiosClient.get("/benefit", {
 
         params: {
-            page:page,
-            size
+            pageNumber: page,
+            pageSize: size
         }
 
     }),

@@ -3,6 +3,8 @@
     import "../styles/EmployeeTable.css";
     import benefitService from "../services/benefitService";
     import Paging from "./common/Paging.jsx";
+    import { ProFormDateRangePicker, ProFormSelect, ProFormDigitRange } from '@ant-design/pro-components';
+
 
 
 
@@ -25,7 +27,10 @@
     const BenefitHRTableRow = ({benefit}) => {
         const formatDate = (date) => new Date(date).toLocaleDateString("en-GB");
 
+
+
         return (
+
             <div className="employee-table-row" >
                 <div className="employee-table-cell">{benefit.id}</div>
                 <div className="employee-table-cell">{benefit.title}</div>
@@ -51,6 +56,8 @@
         const [totalElements, setTotalElements] = useState(0);
 
 
+
+
         //fetch du lieu benefit
         useEffect(() => {
             benefitService
@@ -58,7 +65,6 @@
                 .then((res) => {
                     setBenefit(res.data.content)
                     setTotalElements(res.data.totalElements)
-
                 })
                 .catch((err) => {
                     console.error("Failed to fetch benefits", err);
@@ -83,13 +89,14 @@
 
                     ))}
                 </div>
+                {!loading && totalElements > 0 && (
                 <Paging totalElements={totalElements}
                         pageNumber={pageNumber}
                         pageSize={pageSize}
                         setPageNumber={setPageNumber}
                         setPageSize={setPageSize}
                 />
-
+                )}
             </div>
         );
     }
