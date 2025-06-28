@@ -173,6 +173,15 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         return EmployeeMapper.mapToEmployeeDetailDTO(employee);
     }
 
+    @Override
+    public List<EmployeeResponseDTO> getEmployeeByDepartmentId(Long id) {
+        Department department = departmentRepository.findById(id).orElse(null);
+
+        List<EmployeeResponseDTO> employees = department.getEmployees().stream()
+                .map(EmployeeMapper::mapToEmployeeResponseDTO)
+                .collect(Collectors.toList());
+        return employees;
+    }
 
 
 }

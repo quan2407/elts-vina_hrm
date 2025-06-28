@@ -58,5 +58,11 @@ public class EmployeeController {
         return ResponseEntity.ok(updated);
     }
 
+    @GetMapping("/department/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
+    public ResponseEntity<List<EmployeeResponseDTO>> getEmployeeByDepartmentId(@PathVariable Long id){
+        List<EmployeeResponseDTO> employeeDetailInDepartment = employeeService.getEmployeeByDepartmentId(id);
+        return ResponseEntity.ok(employeeDetailInDepartment);
+    }
 
 }

@@ -12,4 +12,6 @@ public interface EmployeeService {
 
     EmployeeDetailDTO getOwnProfile();
     EmployeeDetailDTO updateOwnProfile(EmployeeOwnProfileUpdateDTO dto);
+
+    List<EmployeeResponseDTO> getEmployeeByDepartmentId(Long id);
 }

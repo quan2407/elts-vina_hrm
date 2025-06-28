@@ -14,8 +14,20 @@ public class InterviewScheduleMapper {
                 .status(interviewSchedule.getStatus())
                 .feedback(interviewSchedule.getFeedback())
                 .candidateId(interviewSchedule.getCandidate().getId())
+                .candidateName(interviewSchedule.getCandidate().getCandidateName())
+                .candidateEmail(interviewSchedule.getCandidate().getEmail())
+                .candidatePhone(interviewSchedule.getCandidate().getPhoneNumber())
+                .candidateGender(interviewSchedule.getCandidate().getGender())
+                .dob(interviewSchedule.getCandidate().getDob())
                 .interviewerId(interviewSchedule.getInterviewer().getEmployeeId())
-                .recrutmentId(interviewSchedule.getRecruitment().getId())
+                .interviewerName(interviewSchedule.getInterviewer().getEmployeeName())
+                .recruitmentId(interviewSchedule.getRecruitment().getId())
+                .recruitmentTitle(interviewSchedule.getRecruitment().getTitle())
+                .recruitmentDepartment(interviewSchedule.getRecruitment().getDepartment().getDepartmentName())
+                .recruitmentDescription(interviewSchedule.getRecruitment().getJobDescription())
+                .employmentType(interviewSchedule.getRecruitment().getEmploymentType())
+                .jobRequirement(interviewSchedule.getRecruitment().getJobRequirement())
+                .benefits(interviewSchedule.getRecruitment().getBenefits())
                 .build();
     }
 

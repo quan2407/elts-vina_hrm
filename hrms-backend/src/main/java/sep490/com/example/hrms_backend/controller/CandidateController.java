@@ -38,9 +38,10 @@ public class CandidateController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('HR')")
-    public ResponseEntity<?> getCandidateByRecruitment(@PathVariable Long id){
+    public ResponseEntity<?> getCandidateByRecruitment(@PathVariable Long id) {
         List<CandidateResponseDTO> candidates = candidateService.getCandidatesByRecruitmentId(id);
         return ResponseEntity.ok(candidates);
     }
+
 
 }
