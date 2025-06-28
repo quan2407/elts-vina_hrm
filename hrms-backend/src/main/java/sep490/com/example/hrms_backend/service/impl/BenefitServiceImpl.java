@@ -87,7 +87,7 @@ public class BenefitServiceImpl implements BenefitService {
             //3.8 Tra ve tat ca dieu kien AND lai
             return cb.and(predicates.toArray(new Predicate[0]));
         }, pageable);
-        
+
         List<Benefit> benefits = benefitPage.getContent();
 
 
