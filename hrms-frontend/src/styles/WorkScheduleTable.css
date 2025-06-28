@@ -214,3 +214,11 @@
 .work-schedule-create-btn:hover {
   background-color: #43a047;
 }
+.work-schedule-time-text {
+  font-size: 12px;
+  line-height: 1.2;
+}
+.work-schedule-overtime {
+  color: red;
+  font-weight: bold;
+}

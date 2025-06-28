@@ -11,8 +11,11 @@ function WorkScheduleTable() {
   const [year, setYear] = useState(today.getFullYear());
   const [dates, setDates] = useState([]);
   const [data, setData] = useState([]);
+  const [selectedDeptId, setSelectedDeptId] = useState(null);
+  const [selectedLineId, setSelectedLineId] = useState(null);
 
   const [errorMessage, setErrorMessage] = useState("");
+  const [availableMonths, setAvailableMonths] = useState([]);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDept, setSelectedDept] = useState("");
@@ -21,10 +24,78 @@ function WorkScheduleTable() {
   const [selectedWorkScheduleId, setSelectedWorkScheduleId] = useState(null);
   const [startTime, setStartTime] = useState("08:00");
   const [endTime, setEndTime] = useState("17:00");
+  const getTotalMonthValue = (m, y) => y * 12 + m;
+
+  const getLastAvailableMonth = () => {
+    if (availableMonths.length === 0) return null;
+
+    return availableMonths.reduce((a, b) => {
+      const totalA = getTotalMonthValue(a.month, a.year);
+      const totalB = getTotalMonthValue(b.month, b.year);
+      return totalB > totalA ? b : a;
+    });
+  };
+
+  const getMinAvailableMonth = () => {
+    if (availableMonths.length === 0) return null;
+
+    return availableMonths.reduce((a, b) => {
+      const totalA = getTotalMonthValue(a.month, a.year);
+      const totalB = getTotalMonthValue(b.month, b.year);
+      return totalB < totalA ? b : a;
+    });
+  };
+
+  const getNextAvailableMonth = () => {
+    if (availableMonths.length === 0) return false;
+
+    const sorted = [...availableMonths].sort(
+      (a, b) =>
+        getTotalMonthValue(a.month, a.year) -
+        getTotalMonthValue(b.month, b.year)
+    );
+
+    const last = sorted.at(-1);
+    if (!last) return false;
+
+    const currentVal = getTotalMonthValue(month, year);
+    const lastVal = getTotalMonthValue(last.month, last.year);
+
+    return currentVal < lastVal + 1;
+  };
+
+  const getPrevAvailableMonth = () => {
+    if (availableMonths.length === 0) return false;
+
+    const sorted = [...availableMonths].sort(
+      (a, b) =>
+        getTotalMonthValue(a.month, a.year) -
+        getTotalMonthValue(b.month, b.year)
+    );
+
+    const first = sorted[0];
+    if (!first) return false;
+
+    const currentVal = getTotalMonthValue(month, year);
+    const firstVal = getTotalMonthValue(first.month, first.year);
+
+    return currentVal > firstVal - 1;
+  };
+
+  const isMonthSelectable = (m, y) => {
+    if (availableMonths.length === 0) return false;
+
+    const currentVal = getTotalMonthValue(m, y);
+    const maxVal = Math.max(
+      ...availableMonths.map((d) => getTotalMonthValue(d.month, d.year))
+    );
+
+    return currentVal <= maxVal + 1;
+  };
 
   const handleCreateSchedule = (month, year) => {
     workScheduleService
-      .createWorkSchedulesForMonth(month, year) // bạn có thể đặt tên nào phù hợp
+      .createWorkSchedulesForMonth(month, year)
       .then(() => {
         return workScheduleService.getWorkScheduleByMonth(month, year);
       })
@@ -39,6 +110,7 @@ function WorkScheduleTable() {
   useEffect(() => {
     const numDays = new Date(year, month, 0).getDate();
     const tempDates = [];
+
     for (let i = 1; i <= numDays; i++) {
       const dateObj = new Date(year, month - 1, i);
       tempDates.push({
@@ -51,42 +123,70 @@ function WorkScheduleTable() {
           .padStart(2, "0")}-${dateObj.getDate().toString().padStart(2, "0")}`,
       });
     }
+
     setDates(tempDates);
 
     workScheduleService
       .getWorkScheduleByMonth(month, year)
-      .then((res) => {
-        setData(res.data);
-        setErrorMessage("");
-      })
-      .catch((err) => {
-        const msg =
-          err?.response?.data?.message ||
-          "Không thể tải lịch làm việc. Vui lòng thử lại sau.";
-        setData([]);
-        setErrorMessage(msg);
-      });
+      .then((res) => setData(res.data))
+      .catch(() => setData([]));
+
+    workScheduleService
+      .getAvailableMonths()
+      .then((res) => setAvailableMonths(res.data))
+      .catch((err) => console.error("Lỗi lấy danh sách tháng:", err));
   }, [month, year]);
 
   const handlePrevMonth = () => {
-    if (month === 1) {
-      setMonth(12);
-      setYear((y) => y - 1);
-    } else {
-      setMonth((m) => m - 1);
+    const newMonth = month === 1 ? 12 : month - 1;
+    const newYear = month === 1 ? year - 1 : year;
+
+    const earliest = availableMonths.reduce(
+      (a, b) => {
+        const totalA = a.year * 12 + a.month;
+        const totalB = b.year * 12 + b.month;
+        return totalB < totalA ? b : a;
+      },
+      { year: 9999, month: 12 }
+    );
+
+    if (
+      !earliest ||
+      newYear * 12 + newMonth >= earliest.year * 12 + earliest.month - 1
+    ) {
+      setMonth(newMonth);
+      setYear(newYear);
     }
   };
 
   const handleNextMonth = () => {
-    if (month === 12) {
-      setMonth(1);
-      setYear((y) => y + 1);
-    } else {
-      setMonth((m) => m + 1);
+    const newMonth = month === 12 ? 1 : month + 1;
+    const newYear = month === 12 ? year + 1 : year;
+
+    const lastAvailable = getLastAvailableMonth();
+    if (
+      !lastAvailable ||
+      newYear * 12 + newMonth <=
+        lastAvailable.year * 12 + lastAvailable.month + 1
+    ) {
+      setMonth(newMonth);
+      setYear(newYear);
     }
   };
 
-  const handleOpenModal = (deptName, lineName, dateIso, workScheduleId) => {
+  const nextDisabled = !getNextAvailableMonth();
+  const prevDisabled = !getPrevAvailableMonth();
+
+  const handleOpenModal = (
+    deptId,
+    deptName,
+    lineId,
+    lineName,
+    dateIso,
+    workScheduleId
+  ) => {
+    setSelectedDeptId(deptId);
+    setSelectedLineId(lineId);
     setSelectedDept(deptName);
     setSelectedLine(lineName);
     setSelectedDate(dateIso);
@@ -97,15 +197,26 @@ function WorkScheduleTable() {
   };
 
   const handleSave = () => {
-    const payload = {
-      dateWork: selectedDate,
-      startTime,
-      endTime,
-      workScheduleId: selectedWorkScheduleId,
-    };
-
     workScheduleService
-      .createWorkScheduleDetail(payload)
+      .resolveWorkScheduleId(selectedDeptId, selectedLineId, selectedDate)
+      .then((res) => {
+        const workScheduleId = res.data;
+
+        const payload = {
+          dateWork: selectedDate,
+          startTime,
+          endTime,
+          workScheduleId,
+        };
+        console.log("Payload gửi lên:", {
+          dateWork: selectedDate,
+          startTime,
+          endTime,
+          workScheduleId,
+        });
+
+        return workScheduleService.createWorkScheduleDetail(payload);
+      })
       .then(() => {
         setModalOpen(false);
         workScheduleService.getWorkScheduleByMonth(month, year).then((res) => {
@@ -123,25 +234,42 @@ function WorkScheduleTable() {
           <button
             onClick={handlePrevMonth}
             className="work-schedule-nav-btn"
+            style={{
+              backgroundColor: prevDisabled ? "#ccc" : "#000",
+              color: "#fff",
+            }}
+            disabled={prevDisabled}
           >
             ◀
           </button>
+
           <select
             value={month}
-            onChange={(e) => setMonth(parseInt(e.target.value))}
+            onChange={(e) => {
+              const m = parseInt(e.target.value);
+              if (isMonthSelectable(m, year)) setMonth(m);
+            }}
           >
-            {Array.from({ length: 12 }, (_, i) => (
-              <option
-                key={i + 1}
-                value={i + 1}
-              >
-                Tháng {i + 1}
-              </option>
-            ))}
+            {Array.from({ length: 12 }, (_, i) => {
+              const m = i + 1;
+              return (
+                <option
+                  key={m}
+                  value={m}
+                  disabled={!isMonthSelectable(m, year)}
+                >
+                  Tháng {m}
+                </option>
+              );
+            })}
           </select>
+
           <select
             value={year}
-            onChange={(e) => setYear(parseInt(e.target.value))}
+            onChange={(e) => {
+              const y = parseInt(e.target.value);
+              if (isMonthSelectable(month, y)) setYear(y);
+            }}
           >
             {Array.from({ length: 5 }, (_, i) => {
               const y = 2023 + i;
@@ -149,15 +277,22 @@ function WorkScheduleTable() {
                 <option
                   key={y}
                   value={y}
+                  disabled={!availableMonths.some((m) => m.year === y)}
                 >
                   Năm {y}
                 </option>
               );
             })}
           </select>
+
           <button
             onClick={handleNextMonth}
             className="work-schedule-nav-btn"
+            style={{
+              backgroundColor: nextDisabled ? "#ccc" : "#000",
+              color: "#fff",
+            }}
+            disabled={nextDisabled}
           >
             ▶
           </button>
@@ -216,7 +351,7 @@ function WorkScheduleTable() {
                 <div
                   key={`date-${idx}`}
                   className={`work-schedule-header work-schedule-header-date ${
-                    d.isSunday || d.isSaturday ? "work-schedule-weekend" : ""
+                    d.isSunday ? "work-schedule-weekend" : ""
                   }`}
                 >
                   {d.full}
@@ -226,7 +361,7 @@ function WorkScheduleTable() {
                 <div
                   key={`weekday-${idx}`}
                   className={`work-schedule-header work-schedule-header-weekday ${
-                    d.isSunday || d.isSaturday ? "work-schedule-weekend" : ""
+                    d.isSunday ? "work-schedule-weekend" : ""
                   }`}
                 >
                   {d.weekday}
@@ -235,30 +370,44 @@ function WorkScheduleTable() {
 
               {data.map((dept) =>
                 dept.lines.map((line, idx) =>
-                  line.workDetails.map((detail, i) => (
-                    <div
-                      key={`${dept.departmentId}-${idx}-${i}`}
-                      className="work-schedule-cell work-schedule-day-cell"
-                    >
-                      {detail.startTime && detail.endTime ? (
-                        `${detail.startTime} - ${detail.endTime}`
-                      ) : (
-                        <button
-                          className="work-schedule-add-btn"
-                          onClick={() =>
-                            handleOpenModal(
-                              dept.departmentName,
-                              line.lineName,
-                              dates[i].iso,
-                              detail.workScheduleId
-                            )
-                          }
-                        >
-                          +
-                        </button>
-                      )}
-                    </div>
-                  ))
+                  line.workDetails.map((detail, i) => {
+                    const isOvertime =
+                      detail.overtime === true || detail.overtime === "true";
+
+                    return (
+                      <div
+                        key={`${dept.departmentId}-${idx}-${i}`}
+                        className="work-schedule-cell work-schedule-day-cell"
+                      >
+                        {detail.startTime && detail.endTime ? (
+                          <span
+                            className={`work-schedule-time-text ${
+                              isOvertime ? "work-schedule-overtime" : ""
+                            }`}
+                          >
+                            {detail.startTime?.slice(0, 5)} -{" "}
+                            {detail.endTime?.slice(0, 5)}
+                          </span>
+                        ) : (
+                          <button
+                            className="work-schedule-add-btn"
+                            onClick={() =>
+                              handleOpenModal(
+                                dept.departmentId,
+                                dept.departmentName,
+                                line?.lineId,
+                                line?.lineName ?? "",
+                                dates[i].iso,
+                                detail.workScheduleId
+                              )
+                            }
+                          >
+                            +
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })
                 )
               )}
             </div>
@@ -280,6 +429,7 @@ function WorkScheduleTable() {
             if (field === "startTime") setStartTime(value);
             if (field === "endTime") setEndTime(value);
           },
+          workScheduleId: selectedWorkScheduleId,
         }}
       />
     </div>

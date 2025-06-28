@@ -12,6 +12,15 @@ const workScheduleService = {
       year,
     });
   },
+  getAvailableMonths: () => axiosClient.get("/work-schedules/available"),
+  createWorkScheduleDetail: (payload) => {
+    return axiosClient.post("/work-schedule-details", payload);
+  },
+  resolveWorkScheduleId: (departmentId, lineId, dateWork) => {
+    return axiosClient.get("/work-schedules/resolve-id", {
+      params: { departmentId, lineId, dateWork },
+    });
+  },
 };
 
 export default workScheduleService;

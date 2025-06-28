@@ -5,6 +5,7 @@ function WorkScheduleModal({ isOpen, onClose, onSave, data }) {
   if (!isOpen) return null;
 
   const { departmentName, lineName, date, startTime, endTime, onChange } = data;
+
   const formattedDate = new Date(date).toLocaleDateString("vi-VN");
 
   const generateTimeOptions = () => {
@@ -25,18 +26,22 @@ function WorkScheduleModal({ isOpen, onClose, onSave, data }) {
     <div className="work-schedule-modal-overlay">
       <div className="work-schedule-modal-container">
         <h2 className="work-schedule-modal-title">Thêm lịch làm việc</h2>
+
         <div className="work-schedule-modal-field">
           <label>Phòng ban:</label>
           <span>{departmentName}</span>
         </div>
+
         <div className="work-schedule-modal-field">
           <label>Chuyền:</label>
           <span>{lineName}</span>
         </div>
+
         <div className="work-schedule-modal-field">
           <label>Ngày làm việc:</label>
           <span>{formattedDate}</span>
         </div>
+
         <div className="work-schedule-modal-field">
           <label>Giờ bắt đầu:</label>
           <select
@@ -53,6 +58,7 @@ function WorkScheduleModal({ isOpen, onClose, onSave, data }) {
             ))}
           </select>
         </div>
+
         <div className="work-schedule-modal-field">
           <label>Giờ kết thúc:</label>
           <select
@@ -69,6 +75,7 @@ function WorkScheduleModal({ isOpen, onClose, onSave, data }) {
             ))}
           </select>
         </div>
+
         <div className="work-schedule-modal-actions">
           <button
             className="work-schedule-modal-save-btn"
