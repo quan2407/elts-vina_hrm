@@ -22,6 +22,7 @@ import CandidateManagement from "./pages/CandidateManagement";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProfilePage from "./pages/ProfilePage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
+import WorkScheduleManagement from "./pages/WorkScheduleManagement";
 import AboutUs from "./pages/AboutUs";
 
 function App() {
@@ -93,9 +94,9 @@ function App() {
           path="/add-interview/:jobId"
           element={
           <ProtectedRoute allowedRoles={["ROLE_HR"]}>
-            
 
-            
+
+
           </ProtectedRoute>}
         />
 
@@ -109,6 +110,14 @@ function App() {
         />
 
         {/* Protected routes */}
+        <Route
+          path="/work-schedule-management"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_PMC"]}>
+              <WorkScheduleManagement />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/change-password"
           element={

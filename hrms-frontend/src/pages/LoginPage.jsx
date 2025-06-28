@@ -38,6 +38,8 @@ function LoginPage() {
         navigate("/accounts");
       } else if (roles.includes("ROLE_HR")) {
         navigate("/employee-management");
+      } else if (roles.includes("ROLE_PMC")) {
+        navigate("/work-schedule-management");
       } else {
         navigate("/unauthorized");
       }

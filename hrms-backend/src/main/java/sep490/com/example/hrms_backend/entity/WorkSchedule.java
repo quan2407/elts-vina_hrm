@@ -35,4 +35,8 @@ public class WorkSchedule {
 
     @OneToMany(mappedBy = "workSchedule", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WorkScheduleDetail> workScheduleDetails;
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
+    @Column(name = "is_accepted", nullable = false)
+    private boolean isAccepted = false;
 }

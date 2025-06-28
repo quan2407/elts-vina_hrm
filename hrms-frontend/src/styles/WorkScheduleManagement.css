@@ -1,0 +1,83 @@
+/* WorkScheduleManagement.css */
+
+.content-wrapper {
+  flex: 1;
+  padding: 0 50px;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.page-title {
+  color: #000;
+  font-size: 25px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.work-schedule-page-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.work-schedule-add-button {
+  background-color: #2563eb;
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.work-schedule-add-button:hover {
+  background-color: #1e40af;
+}
+
+.work-schedule-export-button {
+  background-color: #22c55e;
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.work-schedule-export-button:hover {
+  background-color: #16a34a;
+}
+
+@media (max-width: 991px) {
+  .content-wrapper {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .content-wrapper {
+    padding: 16px;
+  }
+
+  .page-title {
+    font-size: 20px;
+  }
+
+  .work-schedule-export-button {
+    padding: 12px 24px;
+  }
+}
