@@ -40,6 +40,8 @@
   letter-spacing: 1.2px;
   outline: none;
   background-color: #fff;
+    border-radius: 10px;
+
 }
 
 .search-input::placeholder {
@@ -54,6 +56,8 @@
   justify-content: center;
   cursor: pointer;
   background-color: #32ffce;
+    border-radius: 10px;
+
 }
 
 .search-icon {
@@ -85,6 +89,8 @@
   background-color: #fff;
   margin-bottom: 10px;
   border: #888 solid 1px;
+  border-radius: 10px;
+
 }
 
 .job-ref {
@@ -154,6 +160,8 @@
   justify-content: center;
   cursor: pointer;
   background-color: #32ffce;
+  border-radius: 10px;
+
 }
 
 .arrow-icon {

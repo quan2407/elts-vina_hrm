@@ -14,6 +14,7 @@ import sep490.com.example.hrms_backend.mapper.RecruitmentMapper;
 import sep490.com.example.hrms_backend.repository.AccountRepository;
 import sep490.com.example.hrms_backend.repository.DepartmentRepository;
 import sep490.com.example.hrms_backend.repository.RecruitmentRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -75,6 +76,7 @@ public class RecruitmentService {
         recruitment.setQuantity(recruitmentDto.getQuantity());
         recruitment.setExpiredAt(recruitmentDto.getExpiredAt());
         recruitment.setUpdateAt(LocalDateTime.now());
+        recruitment.setStatus(RecruitmentStatus.OPEN);
         // Cập nhật phòng ban nếu thay đổi
         if (recruitmentDto.getDepartmentId() != null) {
             Department department = departmentRepository.findById(recruitmentDto.getDepartmentId())
@@ -84,4 +86,20 @@ public class RecruitmentService {
         Recruitment updated = recruitmentRepository.save(recruitment);
         return RecruitmentMapper.mapToRecruitmentDto(updated, new RecruitmentDto());
     }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void updateRecruitmentStatus() {
+        List<Recruitment> recruitments = recruitmentRepository.findAll();
+
+        for (Recruitment recruitment : recruitments) {
+            if (recruitment.getExpiredAt() != null && recruitment.getExpiredAt().isBefore(LocalDateTime.now())) {
+                if (recruitment.getStatus() != RecruitmentStatus.CLOSE) {
+                    recruitment.setStatus(RecruitmentStatus.CLOSE);
+                    recruitment.setUpdateAt(LocalDateTime.now());
+                    recruitmentRepository.save(recruitment); // Cập nhật trạng thái mới
+                }
+            }
+        }
+    }
 }
+
