@@ -24,6 +24,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import WorkScheduleManagement from "./pages/WorkScheduleManagement";
 import AboutUs from "./pages/AboutUs";
+import InterviewCreate from "./pages/InterviewCreate";
 
 function App() {
   return (
@@ -91,13 +92,15 @@ function App() {
         />
 
         <Route
-          path="/add-interview/:jobId"
+          path="/add-interview/:id"
           element={
-          <ProtectedRoute allowedRoles={["ROLE_HR"]}>
 
+            <ProtectedRoute allowedRoles={["ROLE_HR"]}>
 
+              <InterviewCreate />
 
-          </ProtectedRoute>}
+            </ProtectedRoute>}
+
         />
 
         <Route
