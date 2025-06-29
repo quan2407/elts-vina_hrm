@@ -2,6 +2,7 @@ package sep490.com.example.hrms_backend.service;
 
 import sep490.com.example.hrms_backend.dto.*;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 
 public interface EmployeeService {
@@ -12,6 +13,7 @@ public interface EmployeeService {
 
     EmployeeDetailDTO getOwnProfile();
     EmployeeDetailDTO updateOwnProfile(EmployeeOwnProfileUpdateDTO dto);
-
+    void softDeleteEmployee(Long id);
+    ByteArrayInputStream exportEmployeesToExcel();
     List<EmployeeResponseDTO> getEmployeeByDepartmentId(Long id);
 }

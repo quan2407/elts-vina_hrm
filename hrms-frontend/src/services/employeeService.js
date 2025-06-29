@@ -21,6 +21,14 @@ const employeeService = {
   },
   getOwnProfile: () => axiosClient.get("/employees/profile"),
   updateOwnProfile: (data) => axiosClient.put("/employees/profile", data),
+  deleteEmployee: (id) => {
+    return axiosClient.delete(`/employees/${id}`);
+  },
+  exportFile: () => {
+    return axiosClient.get("/employees/export", {
+      responseType: "blob",
+    });
+  },
 };
 
 export default employeeService;

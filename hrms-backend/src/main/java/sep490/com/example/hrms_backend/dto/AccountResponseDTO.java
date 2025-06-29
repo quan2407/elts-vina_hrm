@@ -15,6 +15,6 @@ public class AccountResponseDTO {
     private String email;
     private Boolean isActive;
     private LocalDateTime lastLoginAt;
-    private String role; // ❗ Bỏ Set<String> roles, thay bằng String role
+    private String role;
 }
 
