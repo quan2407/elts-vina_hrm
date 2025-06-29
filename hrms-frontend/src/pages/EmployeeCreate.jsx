@@ -6,6 +6,8 @@ import { vi } from "date-fns/locale";
 import { Save } from "lucide-react";
 import "../styles/EmployeeDetails.css";
 import employeeService from "../services/employeeService";
+import CCCDModal from "../components/CCCDModal";
+
 import departmentService from "../services/departmentService";
 import { format } from "date-fns";
 import Swal from "sweetalert2";
@@ -21,6 +23,7 @@ function EmployeeCreate() {
   const [positionId, setPositionId] = useState("");
   const [lineId, setLineId] = useState("");
   const [errors, setErrors] = useState({});
+  const [showOcrModal, setShowOcrModal] = useState(false);
 
   const [nationality, setNationality] = useState("");
   const [idNumber, setIdNumber] = useState("");
@@ -281,7 +284,25 @@ function EmployeeCreate() {
               id="basic-info"
               className="employeedetail-basic-information"
             >
-              <div className="employeedetail-form-title">Thông tin cơ bản</div>
+              <div
+                className="employeedetail-form-title"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <span>Thông tin cơ bản</span>
+                <button
+                  type="button"
+                  onClick={() => setShowOcrModal(true)}
+                  className="submit-button"
+                  style={{ padding: "4px 8px", fontSize: "14px" }}
+                >
+                  📷 Trích xuất CCCD
+                </button>
+              </div>
+
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
@@ -340,7 +361,9 @@ function EmployeeCreate() {
                   )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Ngày sinh</div>
+                  <div className="employeedetail-input-label">
+                    Ngày sinh<span className="required-star">*</span>
+                  </div>
                   <DatePicker
                     selected={birthDate}
                     onChange={(date) => setBirthDate(date)}
@@ -360,7 +383,9 @@ function EmployeeCreate() {
 
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Nơi sinh</div>
+                  <div className="employeedetail-input-label">
+                    Nơi sinh<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -375,7 +400,9 @@ function EmployeeCreate() {
                   )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Nguyên quán</div>
+                  <div className="employeedetail-input-label">
+                    Nguyên quán<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -393,7 +420,9 @@ function EmployeeCreate() {
 
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Quốc tịch</div>
+                  <div className="employeedetail-input-label">
+                    Quốc tịch<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -408,7 +437,9 @@ function EmployeeCreate() {
                   )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Số CCCD</div>
+                  <div className="employeedetail-input-label">
+                    Số CCCD<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -426,7 +457,9 @@ function EmployeeCreate() {
 
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Ngày cấp</div>
+                  <div className="employeedetail-input-label">
+                    Ngày cấp<span className="required-star">*</span>
+                  </div>
                   <DatePicker
                     selected={issueDate}
                     onChange={(date) => setIssueDate(date)}
@@ -445,7 +478,9 @@ function EmployeeCreate() {
                   )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Ngày hết hạn</div>
+                  <div className="employeedetail-input-label">
+                    Ngày hết hạn<span className="required-star">*</span>
+                  </div>
                   <DatePicker
                     selected={expiryDate}
                     onChange={(date) => setExpiryDate(date)}
@@ -470,7 +505,9 @@ function EmployeeCreate() {
               id="contact-info"
               className="employeedetail-contact-information"
             >
-              <div className="employeedetail-form-title">Thông tin liên hệ</div>
+              <div className="employeedetail-form-title">
+                Thông tin liên hệ<span className="required-star">*</span>
+              </div>
 
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
@@ -491,7 +528,9 @@ function EmployeeCreate() {
                   )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">Email</div>
+                  <div className="employeedetail-input-label">
+                    Email<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="email"
@@ -512,7 +551,9 @@ function EmployeeCreate() {
                   className="employeedetail-input-group"
                   style={{ width: "100%" }}
                 >
-                  <div className="employeedetail-input-label">Địa chỉ</div>
+                  <div className="employeedetail-input-label">
+                    Địa chỉ<span className="required-star">*</span>
+                  </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -540,7 +581,7 @@ function EmployeeCreate() {
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Ngày vào công ty
+                    Ngày vào công ty<span className="required-star">*</span>
                   </div>
                   <DatePicker
                     selected={startWorkAt}
@@ -630,6 +671,33 @@ function EmployeeCreate() {
           </div>
         </div>
       </div>
+      {showOcrModal && (
+        <CCCDModal
+          onClose={() => setShowOcrModal(false)}
+          onApply={(ocrData) => {
+            setFullName(ocrData.employeeName || "");
+            setGender((ocrData.gender || "").toUpperCase());
+
+            setBirthDate(ocrData.dob ? new Date(ocrData.dob) : null);
+            setBirthPlace(ocrData.placeOfBirth || "");
+            setOriginPlace(ocrData.originPlace || "");
+            setNationality(ocrData.nationality || "");
+            setIdNumber(ocrData.citizenId || "");
+            setIssueDate(
+              ocrData.citizenIssueDate
+                ? new Date(ocrData.citizenIssueDate)
+                : null
+            );
+            setExpiryDate(
+              ocrData.citizenExpiryDate
+                ? new Date(ocrData.citizenExpiryDate)
+                : null
+            );
+            setAddress(ocrData.address || "");
+            setShowOcrModal(false);
+          }}
+        />
+      )}
     </MainLayout>
   );
 }
