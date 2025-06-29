@@ -6,10 +6,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
-  overflow: hidden;
+  background: #e3edf9;
   font-family: "Product Sans", -apple-system, Roboto, Helvetica, sans-serif;
-  color: white;
 }
 
 .login-container {
@@ -38,7 +36,6 @@
 }
 
 .overlay {
-  background-color: rgba(0, 36, 77, 0.6);
   z-index: 1;
 }
 
@@ -57,9 +54,9 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  background: rgba(255, 255, 255, 0.1); /* Optional: form bg */
+  background: white;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 13px;
 }
 
 .company-logo {
@@ -182,4 +179,10 @@
 .form-level-error {
   text-align: center;
   margin-top: 8px;
+}
+.login-form-logo {
+  width: 350px;
+  height: auto;
+  margin: 0 auto 20px;
+  display: block;
 }

@@ -1,5 +1,6 @@
 package sep490.com.example.hrms_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,10 +23,10 @@ public class WorkScheduleDetail {
 
     @Column(name = "date_work", nullable = false)
     private LocalDate dateWork;
-
+    @JsonFormat(pattern = "HH:mm")
     @Column(name = "start_time", nullable = false)
     private LocalTime startTime;
-
+    @JsonFormat(pattern = "HH:mm")
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
 
