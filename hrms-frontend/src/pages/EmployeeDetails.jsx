@@ -28,6 +28,15 @@ function EmployeeDetails() {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [currentAddress, setCurrentAddress] = useState("");
+  const [ethnicity, setEthnicity] = useState("");
+  const [religion, setReligion] = useState("");
+  const [educationLevel, setEducationLevel] = useState("");
+  const [specializedLevel, setSpecializedLevel] = useState("");
+  const [foreignLanguages, setForeignLanguages] = useState("");
+  const [trainingType, setTrainingType] = useState("");
+  const [trainingMajor, setTrainingMajor] = useState("");
+
   const [startWorkAt, setStartWorkAt] = useState(null);
   const [departmentId, setDepartmentId] = useState("");
   const [positionId, setPositionId] = useState("");
@@ -53,6 +62,14 @@ function EmployeeDetails() {
       citizenIssueDate: issueDate ? format(issueDate, "yyyy-MM-dd") : null,
       citizenExpiryDate: expiryDate ? format(expiryDate, "yyyy-MM-dd") : null,
       address: address?.trim() ? address : null,
+      currentAddress: currentAddress?.trim() || null,
+      ethnicity: ethnicity?.trim() || null,
+      religion: religion?.trim() || null,
+      educationLevel: educationLevel?.trim() || null,
+      specializedLevel: specializedLevel?.trim() || null,
+      foreignLanguages: foreignLanguages?.trim() || null,
+      trainingType: trainingType?.trim() || null,
+      trainingMajor: trainingMajor?.trim() || null,
       phoneNumber: phone?.trim() ? phone : null,
       email: email?.trim() ? email : null,
       startWorkAt: startWorkAt ? format(startWorkAt, "yyyy-MM-dd") : null,
@@ -213,6 +230,14 @@ function EmployeeDetails() {
           data.citizenExpiryDate ? new Date(data.citizenExpiryDate) : null
         );
         setAddress(data.address || "");
+        setCurrentAddress(data.currentAddress || "");
+        setEthnicity(data.ethnicity || "");
+        setReligion(data.religion || "");
+        setEducationLevel(data.educationLevel || "");
+        setSpecializedLevel(data.specializedLevel || "");
+        setForeignLanguages(data.foreignLanguages || "");
+        setTrainingType(data.trainingType || "");
+        setTrainingMajor(data.trainingMajor || "");
         setPhone(data.phoneNumber || "");
         setEmail(data.email || "");
         setStartWorkAt(data.startWorkAt ? new Date(data.startWorkAt) : null);
@@ -520,6 +545,151 @@ function EmployeeDetails() {
                   {errors.citizenExpiryDate && (
                     <div className="error-message">
                       {errors.citizenExpiryDate.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="employeedetail-form-row">
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Nơi ở hiện tại<span className="required-star">*</span>
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="text"
+                    value={currentAddress}
+                    placeholder="Nhập nơi ở hiện tại"
+                    onChange={(e) => setCurrentAddress(e.target.value)}
+                  />
+                  {errors.currentAddress && (
+                    <div className="error-message">
+                      {errors.currentAddress.join(", ")}
+                    </div>
+                  )}
+                </div>
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Trình độ văn hóa<span className="required-star">*</span>
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="text"
+                    value={educationLevel}
+                    placeholder="Nhập trình độ văn hóa"
+                    onChange={(e) => setEducationLevel(e.target.value)}
+                  />
+                  {errors.educationLevel && (
+                    <div className="error-message">
+                      {errors.educationLevel.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="employeedetail-form-row">
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Dân tộc<span className="required-star">*</span>
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="text"
+                    value={ethnicity}
+                    placeholder="Nhập dân tộc"
+                    onChange={(e) => setEthnicity(e.target.value)}
+                  />
+                  {errors.ethnicity && (
+                    <div className="error-message">
+                      {errors.ethnicity.join(", ")}
+                    </div>
+                  )}
+                </div>
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Tôn giáo<span className="required-star">*</span>
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="text"
+                    value={religion}
+                    placeholder="Nhập tôn giáo"
+                    onChange={(e) => setReligion(e.target.value)}
+                  />
+                  {errors.religion && (
+                    <div className="error-message">
+                      {errors.religion.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="employeedetail-form-row">
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Trình độ chuyên môn<span className="required-star">*</span>
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="text"
+                    value={specializedLevel}
+                    placeholder="Nhập trình độ chuyên môn"
+                    onChange={(e) => setSpecializedLevel(e.target.value)}
+                  />
+                  {errors.specializedLevel && (
+                    <div className="error-message">
+                      {errors.specializedLevel.join(", ")}
+                    </div>
+                  )}
+                </div>
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">Ngoại ngữ</div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="text"
+                    value={foreignLanguages}
+                    placeholder="Nhập ngoại ngữ"
+                    onChange={(e) => setForeignLanguages(e.target.value)}
+                  />
+                  {errors.foreignLanguages && (
+                    <div className="error-message">
+                      {errors.foreignLanguages.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="employeedetail-form-row">
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Loại hình đào tạo
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="text"
+                    value={trainingType}
+                    placeholder="Nhập loại hình đào tạo"
+                    onChange={(e) => setTrainingType(e.target.value)}
+                  />
+                  {errors.trainingType && (
+                    <div className="error-message">
+                      {errors.trainingType.join(", ")}
+                    </div>
+                  )}
+                </div>
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Chuyên ngành đào tạo<span className="required-star">*</span>
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="text"
+                    value={trainingMajor}
+                    placeholder="Nhập chuyên ngành"
+                    onChange={(e) => setTrainingMajor(e.target.value)}
+                  />
+                  {errors.trainingMajor && (
+                    <div className="error-message">
+                      {errors.trainingMajor.join(", ")}
                     </div>
                   )}
                 </div>
