@@ -11,6 +11,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.InterviewScheduleDTO;
 import sep490.com.example.hrms_backend.entity.*;
+import sep490.com.example.hrms_backend.enums.InterviewScheduleStatus;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.mapper.InterviewScheduleMapper;
 import sep490.com.example.hrms_backend.repository.*;
@@ -144,5 +145,8 @@ public class InterviewScheduleService {
     }
 
     public void updateStatus(Long id, String status) {
+        InterviewSchedule interviewSchedule = interviewScheduleRepository.findById(id).orElse(null);
+        interviewSchedule.setStatus(InterviewScheduleStatus.valueOf(status));
+        interviewScheduleRepository.save(interviewSchedule);
     }
 }
