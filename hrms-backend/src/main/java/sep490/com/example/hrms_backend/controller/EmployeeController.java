@@ -61,12 +61,18 @@ public class EmployeeController {
         EmployeeDetailDTO updated = employeeService.updateOwnProfile(dto);
         return ResponseEntity.ok(updated);
     }
+    @GetMapping("/next-code")
+    public ResponseEntity<String> getNextEmployeeCode() {
+        String nextCode = employeeService.getNextEmployeeCode();
+        return ResponseEntity.ok(nextCode);
+    }
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
         employeeService.softDeleteEmployee(id);
         return ResponseEntity.noContent().build();
     }
+
     @GetMapping("/export")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<InputStreamResource> exportEmployeesToExcel() {

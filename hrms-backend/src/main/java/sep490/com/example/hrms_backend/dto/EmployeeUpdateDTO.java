@@ -52,6 +52,36 @@ public class EmployeeUpdateDTO {
     @NotBlank(message = "Địa chỉ không được để trống")
     @Size(max = 255, message = "Địa chỉ không được vượt quá 255 ký tự")
     private String address;
+    @Size(max = 255, message = "Nơi ở hiện nay không được vượt quá 255 ký tự")
+    @NotBlank(message = "Nơi ở hiện nay không được để trống")
+    private String currentAddress;
+
+    @Size(max = 255, message = "Dân tộc không được vượt quá 255 ký tự")
+    @NotBlank(message = "Dân tộc không được để trống")
+    private String ethnicity;
+
+    @Size(max = 255, message = "Tôn giáo không được vượt quá 255 ký tự")
+    @NotBlank(message = "Tôn giáo không được để trống")
+    private String religion;
+
+    @Size(max = 255, message = "Trình độ văn hóa không được vượt quá 255 ký tự")
+    @NotBlank(message = "Trình độ văn hóa không được để trống")
+    private String educationLevel;
+
+    @Size(max = 255, message = "Trình độ chuyên môn không được vượt quá 255 ký tự")
+    @NotBlank(message = "Trình độ chuyên môn không được để trống")
+    private String specializedLevel;
+
+    @Size(max = 255, message = "Ngoại ngữ không được vượt quá 255 ký tự")
+    private String foreignLanguages;
+
+    @Size(max = 255, message = "Loại hình đào tạo không được vượt quá 255 ký tự")
+    private String trainingType;
+
+    @Size(max = 255, message = "Chuyên ngành đào tạo không được vượt quá 255 ký tự")
+    @NotBlank(message = "Chuyên ngành đào tạo không được để trống")
+    private String trainingMajor;
+
 
     @Size(max = 255, message = "Link ảnh không được vượt quá 255 ký tự")
     private String image;
