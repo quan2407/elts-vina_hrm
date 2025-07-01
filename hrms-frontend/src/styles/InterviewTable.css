@@ -1,4 +1,4 @@
-.jobs-table-wrapper {
+.Interview-table-wrapper {
   overflow-x: auto;
   max-width: 100%;
   background-color: #fff;
@@ -8,16 +8,16 @@
 
 }
 
-.jobs-table {
+.Interview-table {
   min-width: 1800px;
 
 }
 
-.jobs-table-header,
-.jobs-table-row {
+.Interview-table-header,
+.Interview-table-row {
   display: grid;
   grid-template-columns:
-    120px 180px 180px 200px 250px 150px 200px 500px;
+    120px 180px 180px 180px 200px 250px 300px 200px 500px;
   gap: 10px;
   padding: 18px 30px;
   margin-bottom: 20px;
@@ -25,7 +25,7 @@
 
 }
 
-.jobs-header-cell {
+.Interview-header-cell {
   color: #000;
   font-size: 16px;
   font-weight: 700;
@@ -37,7 +37,7 @@
   text-overflow: ellipsis;
 }
 
-.jobs-table-cell {
+.Interview-table-cell {
   color: #000;
   font-size: 16px;
   font-weight: 400;

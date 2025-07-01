@@ -1,5 +1,6 @@
 package sep490.com.example.hrms_backend.controller;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +10,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.InterviewScheduleDTO;
 import sep490.com.example.hrms_backend.entity.CandidateRecruitment;
+import sep490.com.example.hrms_backend.entity.InterviewSchedule;
 import sep490.com.example.hrms_backend.service.CandidateRecruitmentService;
 import sep490.com.example.hrms_backend.service.InterviewScheduleService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/interview")
@@ -66,4 +69,18 @@ public class InterviewScheduleController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String status = body.get("status");
+        try {
+            interviewScheduleService.updateStatus(id, status);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Trạng thái không hợp lệ.");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }

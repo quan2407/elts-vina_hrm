@@ -95,7 +95,6 @@ const CandidateTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
                     <div className="candidate-header-cell">Email</div>
                     <div className="candidate-header-cell">Số điện thoại</div>
                     <div className="candidate-header-cell">Ngày ứng tuyển</div>
-                    <div className="candidate-header-cell">Note</div>
                     <div className="candidate-header-cell">Trạng thái</div>
                     <div className="candidate-header-cell">Hành động</div>
 
@@ -113,7 +112,6 @@ const CandidateTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
                         <div className="candidate-table-cell">{candidate.email}</div>
                         <div className="candidate-table-cell">{candidate.phoneNumber}</div>
                         <div className="candidate-table-cell">{formatDate(candidate.submittedAt)}</div>
-                        <div className="candidate-table-cell">{candidate.note}</div>
                         <div className="candidate-table-cell">{candidate.status}</div>
                         <div className="candidate-table-cell">
                             <button className="viewcandidate-button" onClick={() => handleCandidateClick(candidate.candidateRecruitmentId)}>Tạo lịch phỏng vấn</button>

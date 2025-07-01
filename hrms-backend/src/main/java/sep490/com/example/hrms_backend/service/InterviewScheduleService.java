@@ -140,7 +140,9 @@ public class InterviewScheduleService {
     }
 
     public InterviewScheduleDTO getInterviewById(@Valid Long id) {
-        InterviewSchedule interviewSchedule = interviewScheduleRepository.findById(id).orElse(null);
-        return InterviewScheduleMapper.mapToInterviewScheduleDTO(interviewSchedule);
+        return null;
+    }
+
+    public void updateStatus(Long id, String status) {
     }
 }

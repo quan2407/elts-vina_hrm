@@ -67,7 +67,7 @@ function InterviewCreate() {
     const payload = {
       candidateId: interview?.candidateId,
       recruitmentId: interview?.recruitmentId,
-      scheduledAt: scheduledAt ? dayjs(scheduledAt).toISOString() : null,
+      scheduledAt: scheduledAt ? dayjs(scheduledAt).format("YYYY-MM-DDTHH:mm:ss") : null,
       feedback: feedback?.trim() === "" ? null : feedback,
       status: status,
       interviewerId: interviewerId
@@ -400,7 +400,7 @@ function InterviewCreate() {
                     value={interviewerId}
                     onChange={(e) => {
                       const value = e.target.value;
-    setInterviewerId(value === "" ? null : Number(value)); // ✅ null nếu chưa chọn
+                      setInterviewerId(value === "" ? null : Number(value));
                     }}
                   >
                     <option value="">-- Chọn người phỏng vấn --</option>
