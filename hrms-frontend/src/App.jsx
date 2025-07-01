@@ -25,9 +25,13 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProfilePage from "./pages/ProfilePage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import AboutUs from "./pages/AboutUs";
+import { App as AntdApp, ConfigProvider } from 'antd';
 
 function App() {
   return (
+      <ConfigProvider>
+
+      <AntdApp>
     <Router>
       <Routes>
         {/* Public routes */}
@@ -189,6 +193,8 @@ function App() {
         />
       </Routes>
     </Router>
+      </AntdApp>
+</ConfigProvider>
   );
 }
 

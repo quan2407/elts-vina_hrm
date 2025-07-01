@@ -1,11 +1,29 @@
-import React, { useState } from "react";
+// import React, { useState } from "react";
 import MainLayout from "../components/MainLayout";
 import BenefitHrTable from "../components/BenefitHrTable";
 // import "../styles/ManagementLayout.css";
 import "../styles/EmployeeTable.css";
+import {PlusOutlined} from "@ant-design/icons";
+import {Button} from "antd";
+import BenefitCreateModal from "../components/modals/BenefitCreateModal.jsx";
+import {useEffect, useState} from "react";
+import benefitService from "../services/benefitService.js";
 
 
 function BenefitManagementHR() {
+    const [benefits, setBenefits] = useState([]);
+    const fetchBenefits = async () => {
+        try {
+            const res = await benefitService.getAll();
+            setBenefits(res.data); // hoặc res nếu không có .data
+        } catch (err) {
+            console.error('Lỗi tải phúc lợi:', err);
+        }
+    };
+
+    useEffect(() => {
+        fetchBenefits().then(setBenefits);
+    }, []);
     return (
         <MainLayout>
             <div className="content-wrapper">
@@ -39,22 +57,30 @@ function BenefitManagementHR() {
                                 </defs>
                             </svg>
                         </div>
-                        <div className="export-button">
-                            <span className="export-text">Export</span>
-                            <svg
-                                className="export-dropdown"
-                                width="14"
-                                height="16"
-                                viewBox="0 0 14 16"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    d="M13.8394 7.99913C13.8394 12.3581 10.7668 15.8899 6.97441 15.8899C3.18203 15.8899 0.109375 12.3581 0.109375 7.99913C0.109375 3.64014 3.18203 0.108398 6.97441 0.108398C10.7668 0.108398 13.8394 3.64014 13.8394 7.99913ZM7.445 11.6231L11.1959 7.31188C11.4561 7.01279 11.4561 6.52917 11.1959 6.23326L10.7253 5.69237C10.4651 5.39328 10.0443 5.39328 9.78686 5.69237L6.97441 8.92502L4.16196 5.69237C3.90175 5.39328 3.48099 5.39328 3.22355 5.69237L2.75297 6.23326C2.49276 6.53235 2.49276 7.01597 2.75297 7.31188L6.50382 11.6231C6.76403 11.9222 7.18479 11.9222 7.445 11.6231Z"
-                                    fill="white"
-                                />
-                            </svg>
-                        </div>
+                        {/*<div className="create-button">*/}
+                        {/*    <span className="export-text" >*/}
+                        {/*          <PlusOutlined className="create-icon" />*/}
+                        {/*        <span className="create-label">Tạo phúc lợi</span>*/}
+                        {/*    </span>*/}
+                        {/*    <svg*/}
+                        {/*        className="export-dropdown"*/}
+                        {/*        width="14"*/}
+                        {/*        height="16"*/}
+                        {/*        viewBox="0 0 14 16"*/}
+                        {/*        fill="none"*/}
+                        {/*        xmlns="http://www.w3.org/2000/svg"*/}
+                        {/*    >*/}
+                        {/*        <path*/}
+                        {/*            d="M13.8394 7.99913C13.8394 12.3581 10.7668 15.8899 6.97441 15.8899C3.18203 15.8899 0.109375 12.3581 0.109375 7.99913C0.109375 3.64014 3.18203 0.108398 6.97441 0.108398C10.7668 0.108398 13.8394 3.64014 13.8394 7.99913ZM7.445 11.6231L11.1959 7.31188C11.4561 7.01279 11.4561 6.52917 11.1959 6.23326L10.7253 5.69237C10.4651 5.39328 10.0443 5.39328 9.78686 5.69237L6.97441 8.92502L4.16196 5.69237C3.90175 5.39328 3.48099 5.39328 3.22355 5.69237L2.75297 6.23326C2.49276 6.53235 2.49276 7.01597 2.75297 7.31188L6.50382 11.6231C6.76403 11.9222 7.18479 11.9222 7.445 11.6231Z"*/}
+                        {/*            fill="white"*/}
+                        {/*        />*/}
+
+
+                        {/*    </svg>*/}
+                        {/*</div>*/}
+
+                        <BenefitCreateModal onCreated={fetchBenefits} />
+
                     </div>
                 </div>
                 <BenefitHrTable />

@@ -3,6 +3,7 @@ package sep490.com.example.hrms_backend.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -23,10 +24,11 @@ public class BenefitRegistration {
     private Long id;
 
     @PastOrPresent
+    @CreationTimestamp
     @Column(name = "registered_at")
     private LocalDateTime registeredAt; // thời điểm đăng ký
 
-    @NotBlank
+    @NotNull
     @Column(name = "is_register")
     private Boolean isRegister = false ;
 

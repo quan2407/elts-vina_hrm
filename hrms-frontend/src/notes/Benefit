@@ -2,3 +2,7 @@
              : làm nốt nút view all
              :  thêm số lượng người đăng kí (benefit registration)ư
              : thiều filter
+                : tạo mới 1 benefit()
+                : đăng kí 1 benefit (Employee)
+                : chưa fetch đc dữ liệu khi tạo thành công 1 benefit (đóng benefit modal thì tự fetch lại dữ liệu)
+                : chưa test validate từ BE

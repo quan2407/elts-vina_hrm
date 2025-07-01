@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "../styles/EmployeeTable.css";
 import benefitService from "../services/benefitService.js";
 import Paging from "./common/Paging.jsx";
-import BenefitSearchForm from "./common/BenefitSearchForm"; // ✅ import form tìm kiếm
+import BenefitSearchForm from "./common/search/BenefitSearchForm.jsx";
 
 
 const BenefitHRTableHeader = () => {

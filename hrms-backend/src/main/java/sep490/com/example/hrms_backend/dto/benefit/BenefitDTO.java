@@ -36,4 +36,6 @@ public class BenefitDTO {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private String numbe;
 }

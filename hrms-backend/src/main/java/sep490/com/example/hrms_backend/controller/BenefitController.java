@@ -35,9 +35,9 @@ public class BenefitController {
 
 
     //1.View Benefit (Employee, HR)
-//    @PreAuthorize("hasAnyRole('EMPLOYEE', 'HR')")
+    @PreAuthorize("hasAnyRole( 'HR')")
     @GetMapping("/hr/benefit")
-    public ResponseEntity<BenefitResponse> getAllBenefit(@RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false)Integer pageNumber,
+    public ResponseEntity<BenefitResponse> getAllBenefitForHr(@RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false)Integer pageNumber,
                                                            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
                                                            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
                                                            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIRECTION, required = false) String sortOrder,
@@ -60,7 +60,7 @@ public class BenefitController {
 
     //2. create Benefit (HR)
     @PreAuthorize("hasAnyRole('HR')")
-    @PostMapping
+    @PostMapping("/hr/benefit")
     public ResponseEntity<BenefitDTO> addBenefit(@Valid @RequestBody BenefitDTO benefitDTO , Authentication authentication){
         //####add info user created to admin can be checked log (not still pass into method)
         String username = currentUserUtils.getCurrentUsername();
