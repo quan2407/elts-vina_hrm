@@ -24,8 +24,6 @@ public class Recruitment {
     @NotBlank
     private String title;
 
-    private String workLocation;
-
     private String employmentType;
 
     private String jobDescription;

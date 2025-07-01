@@ -208,15 +208,15 @@ UPDATE employee SET line_id = 4 WHERE employee_id = 10;
 
 
 INSERT INTO recruitment (
-    recruitment_id, title, work_location, employment_type, job_description,
+    recruitment_id, title, employment_type, job_description,
     job_requirement, benefits, min_salary, max_salary, quantity,
     expired_at, create_at, update_at, status,
     department_id, created_by
 ) VALUES
-(1, 'Tuyển công nhân QC', 'Bắc Ninh', 'Full-time', 'Kiểm tra chất lượng sản phẩm.',
+(1, 'Tuyển công nhân QC', 'Full-time', 'Kiểm tra chất lượng sản phẩm.',
  'Tốt nghiệp THPT, chịu khó.', 'Phụ cấp ăn trưa, thưởng lễ.', 8000000, 10000000, 5,
  '2025-07-15 00:00:00', NOW(), NOW(), 'OPEN', 2, 2),
-(2, 'Tuyển kỹ sư bảo trì', 'Hà Nội', 'Full-time', 'Bảo trì dây chuyền bán tự động.',
+(2, 'Tuyển kỹ sư bảo trì', 'Full-time', 'Bảo trì dây chuyền bán tự động.',
  'CĐ/ĐH chuyên ngành cơ khí', 'Bảo hiểm full, đào tạo nội bộ.', 12000000, 15000000, 2,
  '2025-07-01 00:00:00', NOW(), NOW(), 'OPEN', 4, 5);
 

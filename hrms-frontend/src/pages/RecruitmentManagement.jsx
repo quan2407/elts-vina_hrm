@@ -29,7 +29,7 @@ function JobsManagement() {
           <h1 className="page-title">Danh sách tuyển dụng</h1>
           <div className="page-actions">
 
-            <form className="form-floating">
+            <form className="form-floating" onSubmit={(e) => e.preventDefault()} >
               <input type="text" className="form-control" style={{ width: "240px" }} id="floatingInputValue" value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)} />
               <label htmlFor="floatingInputValue">Tìm kiếm theo tiêu đề</label>
@@ -43,7 +43,6 @@ function JobsManagement() {
             >
               <option value="createAt">Sắp xếp theo ngày tạo</option>
               <option value="title">Sắp xếp theo tiêu đề</option>
-              <option value="workLocation">Sắp xếp theo địa điểm làm việc</option>
               <option value="employmentType">Sắp xếp theo loại hình công việc</option>
               <option value="expiredAt">Sắp xếp theo ngày hết hạn</option>
             </select>
