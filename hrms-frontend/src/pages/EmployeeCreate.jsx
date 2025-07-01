@@ -33,6 +33,14 @@ function EmployeeCreate() {
   const [departments, setDepartments] = useState([]);
   const [positions, setPositions] = useState([]);
   const [lines, setLines] = useState([]);
+  const [currentAddress, setCurrentAddress] = useState("");
+  const [ethnicity, setEthnicity] = useState("");
+  const [religion, setReligion] = useState("");
+  const [educationLevel, setEducationLevel] = useState("");
+  const [specializedLevel, setSpecializedLevel] = useState("");
+  const [trainingType, setTrainingType] = useState("");
+  const [trainingMajor, setTrainingMajor] = useState("");
+  const [foreignLanguages, setForeignLanguages] = useState("");
 
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -50,6 +58,14 @@ function EmployeeCreate() {
     setIssueDate(null);
     setExpiryDate(null);
     setAddress("");
+    setCurrentAddress("");
+    setEthnicity("");
+    setReligion("");
+    setEducationLevel("");
+    setSpecializedLevel("");
+    setTrainingType("");
+    setTrainingMajor("");
+    setForeignLanguages("");
     setPhone("");
     setEmail("");
     setStartWorkAt(null);
@@ -71,6 +87,14 @@ function EmployeeCreate() {
       citizenIssueDate: issueDate ? format(issueDate, "yyyy-MM-dd") : null,
       citizenExpiryDate: expiryDate ? format(expiryDate, "yyyy-MM-dd") : null,
       address: address?.trim() ? address : null,
+      currentAddress: currentAddress?.trim() || null,
+      ethnicity: ethnicity?.trim() || null,
+      religion: religion?.trim() || null,
+      educationLevel: educationLevel?.trim() || null,
+      specializedLevel: specializedLevel?.trim() || null,
+      trainingType: trainingType?.trim() || null,
+      trainingMajor: trainingMajor?.trim() || null,
+      foreignLanguages: foreignLanguages?.trim() || null,
       phoneNumber: phone?.trim() ? phone : null,
       email: email?.trim() ? email : null,
       startWorkAt: startWorkAt ? format(startWorkAt, "yyyy-MM-dd") : null,
@@ -161,6 +185,17 @@ function EmployeeCreate() {
       }
     }
   };
+  useEffect(() => {
+    const fetchNextEmployeeCode = async () => {
+      try {
+        const res = await employeeService.getNextEmployeeCode();
+        setEmployeeCode(res.data);
+      } catch (err) {
+        console.error("Lỗi lấy mã nhân viên:", err);
+      }
+    };
+    fetchNextEmployeeCode();
+  }, []);
 
   useEffect(() => {
     const contentEl = document.querySelector(".employeedetail-form-content");
@@ -309,11 +344,12 @@ function EmployeeCreate() {
                     Mã nhân viên<span className="required-star">*</span>
                   </div>
                   <input
-                    className="employeedetail-input-field"
+                    className="employeedetail-input-field disabled-input"
                     type="text"
                     value={employeeCode}
                     placeholder="Nhập mã nhân viên"
                     onChange={(e) => setEmployeeCode(e.target.value)}
+                    disabled
                   />
                   {errors.employeeCode && (
                     <div className="error-message">
@@ -495,6 +531,185 @@ function EmployeeCreate() {
                   {errors.citizenExpiryDate && (
                     <div className="error-message">
                       {errors.citizenExpiryDate.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </div>
+              {/* Dân tộc & Tôn giáo */}
+              <div className="employeedetail-form-row">
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Dân tộc<span className="required-star">*</span>
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="text"
+                    value={ethnicity}
+                    placeholder="Nhập dân tộc"
+                    onChange={(e) => setEthnicity(e.target.value)}
+                  />
+                  {errors.ethnicity && (
+                    <div className="error-message">
+                      {errors.ethnicity.join(", ")}
+                    </div>
+                  )}
+                </div>
+
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Tôn giáo<span className="required-star">*</span>
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="text"
+                    value={religion}
+                    placeholder="Nhập tôn giáo"
+                    onChange={(e) => setReligion(e.target.value)}
+                  />
+                  {errors.religion && (
+                    <div className="error-message">
+                      {errors.religion.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Nơi ở hiện nay & Trình độ văn hóa */}
+              <div className="employeedetail-form-row">
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Nơi ở hiện nay<span className="required-star">*</span>
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="text"
+                    value={currentAddress}
+                    placeholder="Nhập nơi ở hiện nay"
+                    onChange={(e) => setCurrentAddress(e.target.value)}
+                  />
+                  {errors.currentAddress && (
+                    <div className="error-message">
+                      {errors.currentAddress.join(", ")}
+                    </div>
+                  )}
+                </div>
+
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Trình độ văn hóa<span className="required-star">*</span>
+                  </div>
+                  <select
+                    className="employeedetail-input-field"
+                    value={educationLevel}
+                    onChange={(e) => setEducationLevel(e.target.value)}
+                  >
+                    <option value="">-- Chọn trình độ văn hóa --</option>
+                    <option value="5/12">5/12</option>
+                    <option value="9/12">9/12</option>
+                    <option value="12/12">12/12</option>
+                    <option value="Trung cấp">Trung cấp</option>
+                    <option value="Cao đẳng">Cao đẳng</option>
+                    <option value="Đại học">Đại học</option>
+                    <option value="Sau đại học">Sau đại học</option>
+                  </select>
+
+                  {errors.educationLevel && (
+                    <div className="error-message">
+                      {errors.educationLevel.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Trình độ chuyên môn & Ngoại ngữ */}
+              <div className="employeedetail-form-row">
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Trình độ chuyên môn<span className="required-star">*</span>
+                  </div>
+                  <select
+                    className="employeedetail-input-field"
+                    value={specializedLevel}
+                    onChange={(e) => setSpecializedLevel(e.target.value)}
+                  >
+                    <option value="">-- Chọn trình độ chuyên môn --</option>
+                    <option value="Sơ cấp">Sơ cấp</option>
+                    <option value="Trung cấp">Trung cấp</option>
+                    <option value="Cao đẳng">Cao đẳng</option>
+                    <option value="Đại học">Đại học</option>
+                    <option value="Thạc sĩ">Thạc sĩ</option>
+                    <option value="Tiến sĩ">Tiến sĩ</option>
+                  </select>
+
+                  {errors.specializedLevel && (
+                    <div className="error-message">
+                      {errors.specializedLevel.join(", ")}
+                    </div>
+                  )}
+                </div>
+
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">Ngoại ngữ</div>
+                  <select
+                    className="employeedetail-input-field"
+                    value={foreignLanguages}
+                    onChange={(e) => setForeignLanguages(e.target.value)}
+                  >
+                    <option value="">-- Chọn ngoại ngữ --</option>
+                    <option value="Tiếng Anh">Tiếng Anh</option>
+                    <option value="Tiếng Trung">Tiếng Trung</option>
+                    <option value="Tiếng Nhật">Tiếng Nhật</option>
+                    <option value="Tiếng Hàn">Tiếng Hàn</option>
+                    <option value="Khác">Khác</option>
+                  </select>
+
+                  {errors.foreignLanguages && (
+                    <div className="error-message">
+                      {errors.foreignLanguages.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Loại hình đào tạo & Chuyên ngành đào tạo */}
+              <div className="employeedetail-form-row">
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Loại hình đào tạo
+                  </div>
+                  <select
+                    className="employeedetail-input-field"
+                    value={trainingType}
+                    onChange={(e) => setTrainingType(e.target.value)}
+                  >
+                    <option value="">-- Chọn loại hình đào tạo --</option>
+                    <option value="Chính quy">Chính quy</option>
+                    <option value="Tại chức">Tại chức</option>
+                    <option value="Liên thông">Liên thông</option>
+                    <option value="Khác">Khác</option>
+                  </select>
+
+                  {errors.trainingType && (
+                    <div className="error-message">
+                      {errors.trainingType.join(", ")}
+                    </div>
+                  )}
+                </div>
+
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Chuyên ngành đào tạo<span className="required-star">*</span>
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="text"
+                    value={trainingMajor}
+                    placeholder="Nhập chuyên ngành đào tạo"
+                    onChange={(e) => setTrainingMajor(e.target.value)}
+                  />
+                  {errors.trainingMajor && (
+                    <div className="error-message">
+                      {errors.trainingMajor.join(", ")}
                     </div>
                   )}
                 </div>
