@@ -32,7 +32,7 @@ public class BenefitServiceImpl implements BenefitService {
 
     @Transactional
     @Override
-    public BenefitResponse getAllBenefits(String username, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder,
+    public BenefitResponse getAllBenefitsForHr(String username, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder,
                                           String title, String description, Boolean isActive, LocalDate startDate, LocalDate endDate, Integer minParticipants, Integer maxParticipants) {
 
 

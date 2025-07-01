@@ -1,11 +1,12 @@
 import axiosClient from "./axiosClient";
 
 const benefitService = {
-    getAll: ({page, size}) => axiosClient.get("/benefit", {
+    getAll: ({page, size, ...filters}) => axiosClient.get("/hr/benefit", {
 
         params: {
             pageNumber: page,
             pageSize: size
+            , ...filters
         }
 
     }),

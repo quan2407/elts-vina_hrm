@@ -9,16 +9,20 @@ import {
 import { Button } from 'antd';
 import { ConfigProvider } from 'antd';
 import viVN from 'antd/locale/vi_VN';
+import dayjs from 'dayjs';
 
 const BenefitSearchForm = ({ onSearch }) => {
     const handleFinish = (values) => {
+        console.log('Received values of form: ', values);
         const filters = {
             ...values,
-            startDate: values.dateRange?.[0],
-            endDate: values.dateRange?.[1],
+            minParticipants: values.maxParticipants?.[0],
+            maxParticipants: values.maxParticipants?.[1],
+            startDate: values.dateRange?.[0] ? dayjs(values.dateRange[0]).format("YYYY-MM-DD") : undefined,
+            endDate: values.dateRange?.[1] ? dayjs(values.dateRange[1]).format("YYYY-MM-DD") : undefined
         };
         delete filters.dateRange;
-
+        console.log("Filters gửi lên cha:", filters);
         onSearch(filters); // Gửi filter lên component cha
     };
 
@@ -29,16 +33,25 @@ const BenefitSearchForm = ({ onSearch }) => {
                 render: (_, dom) => (
                     <div style={{ textAlign: 'right' }}>
                         {dom}
-                        <Button htmlType="reset" style={{ marginLeft: 8 }}>Reset</Button>
+                        <Button htmlType="reset" style={{ marginLeft: 8 }}>Xem toàn bộ phúc lợi</Button>
+                        {/*<Button*/}
+                        {/*    key="viewAll"*/}
+                        {/*    onClick={() => {*/}
+                        {/*        // Đặt lại bộ lọc và tải tất cả dữ liệu*/}
+                        {/*        setFilters({});*/}
+                        {/*        setPageNumber(1);*/}
+                        {/*    }}>View All Benefits*/}
+                        {/*</Button>/*/}
+
                     </div>
                 ),
             }}
             layout="vertical"
             onFinish={handleFinish}
         >
-            <ProFormText name="title" label="Title" placeholder="Nhập tiêu đề" />
-            <ProFormText name="description" label="Description" placeholder="Nhập mô tả" />
-            <ProFormDateRangePicker name="dateRange" label="Start Date - End Date" />
+            <ProFormText name="title" label="Tiêu đề" placeholder="Nhập tiêu đề" />
+            <ProFormText name="description" label="Mô tả" placeholder="Nhập mô tả" />
+            <ProFormDateRangePicker name="dateRange" label="Ngày bắt đầu - Ngày kết thúc" />
             <ProFormSelect
                 name="isActive"
                 label="Trạng thái"

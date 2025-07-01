@@ -58,7 +58,7 @@ export const hrMenus = [
     ),
   },
   {
-    text: "Benefit Management",
+    text: "Quản lý phúc lợi ",
     path: "/benefit",
     icon: (isActive) => (
       <Gift size={20} stroke={isActive ? "#4f46e5" : "white"} />

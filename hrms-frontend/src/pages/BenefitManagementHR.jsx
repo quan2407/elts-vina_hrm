@@ -10,7 +10,7 @@ function BenefitManagementHR() {
         <MainLayout>
             <div className="content-wrapper">
                 <div className="page-header">
-                    <h1 className="page-title">Benefit Management</h1>
+                    <h1 className="page-title">Quản lý phúc lợi</h1>
                     <div className="page-actions">
                         <div className="filter-button">
                             <svg

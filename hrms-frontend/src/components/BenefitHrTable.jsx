@@ -7,7 +7,7 @@ import BenefitSearchForm from "./common/BenefitSearchForm"; // ✅ import form t
 
 const BenefitHRTableHeader = () => {
     const headers = [
-        "Id", "Title", "Description", "Start Date", "End Date", "Max participants", "Is Active?", "Created at"
+        "Id", "Tiêu đề", "Mô tả", "Ngày bắt đầu", "Ngày kết thúc", "Số lượng người tham gia tối đa", "Trạng thái hoạt động", "Ngày tạo"
     ];
 
     return (
@@ -32,7 +32,7 @@ const BenefitHRTableRow = ({ benefit }) => {
             <div className="employee-table-cell">{formatDate(benefit.startDate)}</div>
             <div className="employee-table-cell">{formatDate(benefit.endDate)}</div>
             <div className="employee-table-cell">{benefit.maxParticipants}</div>
-            <div className="employee-table-cell">{benefit.isActive ? 'Yes' : 'No'}</div>
+            <div className="employee-table-cell">{benefit.isActive ? 'Hoạt động' : 'Không hoạt động'}</div>
             <div className="employee-table-cell">{formatDate(benefit.createdAt)}</div>
         </div>
     );
@@ -45,7 +45,7 @@ function BenefitHrTable() {
     const [pageNumber, setPageNumber] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [totalElements, setTotalElements] = useState(0);
-    const [filters, setFilters] = useState({}); // ✅ State lưu filter
+    const [filters, setFilters] = useState({});
 
     useEffect(() => {
         const params = {
@@ -54,35 +54,40 @@ function BenefitHrTable() {
             ...filters
         };
 
+        setError(null);
+
         benefitService
             .getAll(params)
             .then((res) => {
                 setBenefit(res.data.content);
                 setTotalElements(res.data.totalElements);
+
             })
             .catch((err) => {
                 console.error("Failed to fetch benefits", err);
-                setError("Failed to load data");
+                setError("Không thể lấy dữ liệu phúc lợi tương ứng");
             })
             .finally(() => setLoading(false));
     }, [pageNumber, pageSize, filters]);
 
     return (
         <div className="employee-table-wrapper">
+
             <BenefitSearchForm
                 onSearch={(newFilters) => {
                     setFilters(newFilters);
                     setPageNumber(1); // reset về page đầu khi search
                 }}
             />
+            <BenefitHRTableHeader />
 
             <div className="employee-table">
-                <BenefitHRTableHeader />
+
 
                 {loading && <p>Loading...</p>}
                 {error && <p style={{ color: "red" }}>{error}</p>}
                 {!loading && benefits.length === 0 && <p>No benefits found.</p>}
-                {Array.isArray(benefits) && benefits.map((benefit) => (
+                {!error && !loading && Array.isArray(benefits) && benefits.map((benefit) => (
                     <BenefitHRTableRow key={benefit.id} benefit={benefit} style={{ cursor: "pointer" }} />
                 ))}
             </div>

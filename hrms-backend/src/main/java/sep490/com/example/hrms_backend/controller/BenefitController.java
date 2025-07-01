@@ -3,6 +3,7 @@ package sep490.com.example.hrms_backend.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,7 +21,7 @@ import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/api/benefit")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class BenefitController {
 
@@ -35,7 +36,7 @@ public class BenefitController {
 
     //1.View Benefit (Employee, HR)
 //    @PreAuthorize("hasAnyRole('EMPLOYEE', 'HR')")
-    @GetMapping
+    @GetMapping("/hr/benefit")
     public ResponseEntity<BenefitResponse> getAllBenefit(@RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false)Integer pageNumber,
                                                            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
                                                            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
@@ -43,14 +44,14 @@ public class BenefitController {
                                                          @RequestParam(name = "title", required = false) String title,
                                                          @RequestParam(name = "description", required = false) String description,
                                                          @RequestParam(name = "isActive", required = false) Boolean isActive,
-                                                         @RequestParam(name = "startDate", required = false) LocalDate startDate,
-                                                         @RequestParam(name = "endDate", required = false) LocalDate endDate,
+                                                         @RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                         @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
                                                          @RequestParam(name = "minParticipants", required = false) Integer minParticipants,
                                                          @RequestParam(name = "maxParticipants", required = false) Integer maxParticipants
     ){
         String username = currentUserUtils.getCurrentUsername();
 
-        BenefitResponse benefitResponse = benefitService.getAllBenefits(username, pageNumber, pageSize, sortBy, sortOrder, title, description, isActive, startDate, endDate, minParticipants, maxParticipants);
+        BenefitResponse benefitResponse = benefitService.getAllBenefitsForHr(username, pageNumber, pageSize, sortBy, sortOrder, title, description, isActive, startDate, endDate, minParticipants, maxParticipants);
         return new ResponseEntity<>(benefitResponse, HttpStatus.OK  );
     }
 
