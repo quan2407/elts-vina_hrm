@@ -4,6 +4,9 @@ const employeeService = {
   getAllEmployees: () => {
     return axiosClient.get("/employees");
   },
+  getEmployeesByDepartmentId: (id) => {
+    return axiosClient.get(`/employees/department/${id}`);
+  },
 
   createEmployee: (payload) => {
     return axiosClient.post("/employees", payload);
