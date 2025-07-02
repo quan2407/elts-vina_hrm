@@ -6,6 +6,9 @@ const attendanceService = {
       params: { month, year },
     });
   },
+  getAvailableMonths: () => {
+    return axiosClient.get("/attendances/available-months");
+  },
 };
 
 export default attendanceService;

@@ -13,4 +13,6 @@ public class LineWorkScheduleViewDTO {
     private Long lineId;
     private String lineName;
     private List<WorkScheduleDayDetailDTO> workDetails;
+    private boolean isSubmitted;
+    private boolean isAccepted;
 }
