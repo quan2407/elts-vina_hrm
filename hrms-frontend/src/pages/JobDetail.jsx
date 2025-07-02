@@ -61,10 +61,6 @@ const JobDetail = () => {
       <main className="jobDetail-container">
         <aside className="jobDetail-sidebar">
           <div className="jobDetail-card">
-            <h4>Địa điểm làm việc</h4>
-            <p>{job.workLocation}</p>
-          </div>
-          <div className="jobDetail-card">
             <h4>Mức lương</h4>
             <p>{job.minSalary} - {job.maxSalary} VND</p>
           </div>

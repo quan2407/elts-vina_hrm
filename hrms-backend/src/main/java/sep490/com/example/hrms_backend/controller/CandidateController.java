@@ -1,5 +1,6 @@
 package sep490.com.example.hrms_backend.controller;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import sep490.com.example.hrms_backend.dto.CandidateResponseDTO;
 import sep490.com.example.hrms_backend.service.CandidateService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(path = "/api/candidate", produces = (MediaType.APPLICATION_JSON_VALUE))
@@ -43,5 +45,17 @@ public class CandidateController {
         return ResponseEntity.ok(candidates);
     }
 
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String status = body.get("status");
+        try {
+            candidateService.updateCandidateStatus(id, status);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Trạng thái không hợp lệ.");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }

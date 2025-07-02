@@ -25,8 +25,8 @@ import ChangePasswordPage from "./pages/ChangePasswordPage";
 import WorkScheduleManagement from "./pages/WorkScheduleManagement";
 import AboutUs from "./pages/AboutUs";
 import InterviewCreate from "./pages/InterviewCreate";
+import InterviewManagement from "./pages/InterviewManagement";
 import AttendanceMonthlyView from "./pages/AttendanceMonthlyView";
-
 function App() {
   return (
     <Router>
@@ -106,6 +106,24 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["ROLE_HR"]}>
               <InterviewCreate />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/interviews-management"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+              <InterviewManagement />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/interviews-management/:id"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+              <InterviewDetail />
             </ProtectedRoute>
           }
         />

@@ -63,6 +63,13 @@ export const hrMenus = [
       />
     ),
   },
+
+    {
+    text: "Danh sách phỏng vấn",
+    path: "/interviews-management",
+
+    icon: (isActive) => (
+      <Briefcase
   {
     text: "Bảng công tháng",
     path: "/attendance-monthly",

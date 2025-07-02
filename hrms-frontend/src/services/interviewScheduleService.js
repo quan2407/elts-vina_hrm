@@ -7,6 +7,16 @@ export const getAllInterviews = async () => {
   return response.data;
 };
 
+export const getInterviewById = async (id) => {
+  try {
+    const response = await axiosClient.get(`${API_URL}/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching interview by ID:", error);
+    throw error;
+  }
+};
+
 export const getInterviewByCandidateRecruitmentId = async (id) => {
   try {
     const response = await axiosClient.get(`${API_URL}/candidate-recruitment/${id}`);
@@ -25,4 +35,24 @@ export const createInterview = async (data) => {
     console.error("Error creating interview:", error);
     throw error;
   }
-}
+};
+
+export const editInterview = async (data, id) => {
+  try {
+    const response = await axiosClient.put(`${API_URL}/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Error editing interview:", error);
+    throw error;
+  }
+};
+
+export const updateInterviewStatus = async (id, status) => {
+  try {
+    const response = await axiosClient.put(`/interview/${id}/status`, { status });
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi cập nhật trạng thái phỏng vấn:", error);
+    throw error;
+  }
+};

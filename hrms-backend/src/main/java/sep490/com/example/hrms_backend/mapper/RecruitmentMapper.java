@@ -11,7 +11,6 @@ public class RecruitmentMapper {
     public static RecruitmentDto mapToRecruitmentDto(Recruitment recruitment, RecruitmentDto recruitmentDto) {
         recruitmentDto.setRecruitmentId(recruitment.getId());
         recruitmentDto.setTitle(recruitment.getTitle());
-        recruitmentDto.setWorkLocation(recruitment.getWorkLocation());
         recruitmentDto.setEmploymentType(recruitment.getEmploymentType());
         recruitmentDto.setJobDescription(recruitment.getJobDescription());
         recruitmentDto.setJobRequirement(recruitment.getJobRequirement());
@@ -45,7 +44,6 @@ public class RecruitmentMapper {
     public static Recruitment mapToRecruitment(Recruitment recruitment, RecruitmentDto recruitmentDto) {
         recruitment.setId(recruitmentDto.getRecruitmentId());
         recruitment.setTitle(recruitmentDto.getTitle());
-        recruitment.setWorkLocation(recruitmentDto.getWorkLocation());
         recruitment.setEmploymentType(recruitmentDto.getEmploymentType());
         recruitment.setJobDescription(recruitmentDto.getJobDescription());
         recruitment.setJobRequirement(recruitmentDto.getJobRequirement());

@@ -65,7 +65,7 @@ const ApplyJob = () => {
       const responseData = error.response?.data || {};
       setError(responseData);
       if (typeof responseData === "string") {
-        alert(responseData); // thông báo lỗi chung như "đã ứng tuyển"
+        alert(responseData);
       }
     }
   };
@@ -95,10 +95,6 @@ const ApplyJob = () => {
 
       <main className="jobDetail-container">
         <aside className="jobDetail-sidebar">
-          <div className="jobDetail-card">
-            <h4>Địa điểm làm việc</h4>
-            <p>{job.workLocation}</p>
-          </div>
           <div className="jobDetail-card">
             <h4>Mức lương</h4>
             <p>{job.minSalary} - {job.maxSalary} VND</p>
