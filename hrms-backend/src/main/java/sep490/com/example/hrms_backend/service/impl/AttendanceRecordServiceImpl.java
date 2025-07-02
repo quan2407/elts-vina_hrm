@@ -4,13 +4,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.AttendanceCellDTO;
 import sep490.com.example.hrms_backend.dto.AttendanceMonthlyViewDTO;
+import sep490.com.example.hrms_backend.dto.MonthYearDTO;
 import sep490.com.example.hrms_backend.entity.AttendanceRecord;
 import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.enums.LeaveCode;
 import sep490.com.example.hrms_backend.repository.AttendanceRecordRepository;
 import sep490.com.example.hrms_backend.service.AttendanceRecordService;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -94,4 +99,12 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
             }
         }
     }
+    @Override
+    public List<MonthYearDTO> getAvailableMonths() {
+        List<Object[]> rawList = attendanceRecordRepository.findDistinctMonthYear();
+        return rawList.stream()
+                .map(row -> new MonthYearDTO((int) row[0], (int) row[1]))
+                .collect(Collectors.toList());
+    }
+
 }
