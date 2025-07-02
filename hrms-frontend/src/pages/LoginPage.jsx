@@ -33,13 +33,14 @@ function LoginPage() {
 
       const roles = decoded.roles || [];
       console.log("Roles:", roles);
-
       if (roles.includes("ROLE_ADMIN")) {
         navigate("/accounts");
       } else if (roles.includes("ROLE_HR")) {
         navigate("/employee-management");
       } else if (roles.includes("ROLE_PMC")) {
         navigate("/work-schedule-management");
+      } else if (roles.includes("ROLE_PRODUCTION_MANAGER")) {
+        navigate("/work-schedule-production-view");
       } else {
         navigate("/unauthorized");
       }

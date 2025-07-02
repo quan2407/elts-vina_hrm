@@ -5,6 +5,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+
 import JobsPage from "./pages/JobsPage";
 import JobDetail from "./pages/JobDetail";
 import LoginPage from "./pages/LoginPage";
@@ -25,12 +26,14 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProfilePage from "./pages/ProfilePage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import WorkScheduleManagement from "./pages/WorkScheduleManagement";
+import WorkScheduleProductionView from "./pages/WorkScheduleProductionView";
 import AboutUs from "./pages/AboutUs";
 import { App as AntdApp, ConfigProvider } from 'antd';
 import InterviewCreate from "./pages/InterviewCreate";
 import InterviewManagement from "./pages/InterviewManagement";
 import AttendanceMonthlyView from "./pages/AttendanceMonthlyView";
 import InterviewDetail from "./pages/InterviewDetail";
+import AttendanceMonthlyView from "./pages/AttendanceMonthlyView";
 
 function App() {
   return (
@@ -155,6 +158,14 @@ function App() {
           }
         />
         <Route
+                  path="/work-schedule-management"
+                  element={
+                    <ProtectedRoute allowedRoles={["ROLE_PMC"]}>
+                      <WorkScheduleManagement />
+                    </ProtectedRoute>
+                  }
+                />
+        <Route
           path="/change-password"
           element={
             <ProtectedRoute
@@ -196,11 +207,22 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
-          path="/employees/:id"
+          path="/change-password"
           element={
-            <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_ADMIN"]}>
-              <EmployeeDetails />
+            <ProtectedRoute
+              allowedRoles={[
+                "ROLE_ADMIN",
+                "ROLE_HR",
+                "ROLE_EMPLOYEE",
+                "ROLE_LINE_LEADER",
+                "ROLE_PMC",
+                "ROLE_CANTEEN",
+                "ROLE_PRODUCTION_MANAGER",
+              ]}
+            >
+              <ChangePasswordPage />
             </ProtectedRoute>
           }
         />
