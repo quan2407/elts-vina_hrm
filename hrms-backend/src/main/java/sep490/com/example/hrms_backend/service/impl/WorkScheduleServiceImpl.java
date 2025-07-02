@@ -10,12 +10,13 @@ import sep490.com.example.hrms_backend.entity.*;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.mapper.WorkScheduleMapper;
 import sep490.com.example.hrms_backend.repository.*;
-
 import sep490.com.example.hrms_backend.service.WorkScheduleService;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -52,9 +53,9 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                             .year(year)
                             .isDeleted(false)
                             .isAccepted(false)
+                            .isSubmitted(false)
                             .build();
                     WorkSchedule saved = workScheduleRepository.save(entity);
-                    generateAttendanceRecords(saved);
                     createdList.add(WorkScheduleMapper.toDTO(saved));
                 }
             } else {
@@ -69,9 +70,9 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                                 .year(year)
                                 .isDeleted(false)
                                 .isAccepted(false)
+                                .isSubmitted(false)
                                 .build();
                         WorkSchedule saved = workScheduleRepository.save(entity);
-                        generateAttendanceRecords(saved);
                         createdList.add(WorkScheduleMapper.toDTO(saved));
                     }
                 }
@@ -136,4 +137,30 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                 .map(WorkSchedule::getId)
                 .orElseThrow(() -> new HRMSAPIException(HttpStatus.BAD_REQUEST, "WorkSchedule chưa được tạo"));
     }
+
+    @Override
+    public void submitAllWorkSchedules(int month, int year) {
+        List<WorkSchedule> schedules = workScheduleRepository
+                .findByMonthAndYearAndIsSubmittedFalseAndIsDeletedFalse(month, year);
+
+        for (WorkSchedule schedule : schedules) {
+            schedule.setSubmitted(true);
+        }
+
+        workScheduleRepository.saveAll(schedules);
+    }
+
+    @Override
+    public void acceptAllSubmittedSchedules(int month, int year) {
+        List<WorkSchedule> schedules = workScheduleRepository
+                .findByMonthAndYearAndIsSubmittedTrueAndIsAcceptedFalseAndIsDeletedFalse(month, year);
+
+        for (WorkSchedule schedule : schedules) {
+            schedule.setAccepted(true);
+            generateAttendanceRecords(schedule);
+        }
+
+        workScheduleRepository.saveAll(schedules);
+    }
+
 }

@@ -8,6 +8,8 @@ const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use((config) => {
+
+
   const token = localStorage.getItem("accessToken");
 
   const isInternalAPI =
@@ -20,6 +22,7 @@ axiosClient.interceptors.request.use((config) => {
   if (token && isInternalAPI && !config.url.includes("/auth/login")) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
 
   return config;
 });

@@ -5,11 +5,32 @@ import "../styles/AttendanceMonthlyView.css";
 
 const AttendanceMonthlyView = () => {
   const [data, setData] = useState([]);
-  const [month, setMonth] = useState(new Date().getMonth() + 1);
-  const [year, setYear] = useState(new Date().getFullYear());
+  const [availableMonths, setAvailableMonths] = useState([]);
+  const [month, setMonth] = useState(null);
+  const [year, setYear] = useState(null);
 
   useEffect(() => {
-    fetchAttendance();
+    const fetchAvailableMonths = async () => {
+      try {
+        const res = await attendanceService.getAvailableMonths();
+        setAvailableMonths(res.data);
+        if (res.data.length > 0) {
+          // Gán giá trị mặc định ban đầu là mục đầu tiên trong danh sách
+          setMonth(res.data[0].month);
+          setYear(res.data[0].year);
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách tháng/năm:", error);
+      }
+    };
+
+    fetchAvailableMonths();
+  }, []);
+
+  useEffect(() => {
+    if (month && year) {
+      fetchAttendance();
+    }
   }, [month, year]);
 
   const fetchAttendance = async () => {
@@ -24,7 +45,7 @@ const AttendanceMonthlyView = () => {
     }
   };
 
-  const daysInMonth = new Date(year, month, 0).getDate();
+  const daysInMonth = month && year ? new Date(year, month, 0).getDate() : 0;
 
   const types = [
     { key: "shift", label: "Công ngày", totalKey: "totalDayShiftHours" },
@@ -40,30 +61,47 @@ const AttendanceMonthlyView = () => {
       <div className="attendance-container">
         <div className="attendance-controls">
           <select
-            value={month}
+            value={month || ""}
             onChange={(e) => setMonth(Number(e.target.value))}
           >
-            {[...Array(12)].map((_, i) => (
-              <option
-                key={i + 1}
-                value={i + 1}
-              >
-                Tháng {i + 1}
-              </option>
-            ))}
+            <option
+              value=""
+              disabled
+            >
+              -- Chọn tháng --
+            </option>
+            {Array.from(new Set(availableMonths.map((m) => m.month))).map(
+              (m) => (
+                <option
+                  key={m}
+                  value={m}
+                >
+                  Tháng {m < 10 ? `0${m}` : m}
+                </option>
+              )
+            )}
           </select>
+
           <select
-            value={year}
+            value={year || ""}
             onChange={(e) => setYear(Number(e.target.value))}
           >
-            {[2024, 2025, 2026].map((y) => (
-              <option
-                key={y}
-                value={y}
-              >
-                Năm {y}
-              </option>
-            ))}
+            <option
+              value=""
+              disabled
+            >
+              -- Chọn năm --
+            </option>
+            {Array.from(new Set(availableMonths.map((m) => m.year))).map(
+              (y) => (
+                <option
+                  key={y}
+                  value={y}
+                >
+                  Năm {y}
+                </option>
+              )
+            )}
           </select>
         </div>
 

@@ -5,6 +5,8 @@ import {
   Briefcase,
   UserPlus,
   MessageSquare,
+  Target,
+  Gift
 } from "lucide-react";
 
 export const systemMenus = [
@@ -12,10 +14,7 @@ export const systemMenus = [
     text: "Danh sách tài khoản",
     path: "/",
     icon: (isActive) => (
-      <Users
-        size={20}
-        stroke={isActive ? "#4f46e5" : "white"}
-      />
+      <Users size={20} stroke={isActive ? "#4f46e5" : "white"} />
     ),
   },
   {
@@ -55,7 +54,6 @@ export const hrMenus = [
   {
     text: "Tuyển dụng",
     path: "/jobs-management",
-
     icon: (isActive) => (
       <Briefcase
         size={20}
@@ -63,13 +61,23 @@ export const hrMenus = [
       />
     ),
   },
-
-    {
+  {
+    text: "Quản lý phúc lợi ",
+    path: "/benefit",
+    icon: (isActive) => (
+      <Gift size={20} stroke={isActive ? "#4f46e5" : "white"} />
+    ),
+  },
+  {
     text: "Danh sách phỏng vấn",
     path: "/interviews-management",
-
     icon: (isActive) => (
       <Briefcase
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
   {
     text: "Bảng công tháng",
     path: "/attendance-monthly",
