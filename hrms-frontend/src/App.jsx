@@ -26,8 +26,7 @@ import WorkScheduleManagement from "./pages/WorkScheduleManagement";
 import AboutUs from "./pages/AboutUs";
 import InterviewCreate from "./pages/InterviewCreate";
 import InterviewManagement from "./pages/InterviewManagement";
-import InterviewDetail from "./pages/InterviewDetail";
-
+import AttendanceMonthlyView from "./pages/AttendanceMonthlyView";
 function App() {
   return (
     <Router>
@@ -44,7 +43,8 @@ function App() {
 
         <Route
           path="/about-us"
-          element={<AboutUs />} />
+          element={<AboutUs />}
+        />
 
         <Route
           path="/jobs"
@@ -74,6 +74,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/attendance-monthly"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+              <AttendanceMonthlyView />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/jobsdetail-management/:jobId"
@@ -96,13 +104,10 @@ function App() {
         <Route
           path="/add-interview/:id"
           element={
-
             <ProtectedRoute allowedRoles={["ROLE_HR"]}>
-
               <InterviewCreate />
-
-            </ProtectedRoute>}
-
+            </ProtectedRoute>
+          }
         />
 
         <Route

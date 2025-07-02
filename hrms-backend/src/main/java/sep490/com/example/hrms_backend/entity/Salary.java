@@ -43,7 +43,7 @@ public class Salary {
 
     @OneToOne
     @JoinColumn(name = "monthly_attendance_id")
-    private MonthlyAttendance monthlyAttendance;
+    private AttendanceRecord attendanceRecord;
 
     @OneToMany(mappedBy = "salary", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Allowance> allowances;
