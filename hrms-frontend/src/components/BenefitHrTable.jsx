@@ -3,6 +3,8 @@ import "../styles/EmployeeTable.css";
 import benefitService from "../services/benefitService.js";
 import Paging from "./common/Paging.jsx";
 import BenefitSearchForm from "./common/search/BenefitSearchForm.jsx";
+import ActionDropdown from "./common/ActionDropdown.jsx";
+import BenefitUpdateModal from "./modals/BenefitUpdateModal.jsx";
 
 
 const BenefitHRTableHeader = () => {
@@ -32,8 +34,10 @@ const BenefitHRTableRow = ({ benefit }) => {
             <div className="employee-table-cell">{formatDate(benefit.startDate)}</div>
             <div className="employee-table-cell">{formatDate(benefit.endDate)}</div>
             <div className="employee-table-cell">{benefit.maxParticipants}</div>
-            <div className="employee-table-cell">{benefit.isActive ? 'Hoạt động' : 'Không hoạt động'}</div>
+            <div className="employee-table-cell">{benefit.isActive ? 'Đang hoạt động' : 'Ngừng hoạt động'}</div>
             <div className="employee-table-cell">{formatDate(benefit.createdAt)}</div>
+            <div className="employee-table-cell"><ActionDropdown/></div>
+            <BenefitUpdateModal/>
         </div>
     );
 };

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitDTO;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitResponse;
+import sep490.com.example.hrms_backend.dto.benefit.PatchBenefitDTO;
 import sep490.com.example.hrms_backend.entity.Benefit;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
@@ -136,16 +137,42 @@ public class BenefitServiceImpl implements BenefitService {
 
     @Transactional
     @Override
-    public BenefitDTO updateBenefit(BenefitDTO benefitDTO, Long benefitId) {
+    public BenefitDTO updateBenefit(PatchBenefitDTO benefitDTO, Long benefitId) {
         //check exist
         Benefit benefitFromDb = benefitRepository.findById(benefitId)
                 .orElseThrow(() -> new HRMSAPIException("Benefit with id " + benefitId + " is not existed."));
 
+
         //DTO--> model
         Benefit benefit = modelMapper.map(benefitDTO, Benefit.class);
+        if(benefit.getIsActive() != null){
+            benefitFromDb.setIsActive(benefit.getIsActive());
+        }
+        if(benefit.getEndDate() != null){
+            benefitFromDb.setEndDate(benefit.getEndDate());
+        }
+
+        if(benefit.getMaxParticipants() != null){
+            benefitFromDb.setMaxParticipants(benefit.getMaxParticipants());
+        }
+
+        if(benefit.getStartDate() != null){
+            benefitFromDb.setStartDate(benefit.getStartDate());
+        }
+
+        if(benefit.getDescription() != null){
+            benefitFromDb.setDescription(benefit.getDescription());
+        }
+
+        if(benefit.getTitle() != null){
+            benefitFromDb.setTitle(benefit.getTitle());
+        }
+
+
+
 
         //save to db
-        Benefit savedBenefit = benefitRepository.save(benefit);
+        Benefit savedBenefit = benefitRepository.save(benefitFromDb);
 
         //return DTO;
         return modelMapper.map(savedBenefit, BenefitDTO.class);

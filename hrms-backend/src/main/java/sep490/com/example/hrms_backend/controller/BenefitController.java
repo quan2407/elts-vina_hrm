@@ -13,6 +13,7 @@ import sep490.com.example.hrms_backend.config.AppConstants;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitDTO;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitResponse;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitStatusUpdateRequestDTO;
+import sep490.com.example.hrms_backend.dto.benefit.PatchBenefitDTO;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.security.CustomUserDetailsService;
 import sep490.com.example.hrms_backend.service.BenefitService;
@@ -36,7 +37,7 @@ public class BenefitController {
 
     //1.View Benefit (Employee, HR)
     @PreAuthorize("hasAnyRole( 'HR')")
-    @GetMapping("/hr/benefit")
+    @GetMapping("/hr/benefits")
     public ResponseEntity<BenefitResponse> getAllBenefitForHr(@RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false)Integer pageNumber,
                                                            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
                                                            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
@@ -60,7 +61,7 @@ public class BenefitController {
 
     //2. create Benefit (HR)
     @PreAuthorize("hasAnyRole('HR')")
-    @PostMapping("/hr/benefit")
+    @PostMapping("/hr/benefits")
     public ResponseEntity<BenefitDTO> addBenefit(@Valid @RequestBody BenefitDTO benefitDTO , Authentication authentication){
         //####add info user created to admin can be checked log (not still pass into method)
         String username = currentUserUtils.getCurrentUsername();
@@ -71,8 +72,8 @@ public class BenefitController {
 
 //  3. update Benefit (HR)
     @PreAuthorize("hasAnyRole('HR')")
-    @PutMapping("/{benefitId}")
-    public ResponseEntity<BenefitDTO> updateBenefit(@Valid @RequestBody BenefitDTO benefitDTO, @PathVariable Long benefitId){
+    @PatchMapping("/hr/benefits/{benefitId}")
+    public ResponseEntity<BenefitDTO> updateBenefit(@Valid @RequestBody PatchBenefitDTO benefitDTO, @PathVariable Long benefitId){
 
         BenefitDTO benefitDTO1 = benefitService.updateBenefit(benefitDTO, benefitId);
         return new ResponseEntity<>(benefitDTO1, HttpStatus.OK);

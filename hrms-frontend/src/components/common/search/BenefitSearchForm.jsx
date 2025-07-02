@@ -56,8 +56,8 @@ const BenefitSearchForm = ({ onSearch }) => {
                 name="isActive"
                 label="Trạng thái"
                 options={[
-                    { label: 'ACTIVE', value: true },
-                    { label: 'INACTIVE', value: false },
+                    { label: 'Đang hoạt động', value: true },
+                    { label: 'Ngừng hoạt động', value: false },
                 ]}
                 allowClear
                 placeholder="Chọn trạng thái"

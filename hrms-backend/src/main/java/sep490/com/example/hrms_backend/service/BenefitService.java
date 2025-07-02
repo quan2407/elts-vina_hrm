@@ -3,6 +3,7 @@ package sep490.com.example.hrms_backend.service;
 import jakarta.validation.Valid;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitDTO;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitResponse;
+import sep490.com.example.hrms_backend.dto.benefit.PatchBenefitDTO;
 
 import java.time.LocalDate;
 
@@ -12,7 +13,7 @@ public interface BenefitService {
 
     BenefitDTO addBenefit(@Valid BenefitDTO benefitDTO);
 
-    BenefitDTO updateBenefit(@Valid BenefitDTO benefitDTO, Long benefitId);
+    BenefitDTO updateBenefit(@Valid PatchBenefitDTO benefitDTO, Long benefitId);
 
     BenefitDTO updateInactiveStatus(Long id, boolean inactive);
 
