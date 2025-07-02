@@ -31,7 +31,7 @@ public class WorkScheduleController {
         return ResponseEntity.ok(workScheduleService.getAvailableMonths());
     }
     @GetMapping("/resolve-id")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PMC')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PMC','PRODUCTION_MANAGER')")
     public ResponseEntity<Long> resolveWorkScheduleId(
             @RequestParam Long departmentId,
             @RequestParam(required = false) Long lineId,
@@ -40,5 +40,20 @@ public class WorkScheduleController {
         Long id = workScheduleService.resolveWorkScheduleId(departmentId, lineId, dateWork);
         return ResponseEntity.ok(id);
     }
+    @PutMapping("/submit")
+    @PreAuthorize("hasRole('PMC')")
+    public ResponseEntity<?> submitWorkSchedules(@RequestParam int month, @RequestParam int year) {
+        workScheduleService.submitAllWorkSchedules(month, year);
+        return ResponseEntity.ok().build();
+    }
+    @PutMapping("/accept")
+    @PreAuthorize("hasRole('PRODUCTION_MANAGER')")
+    public ResponseEntity<?> acceptWorkSchedules(
+            @RequestParam int month,
+            @RequestParam int year) {
+        workScheduleService.acceptAllSubmittedSchedules(month, year);
+        return ResponseEntity.ok().build();
+    }
+
 
 }

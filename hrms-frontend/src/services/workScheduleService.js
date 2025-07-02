@@ -21,6 +21,16 @@ const workScheduleService = {
       params: { departmentId, lineId, dateWork },
     });
   },
+  submitWorkSchedules(month, year) {
+    return axiosClient.put(`/work-schedules/submit`, null, {
+      params: { month, year },
+    });
+  },
+  acceptWorkSchedules(month, year) {
+    return axiosClient.put("/work-schedules/accept", null, {
+      params: { month, year },
+    });
+  },
 };
 
 export default workScheduleService;

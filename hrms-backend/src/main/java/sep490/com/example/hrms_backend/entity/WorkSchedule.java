@@ -39,4 +39,6 @@ public class WorkSchedule {
     private boolean isDeleted = false;
     @Column(name = "is_accepted", nullable = false)
     private boolean isAccepted = false;
+    @Column(name = "is_submitted", nullable = false)
+    private boolean isSubmitted = false;
 }
