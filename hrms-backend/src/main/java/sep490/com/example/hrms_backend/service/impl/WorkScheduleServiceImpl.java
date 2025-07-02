@@ -6,20 +6,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.WorkScheduleCreateDTO;
 import sep490.com.example.hrms_backend.dto.WorkScheduleResponseDTO;
-import sep490.com.example.hrms_backend.entity.Department;
-import sep490.com.example.hrms_backend.entity.Line;
-import sep490.com.example.hrms_backend.entity.WorkSchedule;
+import sep490.com.example.hrms_backend.entity.*;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.mapper.WorkScheduleMapper;
-import sep490.com.example.hrms_backend.repository.DepartmentRepository;
-import sep490.com.example.hrms_backend.repository.LineRepository;
-import sep490.com.example.hrms_backend.repository.WorkScheduleRepository;
+import sep490.com.example.hrms_backend.repository.*;
+
 import sep490.com.example.hrms_backend.service.WorkScheduleService;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.time.YearMonth;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +24,8 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     private final WorkScheduleRepository workScheduleRepository;
     private final LineRepository lineRepository;
     private final DepartmentRepository departmentRepository;
-
+    private final EmployeeRepository employeeRepository;
+    private final AttendanceRecordRepository attendanceRecordRepository;
 
     @Override
     public List<WorkScheduleResponseDTO> createWorkSchedulesForAll(WorkScheduleCreateDTO dto) {
@@ -44,7 +41,6 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                     .filter(line -> line.getDepartment().getDepartmentId().equals(dept.getDepartmentId()))
                     .toList();
 
-            // Nếu phòng không có line → tạo WorkSchedule line = null
             if (lines.isEmpty()) {
                 boolean exists = workScheduleRepository.existsByDepartment_DepartmentIdAndLineIsNullAndMonthAndYear(
                         dept.getDepartmentId(), month, year);
@@ -57,7 +53,9 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                             .isDeleted(false)
                             .isAccepted(false)
                             .build();
-                    createdList.add(WorkScheduleMapper.toDTO(workScheduleRepository.save(entity)));
+                    WorkSchedule saved = workScheduleRepository.save(entity);
+                    generateAttendanceRecords(saved);
+                    createdList.add(WorkScheduleMapper.toDTO(saved));
                 }
             } else {
                 for (Line line : lines) {
@@ -72,7 +70,9 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                                 .isDeleted(false)
                                 .isAccepted(false)
                                 .build();
-                        createdList.add(WorkScheduleMapper.toDTO(workScheduleRepository.save(entity)));
+                        WorkSchedule saved = workScheduleRepository.save(entity);
+                        generateAttendanceRecords(saved);
+                        createdList.add(WorkScheduleMapper.toDTO(saved));
                     }
                 }
             }
@@ -81,10 +81,44 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         return createdList;
     }
 
+    private void generateAttendanceRecords(WorkSchedule workSchedule) {
+        int year = workSchedule.getYear();
+        int month = workSchedule.getMonth();
+        Long departmentId = workSchedule.getDepartment().getDepartmentId();
+        Long lineId = workSchedule.getLine() != null ? workSchedule.getLine().getLineId() : null;
+
+        List<Employee> employees = (lineId != null)
+                ? employeeRepository.findByDepartment_DepartmentIdAndLine_LineIdAndIsDeletedFalse(departmentId, lineId)
+                : employeeRepository.findByDepartment_DepartmentIdAndIsDeletedFalse(departmentId);
+
+        int daysInMonth = YearMonth.of(year, month).lengthOfMonth();
+        List<AttendanceRecord> records = new ArrayList<>();
+
+        for (Employee employee : employees) {
+            for (int day = 1; day <= daysInMonth; day++) {
+                records.add(AttendanceRecord.builder()
+                        .employee(employee)
+                        .workSchedule(workSchedule)
+                        .date(LocalDate.of(year, month, day))
+                        .month(month)
+                        .year(year)
+                        .dayShift("")
+                        .otShift("")
+                        .weekendShift("")
+                        .holidayShift("")
+                        .build());
+            }
+        }
+
+        attendanceRecordRepository.saveAll(records);
+    }
+
+
     @Override
     public List<WorkScheduleMonthDTO> getAvailableMonths() {
         return workScheduleRepository.findAllAvailableMonths();
     }
+
     @Override
     public Long resolveWorkScheduleId(Long departmentId, Long lineId, LocalDate dateWork) {
         int month = dateWork.getMonthValue();
@@ -102,7 +136,4 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                 .map(WorkSchedule::getId)
                 .orElseThrow(() -> new HRMSAPIException(HttpStatus.BAD_REQUEST, "WorkSchedule chưa được tạo"));
     }
-
-
-
 }

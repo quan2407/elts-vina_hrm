@@ -132,7 +132,7 @@ public class Employee {
     private List<BenefitRegistration> benefitRegistrations;
 
     @OneToMany(mappedBy = "employee")
-    private List<MonthlyAttendance> monthlyAttendances;
+    private List<AttendanceRecord> attendanceRecords;
 
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
