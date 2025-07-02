@@ -225,5 +225,14 @@ public class BenefitServiceImpl implements BenefitService {
         return benefitResponse;
     }
 
+    @Override
+    public BenefitDTO deleteBenefit(Long benefitId) {
+        Benefit benefit = benefitRepository.findById(benefitId)
+                .orElseThrow(() -> new HRMSAPIException("Benefit with id " + benefitId + " is not existed."));
+
+        benefitRepository.deleteById(benefitId);
+        return modelMapper.map(benefit, BenefitDTO.class);
+    }
+
 
 }

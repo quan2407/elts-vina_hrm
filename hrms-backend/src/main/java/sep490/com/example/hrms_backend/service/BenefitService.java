@@ -19,4 +19,5 @@ public interface BenefitService {
 
     BenefitResponse searchBenefitByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
+    BenefitDTO deleteBenefit(Long benefitId);
 }

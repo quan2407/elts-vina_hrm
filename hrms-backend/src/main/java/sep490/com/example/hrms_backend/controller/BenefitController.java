@@ -104,12 +104,15 @@ public class BenefitController {
                                             return new ResponseEntity<>(benefitResponse, HttpStatus.FOUND );
                                 }
 
+    //6. delete benefit
+    @DeleteMapping("/hr/benefits/{benefitId}")
+    public ResponseEntity<BenefitDTO> deleteBenefit(@PathVariable Long benefitId){
+        BenefitDTO benefitDTO = benefitService.deleteBenefit(benefitId);
+        return new ResponseEntity<>(benefitDTO, HttpStatus.OK);
+    }
 
 
     
-
-
-
 
 
 }

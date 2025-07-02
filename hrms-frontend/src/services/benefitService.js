@@ -14,6 +14,7 @@ const benefitService = {
     create: (createdBenefit) => axiosClient.post("/hr/benefits", createdBenefit),
     update: (updatedBenefit, benefitId) => axiosClient.patch(`/hr/benefits/${benefitId}`
         , updatedBenefit),
+    delete: (benefitId) => axiosClient.delete(`/hr/benefits/${benefitId}`),
     changeStatus: (benefitId) => axiosClient.patch(`benefit/${benefitId}`),
     getByKeyword: (keyword) => axiosClient.get(`/benefit/keyword/${keyword}`)
 }
