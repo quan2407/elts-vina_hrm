@@ -11,7 +11,7 @@ import {
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import benefitService from "../../services/benefitService.js";
+import benefitService from "../../../services/benefitService.js";
 const { RangePicker } = DatePicker;
 
 const BenefitCreateModal = ({onCreated}) => {

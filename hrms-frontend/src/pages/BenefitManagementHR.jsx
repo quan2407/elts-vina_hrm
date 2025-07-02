@@ -5,7 +5,7 @@ import BenefitHrTable from "../components/BenefitHrTable";
 import "../styles/EmployeeTable.css";
 import {PlusOutlined} from "@ant-design/icons";
 import {Button} from "antd";
-import BenefitCreateModal from "../components/modals/BenefitCreateModal.jsx";
+import BenefitCreateModal from "../components/modals/benefit/BenefitCreateModal.jsx";
 import {useEffect, useState} from "react";
 import benefitService from "../services/benefitService.js";
 

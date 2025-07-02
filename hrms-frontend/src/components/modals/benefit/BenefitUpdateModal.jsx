@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Modal, Form, Input, DatePicker, InputNumber } from 'antd';
 import dayjs from 'dayjs';
+import { Switch } from 'antd';
 
 const { TextArea } = Input;
 
@@ -87,6 +88,17 @@ const UpdateProgramModal = ({ open, onCancel, onSubmit, initialData }) => {
                     rules={[{ required: true, message: 'Vui lòng nhập số lượng!' }]}
                 >
                     <InputNumber min={1} style={{ width: '100%' }} />
+                </Form.Item>
+
+                <Form.Item
+                    name="isActive"
+                    label="Trạng thái hoạt động"
+                    valuePropName="checked" // ✅ Rất quan trọng với Switch
+                >
+                    <Switch
+                        checkedChildren="Hoạt động"
+                        unCheckedChildren="Ngừng"
+                    />
                 </Form.Item>
             </Form>
         </Modal>

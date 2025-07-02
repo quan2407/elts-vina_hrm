@@ -143,12 +143,19 @@ public class BenefitServiceImpl implements BenefitService {
                 .orElseThrow(() -> new HRMSAPIException("Benefit with id " + benefitId + " is not existed."));
 
 
+
+
         //DTO--> model
         Benefit benefit = modelMapper.map(benefitDTO, Benefit.class);
+
+        if (benefit.getEndDate().isBefore(benefit.getStartDate())) {
+            throw new HRMSAPIException("Ngày kết thúc phải lớn hơn ngày bắt đầu");
+        }
+
         if(benefit.getIsActive() != null){
             benefitFromDb.setIsActive(benefit.getIsActive());
         }
-        if(benefit.getEndDate() != null){
+        if(benefit.getEndDate() != null ){
             benefitFromDb.setEndDate(benefit.getEndDate());
         }
 

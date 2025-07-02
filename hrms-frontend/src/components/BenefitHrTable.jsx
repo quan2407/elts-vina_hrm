@@ -4,7 +4,7 @@ import benefitService from "../services/benefitService.js";
 import Paging from "./common/Paging.jsx";
 import BenefitSearchForm from "./common/search/BenefitSearchForm.jsx";
 import ActionDropdown from "./common/ActionDropdown.jsx";
-import BenefitUpdateModal from "./modals/BenefitUpdateModal.jsx";
+import BenefitUpdateModal from "./modals/benefit/BenefitUpdateModal.jsx";
 import {Modal, message} from "antd";
 
 
