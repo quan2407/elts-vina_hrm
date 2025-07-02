@@ -4,6 +4,9 @@ const employeeService = {
   getAllEmployees: () => {
     return axiosClient.get("/employees");
   },
+  getEmployeesByDepartmentId: (id) => {
+    return axiosClient.get(`/employees/department/${id}`);
+  },
 
   createEmployee: (payload) => {
     return axiosClient.post("/employees", payload);
@@ -26,6 +29,7 @@ const employeeService = {
       responseType: "blob",
     });
   },
+  getNextEmployeeCode: () => axiosClient.get("/employees/next-code"),
 };
 
 export default employeeService;

@@ -24,8 +24,13 @@ import CandidateManagement from "./pages/CandidateManagement";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProfilePage from "./pages/ProfilePage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
+import WorkScheduleManagement from "./pages/WorkScheduleManagement";
 import AboutUs from "./pages/AboutUs";
 import { App as AntdApp, ConfigProvider } from 'antd';
+import InterviewCreate from "./pages/InterviewCreate";
+import InterviewManagement from "./pages/InterviewManagement";
+import AttendanceMonthlyView from "./pages/AttendanceMonthlyView";
+import InterviewDetail from "./pages/InterviewDetail";
 
 function App() {
   return (
@@ -46,7 +51,8 @@ function App() {
 
         <Route
           path="/about-us"
-          element={<AboutUs />} />
+          element={<AboutUs />}
+        />
 
         <Route
           path="/jobs"
@@ -76,6 +82,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/attendance-monthly"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+              <AttendanceMonthlyView />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/jobsdetail-management/:jobId"
@@ -96,13 +110,30 @@ function App() {
         />
 
         <Route
-          path="/add-interview/:jobId"
+          path="/add-interview/:id"
           element={
-          <ProtectedRoute allowedRoles={["ROLE_HR"]}>
-            
+            <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+              <InterviewCreate />
+            </ProtectedRoute>
+          }
+        />
 
-            
-          </ProtectedRoute>}
+        <Route
+          path="/interviews-management"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+              <InterviewManagement />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/interviews-management/:id"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+              <InterviewDetail />
+            </ProtectedRoute>
+          }
         />
 
         <Route
@@ -115,6 +146,14 @@ function App() {
         />
 
         {/* Protected routes */}
+        <Route
+          path="/work-schedule-management"
+          element={
+            <ProtectedRoute allowedRoles={["ROLE_PMC"]}>
+              <WorkScheduleManagement />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/change-password"
           element={
@@ -187,10 +226,7 @@ function App() {
             />
           }
         />
-        <Route
-          path="/employee-details"
-          element={<EmployeeDetails />} // ✅ Đổi path cho đồng bộ với component
-        />
+
       </Routes>
     </Router>
       </AntdApp>

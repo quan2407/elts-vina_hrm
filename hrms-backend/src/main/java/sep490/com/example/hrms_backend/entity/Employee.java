@@ -59,8 +59,32 @@ public class Employee {
     @Column(name = "citizen_issue_place")
     private String citizenIssuePlace;
     @Column(name = "address")
-
     private String address;
+    @Column(name = "current_address")
+    private String currentAddress;
+
+    @Column(name = "ethnicity")
+    private String ethnicity;
+
+    @Column(name = "religion")
+    private String religion;
+
+    @Column(name = "education_level")
+    private String educationLevel;
+
+    @Column(name = "specialized_level")
+    private String specializedLevel;
+
+    @Column(name = "foreign_languages")
+    private String foreignLanguages;
+
+    @Column(name = "training_type")
+    private String trainingType;
+
+    @Column(name = "training_major")
+    private String trainingMajor;
+
+
     @Column(name = "image")
     private String image;
 
@@ -108,10 +132,11 @@ public class Employee {
     private List<BenefitRegistration> benefitRegistrations;
 
     @OneToMany(mappedBy = "employee")
-    private List<MonthlyAttendance> monthlyAttendances;
+    private List<AttendanceRecord> attendanceRecords;
 
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
+
 
 
 

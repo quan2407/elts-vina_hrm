@@ -11,7 +11,6 @@ function EmployeeManagement() {
 
   const handleCreate = () => {
     navigate("/employee-create");
-
   };
   const handleExport = async () => {
     try {
@@ -21,7 +20,7 @@ function EmployeeManagement() {
 
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", "danhsachtuyendung.xlsx"); // Tên file khi tải về
+      link.setAttribute("download", "danhsachtuyendung.xlsx");
       document.body.appendChild(link);
       link.click();
 
@@ -31,7 +30,6 @@ function EmployeeManagement() {
       console.error("Export failed:", error);
       alert("Export failed. Please try again.");
     }
-
   };
 
   return (
@@ -58,7 +56,7 @@ function EmployeeManagement() {
                 size={16}
                 style={{ marginRight: "6px" }}
               />
-              <span className="export-text">Export</span>
+              <span className="employee-export-text">Export</span>
             </button>
           </div>
         </div>

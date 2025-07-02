@@ -21,7 +21,10 @@ export const systemMenus = [
     text: "Tin nhắn",
     path: "/messages",
     icon: (isActive) => (
-      <MessageSquare size={20} stroke={isActive ? "#4f46e5" : "white"} />
+      <MessageSquare
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
     ),
     badge: 13,
   },
@@ -32,29 +35,30 @@ export const hrMenus = [
     text: "Tổng quan",
     path: "/",
     icon: (isActive) => (
-      <LayoutDashboard size={20} stroke={isActive ? "#4f46e5" : "white"} />
+      <LayoutDashboard
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
     ),
   },
   {
     text: "Quản lý nhân viên",
     path: "/employee-management",
     icon: (isActive) => (
-      <Users size={20} stroke={isActive ? "#4f46e5" : "white"} />
+      <Users
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
     ),
   },
   {
     text: "Tuyển dụng",
     path: "/jobs-management",
-
     icon: (isActive) => (
-      <Briefcase size={20} stroke={isActive ? "#4f46e5" : "white"} />
-    ),
-  },
-  {
-    text: "Performance Management",
-    path: "/targets",
-    icon: (isActive) => (
-      <Target size={20} stroke={isActive ? "#4f46e5" : "white"} />
+      <Briefcase
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
     ),
   },
   {
@@ -64,4 +68,24 @@ export const hrMenus = [
       <Gift size={20} stroke={isActive ? "#4f46e5" : "white"} />
     ),
   }
+  {
+    text: "Danh sách phỏng vấn",
+    path: "/interviews-management",
+    icon: (isActive) => (
+      <Briefcase
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+  {
+    text: "Bảng công tháng",
+    path: "/attendance-monthly",
+    icon: (isActive) => (
+      <LayoutDashboard
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
 ];

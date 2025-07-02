@@ -38,6 +38,8 @@ function LoginPage() {
         navigate("/accounts");
       } else if (roles.includes("ROLE_HR")) {
         navigate("/employee-management");
+      } else if (roles.includes("ROLE_PMC")) {
+        navigate("/work-schedule-management");
       } else {
         navigate("/unauthorized");
       }
@@ -69,26 +71,17 @@ function LoginPage() {
   return (
     <div className="login-page">
       <div className="login-container">
-        <img
-          src="https://cdn.builder.io/api/v1/image/assets/TEMP/2d5bc447f9b1db2f7fd687b9d4fe361a0f951eac?placeholderIfAbsent=true&apiKey=305fd9be184a488087180f4b7cfd2d98"
-          alt="Background"
-          className="background-image"
-        />
-        <img
-          src="https://cdn.builder.io/api/v1/image/assets/TEMP/7b0992b36149c43e127ce390c6b217aa4b75a7e6?placeholderIfAbsent=true&apiKey=305fd9be184a488087180f4b7cfd2d98"
-          alt="Header Logo"
-          className="header-logo"
-        />
         <div className="overlay"></div>
         <form
           className="login-form-wrapper"
           onSubmit={handleLogin}
         >
           <img
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/11da01531e0457dff7f19452706b1cf360116459?placeholderIfAbsent=true&apiKey=305fd9be184a488087180f4b7cfd2d98"
-            alt="Company Logo"
-            className="company-logo"
+            src="/logo.jpg"
+            alt="Logo ELTS VINA"
+            className="login-form-logo"
           />
+
           <div className="login-title">Đăng nhập tài khoản.</div>
 
           <div className="form-field">

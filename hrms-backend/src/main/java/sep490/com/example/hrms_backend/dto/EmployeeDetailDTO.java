@@ -22,6 +22,14 @@ public class EmployeeDetailDTO {
     private LocalDate citizenIssueDate;
     private LocalDate citizenExpiryDate;
     private String address;
+    private String currentAddress;
+    private String ethnicity;
+    private String religion;
+    private String educationLevel;
+    private String specializedLevel;
+    private String trainingType;
+    private String trainingMajor;
+    private String foreignLanguages;
     private String phoneNumber;
     private String email;
     private LocalDate startWorkAt;

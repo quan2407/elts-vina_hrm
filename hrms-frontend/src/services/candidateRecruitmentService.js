@@ -20,3 +20,12 @@ export const getAllCandidateRecrutment = async (recruitmentId) => {
   const response = await axiosClient.get("http://localhost:8080/api/candidate/" + recruitmentId);
   return response.data;
 }
+export const updateCandidateStatus = async (id, status) => {
+  try {
+    const response = await axiosClient.put(`http://localhost:8080/api/candidate/${id}/status`, { status });
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi cập nhật trạng thái ứng viên:", error);
+    throw error;
+  }
+}

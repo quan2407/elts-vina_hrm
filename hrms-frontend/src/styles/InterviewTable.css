@@ -1,0 +1,71 @@
+.Interview-table-wrapper {
+  overflow-x: auto;
+  max-width: 100%;
+  background-color: #fff;
+  border-radius: 24px;
+  padding: 20px;
+  font-family: "Product Sans", sans-serif;
+
+}
+
+.Interview-table {
+  min-width: 1800px;
+
+}
+
+.Interview-table-header,
+.Interview-table-row {
+  display: grid;
+  grid-template-columns:
+    120px 180px 180px 180px 200px 250px 300px 200px 500px;
+  gap: 10px;
+  padding: 18px 30px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+
+}
+
+.Interview-header-cell {
+  color: #000;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  max-height: 24px;
+  line-height: 24px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.Interview-table-cell {
+  color: #000;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: center;
+  word-break: break-word;
+  white-space: normal;
+}
+
+
+.viewdetail-button {
+  width: 200px;
+  background-color: #5a48ff;
+  color: #fff;
+  padding: 6px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  margin: 0 2.5px;
+}
+
+.viewcandidate-button {
+  width: 200px;
+  background-color: #26f78e;
+  color: #fff;
+  padding: 6px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  margin: 0 2.5px;
+
+}

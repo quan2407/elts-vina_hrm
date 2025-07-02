@@ -61,23 +61,35 @@ public class EmployeeController {
         EmployeeDetailDTO updated = employeeService.updateOwnProfile(dto);
         return ResponseEntity.ok(updated);
     }
+    @GetMapping("/next-code")
+    public ResponseEntity<String> getNextEmployeeCode() {
+        String nextCode = employeeService.getNextEmployeeCode();
+        return ResponseEntity.ok(nextCode);
+    }
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
         employeeService.softDeleteEmployee(id);
         return ResponseEntity.noContent().build();
     }
+
     @GetMapping("/export")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<InputStreamResource> exportEmployeesToExcel() {
         ByteArrayInputStream in = employeeService.exportEmployeesToExcel();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=danhsachnhanvien.xlsx");
-
         return ResponseEntity.ok()
                 .headers(headers)
                 .contentType(MediaType.parseMediaType(
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(new InputStreamResource(in));
+    }
+
+    @GetMapping("/department/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
+    public ResponseEntity<List<EmployeeResponseDTO>> getEmployeeByDepartmentId(@PathVariable Long id){
+        List<EmployeeResponseDTO> employeeDetailInDepartment = employeeService.getEmployeeByDepartmentId(id);
+        return ResponseEntity.ok(employeeDetailInDepartment);
     }
 }

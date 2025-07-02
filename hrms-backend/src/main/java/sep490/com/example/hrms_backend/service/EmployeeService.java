@@ -15,6 +15,8 @@ public interface EmployeeService {
     EmployeeDetailDTO updateOwnProfile(EmployeeOwnProfileUpdateDTO dto);
     void softDeleteEmployee(Long id);
     ByteArrayInputStream exportEmployeesToExcel();
+    List<EmployeeResponseDTO> getEmployeeByDepartmentId(Long id);
+    String getNextEmployeeCode();
 
 
 }

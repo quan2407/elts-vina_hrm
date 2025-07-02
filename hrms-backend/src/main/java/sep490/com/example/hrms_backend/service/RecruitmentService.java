@@ -17,6 +17,7 @@ import sep490.com.example.hrms_backend.repository.RecruitmentRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -31,9 +32,28 @@ public class RecruitmentService {
     @Autowired
     private AccountRepository accountRepository;
 
-    public List<RecruitmentDto> getRecruitmentList() {
+    public List<RecruitmentDto> getRecruitmentList(String search, String sortField, String sortOrder) {
+        List<Recruitment> recruitments;
+        if (search != null && !search.isEmpty()) {
+            recruitments = recruitmentRepository
+                    .findByTitleContainingIgnoreCase(search); // Hoặc thêm điều kiện custom bằng @Query
+        } else {
+            recruitments = recruitmentRepository.findAll();
+        }
+        Comparator<Recruitment> comparator = switch (sortField) {
+            case "title" -> Comparator.comparing(Recruitment::getTitle, String.CASE_INSENSITIVE_ORDER);
+            case "employmentType" -> Comparator.comparing(Recruitment::getEmploymentType, String.CASE_INSENSITIVE_ORDER);
+            case "expiredAt" -> Comparator.comparing(Recruitment::getExpiredAt);
+            default -> Comparator.comparing(Recruitment::getCreateAt);
+        };
 
-        return RecruitmentMapper.mapToRecruitmentDtoList(recruitmentRepository.findAll());
+        if ("desc".equalsIgnoreCase(sortOrder)) {
+            comparator = comparator.reversed();
+        }
+
+        recruitments.sort(comparator);
+
+        return RecruitmentMapper.mapToRecruitmentDtoList(recruitments);
     }
 
     public RecruitmentDto getRecruitmentDtoById(long id) {
@@ -66,7 +86,6 @@ public class RecruitmentService {
         Recruitment recruitment = recruitmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy Recruitment với ID: " + id));
 
         recruitment.setTitle(recruitmentDto.getTitle());
-        recruitment.setWorkLocation(recruitmentDto.getWorkLocation());
         recruitment.setEmploymentType(recruitmentDto.getEmploymentType());
         recruitment.setJobDescription(recruitmentDto.getJobDescription());
         recruitment.setJobRequirement(recruitmentDto.getJobRequirement());

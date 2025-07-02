@@ -6,7 +6,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { vi } from "date-fns/locale";
 import { Save } from "lucide-react";
 import "../styles/EmployeeDetails.css";
-import { EditRecruitment, getAllCity } from "../services/recruitmentService";
+import { EditRecruitment} from "../services/recruitmentService";
 import { CreateRecruitment } from "../services/recruitmentService";
 import departmentService from "../services/departmentService";
 import { getRecruitmentById } from "../services/recruitmentService";
@@ -32,7 +32,6 @@ function RecruitmentDetailManagement() {
     }, [jobId]);
 
     const [title, setTitle] = useState("");
-    const [workLocation, setWorkLocation] = useState("");
     const [employmentType, setEmploymentType] = useState("");
     const [jobDescription, setJobDescription] = useState("");
     const [jobRequirement, setJobRequirement] = useState("");
@@ -44,12 +43,10 @@ function RecruitmentDetailManagement() {
     const [expiredAt, setExpiredAt] = useState(null);
     const [departments, setDepartments] = useState([]);
     const [departmentId, setDepartmentId] = useState("");
-    const [cities, setCities] = useState([]);
 
     useEffect(() => {
         if (job) {
             setTitle(job.title || "");
-            setWorkLocation(job.workLocation || "");
             setEmploymentType(job.employmentType || "");
             setJobDescription(job.jobDescription || "");
             setJobRequirement(job.jobRequirement || "");
@@ -68,7 +65,6 @@ function RecruitmentDetailManagement() {
 
         const payload = {
             title: title?.trim() ? title : null,
-            workLocation: workLocation?.trim() ? workLocation : null,
             employmentType: employmentType?.trim() ? employmentType : null,
             jobDescription: jobDescription?.trim() ? jobDescription : null,
             jobRequirement: jobRequirement?.trim() ? jobRequirement : null,
@@ -118,17 +114,6 @@ function RecruitmentDetailManagement() {
         fetchDepartments();
     }, []);
 
-    useEffect(() => {
-        const fetchCities = async () => {
-            try {
-                const res = await getAllCity();
-                setCities(res.data);
-            } catch (err) {
-                console.error("Lỗi load thành phố:", err);
-            }
-        };
-        fetchCities();
-    }, []);
 
     const CustomInput = React.forwardRef(
         ({ value, onClick, placeholder }, ref) => (
@@ -175,30 +160,7 @@ function RecruitmentDetailManagement() {
                         </div>
 
                         <div className="employeedetail-form-row">
-                            <div className="employeedetail-input-group">
-                                <div className="employeedetail-input-label">
-                                    Địa điểm làm việc<span className="required-star">*</span>
-                                </div>
-                                <select
-                                    className="employeedetail-input-field"
-                                    value={workLocation}
-                                    onChange={(e) => setWorkLocation(e.target.value)}
-                                >
-                                    {cities.map((d) => (
-                                        <option
-                                            key={d.id}
-                                            value={d.name}
-                                        >
-                                            {d.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors.workLocation && (
-                                    <div className="error-message">
-                                        {errors.workLocation.join(", ")}
-                                    </div>
-                                )}
-                            </div>
+                            
                             <div className="employeedetail-input-group">
                                 <div className="employeedetail-input-label">
                                     Loại hình công việc
