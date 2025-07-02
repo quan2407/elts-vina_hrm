@@ -27,6 +27,8 @@ import AboutUs from "./pages/AboutUs";
 import InterviewCreate from "./pages/InterviewCreate";
 import InterviewManagement from "./pages/InterviewManagement";
 import AttendanceMonthlyView from "./pages/AttendanceMonthlyView";
+import InterviewDetail from "./pages/InterviewDetail";
+
 function App() {
   return (
     <Router>

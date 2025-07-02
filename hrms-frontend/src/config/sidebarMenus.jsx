@@ -55,7 +55,6 @@ export const hrMenus = [
   {
     text: "Tuyển dụng",
     path: "/jobs-management",
-
     icon: (isActive) => (
       <Briefcase
         size={20}
@@ -63,13 +62,16 @@ export const hrMenus = [
       />
     ),
   },
-
-    {
+  {
     text: "Danh sách phỏng vấn",
     path: "/interviews-management",
-
     icon: (isActive) => (
       <Briefcase
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
   {
     text: "Bảng công tháng",
     path: "/attendance-monthly",
