@@ -29,6 +29,7 @@ const employeeService = {
       responseType: "blob",
     });
   },
+  getNextEmployeeCode: () => axiosClient.get("/employees/next-code"),
 };
 
 export default employeeService;

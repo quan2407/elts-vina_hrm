@@ -4,7 +4,9 @@ import sep490.com.example.hrms_backend.dto.EmployeeDetailDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeRequestDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeResponseDTO;
 import sep490.com.example.hrms_backend.dto.EmployeeUpdateDTO;
+import sep490.com.example.hrms_backend.entity.Department;
 import sep490.com.example.hrms_backend.entity.Employee;
+import sep490.com.example.hrms_backend.entity.Position;
 
 public class EmployeeMapper {
 
@@ -40,14 +42,23 @@ public class EmployeeMapper {
                 .citizenId(dto.getCitizenId())
                 .citizenIssueDate(dto.getCitizenIssueDate())
                 .citizenExpiryDate(dto.getCitizenExpiryDate())
-//                .citizenIssuePlace(dto.getCitizenIssuePlace())
                 .address(dto.getAddress())
+                .currentAddress(dto.getCurrentAddress())
+                .ethnicity(dto.getEthnicity())
+                .religion(dto.getReligion())
+                .educationLevel(dto.getEducationLevel())
+                .specializedLevel(dto.getSpecializedLevel())
+                .trainingType(dto.getTrainingType())
+                .trainingMajor(dto.getTrainingMajor())
+                .foreignLanguages(dto.getForeignLanguages())
                 .image(dto.getImage())
                 .startWorkAt(dto.getStartWorkAt())
                 .phoneNumber(dto.getPhoneNumber())
                 .email(dto.getEmail())
+                .isDeleted(false)
                 .build();
     }
+
     public static void updateEmployeeFromUpdateDTO(EmployeeUpdateDTO dto, Employee employee) {
         employee.setEmployeeName(dto.getEmployeeName());
         employee.setGender(dto.getGender().name());
@@ -58,13 +69,36 @@ public class EmployeeMapper {
         employee.setCitizenId(dto.getCitizenId());
         employee.setCitizenIssueDate(dto.getCitizenIssueDate());
         employee.setCitizenExpiryDate(dto.getCitizenExpiryDate());
-//        employee.setCitizenIssuePlace(dto.getCitizenIssuePlace());
         employee.setAddress(dto.getAddress());
+        employee.setCurrentAddress(dto.getCurrentAddress());
+        employee.setEthnicity(dto.getEthnicity());
+        employee.setReligion(dto.getReligion());
+        employee.setEducationLevel(dto.getEducationLevel());
+        employee.setSpecializedLevel(dto.getSpecializedLevel());
+        employee.setForeignLanguages(dto.getForeignLanguages());
+        employee.setTrainingType(dto.getTrainingType());
+        employee.setTrainingMajor(dto.getTrainingMajor());
         employee.setImage(dto.getImage());
         employee.setStartWorkAt(dto.getStartWorkAt());
         employee.setPhoneNumber(dto.getPhoneNumber());
         employee.setEmail(dto.getEmail());
+
+        // Gán phòng ban và vị trí nếu cần thiết
+        if (employee.getDepartment() == null ||
+                !employee.getDepartment().getDepartmentId().equals(dto.getDepartmentId())) {
+            Department department = new Department();
+            department.setDepartmentId(dto.getDepartmentId());
+            employee.setDepartment(department);
+        }
+
+        if (employee.getPosition() == null ||
+                !employee.getPosition().getPositionId().equals(dto.getPositionId())) {
+            Position position = new Position();
+            position.setPositionId(dto.getPositionId());
+            employee.setPosition(position);
+        }
     }
+
     public static EmployeeDetailDTO mapToEmployeeDetailDTO(Employee employee) {
         return EmployeeDetailDTO.builder()
                 .employeeId(employee.getEmployeeId())
@@ -79,6 +113,14 @@ public class EmployeeMapper {
                 .citizenIssueDate(employee.getCitizenIssueDate())
                 .citizenExpiryDate(employee.getCitizenExpiryDate())
                 .address(employee.getAddress())
+                .currentAddress(employee.getCurrentAddress())
+                .ethnicity(employee.getEthnicity())
+                .religion(employee.getReligion())
+                .educationLevel(employee.getEducationLevel())
+                .specializedLevel(employee.getSpecializedLevel())
+                .trainingType(employee.getTrainingType())
+                .trainingMajor(employee.getTrainingMajor())
+                .foreignLanguages(employee.getForeignLanguages())
                 .startWorkAt(employee.getStartWorkAt())
                 .phoneNumber(employee.getPhoneNumber())
                 .email(employee.getEmail())

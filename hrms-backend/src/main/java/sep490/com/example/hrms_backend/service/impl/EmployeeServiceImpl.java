@@ -36,6 +36,13 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
                 .map(EmployeeMapper::mapToEmployeeResponseDTO)
                 .collect(Collectors.toList());
     }
+    @Override
+    public String getNextEmployeeCode() {
+        long count = employeeRepository.count();
+        long next = count + 1;
+        return "ELTSSX" + String.format("%04d", next);
+    }
+
 
     @Override
     @Transactional

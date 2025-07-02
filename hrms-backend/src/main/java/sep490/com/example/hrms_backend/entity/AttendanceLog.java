@@ -41,7 +41,7 @@ public class AttendanceLog {
 
     @ManyToOne
     @JoinColumn(name = "monthly_attendance_id")
-    private MonthlyAttendance monthlyAttendance;
+    private AttendanceRecord attendanceRecord;
 
     @ManyToOne
     @JoinColumn(name = "day_attendance_type_id")
