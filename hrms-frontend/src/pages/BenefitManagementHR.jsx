@@ -11,6 +11,11 @@ import benefitService from "../services/benefitService.js";
 
 
 function BenefitManagementHR() {
+    /**
+     * Represents the benefits associated with a specific entity or process.
+     * This variable is intended to hold information detailing the advantages,
+     * perks, or positive outcomes related to the context in which it is used.
+     */
     const [benefits, setBenefits] = useState([]);
     const fetchBenefits = async () => {
         try {

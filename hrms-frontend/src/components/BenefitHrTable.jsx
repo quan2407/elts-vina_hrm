@@ -5,6 +5,7 @@ import Paging from "./common/Paging.jsx";
 import BenefitSearchForm from "./common/search/BenefitSearchForm.jsx";
 import ActionDropdown from "./common/ActionDropdown.jsx";
 import BenefitUpdateModal from "./modals/BenefitUpdateModal.jsx";
+import {Modal, message} from "antd";
 
 
 const BenefitHRTableHeader = () => {
@@ -23,8 +24,27 @@ const BenefitHRTableHeader = () => {
     );
 };
 
-const BenefitHRTableRow = ({ benefit }) => {
+const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
     const formatDate = (date) => new Date(date).toLocaleDateString("en-GB");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+
+
+    const handleEdit = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleUpdate = async (updatedData) => {
+        try {
+            await benefitService.update(updatedData, benefit.id );
+            message.success("Cập nhật thành công!");
+            setIsModalOpen(false);
+            onUpdateSuccess?.(); // để reload bảng sau khi cập nhật
+        } catch (err) {
+            console.error("Update failed", err);
+            message.error("Cập nhật thất bại");
+        }
+    };
 
     return (
         <div className="employee-table-row">
@@ -36,8 +56,30 @@ const BenefitHRTableRow = ({ benefit }) => {
             <div className="employee-table-cell">{benefit.maxParticipants}</div>
             <div className="employee-table-cell">{benefit.isActive ? 'Đang hoạt động' : 'Ngừng hoạt động'}</div>
             <div className="employee-table-cell">{formatDate(benefit.createdAt)}</div>
-            <div className="employee-table-cell"><ActionDropdown/></div>
-            <BenefitUpdateModal/>
+            <div className="employee-table-cell">
+                <ActionDropdown
+                onEdit={handleEdit}
+                onView={() => Modal.info({ title: 'Chi tiết', content: JSON.stringify(benefit, null, 2) })}
+                onDelete={() => Modal.confirm({
+                    title: "Bạn có chắc chắn muốn xóa?",
+                    onOk: async () => {
+                        try {
+                            await benefitService.delete(benefit.id);
+                            message.success("Đã xóa thành công!");
+                            onUpdateSuccess();
+                        } catch {
+                            message.error("Xóa thất bại");
+                        }
+                    }
+                })}
+                />
+            </div>
+            <BenefitUpdateModal
+                open={isModalOpen}
+                onCancel={() => setIsModalOpen(false)}
+                onSubmit={handleUpdate}
+                initialData={benefit}
+            />
         </div>
     );
 };
@@ -92,7 +134,12 @@ function BenefitHrTable() {
                 {error && <p style={{ color: "red" }}>{error}</p>}
                 {!loading && benefits.length === 0 && <p>No benefits found.</p>}
                 {!error && !loading && Array.isArray(benefits) && benefits.map((benefit) => (
-                    <BenefitHRTableRow key={benefit.id} benefit={benefit} style={{ cursor: "pointer" }} />
+                    <BenefitHRTableRow
+                        key={benefit.id}
+                        benefit={benefit}
+
+                        onUpdateSuccess={() => setPageNumber((prev) => prev)}
+                    />
                 ))}
             </div>
 

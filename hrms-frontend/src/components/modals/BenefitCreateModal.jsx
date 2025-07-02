@@ -119,7 +119,6 @@ const BenefitCreateModal = ({onCreated}) => {
                 </Form>
             </Modal>
 
-
         </div>
     )
 }
