@@ -67,7 +67,7 @@ export const hrMenus = [
     icon: (isActive) => (
       <Gift size={20} stroke={isActive ? "#4f46e5" : "white"} />
     ),
-  }
+  },
   {
     text: "Danh sách phỏng vấn",
     path: "/interviews-management",
