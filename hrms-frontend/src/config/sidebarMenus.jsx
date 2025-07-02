@@ -63,4 +63,14 @@ export const hrMenus = [
       />
     ),
   },
+  {
+    text: "Bảng công tháng",
+    path: "/attendance-monthly",
+    icon: (isActive) => (
+      <LayoutDashboard
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
 ];

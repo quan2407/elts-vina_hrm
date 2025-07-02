@@ -1,0 +1,73 @@
+.attendance-container {
+  padding: 1rem;
+  background-color: #e5f0fd;
+}
+
+.attendance-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.attendance-controls select {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.attendance-table-wrapper {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.attendance-table {
+  border-collapse: collapse;
+  width: max-content;
+  min-width: 100%;
+  font-size: 13px;
+}
+
+.attendance-table th,
+.attendance-table td {
+  border: 1px solid #ccc;
+  padding: 8px 10px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.attendance-table thead th {
+  background-color: #dbeafe;
+  font-weight: bold;
+}
+
+.attendance-table thead th[colspan] {
+  background-color: #d1fae5;
+  font-size: 13px;
+}
+
+.attendance-table tbody td {
+  background-color: #fff;
+}
+
+.attendance-table tbody td:nth-child(7) {
+  font-style: italic;
+  font-weight: 500;
+  background-color: #f9fafb;
+}
+
+.attendance-table .highlight-bold {
+  background-color: #f0f8ff;
+  font-weight: bold;
+}
+
+.attendance-table td:last-child,
+.attendance-table th:last-child {
+  background-color: #fefce8;
+  font-weight: bold;
+}
+
+.attendance-table td:not(:first-child):not(:nth-child(7)):not(:last-child) {
+  min-width: 70px; /* 👈 Làm ô ngày to hơn */
+  height: 40px;
+}
