@@ -4,10 +4,12 @@
   border-radius: 24px;
   padding: 20px;
   font-family: "Product Sans", sans-serif;
+  word-wrap: break-word;
 }
 
 .employee-table {
   min-width: 1900px;
+
 }
 
 .employee-table-header,
@@ -31,6 +33,7 @@
   padding: 12px 20px;
   margin-bottom: 10px;
   border-radius: 6px;
+
 }
 
 .employee-header-cell {
@@ -38,8 +41,11 @@
   font-size: 16px;
   font-weight: 700;
   text-align: center;
-  white-space: nowrap;
   text-overflow: ellipsis;
+  white-space: normal; /* ✅ Cho phép xuống dòng */
+  word-break: break-word; /* ✅ Bẻ từ nếu dài quá */
+
+
 }
 
 .employee-table-cell {
@@ -49,4 +55,34 @@
   text-align: center;
   word-break: break-word;
   white-space: normal;
+
 }
+
+.create-button {
+  display: inline-flex;
+  align-items: center;
+  background-color: #388e3c; /* màu xanh lá */
+  color: white;
+  font-weight: 600;
+  padding: 6px 18px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.creat-button:hover {
+  background-color: #2e7d32;
+}
+
+.create-icon {
+  font-size: 14px;
+  margin-right: 6px;
+  position: relative;
+  top: 1px; /* cân chỉnh thẳng hàng với chữ */
+}
+
+.create-label {
+  font-size: 15px;
+}
+

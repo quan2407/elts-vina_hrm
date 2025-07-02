@@ -5,6 +5,8 @@ import {
   Briefcase,
   UserPlus,
   MessageSquare,
+  Target,
+  Gift
 } from "lucide-react";
 
 export const systemMenus = [
@@ -12,10 +14,7 @@ export const systemMenus = [
     text: "Danh sách tài khoản",
     path: "/",
     icon: (isActive) => (
-      <Users
-        size={20}
-        stroke={isActive ? "#4f46e5" : "white"}
-      />
+      <Users size={20} stroke={isActive ? "#4f46e5" : "white"} />
     ),
   },
   {
@@ -60,6 +59,13 @@ export const hrMenus = [
         size={20}
         stroke={isActive ? "#4f46e5" : "white"}
       />
+    ),
+  },
+  {
+    text: "Quản lý phúc lợi ",
+    path: "/benefit",
+    icon: (isActive) => (
+      <Gift size={20} stroke={isActive ? "#4f46e5" : "white"} />
     ),
   },
   {

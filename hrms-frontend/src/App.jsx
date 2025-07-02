@@ -14,6 +14,8 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import EmployeeManagement from "./pages/EmployeeManagement";
 import EmployeeDetails from "./pages/EmployeeDetails";
 import ApplyJob from "./pages/ApplyJob";
+import Targets from "./pages/Targets";
+import BenefitManagement from "./pages/BenefitManagementHR.jsx";
 import EmployeeCreate from "./pages/EmployeeCreate";
 import JobsManagement from "./pages/RecruitmentManagement";
 import RecruitmentCreate from "./pages/RecruitmentCreate";
@@ -24,6 +26,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import WorkScheduleManagement from "./pages/WorkScheduleManagement";
 import AboutUs from "./pages/AboutUs";
+import { App as AntdApp, ConfigProvider } from 'antd';
 import InterviewCreate from "./pages/InterviewCreate";
 import InterviewManagement from "./pages/InterviewManagement";
 import AttendanceMonthlyView from "./pages/AttendanceMonthlyView";
@@ -31,6 +34,9 @@ import InterviewDetail from "./pages/InterviewDetail";
 
 function App() {
   return (
+      <ConfigProvider>
+
+      <AntdApp>
     <Router>
       <Routes>
         {/* Public routes */}
@@ -199,6 +205,17 @@ function App() {
           }
         />
 
+
+          {/* Module's Benefit */}
+          <Route
+              path="/benefit"
+              element={
+                  <ProtectedRoute allowedRoles={["ROLE_HR",  "ROLE_USER"]}>
+                      <BenefitManagement />
+                  </ProtectedRoute>
+              }
+          />
+
         {/* Catch all unmatched routes */}
         <Route
           path="*"
@@ -209,8 +226,11 @@ function App() {
             />
           }
         />
+
       </Routes>
     </Router>
+      </AntdApp>
+</ConfigProvider>
   );
 }
 
