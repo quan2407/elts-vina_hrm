@@ -40,7 +40,7 @@ function LoginPage() {
       } else if (roles.includes("ROLE_PMC")) {
         navigate("/work-schedule-management");
       } else if (roles.includes("ROLE_PRODUCTION_MANAGER")) {
-        navigate("/work-schedule-production-view");
+        navigate("/work-schedule-production");
       } else {
         navigate("/unauthorized");
       }
