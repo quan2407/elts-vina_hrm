@@ -27,6 +27,8 @@ function InterviewDetail() {
     const [errors, setErrors] = useState({});
     const [activeSection, setActiveSection] = useState("basic-info");
 
+    const isDisabled = status === "COMPLETED";
+
     useEffect(() => {
         const fetchInterview = async () => {
             try {
@@ -354,6 +356,7 @@ function InterviewDetail() {
                                             onChange={(newValue) => setScheduleAt(newValue)}
                                             customInput={<CustomInput />}
                                             format="DD/MM/YYYY HH:mm"
+                                            disabled={isDisabled} 
                                             ampm={true}
                                             slotProps={{
                                                 textField: {
@@ -408,6 +411,8 @@ function InterviewDetail() {
                                             const value = e.target.value;
                                             setInterviewerId(value === "" ? null : Number(value));
                                         }}
+
+                                        disabled={isDisabled}
                                     >
                                         <option value="">-- Chọn người phỏng vấn --</option>
                                         {interviewers.map((p) => (
@@ -432,6 +437,7 @@ function InterviewDetail() {
                                         className="employeedetail-input-field"
                                         value={status}
                                         onChange={(e) => setStatus(e.target.value)}
+                                        disabled={isDisabled}
                                     >
                                         <option value="PENDING">Đang chờ</option>
                                         <option value="COMPLETED">Đã phỏng vấn</option>
