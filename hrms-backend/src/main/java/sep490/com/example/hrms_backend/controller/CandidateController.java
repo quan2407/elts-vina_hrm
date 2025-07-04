@@ -45,17 +45,17 @@ public class CandidateController {
         return ResponseEntity.ok(candidates);
     }
 
-    @PutMapping("/{id}/status")
-    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        String status = body.get("status");
-        try {
-            candidateService.updateCandidateStatus(id, status);
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Trạng thái không hợp lệ.");
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
+//    @PutMapping("/{id}/status")
+//    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+//        String status = body.get("status");
+//        try {
+//            candidateService.updateCandidateStatus(id, status);
+//            return ResponseEntity.ok().build();
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.badRequest().body("Trạng thái không hợp lệ.");
+//        } catch (EntityNotFoundException e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
 
 }

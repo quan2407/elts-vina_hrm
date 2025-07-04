@@ -13,6 +13,7 @@ public class InterviewScheduleMapper {
                 .scheduledAt(interviewSchedule.getScheduledAt())
                 .status(interviewSchedule.getStatus())
                 .feedback(interviewSchedule.getFeedback())
+                .result(interviewSchedule.getResult())
                 .candidateId(interviewSchedule.getCandidate().getId())
                 .candidateName(interviewSchedule.getCandidate().getCandidateName())
                 .candidateEmail(interviewSchedule.getCandidate().getEmail())

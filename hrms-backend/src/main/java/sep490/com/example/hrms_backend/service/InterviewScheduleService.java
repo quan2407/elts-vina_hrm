@@ -1,6 +1,7 @@
 package sep490.com.example.hrms_backend.service;
 
 import jakarta.mail.internet.MimeMessage;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.InterviewScheduleDTO;
 import sep490.com.example.hrms_backend.entity.*;
+import sep490.com.example.hrms_backend.enums.CandidateStatus;
 import sep490.com.example.hrms_backend.enums.InterviewScheduleStatus;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.mapper.InterviewScheduleMapper;
@@ -61,6 +63,7 @@ public class InterviewScheduleService {
                 .build();
     }
 
+    @Transactional
     public InterviewScheduleDTO createInterviewSchedule(@Valid InterviewScheduleDTO interviewScheduleDTO) {
         Candidate candidate = candidateRepository.findById(interviewScheduleDTO.getCandidateId())
                 .orElseThrow(() -> new RuntimeException("Ứng viên không tồn tại"));
@@ -74,6 +77,13 @@ public class InterviewScheduleService {
         interviewSchedule.setInterviewer(interviewer);
         interviewSchedule.setRecruitment(recruitment);
         InterviewSchedule savedInterviewSchedule = interviewScheduleRepository.save(interviewSchedule);
+
+        CandidateRecruitment candidateRecruitment = candidateRecruitmentRepository.findByCandidateIdAndRecruitmentId(interviewScheduleDTO.getCandidateId(), interviewScheduleDTO.getRecruitmentId())
+                .orElseThrow(() -> new RuntimeException("CandidateRecruitment không tồn tại"));
+
+        candidateRecruitment.setStatus(CandidateStatus.INTERVIEW_SCHEDULED);
+
+        candidateRecruitmentRepository.save(candidateRecruitment);
 
         sendInterviewEmail(candidate.getEmail(), interviewer.getEmail(), candidate.getCandidateName(), interviewSchedule.getScheduledAt());
 

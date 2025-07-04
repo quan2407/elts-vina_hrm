@@ -1,7 +1,10 @@
 package sep490.com.example.hrms_backend.enums;
 
 public enum InterviewScheduleStatus {
-    COMPLETED,
-    PENDING,
+    // chờ phỏng vấn
+    WAITING_INTERVIEW,
+    //đã phỏng vấn
+    INTERVIEWED,
+    // hủy phỏng vấn
     CANCLE
 }

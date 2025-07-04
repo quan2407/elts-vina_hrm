@@ -9,5 +9,7 @@ import java.util.Optional;
 public interface CandidateRecruitmentRepository  extends JpaRepository<CandidateRecruitment, Long> {
     List<CandidateRecruitment> findByRecruitmentId(Long recruitmentId);
 
+    Optional<CandidateRecruitment> findByCandidateIdAndRecruitmentId(Long candidateId, Long recruitmentId);
+
     Optional<CandidateRecruitment> findById(Long id);
 }

@@ -5,7 +5,6 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { updateCandidateStatus } from "../services/candidateRecruitmentService";
 
 function removeVietnameseTones(str) {
     return str
@@ -78,23 +77,8 @@ const CandidateTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
     };
     const statusOptions = {
         APPLIED: "Đã ứng tuyển",
-        PENDING: "Đang chờ",
-        REJECTED: "Đã từ chối",
-        PASSED: "Đã vượt qua phỏng vấn",
+        INTERVIEW_SCHEDULED: "Đã lên lịch phỏng vấn",
 
-    };
-    const handleStatusChange = async (id, newStatus) => {
-        try {
-            await updateCandidateStatus(id, newStatus);
-            setCandidates((prev) =>
-                prev.map((item) =>
-                    item.candidateRecruitmentId  === id ? { ...item, status: newStatus } : item
-                )
-            );
-            alert("Cập nhật trạng thái thành công!");
-        } catch {
-            alert("Lỗi khi cập nhật trạng thái!");
-        }
     };
 
     // Expose exportToExcel to parent via ref
@@ -133,18 +117,8 @@ const CandidateTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
                         <div className="candidate-table-cell">{candidate.email}</div>
                         <div className="candidate-table-cell">{candidate.phoneNumber}</div>
                         <div className="candidate-table-cell">{formatDate(candidate.submittedAt)}</div>
-                        <div className="candidate-table-cell">
-                            <select
-                                value={candidate.status}
-                                onChange={(e) => handleStatusChange(candidate.candidateRecruitmentId, e.target.value)}
-                                className="form-select"
-                            >
-                                {Object.entries(statusOptions).map(([key, label]) => (
-                                    <option key={key} value={key}>
-                                        {label}
-                                    </option>
-                                ))}
-                            </select>
+                         <div className="candidate-table-cell">
+                            {statusOptions[candidate.status] || candidate.status}
                         </div>
                         <div className="candidate-table-cell">
                             <button className="viewcandidate-button" onClick={() => handleCandidateClick(candidate.candidateRecruitmentId)}>Tạo lịch phỏng vấn</button>
