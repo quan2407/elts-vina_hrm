@@ -13,12 +13,14 @@ function WorkScheduleTable({
   onStatusChange,
   onMonthYearChange,
   canEdit = true,
+  reloadTrigger,
 }) {
   const [dates, setDates] = useState([]);
   const [data, setData] = useState([]);
   const [selectedDeptId, setSelectedDeptId] = useState(null);
   const [selectedLineId, setSelectedLineId] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [workType, setWorkType] = useState("normal");
   const [availableMonths, setAvailableMonths] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDept, setSelectedDept] = useState("");
@@ -27,8 +29,17 @@ function WorkScheduleTable({
   const [selectedWorkScheduleId, setSelectedWorkScheduleId] = useState(null);
   const [startTime, setStartTime] = useState("08:00");
   const [endTime, setEndTime] = useState("17:00");
-
+  const [selectedDetailId, setSelectedDetailId] = useState(null);
   const getTotalMonthValue = (m, y) => y * 12 + m;
+  const handleDelete = (id) => {
+    workScheduleService
+      .deleteWorkScheduleDetail(id)
+      .then(() => {
+        setModalOpen(false);
+        fetchDataAndStatus(month, year);
+      })
+      .catch((err) => console.error("Lỗi xóa lịch làm việc:", err));
+  };
 
   const getLastAvailableMonth = () => {
     if (availableMonths.length === 0) return null;
@@ -99,11 +110,11 @@ function WorkScheduleTable({
 
           const allSubmitted =
             allLines.length > 0 &&
-            allLines.every((line) => line.submitted === true);
+            allLines.every((line) => String(line.submitted) === "true");
 
           const allAccepted =
             allLines.length > 0 &&
-            allLines.every((line) => line.accepted === true);
+            allLines.every((line) => String(line.accepted) === "true");
 
           console.log(
             "🔥 Gọi onStatusChange từ WorkScheduleTable với:",
@@ -151,7 +162,7 @@ function WorkScheduleTable({
       .getAvailableMonths()
       .then((res) => setAvailableMonths(res.data))
       .catch((err) => console.error("Lỗi lấy danh sách tháng:", err));
-  }, [month, year]);
+  }, [month, year, reloadTrigger]);
 
   const handlePrevMonth = () => {
     const newMonth = month === 1 ? 12 : month - 1;
@@ -175,45 +186,95 @@ function WorkScheduleTable({
 
   const nextDisabled = !getNextAvailableMonth();
   const prevDisabled = !getPrevAvailableMonth();
-
   const handleOpenModal = (
     deptId,
     deptName,
     lineId,
     lineName,
     dateIso,
-    workScheduleId
+    workScheduleId,
+    detail = null
   ) => {
+    // Gán thông tin cơ bản
     setSelectedDeptId(deptId);
     setSelectedLineId(lineId);
     setSelectedDept(deptName);
     setSelectedLine(lineName);
     setSelectedDate(dateIso);
     setSelectedWorkScheduleId(workScheduleId);
-    setStartTime("08:00");
-    setEndTime("17:00");
+
+    // Xử lý giờ làm việc nếu có detail
+    if (detail?.startTime && detail?.endTime) {
+      console.log("Chi tiết lịch:", detail);
+      const start = detail.startTime.slice(0, 5);
+      const end = detail.endTime.slice(0, 5);
+
+      // Tự động xác định loại ca làm việc
+      if (start === "08:00" && end === "17:00") {
+        setWorkType("normal");
+      } else if (start === "08:00" && end === "20:00") {
+        setWorkType("overtime");
+      } else {
+        setWorkType("custom");
+      }
+
+      setStartTime(start);
+      setEndTime(end);
+      setSelectedDetailId(detail.id);
+
+      console.log("Giờ làm việc:", start, "-", end);
+    } else {
+      // Mặc định nếu chưa có giờ
+      setWorkType("normal");
+      setStartTime("08:00");
+      setEndTime("17:00");
+      setSelectedDetailId(null);
+    }
+
+    // Mở modal
     setModalOpen(true);
   };
 
   const handleSave = () => {
-    workScheduleService
-      .resolveWorkScheduleId(selectedDeptId, selectedLineId, selectedDate)
-      .then((res) => {
-        const workScheduleId = res.data;
-        const payload = {
-          dateWork: selectedDate,
-          startTime,
-          endTime,
-          workScheduleId,
-        };
-        return workScheduleService.createWorkScheduleDetail(payload);
-      })
-      .then(() => {
-        setModalOpen(false);
-        fetchDataAndStatus(month, year);
-        setErrorMessage("");
-      })
-      .catch((err) => console.error("Lỗi thêm lịch làm việc:", err));
+    if (endTime <= startTime) {
+      alert("Giờ kết thúc phải sau giờ bắt đầu.");
+      return;
+    }
+
+    if (selectedDetailId) {
+      const payload = {
+        workScheduleDetailId: selectedDetailId,
+        startTime,
+        endTime,
+      };
+      workScheduleService
+        .updateWorkScheduleDetail(payload)
+        .then(() => {
+          setModalOpen(false);
+          fetchDataAndStatus(month, year);
+          setErrorMessage("");
+        })
+        .catch((err) => console.error("Lỗi cập nhật lịch làm việc:", err));
+    } else {
+      workScheduleService
+        .resolveWorkScheduleId(selectedDeptId, selectedLineId, selectedDate)
+        .then((res) => {
+          const workScheduleId = res.data;
+          const payload = {
+            dateWork: selectedDate,
+            startTime,
+            endTime,
+            workScheduleId,
+          };
+          return workScheduleService.createWorkScheduleDetail(payload);
+        })
+        .then(() => {
+          setModalOpen(false);
+          fetchDataAndStatus(month, year);
+          setErrorMessage("");
+        })
+        .catch((err) => console.error("Lỗi thêm lịch làm việc:", err));
+    }
   };
 
   return (
@@ -381,6 +442,18 @@ function WorkScheduleTable({
                             className={`work-schedule-time-text ${
                               isOvertime ? "work-schedule-overtime" : ""
                             }`}
+                            style={{ cursor: "pointer" }}
+                            onClick={() =>
+                              handleOpenModal(
+                                dept.departmentId,
+                                dept.departmentName,
+                                line?.lineId,
+                                line?.lineName ?? "",
+                                dates[i].iso,
+                                detail.workScheduleId,
+                                detail
+                              )
+                            }
                           >
                             {detail.startTime?.slice(0, 5)} -{" "}
                             {detail.endTime?.slice(0, 5)}
@@ -396,7 +469,8 @@ function WorkScheduleTable({
                                   line?.lineId,
                                   line?.lineName ?? "",
                                   dates[i].iso,
-                                  detail.workScheduleId
+                                  detail.workScheduleId,
+                                  null
                                 )
                               }
                             >
@@ -424,11 +498,25 @@ function WorkScheduleTable({
           date: selectedDate,
           startTime,
           endTime,
+          workType,
+          setWorkType,
           onChange: (field, value) => {
             if (field === "startTime") setStartTime(value);
             if (field === "endTime") setEndTime(value);
+            if (field === "workType") {
+              setWorkType(value);
+              if (value === "normal") {
+                setStartTime("08:00");
+                setEndTime("17:00");
+              } else if (value === "overtime") {
+                setStartTime("08:00");
+                setEndTime("20:00");
+              }
+            }
           },
           workScheduleId: selectedWorkScheduleId,
+          id: selectedDetailId,
+          onDelete: handleDelete,
         }}
       />
     </div>
