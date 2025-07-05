@@ -1,7 +1,13 @@
 import React from "react";
 import "../styles/WorkScheduleModal.css";
 
-function WorkScheduleModal({ isOpen, onClose, onSave, data }) {
+function WorkScheduleModal({
+  isOpen,
+  onClose,
+  onSave,
+  data,
+  errorMessages = {},
+}) {
   const {
     departmentName,
     lineName,
@@ -29,7 +35,7 @@ function WorkScheduleModal({ isOpen, onClose, onSave, data }) {
   };
 
   const timeOptions = generateTimeOptions();
-  console.log("📌 Modal nhận id:", id);
+  const validEndTimes = timeOptions.filter((t) => t >= "08:30" && t <= "22:00");
 
   return (
     <div
@@ -74,16 +80,9 @@ function WorkScheduleModal({ isOpen, onClose, onSave, data }) {
               <label>Giờ bắt đầu:</label>
               <select
                 value={startTime}
-                onChange={(e) => onChange("startTime", e.target.value)}
+                disabled
               >
-                {timeOptions.map((t) => (
-                  <option
-                    key={t}
-                    value={t}
-                  >
-                    {t}
-                  </option>
-                ))}
+                <option value="08:00">08:00</option>
               </select>
             </div>
 
@@ -93,7 +92,7 @@ function WorkScheduleModal({ isOpen, onClose, onSave, data }) {
                 value={endTime}
                 onChange={(e) => onChange("endTime", e.target.value)}
               >
-                {timeOptions.map((t) => (
+                {validEndTimes.map((t) => (
                   <option
                     key={t}
                     value={t}
@@ -102,6 +101,9 @@ function WorkScheduleModal({ isOpen, onClose, onSave, data }) {
                   </option>
                 ))}
               </select>
+              {errorMessages.endTime && (
+                <div className="error-message">{errorMessages.endTime[0]}</div>
+              )}
             </div>
           </>
         )}

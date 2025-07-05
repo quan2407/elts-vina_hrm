@@ -241,40 +241,39 @@ function WorkScheduleTable({
       return;
     }
 
-    if (selectedDetailId) {
-      const payload = {
-        workScheduleDetailId: selectedDetailId,
-        startTime,
-        endTime,
-      };
-      workScheduleService
-        .updateWorkScheduleDetail(payload)
-        .then(() => {
-          setModalOpen(false);
-          fetchDataAndStatus(month, year);
-          setErrorMessage("");
+    const payload = {
+      dateWork: selectedDate,
+      startTime,
+      endTime,
+      workScheduleId: selectedWorkScheduleId,
+    };
+
+    const savePromise = selectedDetailId
+      ? workScheduleService.updateWorkScheduleDetail({
+          workScheduleDetailId: selectedDetailId,
+          startTime,
+          endTime,
         })
-        .catch((err) => console.error("Lỗi cập nhật lịch làm việc:", err));
-    } else {
-      workScheduleService
-        .resolveWorkScheduleId(selectedDeptId, selectedLineId, selectedDate)
-        .then((res) => {
-          const workScheduleId = res.data;
-          const payload = {
-            dateWork: selectedDate,
-            startTime,
-            endTime,
-            workScheduleId,
-          };
-          return workScheduleService.createWorkScheduleDetail(payload);
-        })
-        .then(() => {
-          setModalOpen(false);
-          fetchDataAndStatus(month, year);
-          setErrorMessage("");
-        })
-        .catch((err) => console.error("Lỗi thêm lịch làm việc:", err));
-    }
+      : workScheduleService
+          .resolveWorkScheduleId(selectedDeptId, selectedLineId, selectedDate)
+          .then((res) => {
+            const newPayload = { ...payload, workScheduleId: res.data };
+            return workScheduleService.createWorkScheduleDetail(newPayload);
+          });
+
+    savePromise
+      .then(() => {
+        setModalOpen(false);
+        fetchDataAndStatus(month, year);
+        setErrorMessage("");
+      })
+      .catch((err) => {
+        if (err.response?.status === 400 && err.response.data) {
+          setErrorMessage(err.response.data);
+        } else {
+          console.error("Lỗi thêm/cập nhật lịch làm việc:", err);
+        }
+      });
   };
 
   return (
@@ -500,6 +499,7 @@ function WorkScheduleTable({
           endTime,
           workType,
           setWorkType,
+
           onChange: (field, value) => {
             if (field === "startTime") setStartTime(value);
             if (field === "endTime") setEndTime(value);
@@ -518,6 +518,7 @@ function WorkScheduleTable({
           id: selectedDetailId,
           onDelete: handleDelete,
         }}
+        errorMessages={errorMessage}
       />
     </div>
   );
