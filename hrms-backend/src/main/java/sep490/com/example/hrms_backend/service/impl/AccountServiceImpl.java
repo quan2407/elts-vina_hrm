@@ -13,14 +13,17 @@ import sep490.com.example.hrms_backend.dto.AccountResponseDTO;
 import sep490.com.example.hrms_backend.dto.ChangePasswordRequest;
 import sep490.com.example.hrms_backend.entity.Account;
 import sep490.com.example.hrms_backend.entity.Employee;
+import sep490.com.example.hrms_backend.entity.PasswordResetRequest;
 import sep490.com.example.hrms_backend.entity.Role;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.mapper.AccountMapper;
 import sep490.com.example.hrms_backend.repository.AccountRepository;
+import sep490.com.example.hrms_backend.repository.PasswordResetRequestRepository;
 import sep490.com.example.hrms_backend.repository.RoleRepository;
 import sep490.com.example.hrms_backend.service.AccountService;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +35,16 @@ public class AccountServiceImpl implements AccountService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender mailSender;
+    private final PasswordResetRequestRepository passwordResetRequestRepository;
+
+    @Override
+    public List<PasswordResetRequest> getPendingResetRequests() {
+        return passwordResetRequestRepository.findAll()
+                .stream()
+                .filter(r -> !r.isApproved())
+                .sorted(Comparator.comparing(PasswordResetRequest::getRequestedAt).reversed())
+                .collect(Collectors.toList());
+    }
 
     @Override
     public List<AccountResponseDTO> getAllAccounts() {
@@ -92,6 +105,49 @@ public class AccountServiceImpl implements AccountService {
 
         sendPasswordEmail(account.getEmail(), account.getUsername(), rawPassword, "RESET");
     }
+    @Override
+    @Transactional
+    public void requestResetPassword(String email) {
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new HRMSAPIException(HttpStatus.BAD_REQUEST, "Không tìm thấy tài khoản với email: " + email));
+
+        if (passwordResetRequestRepository.findByEmailAndApprovedFalse(email).isPresent()) {
+            throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Yêu cầu reset mật khẩu đã tồn tại và đang chờ duyệt");
+        }
+
+        PasswordResetRequest request = PasswordResetRequest.builder()
+                .email(email)
+                .approved(false)
+                .requestedAt(LocalDateTime.now())
+                .build();
+
+        passwordResetRequestRepository.save(request);
+    }
+    @Override
+    @Transactional
+    public void approveResetPassword(String email) {
+        PasswordResetRequest request = passwordResetRequestRepository.findByEmailAndApprovedFalse(email)
+                .orElseThrow(() -> new HRMSAPIException(HttpStatus.BAD_REQUEST, "Không có yêu cầu reset nào đang chờ duyệt cho email này"));
+
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new HRMSAPIException(HttpStatus.BAD_REQUEST, "Không tìm thấy tài khoản với email: " + email));
+
+        String rawPassword = generateRandomPassword(8);
+        String hashedPassword = passwordEncoder.encode(rawPassword);
+
+        account.setPasswordHash(hashedPassword);
+        account.setMustChangePassword(true);
+        account.setLoginAttempts(5);
+        accountRepository.save(account);
+
+        request.setApproved(true);
+        request.setApprovedAt(LocalDateTime.now());
+        passwordResetRequestRepository.save(request);
+
+        sendPasswordEmail(email, account.getUsername(), rawPassword, "RESET");
+    }
+
+
 
 
     private String generateRandomPassword(int length) {
