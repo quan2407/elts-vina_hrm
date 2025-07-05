@@ -25,7 +25,7 @@ function Sidebar() {
       console.error("Invalid token", err);
     }
   }
-
+  let menus;
   if (roles.includes("PMC")) {
     menus = pmcMenus;
   } else if (roles.includes("HR")) {
