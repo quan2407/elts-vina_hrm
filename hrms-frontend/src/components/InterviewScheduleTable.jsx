@@ -9,7 +9,7 @@ import { getAllInterviews } from "../services/interviewScheduleService";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useNavigate } from "react-router-dom";
-import { updateInterviewStatus } from "../services/interviewScheduleService";
+import { updateInterviewStatus, updateInterviewResult } from "../services/interviewScheduleService";
 
 // Hàm xoá dấu tiếng Việt
 function removeVietnameseTones(str) {
@@ -20,7 +20,7 @@ function removeVietnameseTones(str) {
         .replace(/Đ/g, "D");
 }
 
-const InterviewScheduleTable = forwardRef(({ searchTerm = "" }, ref) => {
+const InterviewScheduleTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
 
     const [interviewSchedule, setInterviewSchedule] = useState([]);
     const navigate = useNavigate();
@@ -39,10 +39,21 @@ const InterviewScheduleTable = forwardRef(({ searchTerm = "" }, ref) => {
     }, []);
 
     const filteredInterview = interviewSchedule.filter((interview) =>
-        removeVietnameseTones(interview?.candidateName?.toLowerCase() || "").includes(
-            removeVietnameseTones(searchTerm.toLowerCase())
-        )
-    );
+        removeVietnameseTones(
+            `${interview?.candidateName?.toLowerCase() || ""} ${interview?.recruitmentTitle?.toLowerCase() || ""}`
+        ).includes(removeVietnameseTones(searchTerm.toLowerCase()))
+    ).sort((a, b) => {
+        if (sortOrder === "status-asc") {
+            return a.status.localeCompare(b.status);
+        }
+        if (sortOrder === "status-desc") {
+            return b.status.localeCompare(a.status);
+        }
+        const dateA = new Date(a.scheduledAt);
+        const dateB = new Date(b.scheduledAt);
+        return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+    })
+        ;
 
 
     const formatDate = (isoDate) => {
@@ -64,10 +75,24 @@ const InterviewScheduleTable = forwardRef(({ searchTerm = "" }, ref) => {
     };
 
     const statusOptions = {
-        PENDING: "Đang chờ",
-        COMPLETED: "Đã phỏng vấn",
-        CANCLE: "Đã hủy",
+        WAITING_INTERVIEW: "Đang chờ phỏng vấn",
+        INTERVIEWED: "Đã phỏng vấn",
+        CANCEL: "Đã hủy",
     };
+
+    const handleResultChange = async (id, result) => {
+        try {
+            await updateInterviewResult(id, result);
+            setInterviewSchedule((prev) =>
+                prev.map((item) =>
+                    item.id === id ? { ...item, result: result } : item
+                )
+            );
+            alert("Cập nhật kết quả phỏng vấn thành công!");
+        } catch {
+            alert("Lỗi khi cập nhật kết quả phỏng vấn!");
+        };
+    }
 
     const handleStatusChange = async (id, newStatus) => {
         try {
@@ -93,17 +118,14 @@ const InterviewScheduleTable = forwardRef(({ searchTerm = "" }, ref) => {
         const exportData = interviewSchedule.map((job) => ({
             ID: job.recruitmentId,
             "Tiêu đề": job.title,
-            "Địa điểm làm việc": job.workLocation,
-            "Loại hình": job.employmentType,
-            "Mô tả": job.jobDescription,
-            "Yêu cầu": job.jobRequirement,
-            "Quyền lợi": job.benefits,
-            "Lương": job.minSalary + " - " + job.maxSalary + "VND",
-            "Số lượng": job.quantity,
-            "Ngày tạo": formatDate(job.createAt),
-            "Ngày hết hạn": formatDate(job.expiredAt),
+            "Nội dung tuyển dụng": job.recruitmentTitle,
+            "Họ tên ứng viên": job.candidateName,
+            "Ngày sinh": formatDate(job.dob),
+            "Phòng ban tuyển dụng": job.recruitmentDepartment,
+            "Thời gian phỏng vấn": formatDateInterviewTime(job.scheduledAt),
+            "Người phỏng vấn": job.interviewerName,
             "Trạng thái": job.status,
-            "SL Ứng tuyển": job.candidateRecruitmentsId?.length || 0,
+            "kết quả": job.result
         }));
 
         const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -139,6 +161,7 @@ const InterviewScheduleTable = forwardRef(({ searchTerm = "" }, ref) => {
                     <div className="Interview-header-cell">Thời gian phỏng vấn</div>
                     <div className="Interview-header-cell">Người phỏng vấn</div>
                     <div className="Interview-header-cell">Trạng thái</div>
+                    <div className="Interview-header-cell">Kết quả phỏng vấn</div>
                     <div className="Interview-header-cell">Action</div>
                 </div>
 
@@ -167,6 +190,37 @@ const InterviewScheduleTable = forwardRef(({ searchTerm = "" }, ref) => {
                                 ))}
                             </select>
                         </div>
+
+                        <div className="Interview-table-cell">
+                            {interview.status === "INTERVIEWED" ? (
+                                <div className="radio-group">
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            name={`result-${interview.id}`}
+                                            value="PASS"
+                                            checked={interview.result === "PASS"}
+                                            onChange={() => handleResultChange(interview.id, "PASS")}
+                                        />
+                                        Vượt qua
+                                    </label>
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            name={`result-${interview.id}`}
+                                            value="FAIL"
+                                            checked={interview.result === "FAIL"}
+                                            onChange={() => handleResultChange(interview.id, "FAIL")}
+                                        />
+                                        Trượt
+                                    </label>
+                                </div>
+                            ) : (
+                                <span style={{ color: "#999" }}>Chưa phỏng vấn</span>
+                            )}
+                        </div>
+
+
                         <div className="Interview-table-cell">
                             <button className="viewdetail-button" onClick={() => handleDetailClick(interview.id)}>Xem chi tiết</button>
 

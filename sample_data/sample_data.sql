@@ -1,4 +1,4 @@
-
+use hrms;
 SET SQL_SAFE_UPDATES = 0;
 
 
@@ -234,8 +234,8 @@ INSERT INTO candidate_recruitment (
     candidate_id, recruitment_id, status, submitted_at
 ) VALUES
 (1, 1, 'APPLIED', '2025-06-01 10:00:00'),
-(2, 1, 'INTERVIEWED', '2025-06-03 15:00:00'),
-(2, 2, 'INTERVIEWED', '2025-06-03 15:00:00'),
+(2, 1, 'INTERVIEW_SCHEDULED', '2025-06-03 15:00:00'),
+(2, 2, 'INTERVIEW_SCHEDULED', '2025-06-03 15:00:00'),
 (3, 2, 'APPLIED', '2025-06-05 09:00:00');
 
 
@@ -244,9 +244,9 @@ INSERT INTO interview_schedule (
     interview_schedule_id, scheduled_at, status, feedback,
     candidate_id, interviewer_id, recruitment_id
 ) VALUES
-(1, '2025-06-10 09:00:00', 'COMPLETED', 'Ứng viên phù hợp vị trí QC.', 1, 4, 1),
-(2, '2025-06-12 10:30:00', 'SCHEDULED', NULL, 2, 3, 1),
-(3, '2025-06-14 14:00:00', 'COMPLETED', 'Ứng viên chưa đủ kỹ năng kỹ thuật.', 3, 6, 2);
+(1, '2025-06-10 09:00:00', 'WAITING_INTERVIEW', 'Ứng viên phù hợp vị trí QC.', 1, 4, 1),
+(2, '2025-06-12 10:30:00', 'INTERVIEWED', NULL, 2, 3, 1),
+(3, '2025-06-14 14:00:00', 'INTERVIEWED', 'Ứng viên chưa đủ kỹ năng kỹ thuật.', 3, 6, 2);
 
 
 -- ALTER TABLE benefit 

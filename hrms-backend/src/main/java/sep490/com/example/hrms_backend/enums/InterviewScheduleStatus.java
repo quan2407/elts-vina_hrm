@@ -6,5 +6,5 @@ public enum InterviewScheduleStatus {
     //đã phỏng vấn
     INTERVIEWED,
     // hủy phỏng vấn
-    CANCLE
+    CANCEL
 }

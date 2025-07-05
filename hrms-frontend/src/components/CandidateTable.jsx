@@ -38,6 +38,13 @@ const CandidateTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
             )
         )
         .sort((a, b) => {
+            if (sortOrder === "status-asc") {
+                return a.status.localeCompare(b.status);
+            }
+            if (sortOrder === "status-desc") {
+                return b.status.localeCompare(a.status);
+            }
+
             const dateA = new Date(a.submittedAt);
             const dateB = new Date(b.submittedAt);
             return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
@@ -117,11 +124,14 @@ const CandidateTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
                         <div className="candidate-table-cell">{candidate.email}</div>
                         <div className="candidate-table-cell">{candidate.phoneNumber}</div>
                         <div className="candidate-table-cell">{formatDate(candidate.submittedAt)}</div>
-                         <div className="candidate-table-cell">
+                        <div className="candidate-table-cell">
                             {statusOptions[candidate.status] || candidate.status}
                         </div>
                         <div className="candidate-table-cell">
-                            <button className="viewcandidate-button" onClick={() => handleCandidateClick(candidate.candidateRecruitmentId)}>Tạo lịch phỏng vấn</button>
+                            <button className="viewcandidate-button" disabled={candidate.status === 'INTERVIEW_SCHEDULED'}
+                                onClick={() => handleCandidateClick(candidate.candidateRecruitmentId)}
+                                style={{ backgroundColor: candidate.status === 'INTERVIEW_SCHEDULED' ? '#ccc' : '#4CAF50' }}>
+                                Tạo lịch phỏng vấn</button>
 
                         </div>
 
