@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { LogOut, ChevronDown, ChevronUp } from "lucide-react";
-import { systemMenus, hrMenus } from "../config/sidebarMenus";
+import { systemMenus, hrMenus, pmcMenus } from "../config/sidebarMenus";
 import "../styles/Sidebar.css";
 
 function Sidebar() {
@@ -26,8 +26,21 @@ function Sidebar() {
     }
   }
 
-  const menus = roles.includes("HR") ? hrMenus : systemMenus;
-
+  if (roles.includes("PMC")) {
+    menus = pmcMenus;
+  } else if (roles.includes("HR")) {
+    menus = hrMenus;
+  } else if (roles.includes("LINE_LEADER")) {
+    menus = lineLeaderMenus;
+  } else if (roles.includes("PRODUCTION_MANAGER")) {
+    menus = productionManagerMenus;
+  } else if (roles.includes("CANTEEN")) {
+    menus = canteenMenus;
+  } else if (roles.includes("EMPLOYEE")) {
+    menus = employeeMenus;
+  } else {
+    menus = systemMenus;
+  }
   const handleMenuClick = (item) => {
     if (item.children) {
       setOpenMenu(openMenu === item.text ? "" : item.text);
