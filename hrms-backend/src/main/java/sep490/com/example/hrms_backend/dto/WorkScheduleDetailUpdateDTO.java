@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import sep490.com.example.hrms_backend.validation.ValidWorkTime;
 
 import java.time.LocalTime;
 
 @Getter
 @Setter
+@ValidWorkTime
 public class WorkScheduleDetailUpdateDTO {
 
     @NotNull
