@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.DepartmentWorkScheduleViewDTO;
 import sep490.com.example.hrms_backend.dto.WorkScheduleDetailCreateDTO;
 import sep490.com.example.hrms_backend.dto.WorkScheduleDetailResponseDTO;
+import sep490.com.example.hrms_backend.dto.WorkScheduleDetailUpdateDTO;
 import sep490.com.example.hrms_backend.service.WorkScheduleDetailService;
 
 import java.util.List;
@@ -35,6 +36,21 @@ public class WorkScheduleDetailController {
     ) {
         WorkScheduleDetailResponseDTO response = workScheduleDetailService.create(dto);
         return ResponseEntity.ok(response);
+    }
+    @PutMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'PMC')")
+    public ResponseEntity<WorkScheduleDetailResponseDTO> update(
+            @Valid @RequestBody WorkScheduleDetailUpdateDTO dto
+    ) {
+        WorkScheduleDetailResponseDTO response = workScheduleDetailService.update(dto);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PMC')")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        workScheduleDetailService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

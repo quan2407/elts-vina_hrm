@@ -154,6 +154,7 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
                 WorkScheduleDetail detail = dayMap.get(i);
 
                 workDetails.add(WorkScheduleDayDetailDTO.builder()
+                        .id(detail != null ? detail.getId() : null)
                         .date(date)
                         .weekday(weekday)
                         .startTime(detail != null ? detail.getStartTime() : null)
@@ -202,6 +203,7 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
                 WorkScheduleDetail detail = dayMap.get(i);
 
                 workDetails.add(WorkScheduleDayDetailDTO.builder()
+                        .id(detail != null ? detail.getId() : null)
                         .date(date)
                         .weekday(weekday)
                         .startTime(detail != null ? detail.getStartTime() : null)
@@ -227,10 +229,45 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
         return new ArrayList<>(departmentMap.values());
     }
 
+    @Override
+    @Transactional
+    public WorkScheduleDetailResponseDTO update(WorkScheduleDetailUpdateDTO dto) {
+        WorkScheduleDetail detail = workScheduleDetailRepository.findById(dto.getWorkScheduleDetailId())
+                .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "Không tìm thấy chi tiết lịch làm việc"));
 
+        // Logic xác định có phải tăng ca hay không
+        boolean isWeekend = detail.getDateWork().getDayOfWeek() == DayOfWeek.SUNDAY;
+        boolean isLate = dto.getEndTime().isAfter(LocalTime.of(17, 0));
+        boolean isOvertime = isWeekend || isLate;
 
+        detail.setStartTime(dto.getStartTime());
+        detail.setEndTime(dto.getEndTime());
+        detail.setIsOvertime(isOvertime);
 
+        WorkScheduleDetail saved = workScheduleDetailRepository.save(detail);
+        WorkSchedule schedule = saved.getWorkSchedule();
 
+        return WorkScheduleDetailResponseDTO.builder()
+                .id(saved.getId())
+                .dateWork(saved.getDateWork())
+                .startTime(saved.getStartTime())
+                .endTime(saved.getEndTime())
+                .isOvertime(saved.getIsOvertime())
+                .lineId(schedule.getLine() != null ? schedule.getLine().getLineId() : null)
+                .lineName(schedule.getLine() != null ? schedule.getLine().getLineName() : "Chưa phân tổ")
+                .departmentId(schedule.getDepartment().getDepartmentId())
+                .departmentName(schedule.getDepartment().getDepartmentName())
+                .workScheduleId(schedule.getId())
+                .build();
+    }
 
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        WorkScheduleDetail detail = workScheduleDetailRepository.findById(id)
+                .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "Không tìm thấy chi tiết lịch làm việc"));
+
+        workScheduleDetailRepository.delete(detail);
+    }
 
 }
