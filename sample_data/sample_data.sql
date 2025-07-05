@@ -1,4 +1,4 @@
-
+USE hrms;
 SET SQL_SAFE_UPDATES = 0;
 
 
@@ -6,6 +6,8 @@ UPDATE employee SET line_id = NULL;
 UPDATE `lines` SET leader_id = NULL;
 ALTER TABLE employee MODIFY COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0;
 
+DELETE FROM attendance_record;
+DELETE FROM benefit;
 DELETE FROM work_schedule_detail;
 DELETE FROM work_schedule;
 DELETE FROM department_position;
@@ -23,6 +25,8 @@ DELETE FROM role;
 
 
 -- Reset AUTO_INCREMENT cho các bảng
+ALTER TABLE attendance_record AUTO_INCREMENT = 1;
+ALTER TABLE benefit AUTO_INCREMENT = 1;
 ALTER TABLE work_schedule AUTO_INCREMENT = 1;
 ALTER TABLE work_schedule_detail AUTO_INCREMENT = 1;
 ALTER TABLE department_position AUTO_INCREMENT = 1;
@@ -228,15 +232,16 @@ INSERT INTO candidate (
 (2, 'Trần Thị B', 'Nữ', '1992-05-20', 'b@gmail.com', '0909876543'),
 (3, 'Lê Văn C', 'Nam', '1988-11-30', 'c@gmail.com', '0912345678');
 
+SHOW COLUMNS FROM candidate_recruitment;
 
 
 INSERT INTO candidate_recruitment (
     candidate_id, recruitment_id, status, submitted_at
 ) VALUES
 (1, 1, 'APPLIED', '2025-06-01 10:00:00'),
-(2, 1, 'INTERVIEWED', '2025-06-03 15:00:00'),
-(2, 2, 'INTERVIEWED', '2025-06-03 15:00:00'),
-(3, 2, 'APPLIED', '2025-06-05 09:00:00');
+(2, 1, 'PASSED', '2025-06-03 15:00:00'),
+(2, 2, 'PENDING', '2025-06-03 15:00:00'),
+(3, 2, 'REJECTED', '2025-06-05 09:00:00');
 
 
 
@@ -245,9 +250,8 @@ INSERT INTO interview_schedule (
     candidate_id, interviewer_id, recruitment_id
 ) VALUES
 (1, '2025-06-10 09:00:00', 'COMPLETED', 'Ứng viên phù hợp vị trí QC.', 1, 4, 1),
-(2, '2025-06-12 10:30:00', 'SCHEDULED', NULL, 2, 3, 1),
+(2, '2025-06-12 10:30:00', 'PENDING', NULL, 2, 3, 1),
 (3, '2025-06-14 14:00:00', 'COMPLETED', 'Ứng viên chưa đủ kỹ năng kỹ thuật.', 3, 6, 2);
-
 
 -- ALTER TABLE benefit 
 -- MODIFY COLUMN created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP;
