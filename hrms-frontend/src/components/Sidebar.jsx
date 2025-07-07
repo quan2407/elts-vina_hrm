@@ -2,7 +2,15 @@ import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { LogOut, ChevronDown, ChevronUp } from "lucide-react";
-import { systemMenus, hrMenus, pmcMenus } from "../config/sidebarMenus";
+import {
+  systemMenus,
+  hrMenus,
+  pmcMenus,
+  productionManagerMenus,
+  canteenMenus,
+  lineLeaderMenus,
+  employeeMenus,
+} from "../config/sidebarMenus";
 import "../styles/Sidebar.css";
 
 function Sidebar() {
