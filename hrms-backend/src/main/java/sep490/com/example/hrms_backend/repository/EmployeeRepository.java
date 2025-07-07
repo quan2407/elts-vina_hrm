@@ -1,6 +1,7 @@
 package sep490.com.example.hrms_backend.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import sep490.com.example.hrms_backend.entity.Employee;
 
 import java.util.List;
@@ -29,4 +30,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     List<Employee> findByDepartment_DepartmentIdAndLine_LineIdAndIsDeletedFalse(Long departmentId, Long lineId);
 
     List<Employee> findByDepartment_DepartmentIdAndIsDeletedFalse(Long departmentId);
+
+    @Query("SELECT e FROM Employee e WHERE e.isDeleted = false")
+    List<Employee> findAllActive();
+
 }

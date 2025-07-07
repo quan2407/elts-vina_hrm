@@ -13,7 +13,6 @@ import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.WorkScheduleService;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +26,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     private final DepartmentRepository departmentRepository;
     private final EmployeeRepository employeeRepository;
     private final AttendanceRecordRepository attendanceRecordRepository;
+    private final WorkScheduleDetailRepository workScheduleDetailRepository;
 
     @Override
     public List<WorkScheduleResponseDTO> createWorkSchedulesForAll(WorkScheduleCreateDTO dto) {
@@ -92,28 +92,38 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                 ? employeeRepository.findByDepartment_DepartmentIdAndLine_LineIdAndIsDeletedFalse(departmentId, lineId)
                 : employeeRepository.findByDepartment_DepartmentIdAndIsDeletedFalse(departmentId);
 
-        int daysInMonth = YearMonth.of(year, month).lengthOfMonth();
+        List<WorkScheduleDetail> scheduleDetails = workSchedule.getWorkScheduleDetails();
+
+        if (scheduleDetails == null || scheduleDetails.isEmpty()) {
+            System.out.println("Detail la " + workSchedule.getWorkScheduleDetails().size());
+            return;
+        };
+        System.out.println("Da co du lieu work detail");
         List<AttendanceRecord> records = new ArrayList<>();
 
         for (Employee employee : employees) {
-            for (int day = 1; day <= daysInMonth; day++) {
-                records.add(AttendanceRecord.builder()
+            System.out.println("Ten nhan vien la: " + employee.getEmployeeName());
+            for (WorkScheduleDetail detail : scheduleDetails) {
+                LocalDate workDate = detail.getDateWork();
+
+                AttendanceRecord record = AttendanceRecord.builder()
                         .employee(employee)
                         .workSchedule(workSchedule)
-                        .date(LocalDate.of(year, month, day))
-                        .month(month)
-                        .year(year)
+                        .date(workDate)
+                        .month(workDate.getMonthValue())
+                        .year(workDate.getYear())
                         .dayShift("")
-                        .otShift("")
+                        .otShift(detail.getIsOvertime() != null && detail.getIsOvertime() ? "" : null)
                         .weekendShift("")
                         .holidayShift("")
-                        .build());
+                        .build();
+
+                records.add(record);
             }
         }
 
         attendanceRecordRepository.saveAll(records);
     }
-
 
     @Override
     public List<WorkScheduleMonthDTO> getAvailableMonths() {
@@ -153,14 +163,19 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     @Override
     public void acceptAllSubmittedSchedules(int month, int year) {
         List<WorkSchedule> schedules = workScheduleRepository
-                .findByMonthAndYearAndIsSubmittedTrueAndIsAcceptedFalseAndIsDeletedFalse(month, year);
+                .findByMonthAndYearAndIsSubmittedTrueAndIsAcceptedFalse(month, year);
+        int count = 1;
 
         for (WorkSchedule schedule : schedules) {
+            System.out.println("✅ Accepting schedule ID: " + schedule.getId());
             schedule.setAccepted(true);
+            System.out.println("Schedule is accept: " + schedule.isAccepted());
+            workScheduleRepository.save(schedule);
+            System.out.println("Bat dau luu lan " + count);
             generateAttendanceRecords(schedule);
+            count ++;
         }
 
-        workScheduleRepository.saveAll(schedules);
     }
 
 }
