@@ -1,0 +1,81 @@
+.leave-code-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.leave-code-modal-container {
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: slideDown 0.2s ease-in-out;
+}
+
+.leave-code-modal-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.leave-code-modal-field {
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.leave-code-modal-field label {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.leave-code-modal-field select {
+  padding: 6px 10px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.leave-code-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.leave-code-modal-save-btn,
+.leave-code-modal-cancel-btn {
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.leave-code-modal-save-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.leave-code-modal-save-btn:hover {
+  background-color: #0056b3;
+}
+
+.leave-code-modal-cancel-btn {
+  background-color: #ccc;
+  color: black;
+}
+
+.leave-code-modal-cancel-btn:hover {
+  background-color: #b0b0b0;
+}
