@@ -23,6 +23,8 @@ import sep490.com.example.hrms_backend.repository.RoleRepository;
 import sep490.com.example.hrms_backend.service.AccountService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -151,7 +153,37 @@ public class AccountServiceImpl implements AccountService {
 
 
     private String generateRandomPassword(int length) {
-        return RandomStringUtils.randomAlphanumeric(length);
+        if (length < 8) {
+            throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Mật khẩu phải có ít nhất 8 ký tự.");
+        }
+
+        String lowerCase = "abcdefghijklmnopqrstuvwxyz";
+        String upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String digits = "0123456789";
+
+        String password = RandomStringUtils.random(1, lowerCase) +
+                RandomStringUtils.random(1, upperCase) +
+                RandomStringUtils.random(1, digits);
+
+
+        String allCharacters = lowerCase + upperCase + digits;
+        password += RandomStringUtils.random(length - password.length(), allCharacters);
+
+
+        List<Character> passwordList = new ArrayList<>();
+        for (char c : password.toCharArray()) {
+            passwordList.add(c);
+        }
+
+
+        Collections.shuffle(passwordList);
+
+        StringBuilder shuffledPassword = new StringBuilder();
+        for (char c : passwordList) {
+            shuffledPassword.append(c);
+        }
+
+        return shuffledPassword.toString();
     }
 
     private String mapPositionToRole(String positionName) {
