@@ -84,7 +84,7 @@ INSERT INTO position (position_id, position_name, description) VALUES
 INSERT INTO department_position (department_id, position_id) VALUES
 (1, 1),  
 (1, 15), 
-
+(5,15),
 (2, 2),  
 
 (4, 1),  
@@ -136,7 +136,7 @@ INSERT INTO employee (
  NULL, NULL, 'Vietnam', '0123456784',
  '2013-01-01', '2033-01-01', 'Hải Phòng',
  NULL, NULL, '2019-01-01', '0900000004', 'userd@example.com',
- 1, 1), 
+ 5, 15), 
 
 (5, 'ELTSSX0005', 'Test User E', 'NAM', '1995-05-15',
  NULL, NULL, 'Vietnam', '0123456785',
