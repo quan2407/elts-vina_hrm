@@ -1,0 +1,66 @@
+.reset-request-table-container {
+  border-radius: 24px;
+  padding: 30px;
+  flex: 1;
+  background-color: #fff;
+  width: 100%;
+  overflow-x: auto;
+  box-sizing: border-box;
+}
+
+/* Header & Row Grid */
+.reset-request-table-header,
+.reset-request-table-row {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.5fr 1.5fr;
+  gap: 10px;
+  width: 100%;
+  padding: 18px 30px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.reset-request-header-cell {
+  color: #000;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.reset-request-table-cell {
+  color: #000;
+  font-size: 18px;
+  font-weight: 400;
+  text-align: center;
+  word-break: break-word;
+}
+
+/* Button */
+.reset-request-approve-button {
+  padding: 10px 16px;
+  border-radius: 6px;
+  background-color: #253d90;
+  color: white;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.reset-request-approve-button:hover {
+  background-color: #1c2f6f;
+}
+
+.reset-request-approve-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .reset-request-table-header,
+  .reset-request-table-row {
+    grid-template-columns: 2fr 2fr 1fr 1fr;
+    font-size: 14px;
+  }
+}

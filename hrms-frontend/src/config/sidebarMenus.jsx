@@ -6,7 +6,8 @@ import {
   UserPlus,
   MessageSquare,
   Target,
-  Gift
+  Gift,
+  CalendarCheck,
 } from "lucide-react";
 
 export const systemMenus = [
@@ -14,7 +15,10 @@ export const systemMenus = [
     text: "Danh sách tài khoản",
     path: "/",
     icon: (isActive) => (
-      <Users size={20} stroke={isActive ? "#4f46e5" : "white"} />
+      <Users
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
     ),
   },
   {
@@ -27,6 +31,16 @@ export const systemMenus = [
       />
     ),
     badge: 13,
+  },
+  {
+    text: "Duyệt reset mật khẩu",
+    path: "/admin/reset-password-requests",
+    icon: (isActive) => (
+      <Target
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
   },
 ];
 
@@ -65,7 +79,10 @@ export const hrMenus = [
     text: "Quản lý phúc lợi ",
     path: "/benefit",
     icon: (isActive) => (
-      <Gift size={20} stroke={isActive ? "#4f46e5" : "white"} />
+      <Gift
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
     ),
   },
   {
@@ -89,3 +106,19 @@ export const hrMenus = [
     ),
   },
 ];
+export const pmcMenus = [
+  {
+    text: "Lịch sản xuất",
+    path: "/work-schedule-management",
+    icon: (isActive) => (
+      <CalendarCheck
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+];
+export const lineLeaderMenus = [];
+export const productionManagerMenus = [];
+export const canteenMenus = [];
+export const employeeMenus = [];

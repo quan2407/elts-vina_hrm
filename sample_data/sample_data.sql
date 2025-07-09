@@ -1,4 +1,4 @@
-use hrms;
+USE hrms;
 SET SQL_SAFE_UPDATES = 0;
 
 
@@ -6,6 +6,8 @@ UPDATE employee SET line_id = NULL;
 UPDATE `lines` SET leader_id = NULL;
 ALTER TABLE employee MODIFY COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0;
 
+DELETE FROM attendance_record;
+DELETE FROM benefit;
 DELETE FROM work_schedule_detail;
 DELETE FROM work_schedule;
 DELETE FROM department_position;
@@ -13,6 +15,7 @@ DELETE FROM interview_schedule;
 DELETE FROM candidate_recruitment;
 DELETE FROM candidate;
 DELETE FROM recruitment;
+DELETE FROM holidays;
 
 DELETE FROM `lines`;
 DELETE FROM account;
@@ -23,6 +26,8 @@ DELETE FROM role;
 
 
 -- Reset AUTO_INCREMENT cho các bảng
+ALTER TABLE attendance_record AUTO_INCREMENT = 1;
+ALTER TABLE benefit AUTO_INCREMENT = 1;
 ALTER TABLE work_schedule AUTO_INCREMENT = 1;
 ALTER TABLE work_schedule_detail AUTO_INCREMENT = 1;
 ALTER TABLE department_position AUTO_INCREMENT = 1;
@@ -36,6 +41,7 @@ ALTER TABLE employee AUTO_INCREMENT = 1;
 ALTER TABLE position AUTO_INCREMENT = 1;
 ALTER TABLE department AUTO_INCREMENT = 1;
 ALTER TABLE role AUTO_INCREMENT = 1;
+ALTER TABLE holidays AUTO_INCREMENT = 1;
 
 
 INSERT INTO role (role_id, role_name) VALUES
@@ -171,16 +177,17 @@ INSERT INTO employee (
 
 
 INSERT INTO account (account_id, username, password_hash, email, is_active, created_at, updated_at, last_login_at, login_attempts, must_change_password, employee_id, role_id) VALUES
-(1, 'user1', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user1@example.com', true, NOW(), NOW(), NULL, 5, false, 1, 1),
-(2, 'user2', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user2@example.com', true, NOW(), NOW(), NULL, 5, false, 2, 2),
-(3, 'user3', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user3@example.com', true, NOW(), NOW(), NULL, 5, false, 3, 3),
-(4, 'user4', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user4@example.com', true, NOW(), NOW(), NULL, 5, false, 4, 4),
-(5, 'user5', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user5@example.com', true, NOW(), NOW(), NULL, 5, false, 5, 5),
-(6, 'user6', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user6@example.com', true, NOW(), NOW(), NULL, 5, false, 6, 6),
-(7, 'user7', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user7@example.com', true, NOW(), NOW(), NULL, 5, false, 7, 1),
-(8, 'user8', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user8@example.com', true, NOW(), NOW(), NULL, 5, false, 8, 2),
-(9, 'user9', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user9@example.com', true, NOW(), NOW(), NULL, 5, false, 9, 3),
-(10, 'user10', '$2a$10$qCXaQtEs0v9hxXE0X2LauOEsbuTKXFFbsIlGoaolaaQo.2/fjbJRa', 'user10@example.com', true, NOW(), NOW(), NULL, 5, false, 10, 7);
+(1, 'user1', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user1@example.com', true, NOW(), NOW(), NULL, 5, false, 1, 1),
+(2, 'user2', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user2@example.com', true, NOW(), NOW(), NULL, 5, false, 2, 2),
+(3, 'user3', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user3@example.com', true, NOW(), NOW(), NULL, 5, false, 3, 3),
+(4, 'user4', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user4@example.com', true, NOW(), NOW(), NULL, 5, false, 4, 4),
+(5, 'user5', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user5@example.com', true, NOW(), NOW(), NULL, 5, false, 5, 5),
+(6, 'user6', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user6@example.com', true, NOW(), NOW(), NULL, 5, false, 6, 6),
+(7, 'user7', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user7@example.com', true, NOW(), NOW(), NULL, 5, false, 7, 1),
+(8, 'user8', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user8@example.com', true, NOW(), NOW(), NULL, 5, false, 8, 2),
+(9, 'user9', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user9@example.com', true, NOW(), NOW(), NULL, 5, false, 9, 3),
+(10, 'user10', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user10@example.com', true, NOW(), NOW(), NULL, 5, false, 10, 7);
+
 
 
 
@@ -196,12 +203,8 @@ INSERT INTO `lines` (line_id, line_name, department_id, leader_id) VALUES
 
 
 
-UPDATE employee SET line_id = 1 WHERE employee_id = 1; 
-UPDATE employee SET line_id = 2 WHERE employee_id = 2;  
-UPDATE employee SET line_id = 6 WHERE employee_id = 3;  
-UPDATE employee SET line_id = 1 WHERE employee_id = 4; 
+
 UPDATE employee SET line_id = 4 WHERE employee_id = 6; 
-UPDATE employee SET line_id = 6 WHERE employee_id = 7;  
 UPDATE employee SET line_id = 4 WHERE employee_id = 8;  
 UPDATE employee SET line_id = 4 WHERE employee_id = 9; 
 UPDATE employee SET line_id = 4 WHERE employee_id = 10; 
@@ -228,6 +231,7 @@ INSERT INTO candidate (
 (2, 'Trần Thị B', 'Nữ', '1992-05-20', 'b@gmail.com', '0909876543'),
 (3, 'Lê Văn C', 'Nam', '1988-11-30', 'c@gmail.com', '0912345678');
 
+SHOW COLUMNS FROM candidate_recruitment;
 
 
 INSERT INTO candidate_recruitment (
@@ -237,6 +241,7 @@ INSERT INTO candidate_recruitment (
 (2, 1, 'INTERVIEW_SCHEDULED', '2025-06-03 15:00:00'),
 (2, 2, 'INTERVIEW_SCHEDULED', '2025-06-03 15:00:00'),
 (3, 2, 'APPLIED', '2025-06-05 09:00:00');
+
 
 
 
@@ -266,3 +271,9 @@ INSERT INTO benefit(title, description, end_date, is_active, max_participants, s
 ('Du lịch công ty 2025', 'Chuyến du lịch thường niên cùng công ty đến Đà Nẵng trong 3 ngày 2 đêm.', '2025-08-15', 0, 100, '2025-06-28'),
 ('Gói hỗ trợ sức khỏe tinh thần', 'Miễn phí 5 buổi tư vấn tâm lý cùng chuyên gia.', '2026-01-15', 1, 300, '2025-07-01'),
 ('Phụ cấp thể thao', 'Hỗ trợ chi phí tham gia phòng gym, yoga, hoặc các hoạt động thể thao.', '2025-11-01', 1, 5, '2025-06-28');
+
+INSERT INTO holidays (date, name, is_recurring) VALUES
+('2025-01-01', 'Tết dương lịch', true),
+('2025-04-30', 'Giải phóng miền Nam', true),
+('2025-05-01', 'Quốc tế Lao động', true),
+('2025-09-02', 'Quốc khánh', true);

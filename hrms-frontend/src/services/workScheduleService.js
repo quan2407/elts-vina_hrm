@@ -31,6 +31,12 @@ const workScheduleService = {
       params: { month, year },
     });
   },
+  updateWorkScheduleDetail: (payload) => {
+    return axiosClient.put("/work-schedule-details", payload);
+  },
+  deleteWorkScheduleDetail: (id) => {
+    return axiosClient.delete(`/work-schedule-details/${id}`);
+  },
 };
 
 export default workScheduleService;

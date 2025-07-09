@@ -9,6 +9,12 @@ const attendanceService = {
   getAvailableMonths: () => {
     return axiosClient.get("/attendances/available-months");
   },
+  updateCheckInOut: (id, payload) => {
+    return axiosClient.put(`/attendances/${id}`, payload);
+  },
+  updateLeaveCode: (id, payload) => {
+    return axiosClient.put(`/attendances/${id}/leave-code`, payload);
+  },
 };
 
 export default attendanceService;

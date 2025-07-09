@@ -71,3 +71,57 @@
   min-width: 70px; /* 👈 Làm ô ngày to hơn */
   height: 40px;
 }
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+}
+.edit-button {
+  margin-left: 8px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: blue;
+}
+.modal-inputs input {
+  margin-left: 8px;
+  margin-bottom: 10px;
+}
+.attendance-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.attendance-action-btn:hover {
+  background-color: #e5f0fd;
+}
+
+.attendance-action-btn.edit {
+  color: #007bff;
+}
+
+.attendance-action-btn.leave {
+  margin-left: 5px;
+  font-size: 16px;
+  color: #dc3545;
+}

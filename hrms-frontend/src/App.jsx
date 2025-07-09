@@ -33,6 +33,7 @@ import InterviewManagement from "./pages/InterviewManagement";
 import AttendanceMonthlyView from "./pages/AttendanceMonthlyView";
 import InterviewDetail from "./pages/InterviewDetail";
 import Dashboard from "./pages/Dashboard.jsx";
+import ResetPasswordRequestsPage from "./pages/ResetPasswordRequestsPage";
 
 function App() {
   return (
@@ -91,6 +92,15 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/reset-password-requests"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
+                  <ResetPasswordRequestsPage />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/attendance-monthly"
               element={
@@ -187,6 +197,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
             <Route
               path="/change-password"
               element={

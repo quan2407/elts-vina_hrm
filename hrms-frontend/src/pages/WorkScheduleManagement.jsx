@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import MainLayout from "../components/MainLayout";
 import WorkScheduleTable from "../components/WorkScheduleTable";
 import "../styles/WorkScheduleManagement.css";
@@ -10,22 +10,14 @@ function WorkScheduleManagement() {
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [year, setYear] = useState(today.getFullYear());
   const [status, setStatus] = useState("not-submitted");
+  const [reloadTrigger, setReloadTrigger] = useState(0); // 🔥 Thêm state reload
+
   const handleSubmit = () => {
     workScheduleService
       .submitWorkSchedules(month, year)
       .then(() => {
         alert("Gửi lịch làm việc thành công!");
-
-        return workScheduleService.getWorkScheduleByMonth(month, year);
-      })
-      .then((res) => {
-        const flatList = res.data.flatMap((dept) => dept.lines);
-        const allAccepted = flatList.every((line) => line.isAccepted);
-        const allSubmitted = flatList.every((line) => line.isSubmitted);
-
-        if (allAccepted) setStatus("approved");
-        else if (allSubmitted) setStatus("submitted");
-        else setStatus("not-submitted");
+        setReloadTrigger((prev) => prev + 1); // 🔥 Ép reload lại bảng
       })
       .catch((err) => {
         console.error("Lỗi gửi lịch:", err);
@@ -82,11 +74,13 @@ function WorkScheduleManagement() {
             </button>
           </div>
         </div>
+
         <WorkScheduleTable
           month={month}
           year={year}
           setMonth={setMonth}
           setYear={setYear}
+          reloadTrigger={reloadTrigger} // ✅ Truyền vào bảng
           onStatusChange={(newStatus) => {
             console.log(
               "📥 Trạng thái cập nhật từ WorkScheduleTable:",
