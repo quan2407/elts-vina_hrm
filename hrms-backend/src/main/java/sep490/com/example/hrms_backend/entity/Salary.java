@@ -45,9 +45,7 @@ public class Salary {
     @JoinColumn(name = "monthly_attendance_id")
     private AttendanceRecord attendanceRecord;
 
-    @OneToMany(mappedBy = "salary", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Allowance> allowances;
 
-    @OneToMany(mappedBy = "salary", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Deduction> deductions;
+//    @OneToMany(mappedBy = "salary", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Deduction> deductions;
 }
