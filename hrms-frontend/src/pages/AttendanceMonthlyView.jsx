@@ -1,13 +1,46 @@
 import React, { useEffect, useState } from "react";
 import attendanceService from "../services/attendanceService";
 import MainLayout from "../components/MainLayout";
+import AttendanceModal from "../components/AttendanceModal";
+import LeaveCodeModal from "../components/LeaveCodeModal";
+
 import "../styles/AttendanceMonthlyView.css";
+import { Pencil } from "lucide-react";
 
 const AttendanceMonthlyView = () => {
   const [data, setData] = useState([]);
   const [availableMonths, setAvailableMonths] = useState([]);
   const [month, setMonth] = useState(null);
   const [year, setYear] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState("");
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  const [leaveModalOpen, setLeaveModalOpen] = useState(false);
+  const [leaveRecordId, setLeaveRecordId] = useState(null);
+  const [leaveDate, setLeaveDate] = useState(null);
+  const [leaveCellMeta, setLeaveCellMeta] = useState({});
+
+  const handleOpenLeaveModal = (recordId, dateStr, cellMeta) => {
+    setLeaveRecordId(recordId);
+    setLeaveDate(dateStr);
+    setLeaveCellMeta(cellMeta); // chứa holidayFlag và weekendFlag
+    setLeaveModalOpen(true);
+  };
+
+  const handleSaveLeaveCode = async (id, code) => {
+    console.log("Leave update:", id, code);
+    try {
+      await attendanceService.updateLeaveCode(id, { leaveCode: code });
+      await fetchAttendance();
+      setLeaveModalOpen(false);
+    } catch (error) {
+      console.error("Cập nhật nghỉ phép thất bại:", error);
+      alert("Cập nhật nghỉ phép thất bại!");
+    }
+  };
 
   useEffect(() => {
     const fetchAvailableMonths = async () => {
@@ -15,7 +48,6 @@ const AttendanceMonthlyView = () => {
         const res = await attendanceService.getAvailableMonths();
         setAvailableMonths(res.data);
         if (res.data.length > 0) {
-          // Gán giá trị mặc định ban đầu là mục đầu tiên trong danh sách
           setMonth(res.data[0].month);
           setYear(res.data[0].year);
         }
@@ -52,9 +84,36 @@ const AttendanceMonthlyView = () => {
     { key: "overtime", label: "Tăng ca", totalKey: "totalOvertimeHours" },
     { key: "weekend", label: "Cuối tuần", totalKey: "totalWeekendHours" },
     { key: "holiday", label: "Ngày lễ", totalKey: "totalHolidayHours" },
+    { key: "checkInOut", label: "Giờ vào/ra", totalKey: null },
   ];
 
-  const isNumeric = (val) => !isNaN(parseFloat(val)) && isFinite(val);
+  const handleOpenModal = (emp, day, record) => {
+    setSelectedDate(
+      `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(
+        2,
+        "0"
+      )}`
+    );
+    setSelectedEmployee(emp.employeeName);
+    setSelectedRecord(record?.attendanceRecordId || null);
+    setCheckIn(record?.checkIn || "");
+    setCheckOut(record?.checkOut || "");
+    setModalOpen(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      await attendanceService.updateCheckInOut(selectedRecord, {
+        checkIn,
+        checkOut,
+      });
+      await fetchAttendance(); // reload lại bảng công
+      setModalOpen(false);
+    } catch (error) {
+      console.error("Cập nhật giờ vào/ra thất bại:", error);
+      alert("Cập nhật thất bại!");
+    }
+  };
 
   return (
     <MainLayout>
@@ -132,24 +191,84 @@ const AttendanceMonthlyView = () => {
                   <tr key={`${emp.employeeCode}-${type.key}`}>
                     {i === 0 && (
                       <>
-                        <td rowSpan="4">{index + 1}</td>
-                        <td rowSpan="4">{emp.employeeCode}</td>
-                        <td rowSpan="4">{emp.employeeName}</td>
-                        <td rowSpan="4">{emp.departmentName}</td>
-                        <td rowSpan="4">{emp.positionName}</td>
-                        <td rowSpan="4">{emp.lineName || ""}</td>
+                        <td rowSpan="5">{index + 1}</td>
+                        <td rowSpan="5">{emp.employeeCode}</td>
+                        <td rowSpan="5">{emp.employeeName}</td>
+                        <td rowSpan="5">{emp.departmentName}</td>
+                        <td rowSpan="5">{emp.positionName}</td>
+                        <td rowSpan="5">{emp.lineName || ""}</td>
                       </>
                     )}
                     <td>{type.label}</td>
                     {Array.from({ length: daysInMonth }, (_, d) => {
                       const day = (d + 1).toString();
                       const cell = emp.attendanceByDate[day] || {};
-                      return <td key={d}>{cell[type.key] || ""}</td>;
+
+                      if (type.key === "checkInOut") {
+                        if (cell.hasScheduleDetail) {
+                          return (
+                            <td key={d}>
+                              {cell.checkIn || cell.checkOut ? (
+                                <span
+                                  className="attendance-edit-icon"
+                                  onClick={() =>
+                                    handleOpenModal(emp, day, cell)
+                                  }
+                                >
+                                  {`${cell.checkIn || "--"} - ${
+                                    cell.checkOut || "--"
+                                  }`}
+                                </span>
+                              ) : (
+                                <span className="attendance-empty-cell">
+                                  --
+                                </span>
+                              )}
+
+                              <div className="attendance-buttons">
+                                <button
+                                  className="attendance-action-btn edit"
+                                  onClick={() =>
+                                    handleOpenModal(emp, day, cell)
+                                  }
+                                  title="Chỉnh sửa giờ vào/ra"
+                                >
+                                  <Pencil size={14} />
+                                </button>
+                                <button
+                                  className="attendance-action-btn leave"
+                                  onClick={() =>
+                                    handleOpenLeaveModal(
+                                      cell.attendanceRecordId,
+                                      `${year}-${String(month).padStart(
+                                        2,
+                                        "0"
+                                      )}-${String(day).padStart(2, "0")}`,
+                                      {
+                                        holidayFlag: cell.holidayFlag,
+                                        weekendFlag: cell.weekendFlag,
+                                      }
+                                    )
+                                  }
+                                  title="Chọn loại nghỉ phép"
+                                >
+                                  🛏️
+                                </button>
+                              </div>
+                            </td>
+                          );
+                        } else {
+                          return <td key={d}></td>;
+                        }
+                      } else {
+                        const value = cell[type.key] || "";
+                        return <td key={d}>{value}</td>;
+                      }
                     })}
                     <td className="highlight-bold">{emp[type.totalKey]}</td>
                     {i === 0 && (
                       <td
-                        rowSpan="4"
+                        rowSpan="5"
                         className="highlight-bold"
                       >
                         {emp.totalHours}
@@ -162,6 +281,44 @@ const AttendanceMonthlyView = () => {
           </table>
         </div>
       </div>
+
+      <AttendanceModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSave={handleSave}
+        data={{
+          employeeName: selectedEmployee,
+          date: selectedDate,
+          checkIn,
+          checkOut,
+          onChange: (field, value) => {
+            if (field === "checkIn") setCheckIn(value);
+            if (field === "checkOut") setCheckOut(value);
+          },
+          attendanceRecordId: selectedRecord,
+          onDelete: async (id) => {
+            try {
+              await attendanceService.updateCheckInOut(id, {
+                checkIn: null,
+                checkOut: null,
+              });
+              await fetchAttendance();
+              setModalOpen(false);
+            } catch (error) {
+              console.error("Xóa giờ vào/ra thất bại:", error);
+              alert("Xóa thất bại!");
+            }
+          },
+        }}
+      />
+      <LeaveCodeModal
+        isOpen={leaveModalOpen}
+        onClose={() => setLeaveModalOpen(false)}
+        onSave={handleSaveLeaveCode}
+        recordId={leaveRecordId}
+        dateInfo={leaveDate}
+        dateMeta={leaveCellMeta}
+      />
     </MainLayout>
   );
 };

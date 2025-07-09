@@ -11,6 +11,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Builder
 public class WorkScheduleDayDetailDTO {
+    private Long id;
     private LocalDate date;
     private String weekday;
     private LocalTime startTime;

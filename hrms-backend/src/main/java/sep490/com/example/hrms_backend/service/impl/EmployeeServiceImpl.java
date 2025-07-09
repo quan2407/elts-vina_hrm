@@ -57,7 +57,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         Employee employee = EmployeeMapper.mapToEmployee(dto);
         employee.setDepartment(fetchDepartment(dto.getDepartmentId()));
         employee.setPosition(fetchPosition(dto.getPositionId()));
-        accountService.createAutoAccountForEmployee(employee);
+//        accountService.createAutoAccountForEmployee(employee);
         employee = employeeRepository.save(employee);
 
         return EmployeeMapper.mapToEmployeeResponseDTO(employee);
