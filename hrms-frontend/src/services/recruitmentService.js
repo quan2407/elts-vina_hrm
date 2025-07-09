@@ -29,3 +29,4 @@ export const EditRecruitment = async (payload, id) => {
   const response = await axiosClient.put(`${API_URL}/${id}`, payload);
   return response.data;
 };
+

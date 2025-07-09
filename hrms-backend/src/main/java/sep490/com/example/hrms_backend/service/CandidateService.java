@@ -78,10 +78,10 @@ public class CandidateService {
         Candidate candidate = CandidateMapper.mapToCandidate(new Candidate(), candidateDto);
         candidateRepository.save(candidate);
     }
-
-    public void updateCandidateStatus(Long id, String status) {
-        CandidateRecruitment candidateRecruitment = candidateRecruitmentRepository.findById(id).orElse(null);
-        candidateRecruitment.setStatus(CandidateStatus.valueOf(status));
-        candidateRecruitmentRepository.save(candidateRecruitment);
-    }
+//
+//    public void updateCandidateStatus(Long id, String status) {
+//        CandidateRecruitment candidateRecruitment = candidateRecruitmentRepository.findById(id).orElse(null);
+//        candidateRecruitment.setStatus(CandidateStatus.valueOf(status));
+//        candidateRecruitmentRepository.save(candidateRecruitment);
+//    }
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import MainLayout from "../components/MainLayout";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -17,13 +17,13 @@ import dayjs from "dayjs";
 
 
 function InterviewCreate() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [interview, setInterview] = useState(null);
   const [scheduledAt, setScheduleAt] = useState(null);
   const [feedback, setFeedback] = useState("");
   const [interviewerId, setInterviewerId] = useState(null);
   const [interviewers, setInterviewers] = useState([]);
-  const [status, setStatus] = useState("PENDING");
   const [errors, setErrors] = useState({});
   const [activeSection, setActiveSection] = useState("basic-info");
 
@@ -60,6 +60,9 @@ function InterviewCreate() {
     fetchInterviewers();
   }, [interview]);
 
+  const handleBack = () => {
+    navigate(-1); // Quay lại trang trước trong lịch sử
+  };
   const handleSubmit = async () => {
 
 
@@ -69,7 +72,6 @@ function InterviewCreate() {
       recruitmentId: interview?.recruitmentId,
       scheduledAt: scheduledAt ? dayjs(scheduledAt).format("YYYY-MM-DDTHH:mm:ss") : null,
       feedback: feedback?.trim() === "" ? null : feedback,
-      status: status,
       interviewerId: interviewerId
     };
 
@@ -419,38 +421,39 @@ function InterviewCreate() {
                     </div>
                   )}
                 </div>
-                <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">
-                    Trạng thái phỏng vấn                  </div>
-                  <select
-                    className="employeedetail-input-field"
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                  >
-                    <option value="PENDING">Đang chờ</option>
-                    <option value="COMPLETED">Đã phỏng vấn</option>
-                    <option value="CANCLE">Đã từ chối</option>
-                  </select>
-                  {errors.status && (
-                    <div className="error-message">
-                      {errors.status.join(", ")}
-                    </div>
-                  )}
-                </div>
+
               </div>
             </div>
+            <div className="employeedetail-form-row">
+              <div className="employeedetail-input-group">
 
-            <div className="employeedetail-form-actions">
-              <button
-                className="submit-button"
-                onClick={handleSubmit}
-              >
-                <Save
-                  size={16}
-                  style={{ marginRight: "8px" }}
-                />
-                Lưu lịch phỏng vấn
-              </button>
+                <div className="employeedetail-form-actions">
+                  <button
+                    className="submit-button"
+                    onClick={handleBack}
+                    style={{ width: "200px", alignItems: "center", justifyContent:"center", backgroundColor: "#909090" }}
+                  >
+                    Quay lại
+                  </button>
+                </div>
+
+              </div>
+              <div className="employeedetail-input-group">
+
+                <div className="employeedetail-form-actions">
+                  <button
+                    className="submit-button"
+                    onClick={handleSubmit}
+                    style={{ width: "200px", alignItems: "center" }}
+                  >
+                    <Save
+                      size={16}
+                      style={{ marginRight: "8px" }}
+                    />
+                    Lưu lịch phỏng vấn
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

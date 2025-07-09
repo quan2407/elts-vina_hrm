@@ -47,7 +47,7 @@ export const systemMenus = [
 export const hrMenus = [
   {
     text: "Tổng quan",
-    path: "/",
+    path: "/dashboard",
     icon: (isActive) => (
       <LayoutDashboard
         size={20}

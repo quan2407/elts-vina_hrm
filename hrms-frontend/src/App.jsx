@@ -32,6 +32,7 @@ import InterviewCreate from "./pages/InterviewCreate";
 import InterviewManagement from "./pages/InterviewManagement";
 import AttendanceMonthlyView from "./pages/AttendanceMonthlyView";
 import InterviewDetail from "./pages/InterviewDetail";
+import Dashboard from "./pages/Dashboard.jsx";
 import ResetPasswordRequestsPage from "./pages/ResetPasswordRequestsPage";
 
 function App() {
@@ -67,6 +68,14 @@ function App() {
               path="/applyjob/:id"
               element={<ApplyJob />}
             />
+
+            <Route
+              path="/dashboard"
+              element={<ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                  <Dashboard />
+                </ProtectedRoute>}
+            />
+
             <Route
               path="/jobs-management"
               element={

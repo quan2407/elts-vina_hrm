@@ -3,6 +3,7 @@ package sep490.com.example.hrms_backend.dto;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import sep490.com.example.hrms_backend.enums.InterviewResult;
 import sep490.com.example.hrms_backend.enums.InterviewScheduleStatus;
 
 
@@ -25,6 +26,8 @@ public class InterviewScheduleDTO {
     private String feedback;
     @NotNull(message = "Ứng viên không được để trống")
     private Long candidateId;
+
+    private InterviewResult result;
 
     private String candidateName;
     private String candidateEmail;

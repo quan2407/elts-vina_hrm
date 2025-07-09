@@ -7,6 +7,7 @@ import CandidateTable from "../components/CandidateTable";
 
 function CandidateManagement() {
   const tableRef = useRef();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("desc");
 
@@ -38,8 +39,10 @@ function CandidateManagement() {
             >
               <option value="desc">Mới - cũ</option>
               <option value="asc">Cũ - mới</option>
+              <option value="status-asc">Trạng thái: Ứng tuyển</option>
+              <option value="status-desc">Trạng thái: Đã tạo</option>
             </select>
-            <div className="export-button " style={{ height: "55px"}} onClick={handleExportClick}>
+            <div className="export-button " style={{ height: "55px" }} onClick={handleExportClick}>
               <span className="export-text">Export</span>
             </div>
           </div>

@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.RecruitmentDto;
+import sep490.com.example.hrms_backend.dto.RecruitmentGraphResponse;
 import sep490.com.example.hrms_backend.entity.Account;
 import sep490.com.example.hrms_backend.entity.Department;
 import sep490.com.example.hrms_backend.entity.Recruitment;
@@ -119,6 +120,10 @@ public class RecruitmentService {
                 }
             }
         }
+    }
+
+    public List<RecruitmentGraphResponse> getGraphData() {
+        return recruitmentRepository.getRecruitmentGraphData();
     }
 }
 
