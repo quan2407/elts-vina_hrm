@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.4</version>
+		<version>3.2.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>sep490.com.example</groupId>
@@ -81,7 +81,7 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.8.6</version>
+			<version>2.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.modelmapper</groupId>
@@ -142,8 +142,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
+                    <source>17</source>
+                    <target>17</target>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -167,9 +167,10 @@
 	<repositories>
 		<repository>
 			<id>central</id>
-			<name>Maven Central Mirror</name>
-			<url>https://maven.aliyun.com/repository/central</url>
+			<name>Maven Central</name>
+			<url>https://repo.maven.apache.org/maven2</url>
 		</repository>
 	</repositories>
+
 
 </project>

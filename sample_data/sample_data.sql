@@ -229,13 +229,12 @@ INSERT INTO candidate (
 (3, 'Lê Văn C', 'Nam', '1988-11-30', 'c@gmail.com', '0912345678');
 
 
-
 INSERT INTO candidate_recruitment (
     candidate_id, recruitment_id, status, submitted_at
 ) VALUES
 (1, 1, 'APPLIED', '2025-06-01 10:00:00'),
-(2, 1, 'INTERVIEWED', '2025-06-03 15:00:00'),
-(2, 2, 'INTERVIEWED', '2025-06-03 15:00:00'),
+(2, 1, 'PENDING', '2025-06-03 15:00:00'),
+(2, 2, 'REJECTED', '2025-06-03 15:00:00'),
 (3, 2, 'APPLIED', '2025-06-05 09:00:00');
 
 
@@ -245,7 +244,7 @@ INSERT INTO interview_schedule (
     candidate_id, interviewer_id, recruitment_id
 ) VALUES
 (1, '2025-06-10 09:00:00', 'COMPLETED', 'Ứng viên phù hợp vị trí QC.', 1, 4, 1),
-(2, '2025-06-12 10:30:00', 'SCHEDULED', NULL, 2, 3, 1),
+(2, '2025-06-12 10:30:00', 'PENDING', NULL, 2, 3, 1),
 (3, '2025-06-14 14:00:00', 'COMPLETED', 'Ứng viên chưa đủ kỹ năng kỹ thuật.', 3, 6, 2);
 
 
@@ -260,9 +259,9 @@ MODIFY COLUMN updated_at TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
 
 
 
-INSERT INTO benefit(title, description, end_date, is_active, max_participants, start_date ) values
- ('Bảo hiểm sức khỏe mở rộng', 'Cung cấp gói bảo hiểm sức khỏe cao cấp cho nhân viên và người thân.', '2025-12-31', 1, 200, '2025-06-29'),
-('Khóa học nâng cao kỹ năng', 'Tài trợ 100% chi phí các khóa học trực tuyến hoặc offline để nâng cao kỹ năng mềm và chuyên môn.', '2025-09-30', 1, 150, '2025-06-30'),
-('Du lịch công ty 2025', 'Chuyến du lịch thường niên cùng công ty đến Đà Nẵng trong 3 ngày 2 đêm.', '2025-08-15', 0, 100, '2025-06-28'),
-('Gói hỗ trợ sức khỏe tinh thần', 'Miễn phí 5 buổi tư vấn tâm lý cùng chuyên gia.', '2026-01-15', 1, 300, '2025-07-01'),
-('Phụ cấp thể thao', 'Hỗ trợ chi phí tham gia phòng gym, yoga, hoặc các hoạt động thể thao.', '2025-11-01', 1, 5, '2025-06-28');
+INSERT INTO benefit(title, description, end_date, is_active, max_participants, start_date, benefit_type, detail ) values
+ ('Bảo hiểm sức khỏe mở rộng', 'Cung cấp gói bảo hiểm sức khỏe cao cấp cho nhân viên và người thân.', '2025-12-31', 1, 200, '2025-06-29', 'PHU_CAP', 'Gói bảo hiểm mở rộng áp dụng cho tất cả nhân viên chính thức và người thân trực hệ.'),
+('Khóa học nâng cao kỹ năng', 'Tài trợ 100% chi phí các khóa học trực tuyến hoặc offline để nâng cao kỹ năng mềm và chuyên môn.', '2025-09-30', 1, 150, '2025-06-30','PHU_CAP', 'Nhân viên đăng ký trên hệ thống nội bộ và được phê duyệt trước khi tham gia.'),
+('Du lịch công ty 2025', 'Chuyến du lịch thường niên cùng công ty đến Đà Nẵng trong 3 ngày 2 đêm.', '2025-08-15', 0, 100, '2025-06-28','SU_KIEN','Chương trình chỉ áp dụng cho nhân viên đạt đủ điều kiện làm việc từ 6 tháng trở lên.'),
+('Gói hỗ trợ sức khỏe tinh thần', 'Miễn phí 5 buổi tư vấn tâm lý cùng chuyên gia.', '2026-01-15', 1, 300, '2025-07-01','PHU_CAP','Đăng ký qua phòng nhân sự, ưu tiên nhân viên làm việc trên 1 năm.'),
+('Phụ cấp thể thao', 'Hỗ trợ chi phí tham gia phòng gym, yoga, hoặc các hoạt động thể thao.', '2025-11-01', 1, 5, '2025-06-28','KHAU_TRU','Hỗ trợ 50% chi phí hàng tháng, tối đa 500.000đ/người.');
