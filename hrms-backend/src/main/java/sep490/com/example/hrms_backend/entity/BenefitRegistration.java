@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import sep490.com.example.hrms_backend.enums.BenefitType;
 
 import java.time.LocalDateTime;
 
@@ -35,11 +36,13 @@ public class BenefitRegistration {
     @Column(name = "note")
     private String note; // ghi chú (nếu có)
 
+
+
     // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
     // Đăng ký này thuộc về một phúc lợi
-    @ManyToOne
-    @JoinColumn(name = "benefit_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "benefit_id", nullable = false, updatable = false)
     private Benefit benefit;
 
     // Đăng ký này được tạo bởi một nhân viên
