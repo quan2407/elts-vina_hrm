@@ -192,14 +192,14 @@ INSERT INTO account (account_id, username, password_hash, email, is_active, crea
 
 
 
-INSERT INTO `lines` (line_id, line_name, department_id, leader_id) VALUES
-(1, 'Line 1', 5, 10),  
-(2, 'Line 2', 5, 1),   
-(4, 'Line 4', 5, 3),  
-(6, 'Line 6', 5, 6),  
-(7, 'Line 7', 5, 9),   
-(8, 'Line 8', 5, 7),   
-(9, 'Line 9', 5, 8);   
+INSERT INTO `lines` (line_id, line_name, department_id) VALUES
+(1, 'Line 1', 5 ),  
+(2, 'Line 2', 5),   
+(4, 'Line 4', 5),  
+(6, 'Line 6', 5),  
+(7, 'Line 7', 5),   
+(8, 'Line 8', 5),   
+(9, 'Line 9', 5);   
 
 
 

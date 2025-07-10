@@ -49,7 +49,7 @@ class EmployeeServiceImplTest {
     @Mock
     private AccountService accountService;
 
-    // ======== Utility Method ========
+
     private EmployeeRequestDTO buildValidEmployeeDTO() {
         return EmployeeRequestDTO.builder()
                 .employeeCode("ELTSSX9999")
@@ -77,7 +77,7 @@ class EmployeeServiceImplTest {
                 .build();
     }
 
-    // ======== Test Cases ========
+
 
     @Test
     void testCreateEmployee_Success() {
@@ -154,7 +154,7 @@ class EmployeeServiceImplTest {
     @Test
     void testCreateEmployee_Fail_DepartmentNotFound() {
         EmployeeRequestDTO dto = buildValidEmployeeDTO();
-        dto.setDepartmentId(999L); // không tồn tại
+        dto.setDepartmentId(999L);
 
         Mockito.when(employeeRepository.existsByEmployeeCode(Mockito.any())).thenReturn(false);
         Mockito.when(employeeRepository.existsByCitizenId(Mockito.any())).thenReturn(false);
@@ -170,7 +170,7 @@ class EmployeeServiceImplTest {
     @Test
     void testCreateEmployee_Fail_PositionRequiredButMissing() {
         EmployeeRequestDTO dto = buildValidEmployeeDTO();
-        dto.setPositionId(null); // Bắt buộc phải có
+        dto.setPositionId(null);
 
         Mockito.when(employeeRepository.existsByEmployeeCode(dto.getEmployeeCode())).thenReturn(false);
         Mockito.when(employeeRepository.existsByCitizenId(dto.getCitizenId())).thenReturn(false);
@@ -287,9 +287,8 @@ class EmployeeServiceImplTest {
 
         Employee employee = new Employee();
         employee.setEmployeeId(id);
-        employee.setCitizenId(dto.getCitizenId()); // giống nên không bị check
-        employee.setEmail("old@example.com");      // khác dto
-
+        employee.setCitizenId(dto.getCitizenId());
+        employee.setEmail("old@example.com");
         Mockito.when(employeeRepository.findById(id)).thenReturn(Optional.of(employee));
         Mockito.when(employeeRepository.existsByEmailAndEmployeeIdNot(dto.getEmail(), id)).thenReturn(true);
 
@@ -308,7 +307,6 @@ class EmployeeServiceImplTest {
 
         Mockito.when(employeeRepository.findById(id)).thenReturn(Optional.of(employee));
 
-        // Cần mock vị trí hợp lệ nhưng không thuộc phòng ban
         Mockito.when(positionRepository.existsDepartmentPositionMapping(dto.getDepartmentId(), dto.getPositionId()))
                 .thenReturn(false);
 
@@ -327,10 +325,8 @@ class EmployeeServiceImplTest {
         employee.setCitizenId(dto.getCitizenId());
         employee.setEmail(dto.getEmail());
 
-        // Mock tìm thấy nhân viên
         Mockito.when(employeeRepository.findById(id)).thenReturn(Optional.of(employee));
 
-        // Phòng ban yêu cầu chức vụ (có position trong list)
         Mockito.when(positionRepository.findByDepartments_DepartmentId(dto.getDepartmentId()))
                 .thenReturn(List.of(new Position()));
 
@@ -353,7 +349,6 @@ class EmployeeServiceImplTest {
         lenient().when(positionRepository.findByDepartments_DepartmentId(dto.getDepartmentId())).thenReturn(List.of(new Position()));
         lenient().when(positionRepository.existsDepartmentPositionMapping(dto.getDepartmentId(), dto.getPositionId())).thenReturn(true);
 
-        // Mục tiêu test
         Mockito.when(departmentRepository.findById(dto.getDepartmentId())).thenReturn(Optional.empty());
 
         Exception ex = assertThrows(ResourceNotFoundException.class, () -> employeeService.updateEmployee(id, dto));
@@ -364,7 +359,7 @@ class EmployeeServiceImplTest {
     void testUpdateEmployee_Fail_PositionNotFound() {
         Long id = 1L;
         EmployeeUpdateDTO dto = buildValidUpdateDTO();
-        dto.setPositionId(999L); // giả lập vị trí không tồn tại
+        dto.setPositionId(999L);
 
         // Mock bắt buộc
         Employee employee = new Employee();
@@ -377,10 +372,10 @@ class EmployeeServiceImplTest {
         lenient().when(positionRepository.existsDepartmentPositionMapping(dto.getDepartmentId(), dto.getPositionId())).thenReturn(true);
         lenient().when(departmentRepository.findById(dto.getDepartmentId())).thenReturn(Optional.of(new Department())); // ✅ BỔ SUNG DÒNG NÀY
 
-        // Đây là mục tiêu test – vị trí không tồn tại
+
         Mockito.when(positionRepository.findById(dto.getPositionId())).thenReturn(Optional.empty());
 
-        // Kiểm tra exception
+
         Exception ex = assertThrows(ResourceNotFoundException.class, () -> employeeService.updateEmployee(id, dto));
         System.out.println(ex.getMessage());
         assertTrue(ex.getMessage().contains("Position"));
