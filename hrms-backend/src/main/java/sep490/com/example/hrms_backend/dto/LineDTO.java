@@ -8,4 +8,10 @@ import lombok.Data;
 public class LineDTO {
     private Long id;
     private String name;
+    private Long leaderId;
+
+    public LineDTO(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }

@@ -28,8 +28,8 @@ const LineTable = forwardRef(({searchTerm}) => {
         fetchLines();
     }, [searchTerm]);
 
-    const handleEmployeeClick = (jobId) => {
-        navigate(`/candidates-management/${jobId}`);
+    const handleEmployeeClick = (id) => {
+        navigate(`/employee/line/${id}`);
     }
 
     return (

@@ -34,6 +34,7 @@ public class EmployeeController {
         EmployeeResponseDTO createdEmployee = employeeService.createEmployee(dto);
         return ResponseEntity.ok(createdEmployee);
     }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<EmployeeResponseDTO> updateEmployee(
@@ -42,12 +43,14 @@ public class EmployeeController {
         EmployeeResponseDTO updatedEmployee = employeeService.updateEmployee(id, dto);
         return ResponseEntity.ok(updatedEmployee);
     }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<EmployeeDetailDTO> getEmployeeById(@PathVariable Long id) {
         EmployeeDetailDTO employeeDetail = employeeService.getEmployeeDetailById(id);
         return ResponseEntity.ok(employeeDetail);
     }
+
     @GetMapping("/profile")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'EMPLOYEE', 'LINE_LEADER', 'PMC', 'CANTEEN', 'PRODUCTION_MANAGER')")
     public ResponseEntity<EmployeeDetailDTO> getOwnProfile() {
@@ -61,11 +64,13 @@ public class EmployeeController {
         EmployeeDetailDTO updated = employeeService.updateOwnProfile(dto);
         return ResponseEntity.ok(updated);
     }
+
     @GetMapping("/next-code")
     public ResponseEntity<String> getNextEmployeeCode() {
         String nextCode = employeeService.getNextEmployeeCode();
         return ResponseEntity.ok(nextCode);
     }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
@@ -88,8 +93,33 @@ public class EmployeeController {
 
     @GetMapping("/department/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
-    public ResponseEntity<List<EmployeeResponseDTO>> getEmployeeByDepartmentId(@PathVariable Long id){
+    public ResponseEntity<List<EmployeeResponseDTO>> getEmployeeByDepartmentId(@PathVariable Long id) {
         List<EmployeeResponseDTO> employeeDetailInDepartment = employeeService.getEmployeeByDepartmentId(id);
         return ResponseEntity.ok(employeeDetailInDepartment);
+    }
+
+    @GetMapping("/line/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'PMC')")
+    public ResponseEntity<List<EmployeeResponseDTO>> getEmployeeByLineId(@PathVariable Long id) {
+        List<EmployeeResponseDTO> employeeDetailInLine = employeeService.getEmployeeByLineId(id);
+        return ResponseEntity.ok(employeeDetailInLine);
+    }
+
+
+    @GetMapping("/not-in-line/{lineId}")
+    public ResponseEntity<List<EmployeeResponseDTO>> getEmployeesNotInLine(
+            @PathVariable Long lineId,
+            @RequestParam(required = false) String search) {
+        List<EmployeeResponseDTO> employees = employeeService.getEmployeesNotInLine(lineId, search);
+        return ResponseEntity.ok(employees);
+    }
+
+
+    @PutMapping("/add-to-line/{lineId}")
+    public ResponseEntity<?> addEmployeesToLine(
+            @PathVariable Long lineId,
+            @RequestBody List<Long> employeeIds) {
+        employeeService.addEmployeesToLine(lineId, employeeIds);
+        return ResponseEntity.ok("Thêm thành công");
     }
 }

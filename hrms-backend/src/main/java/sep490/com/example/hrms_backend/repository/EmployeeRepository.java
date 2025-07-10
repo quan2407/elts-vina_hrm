@@ -2,6 +2,7 @@ package sep490.com.example.hrms_backend.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import sep490.com.example.hrms_backend.entity.Employee;
 
 import java.util.List;
@@ -19,7 +20,9 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     boolean existsByEmailAndEmployeeIdNot(String email, Long id);
 
     Optional<Employee> findByAccount_Username(String username);
+
     List<Employee> findByIsDeletedFalse();
+
     Optional<Employee> findByEmployeeIdAndIsDeletedFalse(Long employeeId);
 
 
@@ -33,5 +36,20 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     @Query("SELECT e FROM Employee e WHERE e.isDeleted = false")
     List<Employee> findAllActive();
+
+
+    @Query("SELECT e FROM Employee e WHERE (e.line IS NULL OR e.line.lineId <> :lineId) AND e.department.departmentName = 'Sản Xuất'")
+    List<Employee> findEmployeesNotInLine(@Param("lineId") Long lineId);
+
+    @Query("""
+                SELECT e FROM Employee e
+                WHERE (e.line IS NULL OR e.line.lineId <> :lineId)
+                AND e.isDeleted = false
+                AND (
+                    LOWER(e.employeeName) LIKE :search
+                )
+            """)
+    List<Employee> findEmployeesNotInLineWithSearch(@Param("lineId") Long lineId, @Param("search") String search);
+
 
 }

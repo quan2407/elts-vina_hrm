@@ -7,10 +7,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.DepartmentDTO;
+import sep490.com.example.hrms_backend.dto.LineDTO;
 import sep490.com.example.hrms_backend.dto.LinePMCDto;
 import sep490.com.example.hrms_backend.service.LineService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/lines")
@@ -26,8 +28,28 @@ public class LineController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getLine(@RequestParam(required = false) String search){
+    public ResponseEntity<?> getLine(@RequestParam(required = false) String search) {
         List<LinePMCDto> linePMCDtoList = lineService.getAllLine(search);
-            return new ResponseEntity<>(linePMCDtoList,HttpStatus.OK);
+        return new ResponseEntity<>(linePMCDtoList, HttpStatus.OK);
     }
+
+    @GetMapping("/{id}")
+    public LineDTO getLineByLineId(@PathVariable Long id) {
+        return lineService.getLineByLineId(id);
+    }
+
+    @PutMapping("/{lineId}/leader")
+    public ResponseEntity<?> updateLineLeader(
+            @PathVariable Long lineId,
+            @RequestBody Map<String, Long> requestBody) {
+        Long leaderId = requestBody.get("leaderId");
+        try {
+            lineService.assignLeaderToLine(lineId, leaderId);
+            return ResponseEntity.ok("Cập nhật tổ trưởng thành công.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi: " + e.getMessage());
+        }
+    }
+
+
 }
