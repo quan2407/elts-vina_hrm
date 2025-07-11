@@ -142,6 +142,8 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         return EmployeeMapper.mapToEmployeeDetailDTO(employee);
     }
 
+
+
     private void checkDuplicateFieldsForCreate(EmployeeRequestDTO dto) {
         if (employeeRepository.existsByEmployeeCode(dto.getEmployeeCode())) {
             throw new DuplicateEntryException("Mã nhân viên đã tồn tại trong hệ thống");

@@ -22,4 +22,5 @@ public interface EmployeeService {
     List<EmployeeResponseDTO> getEmployeeByLineId(Long id);
 
     void addEmployeesToLine(Long lineId, List<Long> employeeIds);
+
 }

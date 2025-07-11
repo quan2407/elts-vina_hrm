@@ -51,6 +51,7 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeDetail);
     }
 
+
     @GetMapping("/profile")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'EMPLOYEE', 'LINE_LEADER', 'PMC', 'CANTEEN', 'PRODUCTION_MANAGER')")
     public ResponseEntity<EmployeeDetailDTO> getOwnProfile() {

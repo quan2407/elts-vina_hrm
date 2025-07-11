@@ -309,6 +309,10 @@ function App() {
               }
             />
 
+            <Route 
+            path=""
+            />
+
           </Routes>
         </Router>
       </AntdApp>

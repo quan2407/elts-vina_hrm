@@ -3,8 +3,8 @@ import axiosClient from "./axiosClient";
 const employeeService = {
   getEmployeeNotInLine: (lineId, searchTerm = "") => {
     return axiosClient.get(`/employees/not-in-line/${lineId}`, {
-    params: { search: searchTerm },
-  });
+      params: { search: searchTerm },
+    });
   },
 
   getEmployeeByLineId: (id) => {
