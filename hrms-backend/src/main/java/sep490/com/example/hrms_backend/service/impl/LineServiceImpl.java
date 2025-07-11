@@ -7,11 +7,15 @@ import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.DepartmentDTO;
 import sep490.com.example.hrms_backend.dto.LineDTO;
 import sep490.com.example.hrms_backend.dto.LinePMCDto;
+import sep490.com.example.hrms_backend.entity.Account;
 import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.entity.Line;
+import sep490.com.example.hrms_backend.entity.Role;
 import sep490.com.example.hrms_backend.mapper.LinePMCMapper;
+import sep490.com.example.hrms_backend.repository.AccountRepository;
 import sep490.com.example.hrms_backend.repository.EmployeeRepository;
 import sep490.com.example.hrms_backend.repository.LineRepository;
+import sep490.com.example.hrms_backend.repository.RoleRepository;
 import sep490.com.example.hrms_backend.service.LineService;
 
 import java.util.List;
@@ -22,6 +26,8 @@ public class LineServiceImpl implements LineService {
 
     private final LineRepository lineRepository;
     private final EmployeeRepository employeeRepository;
+    private final AccountRepository accountRepository;
+    private final RoleRepository roleRepository;
 
     @Override
     public DepartmentDTO getDepartmentByLineId(Long lineId) {
@@ -62,8 +68,32 @@ public class LineServiceImpl implements LineService {
     public void assignLeaderToLine(Long lineId, Long leaderId) {
         Line line = lineRepository.findById(lineId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tổ"));
+        if (line.getLeader() != null) {
+
+            Long oldLeaderId = line.getLeader().getEmployeeId();
+
+            Account oldLeaderAccount = accountRepository.findByEmployee_EmployeeId(oldLeaderId)
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản cho nhân viên này"));
+
+            Role oldLeaderRole = roleRepository.findByRoleName("ROLE_EMPLOYEE")
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy quyền ROLE_EMPLOYEE"));
+
+            oldLeaderAccount.setRole(oldLeaderRole);
+            accountRepository.save(oldLeaderAccount);
+        }
+
         Employee employee = employeeRepository.findById(leaderId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy nhân viên"));
+
+        Account account = accountRepository.findByEmployee_EmployeeId(leaderId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản cho nhân viên này"));
+
+        Role role = roleRepository.findByRoleName("ROLE_LINE_LEADER")
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy quyền ROLE_LINE_LEADER"));
+
+
+        account.setRole(role);
+        accountRepository.save(account);
 
         line.setLeader(employee);
         lineRepository.save(line);

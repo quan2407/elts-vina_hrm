@@ -43,11 +43,13 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     @Query("""
                 SELECT e FROM Employee e
-                WHERE (e.line IS NULL OR e.line.lineId <> :lineId)
-                AND e.isDeleted = false
-                AND (
-                    LOWER(e.employeeName) LIKE :search
-                )
+                WHERE e.isDeleted = false
+                  AND e.department.departmentName = 'Sản Xuất'
+                  AND (
+                      e.line IS NULL
+                      OR (e.line IS NOT NULL AND e.line.lineId <> :lineId)
+                  )
+                  AND LOWER(e.employeeName) LIKE :search
             """)
     List<Employee> findEmployeesNotInLineWithSearch(@Param("lineId") Long lineId, @Param("search") String search);
 
