@@ -37,6 +37,7 @@ import ResetPasswordRequestsPage from "./pages/ResetPasswordRequestsPage";
 import SalaryMonthlyView from "./pages/SalaryMonthlyView";
 import LineManagement from "./pages/LineManagementPMC.jsx";
 import EmployeeInLineManagement from "./pages/EmployeeInLineManagement.jsx";
+import EmployeeWorkScheduleView from "./pages/EmployeeWorkScheduleView";
 
 function App() {
   return (
@@ -79,9 +80,15 @@ function App() {
                   <Dashboard />
                 </ProtectedRoute>
               }
-
             />
-
+            <Route
+              path="/my-work-schedule"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_EMPLOYEE"]}>
+                  <EmployeeWorkScheduleView />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/jobs-management"
               element={
@@ -295,15 +302,10 @@ function App() {
               }
             />
 
-
             <Route
               path="/line-management"
               element={
-                <ProtectedRoute
-                  allowedRoles={[
-                    "ROLE_PMC",
-                  ]}
-                >
+                <ProtectedRoute allowedRoles={["ROLE_PMC"]}>
                   <LineManagement />
                 </ProtectedRoute>
               }
@@ -311,20 +313,13 @@ function App() {
             <Route
               path="/employee/line/:id"
               element={
-                <ProtectedRoute
-                  allowedRoles={[
-                    "ROLE_PMC",
-                  ]}
-                >
+                <ProtectedRoute allowedRoles={["ROLE_PMC"]}>
                   <EmployeeInLineManagement />
                 </ProtectedRoute>
               }
             />
 
-            <Route 
-            path=""
-            />
-
+            <Route path="" />
           </Routes>
         </Router>
       </AntdApp>
