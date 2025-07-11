@@ -106,6 +106,16 @@ export const hrMenus = [
       />
     ),
   },
+  {
+    text: "Bảng lương tháng",
+    path: "/salary-monthly",
+    icon: (isActive) => (
+      <LayoutDashboard
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
 ];
 export const pmcMenus = [
   {

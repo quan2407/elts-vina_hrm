@@ -84,7 +84,7 @@ INSERT INTO position (position_id, position_name, description) VALUES
 INSERT INTO department_position (department_id, position_id) VALUES
 (1, 1),  
 (1, 15), 
-
+(5,15),
 (2, 2),  
 
 (4, 1),  
@@ -136,7 +136,7 @@ INSERT INTO employee (
  NULL, NULL, 'Vietnam', '0123456784',
  '2013-01-01', '2033-01-01', 'Hải Phòng',
  NULL, NULL, '2019-01-01', '0900000004', 'userd@example.com',
- 1, 1), 
+ 5, 15), 
 
 (5, 'ELTSSX0005', 'Test User E', 'NAM', '1995-05-15',
  NULL, NULL, 'Vietnam', '0123456785',
@@ -192,14 +192,14 @@ INSERT INTO account (account_id, username, password_hash, email, is_active, crea
 
 
 
-INSERT INTO `lines` (line_id, line_name, department_id, leader_id) VALUES
-(1, 'Line 1', 5, 10),  
-(2, 'Line 2', 5, 1),   
-(4, 'Line 4', 5, 3),  
-(6, 'Line 6', 5, 6),  
-(7, 'Line 7', 5, 9),   
-(8, 'Line 8', 5, 7),   
-(9, 'Line 9', 5, 8);   
+INSERT INTO `lines` (line_id, line_name, department_id) VALUES
+(1, 'Line 1', 5 ),  
+(2, 'Line 2', 5),   
+(4, 'Line 4', 5),  
+(6, 'Line 6', 5),  
+(7, 'Line 7', 5),   
+(8, 'Line 8', 5),   
+(9, 'Line 9', 5);   
 
 
 

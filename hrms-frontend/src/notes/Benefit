@@ -1,9 +1,22 @@
-- BenefitHR: hien thi them bao nhieu nguoi dang dang ki / max so ng co the dang ki (VD: 3/5)
-             : làm nốt nút view all
-             :  thêm số lượng người đăng kí (benefit registration)ư
-             : thiều filter
-                : đăng kí 1 benefit (Employee)
-                : chưa fetch đc dữ liệu khi tạo thành công 1 benefit (đóng benefit modal thì tự fetch lại dữ liệu)
-                : chưa test validate từ BE
+- BenefitHR:
+     - cần nhưng chưa làm:
+                               :hien thi them bao nhieu nguoi dang dang ki / max so ng co the dang ki (VD: 3/5)
+                                 :làm nốt nút view all   (*)
+                                  :thiều filter
+                               : chưa trả về message từ dưới BE lên
+                                : tạo bởi
+
+                XEM CHI TIẾT 1 BENEFIT   (1 PAGE MỚI KHI BẤM VÀO XEM Ở BẢNG BENEFIT)
+                        : đăng kí 1 benefit (Employee)
+
+
+
+
+
+
+     - chưa làm và chưa cần:
                 : breadcumb
-                : làm danh sách các action (in progress)
+                : làm filter có các thẻ (dữ liệu có sẵn) rồi bấm chọn
+
+     - done:
+                : làm danh sách các action (done)
