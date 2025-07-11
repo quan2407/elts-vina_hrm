@@ -34,6 +34,7 @@ import AttendanceMonthlyView from "./pages/AttendanceMonthlyView";
 import InterviewDetail from "./pages/InterviewDetail";
 import Dashboard from "./pages/Dashboard.jsx";
 import ResetPasswordRequestsPage from "./pages/ResetPasswordRequestsPage";
+import SalaryMonthlyView from "./pages/SalaryMonthlyView";
 
 function App() {
   return (
@@ -153,6 +154,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["ROLE_HR"]}>
                   <InterviewDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/salary-monthly"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                  <SalaryMonthlyView />
                 </ProtectedRoute>
               }
             />
