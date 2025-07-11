@@ -56,11 +56,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpStatusCode status,
                                                                   WebRequest request) {
         Map<String, List<String>> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String message = error.getDefaultMessage();
-            errors.computeIfAbsent(fieldName, key -> new java.util.ArrayList<>()).add(message);
+
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            if (error instanceof FieldError fieldError) {
+                String fieldName = fieldError.getField();
+                String message = fieldError.getDefaultMessage();
+                errors.computeIfAbsent(fieldName, key -> new java.util.ArrayList<>()).add(message);
+            } else {
+                // xử lý lỗi không phải field (rare)
+                String objectName = error.getObjectName();
+                String message = error.getDefaultMessage();
+                errors.computeIfAbsent(objectName, key -> new java.util.ArrayList<>()).add(message);
+            }
         });
+
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 

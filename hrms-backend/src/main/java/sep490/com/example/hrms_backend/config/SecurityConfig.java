@@ -47,7 +47,6 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults()) // ✅ Thêm dòng này để kích hoạt cấu hình CORS
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ✅ Cho phép preflight
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/candidate/apply/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
