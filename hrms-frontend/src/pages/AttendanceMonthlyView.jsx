@@ -30,10 +30,13 @@ const AttendanceMonthlyView = () => {
     setLeaveModalOpen(true);
   };
 
-  const handleSaveLeaveCode = async (id, code) => {
-    console.log("Leave update:", id, code);
+  const handleSaveLeaveCode = async (id, code, targetField) => {
+    console.log("Leave update:", id, code, targetField);
     try {
-      await attendanceService.updateLeaveCode(id, { leaveCode: code });
+      await attendanceService.updateLeaveCode(id, {
+        leaveCode: code,
+        targetField: targetField,
+      });
       await fetchAttendance();
       setLeaveModalOpen(false);
     } catch (error) {
