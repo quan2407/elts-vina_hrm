@@ -21,4 +21,5 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
     @Query("SELECT DISTINCT MONTH(ar.date), YEAR(ar.date) FROM AttendanceRecord ar ORDER BY YEAR(ar.date) DESC, MONTH(ar.date) DESC")
     List<Object[]> findDistinctMonthYear();
 
+    List<AttendanceRecord> findByEmployee_EmployeeIdAndMonthAndYear(Long employeeId, int month, int year);
 }

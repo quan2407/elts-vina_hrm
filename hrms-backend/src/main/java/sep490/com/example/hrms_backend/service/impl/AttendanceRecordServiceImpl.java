@@ -180,8 +180,23 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                     LocalTime dayShiftOut = checkOut.isBefore(scheduledEnd) ? checkOut : scheduledEnd;
                     LocalTime standardEnd = LocalTime.of(17, 0);
 
-                    float shiftHours = (float) (standardEnd.toSecondOfDay() - dayShiftIn.toSecondOfDay()) / 3600;
+
+                    LocalTime endPoint = checkOut.isBefore(standardEnd) ? checkOut : standardEnd;
+                    int startSec = dayShiftIn.toSecondOfDay();
+                    int endSec = endPoint.toSecondOfDay();
+
+
+                    int breakStart = LocalTime.of(11, 30).toSecondOfDay();
+                    int breakEnd = LocalTime.of(12, 30).toSecondOfDay();
+
+
+                    int overlapStart = Math.max(startSec, breakStart);
+                    int overlapEnd = Math.min(endSec, breakEnd);
+                    int overlap = Math.max(0, overlapEnd - overlapStart);
+
+                    float shiftHours = (float) (endSec - startSec - overlap) / 3600f;
                     shiftHours = Math.max(0, shiftHours);
+
 
                     float overtimeHours = 0f;
                     if (checkOut.isAfter(standardEnd)) {
