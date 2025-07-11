@@ -8,7 +8,7 @@ import {
   Target,
   Gift,
   CalendarCheck,
-  Rows4
+  Rows4,
 } from "lucide-react";
 
 export const systemMenus = [
@@ -132,14 +132,25 @@ export const pmcMenus = [
     text: "Danh sách line",
     path: "/line-management",
     icon: (isActive) => (
-      <Rows4 
+      <Rows4
         size={20}
         stroke={isActive ? "#4f46e5" : "white"}
       />
     ),
-  }
+  },
 ];
 export const lineLeaderMenus = [];
 export const productionManagerMenus = [];
 export const canteenMenus = [];
-export const employeeMenus = [];
+export const employeeMenus = [
+  {
+    text: "Lịch làm việc của tôi",
+    path: "/my-work-schedule",
+    icon: (isActive) => (
+      <CalendarCheck
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+];

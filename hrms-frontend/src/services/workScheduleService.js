@@ -37,6 +37,11 @@ const workScheduleService = {
   deleteWorkScheduleDetail: (id) => {
     return axiosClient.delete(`/work-schedule-details/${id}`);
   },
+  getWorkScheduleForCurrentEmployee: (month, year) => {
+    return axiosClient.get("/work-schedules/employee-view", {
+      params: { month, year },
+    });
+  },
 };
 
 export default workScheduleService;

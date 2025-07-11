@@ -6,9 +6,11 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import sep490.com.example.hrms_backend.dto.EmployeeWorkScheduleDTO;
 import sep490.com.example.hrms_backend.dto.WorkScheduleCreateDTO;
 import sep490.com.example.hrms_backend.dto.WorkScheduleResponseDTO;
 import sep490.com.example.hrms_backend.service.WorkScheduleService;
+import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,7 +21,7 @@ import java.util.List;
 public class WorkScheduleController {
 
     private final WorkScheduleService workScheduleService;
-
+    private final CurrentUserUtils currentUserUtils;
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'PMC')")
     public ResponseEntity<List<WorkScheduleResponseDTO>> createWorkSchedules(@Valid @RequestBody WorkScheduleCreateDTO dto) {
@@ -53,6 +55,16 @@ public class WorkScheduleController {
             @RequestParam int year) {
         workScheduleService.acceptAllSubmittedSchedules(month, year);
         return ResponseEntity.ok().build();
+    }
+    @GetMapping("/employee-view")
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public ResponseEntity<List<EmployeeWorkScheduleDTO>> getEmployeeWorkSchedule(
+            @RequestParam int month,
+            @RequestParam int year
+    ) {
+        Long employeeId = currentUserUtils.getCurrentEmployeeId();
+        List<EmployeeWorkScheduleDTO> result = workScheduleService.getWorkScheduleForEmployee(employeeId, month, year);
+        return ResponseEntity.ok(result);
     }
 
 

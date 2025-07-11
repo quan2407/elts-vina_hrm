@@ -4,6 +4,7 @@ import com.example.hrms_backend.dto.WorkScheduleMonthDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import sep490.com.example.hrms_backend.dto.EmployeeWorkScheduleDTO;
 import sep490.com.example.hrms_backend.dto.WorkScheduleCreateDTO;
 import sep490.com.example.hrms_backend.dto.WorkScheduleResponseDTO;
 import sep490.com.example.hrms_backend.entity.*;
@@ -177,5 +178,34 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         }
 
     }
+    public List<EmployeeWorkScheduleDTO> getWorkScheduleForEmployee(Long employeeId, int month, int year) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "Không tìm thấy nhân viên"));
+
+        Long lineId = employee.getLine() != null ? employee.getLine().getLineId() : null;
+        Long departmentId = employee.getDepartment().getDepartmentId();
+
+        Optional<WorkSchedule> scheduleOpt = (lineId != null)
+                ? workScheduleRepository.findByDepartment_DepartmentIdAndLine_LineIdAndMonthAndYear(departmentId, lineId, month, year)
+                : workScheduleRepository.findByDepartment_DepartmentIdAndLineIsNullAndMonthAndYear(departmentId, month, year);
+
+        WorkSchedule schedule = scheduleOpt.orElseThrow(() ->
+                new HRMSAPIException(HttpStatus.NOT_FOUND, "Không có lịch làm việc cho tháng này"));
+
+        List<WorkScheduleDetail> details = schedule.getWorkScheduleDetails();
+
+        return details.stream()
+                .map(detail -> {
+                    return EmployeeWorkScheduleDTO.builder()
+                            .date(detail.getDateWork())
+                            .startTime(detail.getStartTime())
+                            .endTime(detail.getEndTime())
+                            .isOvertime(Boolean.TRUE.equals(detail.getIsOvertime()))
+                            .lineName(schedule.getLine() != null ? schedule.getLine().getLineName() : null)
+                            .departmentName(schedule.getDepartment().getDepartmentName())
+                            .build();
+                }).toList();
+    }
+
 
 }
