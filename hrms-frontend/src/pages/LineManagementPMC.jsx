@@ -14,7 +14,7 @@ function LineManagement() {
         <MainLayout>
             <div className="content-wrapper">
                 <div className="page-header">
-                    <h1 className="page-title">Danh sách phỏng vấn</h1>
+                    <h1 className="page-title">Danh sách Line</h1>
                     <div className="page-actions">
 
                         <form className="form-floating" onSubmit={(e) => e.preventDefault()}>

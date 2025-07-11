@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import employeeService from "../../../services/employeeService";
 import "../../../styles/AddEmployeeModal.css";
 import "../../../styles/EmployeeTable.css";
+import SuccessModal from "../../popup/SuccessModal";
 
 const AddEmployeeModal = ({ lineId, onClose, onSuccess }) => {
     const [employees, setEmployees] = useState([]);
     const [selectedEmployeeIds, setSelectedEmployeeIds] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const [showSuccess, setShowSuccess] = useState(false);
 
     useEffect(() => {
         const fetchAvailableEmployees = async () => {
@@ -18,7 +20,7 @@ const AddEmployeeModal = ({ lineId, onClose, onSuccess }) => {
             }
         };
         fetchAvailableEmployees();
-    }, [lineId]);
+    }, [lineId, searchTerm]);
 
     const handleCheckboxChange = (employeeId) => {
         setSelectedEmployeeIds((prev) =>
@@ -31,16 +33,13 @@ const AddEmployeeModal = ({ lineId, onClose, onSuccess }) => {
     const handleAddEmployees = async () => {
         try {
             await employeeService.addEmployeesToLine(lineId, selectedEmployeeIds);
-            onSuccess();
-            onClose();
+
+            setShowSuccess(true);
         } catch (error) {
             console.error("Lỗi khi thêm nhân viên vào line", error);
         }
     };
 
-    const filteredEmployees = employees.filter((emp) =>
-        emp.employeeName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
     return (
         <div className="modal-overlay">
@@ -64,18 +63,18 @@ const AddEmployeeModal = ({ lineId, onClose, onSuccess }) => {
                             <div className="employee-header-cell">Chọn</div>
                             <div className="employee-header-cell">Mã NV</div>
                             <div className="employee-header-cell">Họ tên</div>
+                            <div className="employee-header-cell">Chuyền</div>
                             <div className="employee-header-cell">Giới tính</div>
                             <div className="employee-header-cell">Ngày sinh</div>
                             <div className="employee-header-cell">Ngày vào</div>
                             <div className="employee-header-cell">Phòng ban</div>
-                            <div className="employee-header-cell">Chuyền</div>
                             <div className="employee-header-cell">Vị trí</div>
                         </div>
-                        {filteredEmployees.length === 0 && (
-                            <div className="employee-table-empty" style={{color: 'red'}}>Không tìm thấy nhân viên nào phù hợp.</div>
+                        {employees.length === 0 && (
+                            <div className="employee-table-empty" style={{ color: 'red' }}>Không tìm thấy nhân viên nào phù hợp.</div>
                         )}
 
-                        {filteredEmployees.map((emp) => (
+                        {employees.map((emp) => (
                             <div key={emp.employeeId} className="employee-table-row">
                                 <div className="employee-table-cell">
                                     <input
@@ -86,11 +85,11 @@ const AddEmployeeModal = ({ lineId, onClose, onSuccess }) => {
                                 </div>
                                 <div className="employee-table-cell">{emp.employeeCode}</div>
                                 <div className="employee-table-cell">{emp.employeeName}</div>
+                                <div className="employee-table-cell">{emp.lineName}</div>
                                 <div className="employee-table-cell">{emp.gender}</div>
                                 <div className="employee-table-cell">{emp.dob}</div>
                                 <div className="employee-table-cell">{emp.startWorkAt}</div>
                                 <div className="employee-table-cell">{emp.departmentName}</div>
-                                <div className="employee-table-cell">{emp.lineName}</div>
                                 <div className="employee-table-cell">{emp.positionName}</div>
                             </div>
                         ))}
@@ -106,6 +105,19 @@ const AddEmployeeModal = ({ lineId, onClose, onSuccess }) => {
                     </button>
                 </div>
             </div>
+
+            {showSuccess && (
+                <SuccessModal
+                    title="Thêm nhân viên thành công"
+                    message={`Thêm nhân viên mới thành công!`}
+                    onClose={() => {
+                        setShowSuccess(false);
+                        onSuccess();
+                        onClose();
+                    }}
+                />
+            )}
+
         </div>
     );
 };

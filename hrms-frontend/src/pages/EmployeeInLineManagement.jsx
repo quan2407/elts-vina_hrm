@@ -3,7 +3,7 @@ import MainLayout from "../components/MainLayout";
 import EmployeeTableInLine from "../components/EmployeeTableInLine";
 import "../styles/ManagementLayout.css";
 import { getLineById } from "../services/linesService";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import AddEmployeeModal from "../components/modals/employee/AddEmployeeModal";
 function EmployeeInLineManagement() {
     const tableRef = useRef();
@@ -12,12 +12,17 @@ function EmployeeInLineManagement() {
     const [line, setLine] = useState([]);
     const { id } = useParams();
     const [reloadFlag, setReloadFlag] = useState(false);
+    const navigate = useNavigate();
 
     const handleExportClick = () => {
         if (tableRef.current) {
             tableRef.current.exportToExcel();
         }
     };
+
+    const handleBackClick = () => {
+        navigate(-1);
+    }
 
     useEffect(() => {
         const fetchLineInfo = async () => {
@@ -55,6 +60,15 @@ function EmployeeInLineManagement() {
                 </div>
 
                 <EmployeeTableInLine searchTerm={searchTerm} reloadFlag={reloadFlag} />
+                <div className="page-header">
+                    <div className="page-actions" style={{ display: "flex", justifyContent: "flex-end", width: "100%" }}>
+
+
+                        <div className="export-button" style={{ height: "55px", marginTop: "50px", marginLeft: "auto", background:"#e70c0c" }} onClick={handleBackClick}>
+                            <span className="export-text">Back</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {showAddModal && (
