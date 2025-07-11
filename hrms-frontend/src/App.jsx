@@ -35,6 +35,8 @@ import InterviewDetail from "./pages/InterviewDetail";
 import Dashboard from "./pages/Dashboard.jsx";
 import ResetPasswordRequestsPage from "./pages/ResetPasswordRequestsPage";
 import SalaryMonthlyView from "./pages/SalaryMonthlyView";
+import LineManagement from "./pages/LineManagementPMC.jsx";
+import EmployeeInLineManagement from "./pages/EmployeeInLineManagement.jsx";
 
 function App() {
   return (
@@ -77,6 +79,7 @@ function App() {
                   <Dashboard />
                 </ProtectedRoute>
               }
+
             />
 
             <Route
@@ -291,6 +294,37 @@ function App() {
                 />
               }
             />
+
+
+            <Route
+              path="/line-management"
+              element={
+                <ProtectedRoute
+                  allowedRoles={[
+                    "ROLE_PMC",
+                  ]}
+                >
+                  <LineManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/employee/line/:id"
+              element={
+                <ProtectedRoute
+                  allowedRoles={[
+                    "ROLE_PMC",
+                  ]}
+                >
+                  <EmployeeInLineManagement />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route 
+            path=""
+            />
+
           </Routes>
         </Router>
       </AntdApp>

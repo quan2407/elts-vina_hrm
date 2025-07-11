@@ -8,6 +8,7 @@ import {
   Target,
   Gift,
   CalendarCheck,
+  Rows4
 } from "lucide-react";
 
 export const systemMenus = [
@@ -127,6 +128,16 @@ export const pmcMenus = [
       />
     ),
   },
+  {
+    text: "Danh sách line",
+    path: "/line-management",
+    icon: (isActive) => (
+      <Rows4 
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  }
 ];
 export const lineLeaderMenus = [];
 export const productionManagerMenus = [];

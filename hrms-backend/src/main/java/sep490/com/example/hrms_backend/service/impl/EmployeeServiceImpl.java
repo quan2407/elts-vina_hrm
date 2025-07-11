@@ -36,11 +36,62 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
                 .map(EmployeeMapper::mapToEmployeeResponseDTO)
                 .collect(Collectors.toList());
     }
+
     @Override
     public String getNextEmployeeCode() {
         long count = employeeRepository.count();
         long next = count + 1;
         return "ELTSSX" + String.format("%04d", next);
+    }
+
+    @Override
+    public List<EmployeeResponseDTO> getEmployeesNotInLine(Long lineId, String search) {
+        List<Employee> employees;
+
+        if (search == null || search.trim().isEmpty()) {
+            employees = employeeRepository.findEmployeesNotInLine(lineId);
+        } else {
+            employees = employeeRepository.findEmployeesNotInLineWithSearch(lineId, "%" + search.trim().toLowerCase() + "%");
+        }
+
+        return employees.stream()
+                .map(EmployeeMapper::mapToEmployeeResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+
+
+    @Override
+    public List<EmployeeResponseDTO> getEmployeeByLineId(Long id) {
+        Line line = lineRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Line", "id", id));
+        List<EmployeeResponseDTO> employees = line.getEmployees().stream()
+                .map(EmployeeMapper::mapToEmployeeResponseDTO)
+                .collect(Collectors.toList());
+        return employees;
+    }
+
+    @Override
+    @Transactional
+    public void addEmployeesToLine(Long lineId, List<Long> employeeIds) {
+        Line line = lineRepository.findById(lineId).orElseThrow(() -> new ResourceNotFoundException("Line", "id", lineId));
+
+        for (Long employeeId : employeeIds) {
+            Employee e = employeeRepository.findById(employeeId).orElseThrow(() -> new ResourceNotFoundException("Employee", "id", employeeId));
+
+            Line oldLine = e.getLine();
+            if (oldLine != null) {
+                Employee currentLeader = oldLine.getLeader();
+                if (currentLeader != null && currentLeader.getEmployeeId().equals(e.getEmployeeId())) {
+                    oldLine.setLeader(null);
+                    lineRepository.save(oldLine);
+                }
+            }
+
+            e.setLine(line);
+            employeeRepository.save(e);
+
+        }
     }
 
 
@@ -90,6 +141,8 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
         return EmployeeMapper.mapToEmployeeDetailDTO(employee);
     }
+
+
 
     private void checkDuplicateFieldsForCreate(EmployeeRequestDTO dto) {
         if (employeeRepository.existsByEmployeeCode(dto.getEmployeeCode())) {
@@ -178,6 +231,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         employee.setDeleted(true);
         employeeRepository.save(employee);
     }
+
     @Override
     public List<EmployeeResponseDTO> getEmployeeByDepartmentId(Long id) {
         Department department = departmentRepository.findById(id).orElse(null);
