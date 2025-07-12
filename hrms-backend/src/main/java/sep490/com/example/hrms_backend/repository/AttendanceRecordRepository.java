@@ -22,4 +22,10 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
     List<Object[]> findDistinctMonthYear();
 
     List<AttendanceRecord> findByEmployee_EmployeeIdAndMonthAndYear(Long employeeId, int month, int year);
+
+    @Query("SELECT ar FROM AttendanceRecord ar " +
+            "JOIN FETCH ar.workSchedule ws " +
+            "LEFT JOIN FETCH ws.workScheduleDetails " +
+            "WHERE ar.month = :month AND ar.year = :year AND ar.employee.employeeId = :employeeId ")
+    List<AttendanceRecord> findByEmpIdAndMonthAndYear(@Param("employeeId") Long employeeId, @Param("month") int month, @Param("year") int year);
 }

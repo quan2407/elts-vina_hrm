@@ -15,4 +15,6 @@ public interface AttendanceRecordService {
     void updateCheckInOut(Long id, AttendanceCheckInOutDTO dto);
 
     void updateLeaveCode(Long id, LeaveCodeUpdateDTO dto);
+
+    List<AttendanceMonthlyViewDTO> getEmpMonthlyAttendanceById(Long employeeId, int month, int year);
 }
