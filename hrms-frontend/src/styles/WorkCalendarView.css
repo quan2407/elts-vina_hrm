@@ -1,0 +1,86 @@
+body {
+  font-family: "Inter", sans-serif;
+}
+
+.workcal-container {
+  padding: 20px;
+  background-color: #f5f8ff;
+}
+
+.workcal-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.workcal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.workcal-header {
+  text-align: center;
+  font-weight: bold;
+  padding: 6px;
+  background-color: #e0e7ff;
+  border-radius: 6px;
+}
+
+.workcal-cell {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  min-height: 150px;
+  padding: 6px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.workcal-cell.has-shift {
+  background-color: #e0f7fa;
+}
+
+.workcal-date {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.workcal-details {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.workcal-noshift {
+  font-style: italic;
+  color: #999;
+}
+.workcal-cell.is-today {
+  border: 2px solid #1976d2;
+  box-shadow: 0 0 6px rgba(25, 118, 210, 0.4);
+}
+
+.workcal-cell.is-overtime {
+  background-color: #fff3e0 !important;
+}
+.workcal-details div {
+  margin-bottom: 4px;
+}
+
+.workcal-details div:nth-child(1) {
+  /* Giờ làm */
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.workcal-details div:nth-child(2) {
+  /* Tăng ca */
+  color: #f57c00;
+  font-weight: 500;
+}
+
+.workcal-details div:nth-child(3) {
+  /* Tổ */
+  color: #2e7d32;
+  font-weight: 500;
+}
