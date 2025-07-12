@@ -2,6 +2,7 @@ package sep490.com.example.hrms_backend.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import sep490.com.example.hrms_backend.validation.ValidWorkTime;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -11,6 +12,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ValidWorkTime
 public class WorkScheduleDetailCreateDTO {
 
     @NotNull(message = "Vui lòng chọn ngày làm việc")

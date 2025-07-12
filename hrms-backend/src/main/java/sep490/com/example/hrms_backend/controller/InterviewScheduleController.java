@@ -83,4 +83,17 @@ public class InterviewScheduleController {
         }
     }
 
+    @PutMapping("/{id}/result")
+    public ResponseEntity<?> updateResult(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String result = body.get("result");
+        try {
+            interviewScheduleService.updateResult(id, result);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Kết quả không hợp lệ.");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }

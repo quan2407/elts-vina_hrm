@@ -12,4 +12,6 @@ public interface LineRepository extends JpaRepository<Line,Long> {
     List<Line> findByDepartment_DepartmentId(Long departmentId);
     @Query("SELECT l FROM Line l JOIN FETCH l.department")
     List<Line> findAllWithDepartment();
+
+    List<Line> findByLineNameContainingIgnoreCase(String search);
 }

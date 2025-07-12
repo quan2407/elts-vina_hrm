@@ -1,0 +1,70 @@
+.line-table-wrapper {
+  overflow-x: auto;
+  max-width: 100%;
+  background-color: #fff;
+  border-radius: 24px;
+  padding: 20px;
+  font-family: "Product Sans", sans-serif;
+
+}
+.line-table-empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px; /* hoặc 100% nếu container đủ cao */
+    font-size: 16px;
+    font-weight: 500;
+    color: #888;
+    text-align: center;
+}
+
+.line-table {
+  min-width: 800px;
+}
+
+.line-table-header,
+.line-table-row {
+  display: grid;
+  grid-template-columns:
+    120px 250px 250px 250px 350px;
+  gap: 10px;
+  padding: 18px 30px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+
+}
+
+.line-header-cell {
+  color: #000;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  max-height: 24px;
+  line-height: 24px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.line-table-cell {
+  color: #000;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: center;
+  word-break: break-word;
+  white-space: normal;
+}
+
+
+
+.viewcandidate-button {
+  width: 200px;
+  background-color: #26f78e;
+  color: #fff;
+  padding: 6px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  margin: 0 2.5px;
+
+}

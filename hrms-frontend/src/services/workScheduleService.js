@@ -21,6 +21,27 @@ const workScheduleService = {
       params: { departmentId, lineId, dateWork },
     });
   },
+  submitWorkSchedules(month, year) {
+    return axiosClient.put(`/work-schedules/submit`, null, {
+      params: { month, year },
+    });
+  },
+  acceptWorkSchedules(month, year) {
+    return axiosClient.put("/work-schedules/accept", null, {
+      params: { month, year },
+    });
+  },
+  updateWorkScheduleDetail: (payload) => {
+    return axiosClient.put("/work-schedule-details", payload);
+  },
+  deleteWorkScheduleDetail: (id) => {
+    return axiosClient.delete(`/work-schedule-details/${id}`);
+  },
+  getWorkScheduleForCurrentEmployee: (month, year) => {
+    return axiosClient.get("/work-schedules/employee-view", {
+      params: { month, year },
+    });
+  },
 };
 
 export default workScheduleService;

@@ -1,9 +1,10 @@
 package sep490.com.example.hrms_backend.entity;
 
 import jakarta.persistence.*;
-        import lombok.*;
+import lombok.*;
 
-        import java.time.LocalDate;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "attendance_record")
@@ -47,5 +48,11 @@ public class AttendanceRecord {
 
     @Column(name = "holiday_shift")
     private String holidayShift;
+    @Column(name = "check_in_time")
+    private LocalTime checkInTime;
+
+    @Column(name = "check_out_time")
+    private LocalTime checkOutTime;
+
 }
 

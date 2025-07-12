@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -99,6 +100,26 @@ public class Employee {
     @Email
     @Column(name = "email")
     private String email;
+
+    @DecimalMin(value = "0.0", inclusive = true, message = "Lương cơ bản không hợp lệ")
+    @Column(name = "basic_salary")
+    private BigDecimal basicSalary;
+
+    @DecimalMin(value = "0.0", inclusive = true)
+    @Column(name = "allowance_phone")
+    private BigDecimal allowancePhone;
+
+    @DecimalMin(value = "0.0", inclusive = true)
+    @Column(name = "allowance_meal")
+    private BigDecimal allowanceMeal;
+
+    @DecimalMin(value = "0.0", inclusive = true)
+    @Column(name = "allowance_attendance")
+    private BigDecimal allowanceAttendance;
+
+    @DecimalMin(value = "0.0", inclusive = true)
+    @Column(name = "allowance_transport")
+    private BigDecimal allowanceTransport;
 
 
     @ManyToOne

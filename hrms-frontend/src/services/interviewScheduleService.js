@@ -56,3 +56,13 @@ export const updateInterviewStatus = async (id, status) => {
     throw error;
   }
 };
+
+export const updateInterviewResult = async (interviewId, result) => {
+  try {
+    const response = await axiosClient.put(`/interview/${interviewId}/result`, { result });
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi cập nhật kết quả phỏng vấn:", error);
+    throw error;
+  }
+};

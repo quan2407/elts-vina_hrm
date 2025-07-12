@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import MainLayout from "../components/MainLayout";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -17,6 +17,7 @@ import dayjs from "dayjs";
 
 
 function InterviewDetail() {
+    const navigate = useNavigate();
     const { id } = useParams();
     const [interview, setInterview] = useState(null);
     const [scheduledAt, setScheduleAt] = useState(null);
@@ -26,6 +27,8 @@ function InterviewDetail() {
     const [status, setStatus] = useState("PENDING");
     const [errors, setErrors] = useState({});
     const [activeSection, setActiveSection] = useState("basic-info");
+
+    const isDisabled = status === "COMPLETED";
 
     useEffect(() => {
         const fetchInterview = async () => {
@@ -45,7 +48,7 @@ function InterviewDetail() {
             setScheduleAt(interview.scheduledAt ? dayjs(interview.scheduledAt) : null);
             setFeedback(interview.feedback || "");
             setInterviewerId(interview.interviewerId ?? "");
-            setStatus(interview.status || "PENDIN   G");
+            setStatus(interview.status || "CANCEL");
         }
     }, [interview]);
 
@@ -69,6 +72,10 @@ function InterviewDetail() {
         fetchInterviewers();
     }, [interview]);
 
+    const handleBack = () => {
+        navigate(-1);
+    }
+
     const handleSubmit = async () => {
         const payload = {
             candidateId: interview?.candidateId,
@@ -84,6 +91,7 @@ function InterviewDetail() {
         try {
             await editInterview(payload, id);
             alert("Lưu lịch phỏng vấn thành công!");
+            navigate("/interviews-management");
             setErrors({});
         } catch (err) {
 
@@ -354,6 +362,7 @@ function InterviewDetail() {
                                             onChange={(newValue) => setScheduleAt(newValue)}
                                             customInput={<CustomInput />}
                                             format="DD/MM/YYYY HH:mm"
+                                            disabled={isDisabled}
                                             ampm={true}
                                             slotProps={{
                                                 textField: {
@@ -408,6 +417,8 @@ function InterviewDetail() {
                                             const value = e.target.value;
                                             setInterviewerId(value === "" ? null : Number(value));
                                         }}
+
+                                        disabled={isDisabled}
                                     >
                                         <option value="">-- Chọn người phỏng vấn --</option>
                                         {interviewers.map((p) => (
@@ -432,10 +443,11 @@ function InterviewDetail() {
                                         className="employeedetail-input-field"
                                         value={status}
                                         onChange={(e) => setStatus(e.target.value)}
+                                        disabled={isDisabled}
                                     >
-                                        <option value="PENDING">Đang chờ</option>
-                                        <option value="COMPLETED">Đã phỏng vấn</option>
-                                        <option value="CANCLE">Đã từ chối</option>
+                                        <option value="WAITING_INTERVIEW">Đang chờ phỏng vấn</option>
+                                        <option value="INTERVIEWED">Đã phỏng vấn</option>
+                                        <option value="CANCEL">Đã hủy phỏng vấn</option>
                                     </select>
                                     {errors.status && (
                                         <div className="error-message">
@@ -446,17 +458,36 @@ function InterviewDetail() {
                             </div>
                         </div>
 
-                        <div className="employeedetail-form-actions">
-                            <button
-                                className="submit-button"
-                                onClick={handleSubmit}
-                            >
-                                <Save
-                                    size={16}
-                                    style={{ marginRight: "8px" }}
-                                />
-                                Lưu lịch phỏng vấn
-                            </button>
+                        <div className="employeedetail-form-row">
+                            <div className="employeedetail-input-group">
+
+                                <div className="employeedetail-form-actions">
+                                    <button
+                                        className="submit-button"
+                                        onClick={handleBack}
+                                        style={{ width: "200px", alignItems: "center", justifyContent: "center", backgroundColor: "#909090" }}
+                                    >
+                                        Quay lại
+                                    </button>
+                                </div>
+
+                            </div>
+                            <div className="employeedetail-input-group">
+
+                                <div className="employeedetail-form-actions">
+                                    <button
+                                        className="submit-button"
+                                        onClick={handleSubmit}
+                                        style={{ width: "200px", alignItems: "center" }}
+                                    >
+                                        <Save
+                                            size={16}
+                                            style={{ marginRight: "8px" }}
+                                        />
+                                        Lưu tin phỏng vấn
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -17,17 +17,23 @@
 .Interview-table-row {
   display: grid;
   grid-template-columns:
-    120px 180px 180px 180px 200px 250px 300px 200px 500px;
+    60px 180px 200px 150px 200px 200px 200px 200px 250px 300px;
   gap: 10px;
   padding: 18px 30px;
   margin-bottom: 20px;
   border-radius: 6px;
 
 }
+.radio-group {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+}
 
 .Interview-header-cell {
   color: #000;
-  font-size: 16px;
+  font-size: 16px;  
   font-weight: 700;
   text-align: center;
   max-height: 24px;

@@ -3,11 +3,11 @@ package sep490.com.example.hrms_backend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import sep490.com.example.hrms_backend.dto.AttendanceCheckInOutDTO;
 import sep490.com.example.hrms_backend.dto.AttendanceMonthlyViewDTO;
+import sep490.com.example.hrms_backend.dto.LeaveCodeUpdateDTO;
 import sep490.com.example.hrms_backend.dto.MonthYearDTO;
 import sep490.com.example.hrms_backend.service.AttendanceRecordService;
 
@@ -31,6 +31,23 @@ public class AttendanceRecordController {
     public ResponseEntity<List<MonthYearDTO>> getAvailableMonths() {
         List<MonthYearDTO> result = attendanceRecordService.getAvailableMonths();
         return ResponseEntity.ok(result);
+    }
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
+    public ResponseEntity<?> updateCheckInOut(
+            @PathVariable Long id,
+            @RequestBody AttendanceCheckInOutDTO dto
+    ) {
+        attendanceRecordService.updateCheckInOut(id, dto);
+        return ResponseEntity.ok("Updated successfully");
+    }
+    @PutMapping("/{id}/leave-code")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
+    public ResponseEntity<Void> updateLeaveCode(
+            @PathVariable Long id,
+            @RequestBody LeaveCodeUpdateDTO dto) {
+        attendanceRecordService.updateLeaveCode(id, dto);
+        return ResponseEntity.ok().build();
     }
 
 }

@@ -1,6 +1,15 @@
 import axiosClient from "./axiosClient";
 
 const employeeService = {
+  getEmployeeNotInLine: (lineId, searchTerm = "") => {
+    return axiosClient.get(`/employees/not-in-line/${lineId}`, {
+      params: { search: searchTerm },
+    });
+  },
+
+  getEmployeeByLineId: (id) => {
+    return axiosClient.get(`/employees/line/${id}`);
+  },
   getAllEmployees: () => {
     return axiosClient.get("/employees");
   },
@@ -28,6 +37,9 @@ const employeeService = {
     return axiosClient.get("/employees/export", {
       responseType: "blob",
     });
+  },
+  addEmployeesToLine: (lineId, employeeIds) => {
+    return axiosClient.put(`employees/add-to-line/${lineId}`, employeeIds);
   },
   getNextEmployeeCode: () => axiosClient.get("/employees/next-code"),
 };

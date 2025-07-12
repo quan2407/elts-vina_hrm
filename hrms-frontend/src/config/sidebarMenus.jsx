@@ -6,7 +6,9 @@ import {
   UserPlus,
   MessageSquare,
   Target,
-  Gift
+  Gift,
+  CalendarCheck,
+  Rows4,
 } from "lucide-react";
 
 export const systemMenus = [
@@ -14,7 +16,10 @@ export const systemMenus = [
     text: "Danh sách tài khoản",
     path: "/",
     icon: (isActive) => (
-      <Users size={20} stroke={isActive ? "#4f46e5" : "white"} />
+      <Users
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
     ),
   },
   {
@@ -28,12 +33,22 @@ export const systemMenus = [
     ),
     badge: 13,
   },
+  {
+    text: "Duyệt reset mật khẩu",
+    path: "/admin/reset-password-requests",
+    icon: (isActive) => (
+      <Target
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
 ];
 
 export const hrMenus = [
   {
     text: "Tổng quan",
-    path: "/",
+    path: "/dashboard",
     icon: (isActive) => (
       <LayoutDashboard
         size={20}
@@ -65,7 +80,10 @@ export const hrMenus = [
     text: "Quản lý phúc lợi ",
     path: "/benefit",
     icon: (isActive) => (
-      <Gift size={20} stroke={isActive ? "#4f46e5" : "white"} />
+      <Gift
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
     ),
   },
   {
@@ -83,6 +101,53 @@ export const hrMenus = [
     path: "/attendance-monthly",
     icon: (isActive) => (
       <LayoutDashboard
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+  {
+    text: "Bảng lương tháng",
+    path: "/salary-monthly",
+    icon: (isActive) => (
+      <LayoutDashboard
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+];
+export const pmcMenus = [
+  {
+    text: "Lịch sản xuất",
+    path: "/work-schedule-management",
+    icon: (isActive) => (
+      <CalendarCheck
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+  {
+    text: "Danh sách line",
+    path: "/line-management",
+    icon: (isActive) => (
+      <Rows4
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+];
+export const lineLeaderMenus = [];
+export const productionManagerMenus = [];
+export const canteenMenus = [];
+export const employeeMenus = [
+  {
+    text: "Lịch làm việc của tôi",
+    path: "/my-work-schedule",
+    icon: (isActive) => (
+      <CalendarCheck
         size={20}
         stroke={isActive ? "#4f46e5" : "white"}
       />

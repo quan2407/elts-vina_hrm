@@ -1,0 +1,113 @@
+.attendance-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.attendance-modal-container {
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: slideDown 0.2s ease-in-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.attendance-modal-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.attendance-modal-field {
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.attendance-modal-field label {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.attendance-modal-field span {
+  font-size: 15px;
+  color: #333;
+}
+
+.attendance-modal-field select {
+  padding: 6px 10px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.attendance-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.attendance-modal-save-btn,
+.attendance-modal-cancel-btn,
+.attendance-modal-delete-btn {
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.attendance-modal-save-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.attendance-modal-save-btn:hover {
+  background-color: #0056b3;
+}
+
+.attendance-modal-cancel-btn {
+  background-color: #ccc;
+  color: black;
+}
+
+.attendance-modal-cancel-btn:hover {
+  background-color: #b0b0b0;
+}
+
+.attendance-modal-delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.attendance-modal-delete-btn:hover {
+  background-color: #a52834;
+}
+
+.error-message {
+  color: red;
+  font-size: 13px;
+  margin-top: 4px;
+}

@@ -90,6 +90,7 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
         if (!exists) {
             throw new HRMSAPIException(HttpStatus.NOT_FOUND, "Chưa có lịch làm việc nào được tạo cho tháng " + month + "/" + year);
         }
+
         int daysInMonth = YearMonth.of(year, month).lengthOfMonth();
 
         List<Department> allDepartments = departmentRepository.findAll();
@@ -101,7 +102,6 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
         Map<Long, Map<Integer, WorkScheduleDetail>> detailMapByLine = new HashMap<>();
         Map<Long, Map<Integer, WorkScheduleDetail>> detailMapByDepartment = new HashMap<>();
 
-        // Gom lịch theo line hoặc department
         for (WorkScheduleDetail detail : allDetails) {
             int day = detail.getDateWork().getDayOfMonth();
             if (detail.getWorkSchedule().getLine() != null) {
@@ -113,7 +113,6 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
             }
         }
 
-        // Helper hàm lấy thứ
         Function<LocalDate, String> getWeekday = date -> switch (date.getDayOfWeek()) {
             case MONDAY -> "T2";
             case TUESDAY -> "T3";
@@ -124,7 +123,6 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
             case SUNDAY -> "CN";
         };
 
-        // Xử lý phòng có line
         for (Line line : allLines) {
             Department dept = line.getDepartment();
 
@@ -137,12 +135,26 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
             List<WorkScheduleDayDetailDTO> workDetails = new ArrayList<>();
             Map<Integer, WorkScheduleDetail> dayMap = detailMapByLine.getOrDefault(line.getLineId(), new HashMap<>());
 
+            WorkSchedule sampleSchedule;
+
+            if (dayMap.size() > 0) {
+                sampleSchedule = dayMap.values().stream()
+                        .map(WorkScheduleDetail::getWorkSchedule)
+                        .findFirst()
+                        .orElse(null);
+            } else {
+                sampleSchedule = workScheduleRepository
+                        .findByMonthAndYearAndLine_LineIdAndIsDeletedFalse(month, year, line.getLineId())
+                        .orElse(null);
+            }
+
             for (int i = 1; i <= daysInMonth; i++) {
                 LocalDate date = LocalDate.of(year, month, i);
                 String weekday = getWeekday.apply(date);
                 WorkScheduleDetail detail = dayMap.get(i);
 
                 workDetails.add(WorkScheduleDayDetailDTO.builder()
+                        .id(detail != null ? detail.getId() : null)
                         .date(date)
                         .weekday(weekday)
                         .startTime(detail != null ? detail.getStartTime() : null)
@@ -156,10 +168,11 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
                     .lineId(line.getLineId())
                     .lineName(line.getLineName())
                     .workDetails(workDetails)
+                    .isSubmitted(sampleSchedule != null && sampleSchedule.isSubmitted())
+                    .isAccepted(sampleSchedule != null && sampleSchedule.isAccepted())
                     .build());
         }
 
-        // Xử lý phòng không có line
         for (Department dept : allDepartments) {
             boolean alreadyAdded = departmentMap.containsKey(dept.getDepartmentId());
             boolean hasLine = allLines.stream().anyMatch(line ->
@@ -171,12 +184,26 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
             List<WorkScheduleDayDetailDTO> workDetails = new ArrayList<>();
             Map<Integer, WorkScheduleDetail> dayMap = detailMapByDepartment.getOrDefault(dept.getDepartmentId(), new HashMap<>());
 
+            WorkSchedule sampleSchedule;
+
+            if (dayMap.size() > 0) {
+                sampleSchedule = dayMap.values().stream()
+                        .map(WorkScheduleDetail::getWorkSchedule)
+                        .findFirst()
+                        .orElse(null);
+            } else {
+                sampleSchedule = workScheduleRepository
+                        .findByMonthAndYearAndDepartment_DepartmentIdAndLineIsNullAndIsDeletedFalse(month, year, dept.getDepartmentId())
+                        .orElse(null);
+            }
+
             for (int i = 1; i <= daysInMonth; i++) {
                 LocalDate date = LocalDate.of(year, month, i);
                 String weekday = getWeekday.apply(date);
                 WorkScheduleDetail detail = dayMap.get(i);
 
                 workDetails.add(WorkScheduleDayDetailDTO.builder()
+                        .id(detail != null ? detail.getId() : null)
                         .date(date)
                         .weekday(weekday)
                         .startTime(detail != null ? detail.getStartTime() : null)
@@ -193,6 +220,8 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
                             .lineId(null)
                             .lineName(null)
                             .workDetails(workDetails)
+                            .isSubmitted(sampleSchedule != null && sampleSchedule.isSubmitted())
+                            .isAccepted(sampleSchedule != null && sampleSchedule.isAccepted())
                             .build()))
                     .build());
         }
@@ -200,8 +229,45 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
         return new ArrayList<>(departmentMap.values());
     }
 
+    @Override
+    @Transactional
+    public WorkScheduleDetailResponseDTO update(WorkScheduleDetailUpdateDTO dto) {
+        WorkScheduleDetail detail = workScheduleDetailRepository.findById(dto.getWorkScheduleDetailId())
+                .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "Không tìm thấy chi tiết lịch làm việc"));
 
+        // Logic xác định có phải tăng ca hay không
+        boolean isWeekend = detail.getDateWork().getDayOfWeek() == DayOfWeek.SUNDAY;
+        boolean isLate = dto.getEndTime().isAfter(LocalTime.of(17, 0));
+        boolean isOvertime = isWeekend || isLate;
 
+        detail.setStartTime(dto.getStartTime());
+        detail.setEndTime(dto.getEndTime());
+        detail.setIsOvertime(isOvertime);
 
+        WorkScheduleDetail saved = workScheduleDetailRepository.save(detail);
+        WorkSchedule schedule = saved.getWorkSchedule();
+
+        return WorkScheduleDetailResponseDTO.builder()
+                .id(saved.getId())
+                .dateWork(saved.getDateWork())
+                .startTime(saved.getStartTime())
+                .endTime(saved.getEndTime())
+                .isOvertime(saved.getIsOvertime())
+                .lineId(schedule.getLine() != null ? schedule.getLine().getLineId() : null)
+                .lineName(schedule.getLine() != null ? schedule.getLine().getLineName() : "Chưa phân tổ")
+                .departmentId(schedule.getDepartment().getDepartmentId())
+                .departmentName(schedule.getDepartment().getDepartmentName())
+                .workScheduleId(schedule.getId())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        WorkScheduleDetail detail = workScheduleDetailRepository.findById(id)
+                .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "Không tìm thấy chi tiết lịch làm việc"));
+
+        workScheduleDetailRepository.delete(detail);
+    }
 
 }
