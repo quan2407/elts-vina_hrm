@@ -85,8 +85,7 @@ public class SalaryServiceImpl implements SalaryService {
                     .add(sum(employee.getAllowanceAttendance()))
                     .add(sum(employee.getAllowanceTransport()));
 
-            BigDecimal gross = employee.getBasicSalary()
-                    .add(totalAllowance)
+            BigDecimal gross = totalAllowance
                     .add(productionSalary)
                     .add(overtimeSalary);
 
