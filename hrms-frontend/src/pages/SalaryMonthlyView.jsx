@@ -51,6 +51,27 @@ const SalaryMonthlyView = () => {
               </option>
             ))}
           </select>
+          <button
+            className="btn-update"
+            onClick={async () => {
+              if (
+                window.confirm(
+                  "Bạn có chắc muốn cập nhật lại bảng lương không?"
+                )
+              ) {
+                try {
+                  await salaryService.regenerateMonthlySalaries(month, year);
+                  await fetchSalaries(); // tải lại lương sau khi cập nhật
+                  alert("Đã cập nhật bảng lương thành công!");
+                } catch (err) {
+                  console.error("Lỗi khi cập nhật bảng lương:", err);
+                  alert("Cập nhật bảng lương thất bại!");
+                }
+              }
+            }}
+          >
+            Cập nhật bảng lương
+          </button>
         </div>
 
         <div className="attendance-table-wrapper">
