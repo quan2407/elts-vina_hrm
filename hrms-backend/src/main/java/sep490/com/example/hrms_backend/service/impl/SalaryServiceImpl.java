@@ -158,4 +158,16 @@ public class SalaryServiceImpl implements SalaryService {
                 .salaryMonth(s.getSalaryMonth())
                 .build();
     }
+    @Override
+    @Transactional
+    public void regenerateMonthlySalaries(int month, int year) {
+        LocalDate salaryMonth = LocalDate.of(year, month, 1);
+
+
+        salaryRepository.deleteBySalaryMonth(salaryMonth);
+
+
+        generateMonthlySalaries(month, year);
+    }
+
 }

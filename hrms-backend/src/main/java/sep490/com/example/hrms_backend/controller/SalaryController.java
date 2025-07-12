@@ -42,4 +42,14 @@ public class SalaryController {
         List<SalaryDTO> salaries = salaryService.getSalariesByMonth(month, year);
         return ResponseEntity.ok(salaries);
     }
+    @PutMapping("/regenerate")
+    @PreAuthorize("hasRole('HR')")
+    public ResponseEntity<String> regenerateSalary(
+            @RequestParam int month,
+            @RequestParam int year
+    ) {
+        salaryService.regenerateMonthlySalaries(month, year);
+        return ResponseEntity.ok("Cập nhật bảng lương thành công cho " + month + "/" + year);
+    }
+
 }
