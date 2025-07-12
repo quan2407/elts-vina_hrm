@@ -77,7 +77,7 @@ const EmployeeWorkScheduleView = () => {
                         ? `${item.startTime} - ${item.endTime}`
                         : "--"}
                     </td>
-                    <td>{item.isOvertime ? "Có" : "Không"}</td>
+                    <td>{item.overtime ? "Có" : "Không"}</td>
                     <td>{item.lineName || "Chưa phân tổ"}</td>
                     <td>{item.departmentName}</td>
                   </tr>

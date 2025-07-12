@@ -85,8 +85,7 @@ public class SalaryServiceImpl implements SalaryService {
                     .add(sum(employee.getAllowanceAttendance()))
                     .add(sum(employee.getAllowanceTransport()));
 
-            BigDecimal gross = employee.getBasicSalary()
-                    .add(totalAllowance)
+            BigDecimal gross = totalAllowance
                     .add(productionSalary)
                     .add(overtimeSalary);
 
@@ -159,4 +158,25 @@ public class SalaryServiceImpl implements SalaryService {
                 .salaryMonth(s.getSalaryMonth())
                 .build();
     }
+    @Override
+    @Transactional
+    public void regenerateMonthlySalaries(int month, int year) {
+        LocalDate salaryMonth = LocalDate.of(year, month, 1);
+
+
+        salaryRepository.deleteBySalaryMonth(salaryMonth);
+
+
+        generateMonthlySalaries(month, year);
+    }
+    @Override
+    public List<LocalDate> getAvailableSalaryMonths() {
+        List<Salary> salaries = salaryRepository.findAll();
+        return salaries.stream()
+                .map(Salary::getSalaryMonth)
+                .distinct()
+                .sorted() // sắp xếp tăng dần
+                .collect(Collectors.toList());
+    }
+
 }

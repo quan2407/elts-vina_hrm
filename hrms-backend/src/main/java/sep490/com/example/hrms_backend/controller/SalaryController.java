@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.SalaryDTO;
 import sep490.com.example.hrms_backend.service.SalaryService;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -42,4 +43,24 @@ public class SalaryController {
         List<SalaryDTO> salaries = salaryService.getSalariesByMonth(month, year);
         return ResponseEntity.ok(salaries);
     }
+    @PutMapping("/regenerate")
+    @PreAuthorize("hasRole('HR')")
+    public ResponseEntity<String> regenerateSalary(
+            @RequestParam int month,
+            @RequestParam int year
+    ) {
+        salaryService.regenerateMonthlySalaries(month, year);
+        return ResponseEntity.ok("Cập nhật bảng lương thành công cho " + month + "/" + year);
+    }
+    @GetMapping("/available-months")
+    @PreAuthorize("hasRole('HR')")
+    public ResponseEntity<List<String>> getAvailableSalaryMonths() {
+        List<LocalDate> salaryDates = salaryService.getAvailableSalaryMonths();
+        List<String> formatted = salaryDates.stream()
+                .map(d -> String.format("%02d-%d", d.getMonthValue(), d.getYear()))
+                .toList();
+
+        return ResponseEntity.ok(formatted);
+    }
+
 }
