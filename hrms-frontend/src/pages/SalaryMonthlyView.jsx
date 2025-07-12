@@ -7,6 +7,7 @@ const SalaryMonthlyView = () => {
   const [salaries, setSalaries] = useState([]);
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
+  const [availableMonths, setAvailableMonths] = useState([]);
 
   const fetchSalaries = async () => {
     try {
@@ -18,8 +19,31 @@ const SalaryMonthlyView = () => {
   };
 
   useEffect(() => {
-    if (month && year) fetchSalaries();
-  }, [month, year]);
+    const fetchAvailableMonths = async () => {
+      try {
+        const res = await salaryService.getAvailableSalaryMonths();
+        const list = res.data;
+        setAvailableMonths(list);
+
+        if (list.length > 0) {
+          const [m, y] = list[list.length - 1].split("-");
+          const newMonth = Number(m);
+          const newYear = Number(y);
+          setMonth(newMonth);
+          setYear(newYear);
+          await salaryService
+            .getMonthlySalaries(newMonth, newYear)
+            .then((res) => {
+              setSalaries(res.data);
+            });
+        }
+      } catch (err) {
+        console.error("Không thể tải danh sách tháng có lương:", err);
+      }
+    };
+
+    fetchAvailableMonths();
+  }, []);
 
   return (
     <MainLayout>
@@ -29,12 +53,14 @@ const SalaryMonthlyView = () => {
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
           >
-            {[...Array(12)].map((_, i) => (
+            {Array.from(
+              new Set(availableMonths.map((m) => m.split("-")[0]))
+            ).map((m) => (
               <option
-                key={i + 1}
-                value={i + 1}
+                key={m}
+                value={Number(m)}
               >
-                Tháng {i + 1}
+                Tháng {m}
               </option>
             ))}
           </select>
@@ -42,15 +68,18 @@ const SalaryMonthlyView = () => {
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
           >
-            {[2024, 2025, 2026].map((y) => (
+            {Array.from(
+              new Set(availableMonths.map((m) => m.split("-")[1]))
+            ).map((y) => (
               <option
                 key={y}
-                value={y}
+                value={Number(y)}
               >
                 Năm {y}
               </option>
             ))}
           </select>
+
           <button
             className="btn-update"
             onClick={async () => {
@@ -89,7 +118,6 @@ const SalaryMonthlyView = () => {
                 <th colSpan="4">Các khoản khấu trừ</th>
                 <th rowSpan="2">Tổng trừ</th>
                 <th rowSpan="2">Thực lãnh</th>
-                <th rowSpan="2">Tháng</th>
               </tr>
               <tr>
                 <th>Điện thoại</th>
@@ -130,7 +158,6 @@ const SalaryMonthlyView = () => {
                   <td className="highlight-bold">
                     {emp.totalIncome?.toLocaleString("vi-VN")}
                   </td>
-                  <td>{emp.salaryMonth?.slice(0, 7)}</td>
                 </tr>
               ))}
             </tbody>
