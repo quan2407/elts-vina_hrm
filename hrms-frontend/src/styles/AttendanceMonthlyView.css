@@ -7,13 +7,20 @@
   display: flex;
   gap: 12px;
   margin-bottom: 1rem;
+  margin-top: 1rem;
 }
 
 .attendance-controls select {
   padding: 6px 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 16px;
+}
+.attendance-title {
+  color: #000;
+  font-size: 25px;
+  font-weight: 700;
+  margin: 0;
 }
 
 .attendance-table-wrapper {
@@ -25,7 +32,7 @@
   border-collapse: collapse;
   width: max-content;
   min-width: 100%;
-  font-size: 13px;
+  font-size: 16px;
 }
 
 .attendance-table th,
@@ -68,7 +75,7 @@
 }
 
 .attendance-table td:not(:first-child):not(:nth-child(7)):not(:last-child) {
-  min-width: 70px; /* 👈 Làm ô ngày to hơn */
+  min-width: 70px;
   height: 40px;
 }
 .modal-backdrop {
