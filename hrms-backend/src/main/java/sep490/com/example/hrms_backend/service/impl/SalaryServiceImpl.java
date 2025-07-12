@@ -169,5 +169,14 @@ public class SalaryServiceImpl implements SalaryService {
 
         generateMonthlySalaries(month, year);
     }
+    @Override
+    public List<LocalDate> getAvailableSalaryMonths() {
+        List<Salary> salaries = salaryRepository.findAll();
+        return salaries.stream()
+                .map(Salary::getSalaryMonth)
+                .distinct()
+                .sorted() // sắp xếp tăng dần
+                .collect(Collectors.toList());
+    }
 
 }
