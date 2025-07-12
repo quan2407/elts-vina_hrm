@@ -1,40 +1,59 @@
-
+import React from 'react';
+import { Bar } from 'react-chartjs-2';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
   Tooltip,
-  Legend,
-  ResponsiveContainer
-} from "recharts";
+  Legend
+} from 'chart.js';
 
-const RecruitmentChart = ({ data }) => {
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
+const RecruitmentChart = ({ data = [] }) => {
+  if (!Array.isArray(data) || data.length === 0) {
+    return <p style={{ textAlign: "center" }}>Không có dữ liệu để hiển thị biểu đồ.</p>;
+  }
+
+  const chartData = {
+    labels: data.map(item => item.recruitmentTitle),
+    datasets: [
+      {
+        label: 'Cần tuyển',
+        data: data.map(item => item.canTuyen ?? 0),
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+      },
+      {
+        label: 'Ứng tuyển',
+        data: data.map(item => item.ungTuyen ?? 0),
+        backgroundColor: 'rgba(153, 102, 255, 0.6)',
+      },
+      {
+        label: 'Đã tuyển',
+        data: data.map(item => item.daTuyen ?? 0),
+        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+      }
+    ]
+  };
+
+  const options = {
+    maintainAspectRatio: false,
+    responsive: true,
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1
+        }
+      }
+    }
+  };
+
   return (
-    <div className="Interview-table-wrapper">
-      <div className="Interview-table">
-        <div style={{ width: '100%', height: 400 }}>
-          <h2>Kết quả tuyển dụng</h2>
-          <ResponsiveContainer>
-            <BarChart
-              data={data}
-              margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="recruitmentTitle" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              
-              <Bar dataKey="canTuyen" name="Cần tuyển" fill="#00bfff" />
-              <Bar dataKey="daTuyen" name="Đã tuyển" fill="#32cd32" />
-              <Bar dataKey="ungTuyen" name="Ứng tuyển" fill="#ffa500" />
-
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+    <div className="recruitment-chart" style={{ height: "400px" }}>
+      <Bar data={chartData} options={options} />
     </div>
   );
 };

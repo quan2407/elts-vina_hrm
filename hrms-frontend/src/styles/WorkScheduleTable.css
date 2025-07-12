@@ -23,7 +23,7 @@
 .work-schedule-toolbar select,
 .work-schedule-nav-btn {
   padding: 4px 8px;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .work-schedule-nav-btn {
@@ -82,14 +82,14 @@
 /* ===== Header ngày / thứ ===== */
 .work-schedule-header-date {
   background-color: #d1fae5;
-  font-size: 13px;
+  font-size: 16px;
   padding: 4px;
   height: 100%;
 }
 
 .work-schedule-header-weekday {
   background-color: #f0f9ff;
-  font-size: 12px;
+  font-size: 16px;
   color: #444;
   padding: 4px;
   height: 100%;
@@ -215,7 +215,7 @@
   background-color: #43a047;
 }
 .work-schedule-time-text {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.2;
 }
 .work-schedule-overtime {
