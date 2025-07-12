@@ -12,6 +12,11 @@ const salaryService = {
   getAvailableSalaryMonths: () => {
     return axiosClient.get("/salaries/available-months");
   },
+  getEmpMonthlySalaries: (month, year) => {
+    return axiosClient.get("/salaries/employee-months", {
+      params: { month, year },
+    });
+  },
 };
 
 export default salaryService;

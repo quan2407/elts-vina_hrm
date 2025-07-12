@@ -6,6 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.SalaryDTO;
 import sep490.com.example.hrms_backend.service.SalaryService;
+import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 public class SalaryController {
 
     private final SalaryService salaryService;
+    private final CurrentUserUtils currentUserUtils;
 
     @PostMapping
     @PreAuthorize("hasRole('HR')")
@@ -45,7 +47,7 @@ public class SalaryController {
         return ResponseEntity.ok("Cập nhật bảng lương thành công cho " + month + "/" + year);
     }
     @GetMapping("/available-months")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAnyRole('HR', 'EMPLOYEE')")
     public ResponseEntity<List<String>> getAvailableSalaryMonths() {
         List<LocalDate> salaryDates = salaryService.getAvailableSalaryMonths();
         List<String> formatted = salaryDates.stream()
@@ -53,6 +55,18 @@ public class SalaryController {
                 .toList();
 
         return ResponseEntity.ok(formatted);
+    }
+
+    @GetMapping("/employee-months")
+    @PreAuthorize("hasRole('EMPLOYEE')")
+
+    public ResponseEntity<List<SalaryDTO>> getEmpSalaryMonths(
+            @RequestParam int month,
+            @RequestParam int year
+    ) {
+        Long employeeId = currentUserUtils.getCurrentEmployeeId();
+        List<SalaryDTO> salaries = salaryService.getEmpSalariesByMonth(employeeId, month, year);
+        return ResponseEntity.ok(salaries);
     }
 
 }

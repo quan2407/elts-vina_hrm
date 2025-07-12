@@ -39,6 +39,7 @@ import LineManagement from "./pages/LineManagementPMC.jsx";
 import EmployeeInLineManagement from "./pages/EmployeeInLineManagement.jsx";
 import EmployeeWorkScheduleView from "./pages/EmployeeWorkScheduleView";
 import EmployeeAttendanceMonthlyView from "./pages/EmployeeAttendanceMonthlyView.jsx";
+import EmpSalaryView from "./pages/EmployeeSalaryView.jsx";
 
 function App() {
   return (
@@ -328,6 +329,16 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            <Route
+              path="/my-salary-monthly"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_EMPLOYEE"]}>
+                  <EmpSalaryView />
+                </ProtectedRoute>
+              }
+            />
+
           </Routes>
         </Router>
       </AntdApp>

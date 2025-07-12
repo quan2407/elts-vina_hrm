@@ -8,7 +8,8 @@ import {
   Target,
   Gift,
   CalendarCheck,
-  Rows4
+  Rows4,
+  Wallet
 } from "lucide-react";
 
 export const systemMenus = [
@@ -110,7 +111,7 @@ export const hrMenus = [
     text: "Bảng lương tháng",
     path: "/salary-monthly",
     icon: (isActive) => (
-      <LayoutDashboard
+      <Wallet 
         size={20}
         stroke={isActive ? "#4f46e5" : "white"}
       />
@@ -158,6 +159,17 @@ export const employeeMenus = [
     path: "/my-attendance-monthly",
     icon: (isActive) => (
       <LayoutDashboard
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  }
+  ,
+  {
+    text: "Bảng lương tháng",
+    path: "/my-salary-monthly",
+    icon: (isActive) => (
+      <Wallet 
         size={20}
         stroke={isActive ? "#4f46e5" : "white"}
       />
