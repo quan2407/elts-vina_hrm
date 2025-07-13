@@ -66,7 +66,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                     }
                 }
 
-                boolean isHoliday = holidayRepository.existsByDate(record.getDate());
+                boolean isHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(record.getDate());
 
                 AttendanceCellDTO cell = AttendanceCellDTO.builder()
                         .attendanceRecordId(record.getId())
@@ -164,7 +164,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                 LocalTime scheduledStart = detail.getStartTime();
                 LocalTime scheduledEnd = detail.getEndTime();
                 boolean isWeekend = detail.getDateWork().getDayOfWeek().getValue() == 7;
-                boolean isHoliday = holidayRepository.existsByDate(record.getDate());
+                boolean isHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(record.getDate());
 
                 LocalTime checkIn = record.getCheckInTime();
                 LocalTime checkOut = record.getCheckOutTime();

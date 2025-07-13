@@ -1,6 +1,8 @@
 package sep490.com.example.hrms_backend.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import sep490.com.example.hrms_backend.entity.Holiday;
 
@@ -8,5 +10,7 @@ import java.time.LocalDate;
 
 @Repository
 public interface HolidayRepository extends JpaRepository<Holiday, Long> {
-    boolean existsByDate(LocalDate date);
+    @Query("SELECT CASE WHEN COUNT(h) > 0 THEN TRUE ELSE FALSE END FROM Holiday h WHERE h.startDate <= :dateWork AND h.endDate >= :dateWork")
+    boolean existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(@Param("dateWork") LocalDate dateWork);
+
 }

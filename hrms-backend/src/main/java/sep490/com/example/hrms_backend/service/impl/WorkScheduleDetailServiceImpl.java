@@ -10,10 +10,7 @@ import sep490.com.example.hrms_backend.entity.Line;
 import sep490.com.example.hrms_backend.entity.WorkSchedule;
 import sep490.com.example.hrms_backend.entity.WorkScheduleDetail;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
-import sep490.com.example.hrms_backend.repository.DepartmentRepository;
-import sep490.com.example.hrms_backend.repository.LineRepository;
-import sep490.com.example.hrms_backend.repository.WorkScheduleDetailRepository;
-import sep490.com.example.hrms_backend.repository.WorkScheduleRepository;
+import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.WorkScheduleDetailService;
 
 import java.time.DayOfWeek;
@@ -31,6 +28,7 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
     private final WorkScheduleRepository workScheduleRepository;
     private final LineRepository lineRepository;
     private final DepartmentRepository departmentRepository;
+    private final HolidayRepository holidayRepository;
 
     @Override
     @Transactional
@@ -44,10 +42,10 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
             throw new IllegalArgumentException("Ngày làm việc không nằm trong tháng/năm của lịch làm việc");
         }
 
-
+        boolean isHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(dto.getDateWork());
         boolean isWeekend = dto.getDateWork().getDayOfWeek() == DayOfWeek.SUNDAY;
         boolean isLate = dto.getEndTime().isAfter(LocalTime.of(17, 0));
-        boolean isOvertime = isWeekend || isLate;
+        boolean isOvertime = isHoliday || isWeekend || isLate;
 
 
         WorkScheduleDetail entity = WorkScheduleDetail.builder()
@@ -235,10 +233,10 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
         WorkScheduleDetail detail = workScheduleDetailRepository.findById(dto.getWorkScheduleDetailId())
                 .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "Không tìm thấy chi tiết lịch làm việc"));
 
-        // Logic xác định có phải tăng ca hay không
+        boolean isHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(detail.getDateWork());
         boolean isWeekend = detail.getDateWork().getDayOfWeek() == DayOfWeek.SUNDAY;
         boolean isLate = dto.getEndTime().isAfter(LocalTime.of(17, 0));
-        boolean isOvertime = isWeekend || isLate;
+        boolean isOvertime = isHoliday || isWeekend || isLate;
 
         detail.setStartTime(dto.getStartTime());
         detail.setEndTime(dto.getEndTime());
