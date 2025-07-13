@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import workScheduleService from "../services/workScheduleService";
 import WorkScheduleModal from "./WorkScheduleModal";
+import holidayService from "../services/holidayService ";
 import "../styles/WorkScheduleTable.css";
 
 const weekdays = ["CN", "Th 2", "Th 3", "Th 4", "Th 5", "Th 6", "Th 7"];
@@ -29,6 +30,7 @@ function WorkScheduleTable({
   const [selectedWorkScheduleId, setSelectedWorkScheduleId] = useState(null);
   const [startTime, setStartTime] = useState("08:00");
   const [endTime, setEndTime] = useState("17:00");
+  const [holidays, setHolidays] = useState([]);
   const [selectedDetailId, setSelectedDetailId] = useState(null);
   const getTotalMonthValue = (m, y) => y * 12 + m;
   const handleDelete = (id) => {
@@ -141,6 +143,9 @@ function WorkScheduleTable({
   };
 
   useEffect(() => {
+    holidayService.getAllHolidays().then((res) => {
+      setHolidays(res.data);
+    });
     const numDays = new Date(year, month, 0).getDate();
     const tempDates = Array.from({ length: numDays }, (_, i) => {
       const dateObj = new Date(year, month - 1, i + 1);
@@ -163,7 +168,28 @@ function WorkScheduleTable({
       .then((res) => setAvailableMonths(res.data))
       .catch((err) => console.error("Lỗi lấy danh sách tháng:", err));
   }, [month, year, reloadTrigger]);
+  useEffect(() => {
+    const numDays = new Date(year, month, 0).getDate();
+    const tempDates = Array.from({ length: numDays }, (_, i) => {
+      const dateObj = new Date(year, month - 1, i + 1);
+      const isoDate = `${dateObj.getFullYear()}-${(dateObj.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}-${dateObj.getDate().toString().padStart(2, "0")}`;
 
+      const isHoliday = holidays.some(
+        (holiday) => isoDate >= holiday.startDate && isoDate <= holiday.endDate
+      );
+
+      return {
+        full: dateObj.toLocaleDateString("vi-VN"),
+        weekday: weekdays[dateObj.getDay()],
+        isSunday: dateObj.getDay() === 0,
+        isHoliday: isHoliday,
+        iso: isoDate,
+      };
+    });
+    setDates(tempDates);
+  }, [month, year, holidays]);
   const handlePrevMonth = () => {
     const newMonth = month === 1 ? 12 : month - 1;
     const newYear = month === 1 ? year - 1 : year;
@@ -195,7 +221,6 @@ function WorkScheduleTable({
     workScheduleId,
     detail = null
   ) => {
-    // Gán thông tin cơ bản
     setSelectedDeptId(deptId);
     setSelectedLineId(lineId);
     setSelectedDept(deptName);
@@ -203,13 +228,11 @@ function WorkScheduleTable({
     setSelectedDate(dateIso);
     setSelectedWorkScheduleId(workScheduleId);
 
-    // Xử lý giờ làm việc nếu có detail
     if (detail?.startTime && detail?.endTime) {
       console.log("Chi tiết lịch:", detail);
       const start = detail.startTime.slice(0, 5);
       const end = detail.endTime.slice(0, 5);
 
-      // Tự động xác định loại ca làm việc
       if (start === "08:00" && end === "17:00") {
         setWorkType("normal");
       } else if (start === "08:00" && end === "20:00") {
@@ -224,14 +247,11 @@ function WorkScheduleTable({
 
       console.log("Giờ làm việc:", start, "-", end);
     } else {
-      // Mặc định nếu chưa có giờ
       setWorkType("normal");
       setStartTime("08:00");
       setEndTime("17:00");
       setSelectedDetailId(null);
     }
-
-    // Mở modal
     setModalOpen(true);
   };
 
@@ -408,7 +428,7 @@ function WorkScheduleTable({
                 <div
                   key={`date-${idx}`}
                   className={`work-schedule-header work-schedule-header-date ${
-                    d.isSunday ? "work-schedule-weekend" : ""
+                    d.isSunday || d.isHoliday ? "work-schedule-weekend" : ""
                   }`}
                 >
                   {d.full}
@@ -417,8 +437,8 @@ function WorkScheduleTable({
               {dates.map((d, idx) => (
                 <div
                   key={`weekday-${idx}`}
-                  className={`work-schedule-header work-schedule-header-weekday ${
-                    d.isSunday ? "work-schedule-weekend" : ""
+                  className={`work-schedule-header work-schedule-header-date ${
+                    d.isSunday || d.isHoliday ? "work-schedule-weekend" : ""
                   }`}
                 >
                   {d.weekday}
