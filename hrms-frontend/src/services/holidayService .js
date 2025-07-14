@@ -12,6 +12,16 @@ const holidayService = {
   checkIfHoliday: (date) => {
     return axiosClient.get(`/holidays/check/${date}`);
   },
+  getHolidayById: (id) => {
+    return axiosClient.get(`/holidays/${id}`);
+  },
+
+  updateHoliday: (id, holidayPayload) => {
+    return axiosClient.put(`/holidays/${id}`, holidayPayload);
+  },
+  deleteHoliday: (id) => {
+    return axiosClient.delete(`/holidays/${id}`);
+  },
 };
 
 export default holidayService;

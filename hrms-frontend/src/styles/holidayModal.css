@@ -1,0 +1,71 @@
+.holiday-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.holiday-modal {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  width: 420px;
+  font-family: "Product Sans", sans-serif;
+}
+
+.holiday-modal h2 {
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+.holiday-modal form label {
+  display: block;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.holiday-modal input[type="text"],
+.holiday-modal input[type="date"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-actions {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.confirm-btn,
+.cancel-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: 10px;
+}
+
+.confirm-btn {
+  background: #28a745;
+  color: white;
+}
+
+.cancel-btn {
+  background: #ccc;
+  color: black;
+}

@@ -38,6 +38,7 @@ import SalaryMonthlyView from "./pages/SalaryMonthlyView";
 import LineManagement from "./pages/LineManagementPMC.jsx";
 import EmployeeInLineManagement from "./pages/EmployeeInLineManagement.jsx";
 import EmployeeWorkScheduleView from "./pages/EmployeeWorkScheduleView";
+import HolidayManagement from "./pages/HolidayManagement";
 
 function App() {
   return (
@@ -71,6 +72,14 @@ function App() {
             <Route
               path="/applyjob/:id"
               element={<ApplyJob />}
+            />
+            <Route
+              path="/holiday-management"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                  <HolidayManagement />
+                </ProtectedRoute>
+              }
             />
 
             <Route

@@ -87,6 +87,17 @@ export const hrMenus = [
     ),
   },
   {
+    text: "Quản lý ngày nghỉ",
+    path: "/holiday-management",
+    icon: (isActive) => (
+      <CalendarCheck
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+
+  {
     text: "Danh sách phỏng vấn",
     path: "/interviews-management",
     icon: (isActive) => (
