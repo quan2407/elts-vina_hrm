@@ -26,6 +26,9 @@ public class Holiday {
     private String name;
 
     private boolean isRecurring;
+    @Column(name = "is_deleted")
+    private boolean isDeleted = false;
+
 }
 
 
