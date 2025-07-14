@@ -16,6 +16,7 @@ import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.entity.PasswordResetRequest;
 import sep490.com.example.hrms_backend.entity.Role;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
+import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.mapper.AccountMapper;
 import sep490.com.example.hrms_backend.repository.AccountRepository;
 import sep490.com.example.hrms_backend.repository.PasswordResetRequestRepository;
@@ -258,5 +259,13 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(account);
     }
 
+    public void toggleAccountStatus(Long id) {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Account", "id", id));
+
+        account.setIsActive(!Boolean.TRUE.equals(account.getIsActive()));
+        account.setUpdatedAt(LocalDateTime.now());
+        accountRepository.save(account);
+    }
 
 }
