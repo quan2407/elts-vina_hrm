@@ -34,4 +34,20 @@ public class HolidayController {
         boolean isHoliday = holidayService.isHoliday(localDate);
         return ResponseEntity.ok(isHoliday);
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteHoliday(@PathVariable Long id) {
+        holidayService.softDeleteHoliday(id);
+        return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<HolidayDTO> getHolidayById(@PathVariable Long id) {
+        HolidayDTO holiday = holidayService.getHolidayById(id);
+        return ResponseEntity.ok(holiday);
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<HolidayDTO> updateHoliday(@PathVariable Long id, @RequestBody HolidayDTO holidayDTO) {
+        HolidayDTO updatedHoliday = holidayService.updateHoliday(id, holidayDTO);
+        return ResponseEntity.ok(updatedHoliday);
+    }
+
 }
