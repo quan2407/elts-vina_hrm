@@ -23,17 +23,17 @@ const RecruitmentChart = ({ data = [] }) => {
       {
         label: 'Cần tuyển',
         data: data.map(item => item.canTuyen ?? 0),
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        backgroundColor: 'rgba(255, 0, 0, 0.6)',
       },
       {
         label: 'Ứng tuyển',
         data: data.map(item => item.ungTuyen ?? 0),
-        backgroundColor: 'rgba(153, 102, 255, 0.6)',
+        backgroundColor: 'rgba(12, 55, 248, 0.6)',
       },
       {
         label: 'Đã tuyển',
         data: data.map(item => item.daTuyen ?? 0),
-        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+        backgroundColor: 'rgba(9, 252, 49, 0.6)',
       }
     ]
   };
