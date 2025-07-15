@@ -43,6 +43,22 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         long next = count + 1;
         return "ELTSSX" + String.format("%04d", next);
     }
+    @Override
+    public String getNextEmployeeCodeByPosition(Long positionId) {
+        Position position = positionRepository.findById(positionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Position", "id", positionId));
+
+        String prefix = position.getPositionName().equalsIgnoreCase("HR") ? "ELTSHC" : "ELTSSX";
+
+        long count;
+        if (prefix.equals("ELTSHC")) {
+            count = employeeRepository.countByPosition_PositionNameIgnoreCase("HR");
+        } else {
+            count = employeeRepository.countByPosition_PositionNameNotIgnoreCase("HR");
+        }
+
+        return prefix + String.format("%04d", count + 1);
+    }
 
     @Override
     public List<EmployeeResponseDTO> getEmployeesNotInLine(Long lineId, String search) {
@@ -100,6 +116,10 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     public EmployeeResponseDTO createEmployee(EmployeeRequestDTO dto) {
         checkDuplicateFieldsForCreate(dto);
         checkPositionRequirements(dto.getDepartmentId(), dto.getPositionId());
+        if (dto.getEmployeeCode() == null || dto.getEmployeeCode().isBlank()) {
+            dto.setEmployeeCode(getNextEmployeeCodeByPosition(dto.getPositionId()));
+        }
+
 
         if (!positionRepository.existsDepartmentPositionMapping(dto.getDepartmentId(), dto.getPositionId())) {
             throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Chức vụ không thuộc phòng ban đã chọn");

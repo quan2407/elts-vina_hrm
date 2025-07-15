@@ -52,6 +52,10 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
                   AND LOWER(e.employeeName) LIKE :search
             """)
     List<Employee> findEmployeesNotInLineWithSearch(@Param("lineId") Long lineId, @Param("search") String search);
+    long countByPosition_PositionNameIgnoreCase(String positionName);
+
+    @Query("SELECT COUNT(e) FROM Employee e WHERE LOWER(e.position.positionName) <> LOWER(:positionName)")
+    long countByPosition_PositionNameNotIgnoreCase(@Param("positionName") String positionName);
 
 
 }

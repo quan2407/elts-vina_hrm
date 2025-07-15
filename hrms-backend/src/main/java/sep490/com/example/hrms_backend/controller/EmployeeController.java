@@ -66,11 +66,19 @@ public class EmployeeController {
         return ResponseEntity.ok(updated);
     }
 
+
     @GetMapping("/next-code")
     public ResponseEntity<String> getNextEmployeeCode() {
         String nextCode = employeeService.getNextEmployeeCode();
         return ResponseEntity.ok(nextCode);
     }
+    @GetMapping("/next-code/{positionId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
+    public ResponseEntity<String> getNextEmployeeCodeByPosition(@PathVariable Long positionId) {
+        String nextCode = employeeService.getNextEmployeeCodeByPosition(positionId);
+        return ResponseEntity.ok(nextCode);
+    }
+
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
