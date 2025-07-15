@@ -42,6 +42,9 @@ const employeeService = {
     return axiosClient.put(`employees/add-to-line/${lineId}`, employeeIds);
   },
   getNextEmployeeCode: () => axiosClient.get("/employees/next-code"),
+  getNextEmployeeCodeByPosition: (positionId) => {
+    return axiosClient.get(`/employees/next-code/${positionId}`);
+  },
 };
 
 export default employeeService;

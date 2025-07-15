@@ -196,6 +196,29 @@ function EmployeeCreate() {
     };
     fetchNextEmployeeCode();
   }, []);
+  useEffect(() => {
+    const fetchCode = async () => {
+      if (positionId) {
+        try {
+          const res = await employeeService.getNextEmployeeCodeByPosition(
+            positionId
+          );
+          setEmployeeCode(res.data);
+        } catch (err) {
+          console.error("Lỗi lấy mã theo vị trí:", err);
+        }
+      } else {
+        try {
+          const res = await employeeService.getNextEmployeeCode();
+          setEmployeeCode(res.data);
+        } catch (err) {
+          console.error("Lỗi fallback mã nhân viên:", err);
+        }
+      }
+    };
+
+    fetchCode();
+  }, [positionId]);
 
   useEffect(() => {
     const contentEl = document.querySelector(".employeedetail-form-content");
