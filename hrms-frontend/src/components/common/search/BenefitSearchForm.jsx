@@ -28,42 +28,53 @@ const BenefitSearchForm = ({ onSearch }) => {
 
     return (
         <ConfigProvider locale={viVN}>
-        <ProForm
-            submitter={{
-                render: (_, dom) => (
-                    <div style={{ textAlign: 'right' }}>
-                        {dom}
-                        <Button htmlType="reset" style={{ marginLeft: 8 }}>Xem toàn bộ phúc lợi</Button>
-                        {/*<Button*/}
-                        {/*    key="viewAll"*/}
-                        {/*    onClick={() => {*/}
-                        {/*        // Đặt lại bộ lọc và tải tất cả dữ liệu*/}
-                        {/*        setFilters({});*/}
-                        {/*        setPageNumber(1);*/}
-                        {/*    }}>View All Benefits*/}
-                        {/*</Button>/*/}
+            <ProForm
+                submitter={{
+                    render: (_, dom) => (
+                        <div style={{ textAlign: 'right' }}>
+                            {dom}
+                            <Button htmlType="reset" style={{ marginLeft: 8 }}>Xem toàn bộ phúc lợi</Button>
+                            {/*<Button*/}
+                            {/*    key="viewAll"*/}
+                            {/*    onClick={() => {*/}
+                            {/*        // Đặt lại bộ lọc và tải tất cả dữ liệu*/}
+                            {/*        setFilters({});*/}
+                            {/*        setPageNumber(1);*/}
+                            {/*    }}>View All Benefits*/}
+                            {/*</Button>/*/}
 
-                    </div>
-                ),
-            }}
-            layout="vertical"
-            onFinish={handleFinish}
-        >
-            <ProFormText name="title" label="Tiêu đề" placeholder="Nhập tiêu đề" />
-            <ProFormText name="description" label="Mô tả" placeholder="Nhập mô tả" />
-            <ProFormDateRangePicker name="dateRange" label="Ngày bắt đầu - Ngày kết thúc" />
-            <ProFormSelect
-                name="isActive"
-                label="Trạng thái"
-                options={[
-                    { label: 'Đang hoạt động', value: true },
-                    { label: 'Ngừng hoạt động', value: false },
-                ]}
-                allowClear
-                placeholder="Chọn trạng thái"
-            />
-            <ProFormDigitRange name="maxParticipants" label="Số lượng người tham gia" separator="~" />
-        </ProForm>
+                        </div>
+                    ),
+                }}
+                layout="vertical"
+                onFinish={handleFinish}
+            >
+                <ProFormText name="title" label="Tiêu đề" placeholder="Nhập tiêu đề" />
+                <ProFormText name="description" label="Mô tả" placeholder="Nhập mô tả" />
+                <ProFormSelect
+                    name="benefitType"
+                    label="Loại phúc lợi"
+                    options={[
+                        { label: 'Sự Kiện', value: "SU_KIEN" },
+                        { label: 'Phụ cấp', value: "PHU_CAP" },
+                        { label: 'Khấu trừ', value: 'KHAU_TRU' }
+                    ]}
+                    allowClear
+                    placeholder="Chọn loại phúc lợi"
+                />
+                <ProFormDateRangePicker name="dateRange" label="Ngày bắt đầu - Ngày kết thúc" />
+                <ProFormSelect
+                    name="isActive"
+                    label="Trạng thái"
+                    options={[
+                        { label: 'Đang hoạt động', value: true },
+                        { label: 'Ngừng hoạt động', value: false },
+                    ]}
+                    allowClear
+                    placeholder="Chọn trạng thái"
+                />
+                <ProFormDigitRange name="maxParticipants" label="Số lượng người tham gia" separator="~" />
+            </ProForm>
         </ConfigProvider>
     );
 };

@@ -5,12 +5,13 @@ import Paging from "./common/Paging.jsx";
 import BenefitSearchForm from "./common/search/BenefitSearchForm.jsx";
 import ActionDropdown from "./common/ActionDropdown.jsx";
 import BenefitUpdateModal from "./modals/benefit/BenefitUpdateModal.jsx";
-import {Modal, message} from "antd";
+import { Modal, message } from "antd";
+import getBenefitTypeDisplay from '../utils/DisplayBenefitType.js'
 
 
 const BenefitHRTableHeader = () => {
     const headers = [
-        "Id", "Tiêu đề", "Mô tả", "Ngày bắt đầu", "Ngày kết thúc", "Số lượng người tham gia tối đa", "Trạng thái hoạt động", "Ngày tạo"
+        "Id", "Tiêu đề", "Mô tả", "Loại phúc lợi", "Ngày bắt đầu", "Ngày kết thúc", "Số lượng người tham gia tối đa", "Trạng thái hoạt động", "Ngày tạo"
     ];
 
     return (
@@ -36,7 +37,7 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
 
     const handleUpdate = async (updatedData) => {
         try {
-            await benefitService.update(updatedData, benefit.id );
+            await benefitService.update(updatedData, benefit.id);
             message.success("Cập nhật thành công!");
             setIsModalOpen(false);
             onUpdateSuccess?.(); // để reload bảng sau khi cập nhật
@@ -51,6 +52,7 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
             <div className="employee-table-cell">{benefit.id}</div>
             <div className="employee-table-cell">{benefit.title}</div>
             <div className="employee-table-cell">{benefit.description}</div>
+            <div className="employee-table-cell">{getBenefitTypeDisplay(benefit.benefitType)}</div>
             <div className="employee-table-cell">{formatDate(benefit.startDate)}</div>
             <div className="employee-table-cell">{formatDate(benefit.endDate)}</div>
             <div className="employee-table-cell">{benefit.maxParticipants}</div>
@@ -58,20 +60,20 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
             <div className="employee-table-cell">{formatDate(benefit.createdAt)}</div>
             <div className="employee-table-cell">
                 <ActionDropdown
-                onEdit={handleEdit}
-                onView={() => Modal.info({ title: 'Chi tiết', content: JSON.stringify(benefit, null, 2) })}
-                onDelete={() => Modal.confirm({
-                    title: "Bạn có chắc chắn muốn xóa?",
-                    onOk: async () => {
-                        try {
-                            await benefitService.delete(benefit.id);
-                            message.success("Đã xóa thành công!");
-                            onUpdateSuccess();
-                        } catch {
-                            message.error("Xóa thất bại");
+                    onEdit={handleEdit}
+                    onView={() => Modal.info({ title: 'Chi tiết', content: benefit.detail })}
+                    onDelete={() => Modal.confirm({
+                        title: "Bạn có chắc chắn muốn xóa?",
+                        onOk: async () => {
+                            try {
+                                await benefitService.delete(benefit.id);
+                                message.success("Đã xóa thành công!");
+                                onUpdateSuccess();
+                            } catch {
+                                message.error("Xóa thất bại");
+                            }
                         }
-                    }
-                })}
+                    })}
                 />
             </div>
             <BenefitUpdateModal

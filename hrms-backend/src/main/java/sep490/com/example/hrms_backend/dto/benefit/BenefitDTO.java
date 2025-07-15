@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import sep490.com.example.hrms_backend.enums.BenefitType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,8 +35,12 @@ public class BenefitDTO {
     @NotNull(message = "Active status is required")
     private Boolean isActive;
 
+    private BenefitType benefitType;
+
+    private String detail;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private String numbe;
+
 }

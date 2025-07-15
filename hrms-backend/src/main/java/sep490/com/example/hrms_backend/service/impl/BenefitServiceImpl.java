@@ -13,6 +13,7 @@ import sep490.com.example.hrms_backend.dto.benefit.BenefitDTO;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitResponse;
 import sep490.com.example.hrms_backend.dto.benefit.PatchBenefitDTO;
 import sep490.com.example.hrms_backend.entity.Benefit;
+import sep490.com.example.hrms_backend.enums.BenefitType;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.repository.BenefitRepository;
@@ -34,8 +35,7 @@ public class BenefitServiceImpl implements BenefitService {
     @Transactional
     @Override
     public BenefitResponse getAllBenefitsForHr(String username, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder,
-                                          String title, String description, Boolean isActive, LocalDate startDate, LocalDate endDate, Integer minParticipants, Integer maxParticipants) {
-
+                                               String title, String description, Boolean isActive, LocalDate startDate, LocalDate endDate, Integer minParticipants, Integer maxParticipants, BenefitType benefitType) {
 
 
         // 1. Tao đoi tuong sap xep (theo field va huong sap xep: asc/desc)
@@ -83,6 +83,10 @@ public class BenefitServiceImpl implements BenefitService {
             //3.7  Loc so nguoi tham gia <=
             if(maxParticipants != null){
                 predicates.add(cb.lessThanOrEqualTo(root.get("maxParticipants"), maxParticipants));
+            }
+
+            if(benefitType != null){
+                predicates.add(cb.equal(root.get("benefitType"), benefitType));
             }
 
             //3.8 Tra ve tat ca dieu kien AND lai

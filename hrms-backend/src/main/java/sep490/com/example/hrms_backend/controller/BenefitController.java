@@ -14,6 +14,7 @@ import sep490.com.example.hrms_backend.dto.benefit.BenefitDTO;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitResponse;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitStatusUpdateRequestDTO;
 import sep490.com.example.hrms_backend.dto.benefit.PatchBenefitDTO;
+import sep490.com.example.hrms_backend.enums.BenefitType;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.security.CustomUserDetailsService;
 import sep490.com.example.hrms_backend.service.BenefitService;
@@ -48,11 +49,12 @@ public class BenefitController {
                                                          @RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
                                                          @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
                                                          @RequestParam(name = "minParticipants", required = false) Integer minParticipants,
-                                                         @RequestParam(name = "maxParticipants", required = false) Integer maxParticipants
+                                                         @RequestParam(name = "maxParticipants", required = false) Integer maxParticipants,
+                                                              @RequestParam(name="benefitType", required = false) BenefitType benefitType
     ){
         String username = currentUserUtils.getCurrentUsername();
 
-        BenefitResponse benefitResponse = benefitService.getAllBenefitsForHr(username, pageNumber, pageSize, sortBy, sortOrder, title, description, isActive, startDate, endDate, minParticipants, maxParticipants);
+        BenefitResponse benefitResponse = benefitService.getAllBenefitsForHr(username, pageNumber, pageSize, sortBy, sortOrder, title, description, isActive, startDate, endDate, minParticipants, maxParticipants, benefitType);
         return new ResponseEntity<>(benefitResponse, HttpStatus.OK  );
     }
 
