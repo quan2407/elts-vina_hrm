@@ -127,7 +127,7 @@ INSERT INTO employee (
  NULL, NULL, 'Vietnam', '0123456782',
  '2011-01-01', '2031-01-01', 'Hồ Chí Minh',
  NULL, NULL, '2017-01-01', '0900000002', 'userb@example.com',
- 2, 2,
+ 8, 17,
  4800000, 90000, 180000, 450000, 35000),
 
 (3, 'ELTSSX0003', 'Test User C', 'NAM', '1993-03-15',
@@ -162,7 +162,7 @@ INSERT INTO employee (
  NULL, NULL, 'Vietnam', '0123456787',
  '2016-01-01', '2036-01-01', 'Quảng Ninh',
  NULL, NULL, '2022-01-01', '0900000007', 'userg@example.com',
- 4, 7,
+ 4, 10,
  4850000, 99000, 215000, 510000, 39000),
 
 (8, 'ELTSSX0008', 'Test User H', 'NỮ', '1998-08-15',
@@ -183,20 +183,20 @@ INSERT INTO employee (
  NULL, NULL, 'Vietnam', '0123456790',
  '2009-01-01', '2029-01-01', 'Bắc Ninh',
  NULL, NULL, '2025-01-01', '0900000010', 'userj@example.com',
- 5, 10,
+ 9, 18,
  5100000, 96000, 212000, 480000, 38000);
 
 
 INSERT INTO account (account_id, username, password_hash, email, is_active, created_at, updated_at, last_login_at, login_attempts, must_change_password, employee_id, role_id) VALUES
 (1, 'user1', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user1@example.com', true, NOW(), NOW(), NULL, 5, false, 1, 1),
 (2, 'user2', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user2@example.com', true, NOW(), NOW(), NULL, 5, false, 2, 2),
-(3, 'user3', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user3@example.com', true, NOW(), NOW(), NULL, 5, false, 3, 3),
-(4, 'user4', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user4@example.com', true, NOW(), NOW(), NULL, 5, false, 4, 4),
+(3, 'user3', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user3@example.com', true, NOW(), NOW(), NULL, 5, false, 3, 6),
+(4, 'user4', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user4@example.com', true, NOW(), NOW(), NULL, 5, false, 4, 3),
 (5, 'user5', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user5@example.com', true, NOW(), NOW(), NULL, 5, false, 5, 5),
 (6, 'user6', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user6@example.com', true, NOW(), NOW(), NULL, 5, false, 6, 6),
-(7, 'user7', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user7@example.com', true, NOW(), NOW(), NULL, 5, false, 7, 1),
-(8, 'user8', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user8@example.com', true, NOW(), NOW(), NULL, 5, false, 8, 2),
-(9, 'user9', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user9@example.com', true, NOW(), NOW(), NULL, 5, false, 9, 3),
+(7, 'user7', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user7@example.com', true, NOW(), NOW(), NULL, 5, false, 7, 4),
+(8, 'user8', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user8@example.com', true, NOW(), NOW(), NULL, 5, false, 8, 6),
+(9, 'user9', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user9@example.com', true, NOW(), NOW(), NULL, 5, false, 9, 6),
 (10, 'user10', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user10@example.com', true, NOW(), NOW(), NULL, 5, false, 10, 7);
 
 
@@ -283,8 +283,9 @@ INSERT INTO benefit(title, description, end_date, is_active, max_participants, s
 ('Gói hỗ trợ sức khỏe tinh thần', 'Miễn phí 5 buổi tư vấn tâm lý cùng chuyên gia.', '2026-01-15', 1, 300, '2025-07-01'),
 ('Phụ cấp thể thao', 'Hỗ trợ chi phí tham gia phòng gym, yoga, hoặc các hoạt động thể thao.', '2025-11-01', 1, 5, '2025-06-28');
 
-INSERT INTO holidays (date, name, is_recurring) VALUES
-('2025-01-01', 'Tết dương lịch', true),
-('2025-04-30', 'Giải phóng miền Nam', true),
-('2025-05-01', 'Quốc tế Lao động', true),
-('2025-09-02', 'Quốc khánh', true);
+INSERT INTO holidays (start_date, end_date, name, is_recurring,is_deleted) VALUES
+('2025-01-01', '2025-01-01', 'Tết dương lịch', true,false),
+('2025-04-30', '2025-04-30', 'Giải phóng miền Nam', true,false),
+('2025-05-01', '2025-05-01', 'Quốc tế Lao động', true,false),
+('2025-09-02', '2025-09-02', 'Quốc khánh', true,false);
+
