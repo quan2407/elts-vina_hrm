@@ -176,6 +176,66 @@
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
+.ocr-frame {
+  width: 100%;
+  height: 180px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #f9f9f9;
+}
+
+.ocr-upload-button {
+  cursor: pointer;
+  text-align: center;
+  color: #555;
+}
+
+.ocr-upload-button i {
+  font-size: 24px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.ocr-preview-container {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: #eee;
+}
+
+.ocr-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: 0.2s;
+}
+
+.ocr-reupload {
+  background: white;
+  color: black;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  border: 1px solid #999;
+}
+
+.ocr-preview-container:hover .ocr-overlay,
+.ocr-frame:hover .ocr-overlay {
+  opacity: 1;
+}
 
 .submit-button:hover {
   background-color: #0353e9;
