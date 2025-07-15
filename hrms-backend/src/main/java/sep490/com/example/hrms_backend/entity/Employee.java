@@ -86,8 +86,10 @@ public class Employee {
     private String trainingMajor;
 
 
-    @Column(name = "image")
-    private String image;
+    @Column(name = "cccd_front_image")
+    private String cccdFrontImage;
+    @Column(name = "cccd_back_image")
+    private String cccdBackImage;
 
     @PastOrPresent
     @Column(name = "start_work_at")

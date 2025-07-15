@@ -150,6 +150,14 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         EmployeeMapper.updateEmployeeFromUpdateDTO(dto, employee);
         employee.setDepartment(fetchDepartment(dto.getDepartmentId()));
         employee.setPosition(fetchPosition(dto.getPositionId()));
+        if (dto.getCccdFrontImage() != null) {
+            employee.setCccdFrontImage(dto.getCccdFrontImage());
+        }
+        if (dto.getCccdBackImage() != null) {
+            employee.setCccdBackImage(dto.getCccdBackImage());
+        }
+
+
         employee = employeeRepository.save(employee);
 
         return EmployeeMapper.mapToEmployeeResponseDTO(employee);

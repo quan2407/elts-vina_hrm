@@ -20,7 +20,7 @@ public class OcrServiceImpl implements OcrService {
     @Override
     public EmployeeOCRResponseDTO scanCCCDWithCloudVision(MultipartFile frontImage, MultipartFile backImage) {
         EmployeeOCRResponseDTO dto = new EmployeeOCRResponseDTO();
-
+        String frontImagePath = null;
         if (frontImage != null && !frontImage.isEmpty()) {
             try {
                 AnnotateImageResponse res = annotateImage(frontImage);
@@ -53,7 +53,7 @@ public class OcrServiceImpl implements OcrService {
                 log.error("Failed to process front image", e);
             }
         }
-
+        String backImagePath = null;
         if (backImage != null && !backImage.isEmpty()) {
             try {
                 String backText = extractTextOnly(backImage);
@@ -62,13 +62,17 @@ public class OcrServiceImpl implements OcrService {
                     throw new IllegalArgumentException("Ảnh không hợp lệ.");
                 }
                 dto.setCitizenIssueDate(parseDate(extract(backText, "(?i)ngày, tháng, năm[^\\d]*(\\d{2}/\\d{2}/\\d{4})")));
+
             } catch (IOException e) {
                 log.error("Failed to process back image", e);
             }
         }
+        dto.setFrontImagePath(frontImagePath);
+        dto.setBackImagePath(backImagePath);
 
         return dto;
     }
+
 
     private AnnotateImageResponse annotateImage(MultipartFile file) throws IOException {
         ByteString imgBytes = ByteString.readFrom(file.getInputStream());

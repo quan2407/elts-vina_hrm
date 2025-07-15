@@ -83,8 +83,9 @@ public class EmployeeUpdateDTO {
     private String trainingMajor;
 
 
-    @Size(max = 255, message = "Link ảnh không được vượt quá 255 ký tự")
-    private String image;
+    private String cccdFrontImage;
+    private String cccdBackImage;
+
 
     @NotNull(message = "Ngày vào công ty không được để trống")
     @PastOrPresent(message = "Ngày vào công ty phải trong quá khứ hoặc hiện tại")
