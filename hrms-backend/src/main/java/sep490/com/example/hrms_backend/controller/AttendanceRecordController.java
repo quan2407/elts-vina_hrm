@@ -12,6 +12,7 @@ import sep490.com.example.hrms_backend.dto.AttendanceMonthlyViewDTO;
 import sep490.com.example.hrms_backend.dto.LeaveCodeUpdateDTO;
 import sep490.com.example.hrms_backend.dto.MonthYearDTO;
 import sep490.com.example.hrms_backend.service.AttendanceRecordService;
+import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ import java.util.List;
 public class AttendanceRecordController {
 
     private final AttendanceRecordService attendanceRecordService;
+    private final CurrentUserUtils currentUserUtils;
 
     @GetMapping("/view-by-month")
     public ResponseEntity<Page<AttendanceMonthlyViewDTO>> viewAttendanceByMonth(
@@ -54,5 +56,7 @@ public class AttendanceRecordController {
         attendanceRecordService.updateLeaveCode(id, dto);
         return ResponseEntity.ok().build();
     }
+
+
 
 }

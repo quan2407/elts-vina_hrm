@@ -11,4 +11,5 @@ public interface SalaryService {
     void regenerateMonthlySalaries(int month, int year);
     List<LocalDate> getAvailableSalaryMonths();
 
+    List<SalaryDTO> getEmpSalariesByMonth(Long employeeId, int month, int year);
 }

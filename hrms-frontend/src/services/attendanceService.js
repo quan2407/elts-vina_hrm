@@ -6,6 +6,11 @@ const attendanceService = {
       params: { month, year, page, size },
     });
   },
+  getEmployeeMonthlyAttendanceById: (month, year) => {
+    return axiosClient.get(`/attendances/employee`, {
+      params: { month, year },
+    });
+  },
 
   getAvailableMonths: () => {
     return axiosClient.get("/attendances/available-months");

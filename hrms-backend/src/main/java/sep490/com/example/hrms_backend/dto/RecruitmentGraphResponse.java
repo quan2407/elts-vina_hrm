@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class RecruitmentGraphResponse {
-    private Long RecuitementId;
+    private Long RecuitmentId;
     private String RecruitmentTitle;
     private int canTuyen;
     private Long daTuyen;

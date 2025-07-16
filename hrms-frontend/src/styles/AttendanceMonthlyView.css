@@ -10,6 +10,7 @@
   flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 1rem;
+  margin-top: 1rem;
 }
 
 .attendance-filters {
@@ -22,7 +23,13 @@
   padding: 6px 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 16px;
+}
+.attendance-title {
+  color: #000;
+  font-size: 25px;
+  font-weight: 700;
+  margin: 0;
 }
 
 .attendance-table-wrapper {
@@ -34,7 +41,7 @@
   border-collapse: collapse;
   width: max-content;
   min-width: 100%;
-  font-size: 13px;
+  font-size: 16px;
 }
 
 .attendance-table th,
@@ -52,7 +59,7 @@
 
 .attendance-table thead th[colspan] {
   background-color: #d1fae5;
-  font-size: 13px;
+  font-size: 16px;
 }
 
 .attendance-table tbody td {

@@ -16,6 +16,7 @@ import sep490.com.example.hrms_backend.service.SalaryService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +34,21 @@ public class SalaryServiceImpl implements SalaryService {
         List<Salary> salaries = salaryRepository.findBySalaryMonth(firstDay);
 
         return salaries.stream()
+                .map(SalaryMapper::mapToSalaryDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SalaryDTO> getEmpSalariesByMonth(Long employeeId, int month, int year) {
+        LocalDate firstDay = LocalDate.of(year, month, 1);
+        List<Salary> salaries = salaryRepository.findBySalaryMonth(firstDay);
+        List<Salary> results = new ArrayList<>();
+        for (Salary salary : salaries) {
+            if (salary.getEmployee().getEmployeeId().equals(employeeId)) {
+                results.add(salary);
+            }
+        }
+        return results.stream()
                 .map(SalaryMapper::mapToSalaryDTO)
                 .collect(Collectors.toList());
     }
@@ -122,7 +138,6 @@ public class SalaryServiceImpl implements SalaryService {
     }
 
 
-
     private BigDecimal sum(BigDecimal value) {
         return value != null ? value : BigDecimal.ZERO;
     }
@@ -158,6 +173,7 @@ public class SalaryServiceImpl implements SalaryService {
                 .salaryMonth(s.getSalaryMonth())
                 .build();
     }
+
     @Override
     @Transactional
     public void regenerateMonthlySalaries(int month, int year) {
@@ -169,6 +185,7 @@ public class SalaryServiceImpl implements SalaryService {
 
         generateMonthlySalaries(month, year);
     }
+
     @Override
     public List<LocalDate> getAvailableSalaryMonths() {
         List<Salary> salaries = salaryRepository.findAll();

@@ -9,6 +9,7 @@ import {
   Gift,
   CalendarCheck,
   Rows4,
+  Wallet
 } from "lucide-react";
 
 export const systemMenus = [
@@ -131,7 +132,7 @@ export const hrMenus = [
     text: "Bảng lương tháng",
     path: "/salary-monthly",
     icon: (isActive) => (
-      <LayoutDashboard
+      <Wallet 
         size={20}
         stroke={isActive ? "#4f46e5" : "white"}
       />
@@ -153,12 +154,12 @@ export const pmcMenus = [
     text: "Danh sách line",
     path: "/line-management",
     icon: (isActive) => (
-      <Rows4
+      <Rows4 
         size={20}
         stroke={isActive ? "#4f46e5" : "white"}
       />
     ),
-  },
+  }
 ];
 export const lineLeaderMenus = [];
 export const productionManagerMenus = [];
@@ -174,4 +175,25 @@ export const employeeMenus = [
       />
     ),
   },
+  {
+    text: "Bảng công tháng",
+    path: "/my-attendance-monthly",
+    icon: (isActive) => (
+      <LayoutDashboard
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  }
+  ,
+  {
+    text: "Bảng lương tháng",
+    path: "/my-salary-monthly",
+    icon: (isActive) => (
+      <Wallet 
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  }
 ];

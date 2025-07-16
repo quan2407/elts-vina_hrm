@@ -13,6 +13,7 @@ function WorkScheduleManagement() {
   const [reloadTrigger, setReloadTrigger] = useState(0);
   const [rejectReason, setRejectReason] = useState("");
 
+
   const handleSubmit = () => {
     workScheduleService
       .submitWorkSchedules(month, year)
@@ -99,7 +100,6 @@ function WorkScheduleManagement() {
           }}
           onRejectReasonChange={setRejectReason}
           onMonthYearChange={(m, y) => {
-            console.log("Gọi onMonthYearChange với:", m, y);
             setMonth(m);
             setYear(y);
           }}

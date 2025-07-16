@@ -29,6 +29,78 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     private final EmployeeRepository employeeRepository;
     private final HolidayRepository holidayRepository;
 
+
+    @Override
+    public List<AttendanceMonthlyViewDTO> getEmpMonthlyAttendanceById(Long employeeId, int month, int year) {
+
+        Employee employee = employeeRepository.findById(employeeId).orElse(null);
+        List<AttendanceRecord> records = attendanceRecordRepository.findByEmpIdAndMonthAndYear(employeeId, month, year);
+        Map<Long, List<AttendanceRecord>> recordsByEmployee = new HashMap<>();
+
+        recordsByEmployee.put(employeeId, records);
+
+        AttendanceMonthlyViewDTO result = AttendanceMonthlyViewDTO.builder()
+                .employeeCode(employee.getEmployeeCode())
+                .employeeName(employee.getEmployeeName())
+                .departmentName(employee.getDepartment() != null ? employee.getDepartment().getDepartmentName() : null)
+                .positionName(employee.getPosition() != null ? employee.getPosition().getPositionName() : null)
+                .lineName(employee.getLine() != null ? employee.getLine().getLineName() : null)
+                .attendanceByDate(new LinkedHashMap<>())
+                .totalDayShiftHours(0f)
+                .totalOvertimeHours(0f)
+                .totalWeekendHours(0f)
+                .totalHolidayHours(0f)
+                .totalHours(0f)
+                .build();
+
+        List<AttendanceRecord> empRecords = recordsByEmployee.getOrDefault(employee.getEmployeeId(), Collections.emptyList());
+
+        for (AttendanceRecord record : empRecords) {
+            String dateKey = String.valueOf(record.getDate().getDayOfMonth());
+
+            boolean hasSchedule = false;
+            boolean isWeekend = false;
+            if (record.getWorkSchedule() != null && record.getWorkSchedule().getWorkScheduleDetails() != null) {
+                Optional<WorkScheduleDetail> detailOpt = record.getWorkSchedule().getWorkScheduleDetails().stream()
+                        .filter(detail -> detail.getDateWork().equals(record.getDate()))
+                        .findFirst();
+                if (detailOpt.isPresent()) {
+                    hasSchedule = true;
+                    isWeekend = detailOpt.get().getDateWork().getDayOfWeek().getValue() == 7; // Chủ nhật
+                }
+            }
+
+            boolean isHoliday = holidayRepository.existsByDate(record.getDate());
+
+            AttendanceCellDTO cell = AttendanceCellDTO.builder()
+                    .attendanceRecordId(record.getId())
+                    .shift(record.getDayShift())
+                    .overtime(record.getOtShift())
+                    .weekend(record.getWeekendShift())
+                    .holiday(record.getHolidayShift())
+                    .hasScheduleDetail(hasSchedule)
+                    .checkIn(record.getCheckInTime() != null ? record.getCheckInTime().toString() : null)
+                    .checkOut(record.getCheckOutTime() != null ? record.getCheckOutTime().toString() : null)
+                    .holidayFlag(isHoliday)
+                    .weekendFlag(isWeekend)
+                    .build();
+
+            result.getAttendanceByDate().put(dateKey, cell);
+
+            result.setTotalDayShiftHours(result.getTotalDayShiftHours() + parseHour(record.getDayShift()));
+            result.setTotalOvertimeHours(result.getTotalOvertimeHours() + parseHour(record.getOtShift()));
+            result.setTotalWeekendHours(result.getTotalWeekendHours() + parseHour(record.getWeekendShift()));
+            result.setTotalHolidayHours(result.getTotalHolidayHours() + parseHour(record.getHolidayShift()));
+        }
+
+        result.setTotalHours(result.getTotalDayShiftHours()
+                + result.getTotalOvertimeHours()
+                + result.getTotalWeekendHours()
+                + result.getTotalHolidayHours());
+
+        return List.of(result);
+    }
+
     @Override
     public Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -105,8 +177,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
         return new PageImpl<>(dtoList, pageable, employeePage.getTotalElements());
     }
-
-
 
 
     private float parseHour(String value) {
@@ -235,14 +305,12 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
         String leaveCodeStr = dto.getLeaveCode();
         String field = dto.getTargetField();
-
         LeaveCode leaveCode;
         try {
             leaveCode = LeaveCode.valueOf(leaveCodeStr); 
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid leave code: " + leaveCodeStr);
         }
-
         if (field == null || field.isBlank()) {
             throw new IllegalArgumentException("Target field is required");
         }
