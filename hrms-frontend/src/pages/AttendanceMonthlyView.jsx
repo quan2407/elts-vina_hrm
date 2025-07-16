@@ -132,49 +132,126 @@ const AttendanceMonthlyView = () => {
     <MainLayout>
       <div className="attendance-container">
         <div className="attendance-controls">
-          <select
-            value={month || ""}
-            onChange={(e) => setMonth(Number(e.target.value))}
-          >
-            <option
-              value=""
-              disabled
+          <div className="attendance-filters">
+            <select
+              value={month || ""}
+              onChange={(e) => setMonth(Number(e.target.value))}
             >
-              -- Chọn tháng --
-            </option>
-            {Array.from(new Set(availableMonths.map((m) => m.month))).map(
-              (m) => (
-                <option
-                  key={m}
-                  value={m}
-                >
-                  Tháng {m < 10 ? `0${m}` : m}
-                </option>
-              )
-            )}
-          </select>
+              <option
+                value=""
+                disabled
+              >
+                -- Chọn tháng --
+              </option>
+              {Array.from(new Set(availableMonths.map((m) => m.month))).map(
+                (m) => (
+                  <option
+                    key={m}
+                    value={m}
+                  >
+                    Tháng {m < 10 ? `0${m}` : m}
+                  </option>
+                )
+              )}
+            </select>
 
-          <select
-            value={year || ""}
-            onChange={(e) => setYear(Number(e.target.value))}
-          >
-            <option
-              value=""
-              disabled
+            <select
+              value={year || ""}
+              onChange={(e) => setYear(Number(e.target.value))}
             >
-              -- Chọn năm --
-            </option>
-            {Array.from(new Set(availableMonths.map((m) => m.year))).map(
-              (y) => (
-                <option
-                  key={y}
-                  value={y}
-                >
-                  Năm {y}
-                </option>
-              )
-            )}
-          </select>
+              <option
+                value=""
+                disabled
+              >
+                -- Chọn năm --
+              </option>
+              {Array.from(new Set(availableMonths.map((m) => m.year))).map(
+                (y) => (
+                  <option
+                    key={y}
+                    value={y}
+                  >
+                    Năm {y}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
+
+          <div className="leave-code-popover-wrapper">
+            <button
+              className="leave-code-toggle-btn"
+              onClick={() =>
+                document
+                  .getElementById("leave-code-popover")
+                  .classList.toggle("show")
+              }
+            >
+              🛈 Ghi chú mã nghỉ
+            </button>
+            <div
+              id="leave-code-popover"
+              className="leave-code-popover"
+            >
+              <div className="leave-code-columns">
+                <ul>
+                  <li>
+                    <strong>NL</strong>: Nghỉ nguyên lương
+                  </li>
+                  <li>
+                    <strong>VPHĐ</strong>: Vi phạm HĐ
+                  </li>
+                  <li>
+                    <strong>VR</strong>: Việc riêng có lương
+                  </li>
+                </ul>
+                <ul>
+                  <li>
+                    <strong>BH</strong>: Nghỉ hưởng BH
+                  </li>
+                  <li>
+                    <strong>KL</strong>: Không lương
+                  </li>
+                  <li>
+                    <strong>KL1</strong>: KL hưởng CC
+                  </li>
+                </ul>
+                <ul>
+                  <li>
+                    <strong>KL1_2</strong>: KL hưởng CC 2h
+                  </li>
+                  <li>
+                    <strong>KL1_4</strong>: KL hưởng CC 4h
+                  </li>
+                  <li>
+                    <strong>KL1_2_4</strong>: KL hưởng CC 2+4h
+                  </li>
+                </ul>
+                <ul>
+                  <li>
+                    <strong>P</strong>: Nghỉ phép
+                  </li>
+                  <li>
+                    <strong>P_4</strong>: Nửa phép
+                  </li>
+                  <li>
+                    <strong>NDB</strong>: Cách ly 8h
+                  </li>
+                </ul>
+                <ul>
+                  <li>
+                    <strong>NDB_4</strong>: Cách ly 4h
+                  </li>
+                  <li>
+                    <strong>NDB_1_5</strong>: Cách ly 1.5h
+                  </li>
+                  <li>
+                    <strong>NTS</strong>: Nghỉ tự sắp xếp
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="attendance-table-wrapper">
