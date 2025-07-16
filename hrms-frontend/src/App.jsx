@@ -39,6 +39,7 @@ import LineManagement from "./pages/LineManagementPMC.jsx";
 import EmployeeInLineManagement from "./pages/EmployeeInLineManagement.jsx";
 import EmployeeWorkScheduleView from "./pages/EmployeeWorkScheduleView";
 import HolidayManagement from "./pages/HolidayManagement";
+import AccountRequestPage from "./pages/AccountRequestPage.jsx";
 
 function App() {
   return (
@@ -73,6 +74,15 @@ function App() {
               path="/applyjob/:id"
               element={<ApplyJob />}
             />
+            <Route
+              path="/admin/account-requests"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
+                  <AccountRequestPage />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/holiday-management"
               element={
@@ -300,7 +310,6 @@ function App() {
               }
             />
 
-            {/* Catch all unmatched routes */}
             <Route
               path="*"
               element={
