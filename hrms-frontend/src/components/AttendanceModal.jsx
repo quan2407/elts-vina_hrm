@@ -1,5 +1,7 @@
 import React from "react";
 import "../styles/AttendanceModal.css";
+import TimePicker from "react-time-picker";
+import "react-time-picker/dist/TimePicker.css";
 
 function AttendanceModal({
   isOpen,
@@ -19,20 +21,6 @@ function AttendanceModal({
   } = data;
 
   const formattedDate = new Date(date).toLocaleDateString("vi-VN");
-
-  const generateTimeOptions = () => {
-    const options = [];
-    for (let h = 0; h < 24; h++) {
-      for (let m = 0; m < 60; m += 15) {
-        const hour = h.toString().padStart(2, "0");
-        const minute = m.toString().padStart(2, "0");
-        options.push(`${hour}:${minute}`);
-      }
-    }
-    return options;
-  };
-
-  const timeOptions = generateTimeOptions();
 
   return (
     <div
@@ -56,41 +44,34 @@ function AttendanceModal({
 
         <div className="attendance-modal-field">
           <label>Giờ vào:</label>
-          <select
+          <TimePicker
+            onChange={(value) => onChange("checkIn", value)}
             value={checkIn}
-            onChange={(e) => onChange("checkIn", e.target.value)}
-          >
-            <option value="">-- Chọn --</option>
-            {timeOptions.map((t) => (
-              <option
-                key={t}
-                value={t}
-              >
-                {t}
-              </option>
-            ))}
-          </select>
+            format="HH:mm"
+            disableClock={true}
+            clearIcon={null}
+            hourPlaceholder="HH"
+            minutePlaceholder="mm"
+          />
           {errorMessages.checkIn && (
             <div className="error-message">{errorMessages.checkIn[0]}</div>
+          )}
+          {errorMessages.checkInOut && (
+            <div className="error-message">{errorMessages.checkInOut[0]}</div>
           )}
         </div>
 
         <div className="attendance-modal-field">
           <label>Giờ ra:</label>
-          <select
+          <TimePicker
+            onChange={(value) => onChange("checkOut", value)}
             value={checkOut}
-            onChange={(e) => onChange("checkOut", e.target.value)}
-          >
-            <option value="">-- Chọn --</option>
-            {timeOptions.map((t) => (
-              <option
-                key={t}
-                value={t}
-              >
-                {t}
-              </option>
-            ))}
-          </select>
+            format="HH:mm"
+            disableClock={true}
+            clearIcon={null}
+            hourPlaceholder="HH"
+            minutePlaceholder="mm"
+          />
           {errorMessages.checkOut && (
             <div className="error-message">{errorMessages.checkOut[0]}</div>
           )}

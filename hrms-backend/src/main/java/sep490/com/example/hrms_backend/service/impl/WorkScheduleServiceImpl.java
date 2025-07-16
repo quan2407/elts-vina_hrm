@@ -1,11 +1,11 @@
 package sep490.com.example.hrms_backend.service.impl;
 
-import com.example.hrms_backend.dto.WorkScheduleMonthDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.EmployeeWorkScheduleDTO;
 import sep490.com.example.hrms_backend.dto.WorkScheduleCreateDTO;
+import sep490.com.example.hrms_backend.dto.WorkScheduleMonthDTO;
 import sep490.com.example.hrms_backend.dto.WorkScheduleResponseDTO;
 import sep490.com.example.hrms_backend.entity.*;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
@@ -170,6 +170,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         for (WorkSchedule schedule : schedules) {
             System.out.println("✅ Accepting schedule ID: " + schedule.getId());
             schedule.setAccepted(true);
+            schedule.setRejectReason(null);
             System.out.println("Schedule is accept: " + schedule.isAccepted());
             workScheduleRepository.save(schedule);
             System.out.println("Bat dau luu lan " + count);
@@ -207,5 +208,17 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                 }).toList();
     }
 
+    @Override
+    public void rejectSubmittedSchedule(int month, int year, String reason) {
+        List<WorkSchedule> schedules = workScheduleRepository
+                .findByMonthAndYearAndIsSubmittedTrueAndIsAcceptedFalse(month, year);
+
+        for (WorkSchedule schedule : schedules) {
+            schedule.setSubmitted(false);
+            schedule.setRejectReason(reason);
+        }
+
+        workScheduleRepository.saveAll(schedules);
+    }
 
 }

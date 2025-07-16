@@ -8,10 +8,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.service.EmployeeService;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -28,21 +33,66 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeList);
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
-    public ResponseEntity<EmployeeResponseDTO> createEmployee(@Valid @RequestBody EmployeeRequestDTO dto) {
+    public ResponseEntity<EmployeeResponseDTO> createEmployee(
+            @Valid @ModelAttribute EmployeeRequestDTO dto,
+            @RequestParam(value = "frontImageFile", required = false) MultipartFile frontImageFile,
+            @RequestParam(value = "backImageFile", required = false) MultipartFile backImageFile) {
+
+        try {
+            if (frontImageFile != null && !frontImageFile.isEmpty()) {
+                String frontPath = saveFile(frontImageFile, "front");
+                dto.setCccdFrontImage(frontPath);
+            }
+
+            if (backImageFile != null && !backImageFile.isEmpty()) {
+                String backPath = saveFile(backImageFile, "back");
+                dto.setCccdBackImage(backPath);
+            }
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().build();
+        }
+
         EmployeeResponseDTO createdEmployee = employeeService.createEmployee(dto);
         return ResponseEntity.ok(createdEmployee);
     }
+    private String saveFile(MultipartFile file, String prefix) throws IOException {
+        String folder = "uploads/cccd/";
+        String filename = prefix + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
+        Path path = Paths.get(folder + filename);
+        Files.createDirectories(path.getParent());
+        Files.write(path, file.getBytes());
+        return filename;
+    }
 
-    @PutMapping("/{id}")
+
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<EmployeeResponseDTO> updateEmployee(
             @PathVariable Long id,
-            @Valid @RequestBody EmployeeUpdateDTO dto) {
+            @Valid @ModelAttribute EmployeeUpdateDTO dto,
+            @RequestParam(value = "frontImageFile", required = false) MultipartFile frontImageFile,
+            @RequestParam(value = "backImageFile", required = false) MultipartFile backImageFile) {
+
+        try {
+            if (frontImageFile != null && !frontImageFile.isEmpty()) {
+                String frontPath = saveFile(frontImageFile, "front");
+                dto.setCccdFrontImage(frontPath);
+            }
+
+            if (backImageFile != null && !backImageFile.isEmpty()) {
+                String backPath = saveFile(backImageFile, "back");
+                dto.setCccdBackImage(backPath);
+            }
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().build();
+        }
+
         EmployeeResponseDTO updatedEmployee = employeeService.updateEmployee(id, dto);
         return ResponseEntity.ok(updatedEmployee);
     }
+
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
@@ -66,11 +116,19 @@ public class EmployeeController {
         return ResponseEntity.ok(updated);
     }
 
+
     @GetMapping("/next-code")
     public ResponseEntity<String> getNextEmployeeCode() {
         String nextCode = employeeService.getNextEmployeeCode();
         return ResponseEntity.ok(nextCode);
     }
+    @GetMapping("/next-code/{positionId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
+    public ResponseEntity<String> getNextEmployeeCodeByPosition(@PathVariable Long positionId) {
+        String nextCode = employeeService.getNextEmployeeCodeByPosition(positionId);
+        return ResponseEntity.ok(nextCode);
+    }
+
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")

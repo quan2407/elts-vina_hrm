@@ -17,9 +17,11 @@ public class WorkScheduleMapper {
                 .lineName(entity.getLine() != null ? entity.getLine().getLineName() : null)
                 .departmentId(entity.getDepartment() != null ? entity.getDepartment().getDepartmentId().toString() : null)
                 .departmentName(entity.getDepartment() != null ? entity.getDepartment().getDepartmentName() : null)
+                .isAccepted(entity.isAccepted())
+                .isSubmitted(entity.isSubmitted())
+                .rejectReason(entity.getRejectReason())
                 .build();
     }
-
 
     public static WorkSchedule toEntity(WorkScheduleCreateDTO dto, Line line, Department department) {
         return WorkSchedule.builder()
@@ -27,7 +29,10 @@ public class WorkScheduleMapper {
                 .year(dto.getYear())
                 .line(line)
                 .department(department)
+                .isAccepted(false)
+                .isSubmitted(false)
+                .isDeleted(false)
+                .rejectReason(null)
                 .build();
     }
-
 }

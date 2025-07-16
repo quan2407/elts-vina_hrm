@@ -217,7 +217,6 @@ class EmployeeServiceImplTest {
                 .trainingMajor("CNTT")
                 .foreignLanguages("English")
                 .trainingType("Chính quy")
-                .image("img.jpg")
                 .startWorkAt(LocalDate.of(2020, 1, 1))
                 .phoneNumber("0909988776")
                 .email("updated@example.com")

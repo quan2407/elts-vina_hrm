@@ -18,4 +18,6 @@ public interface AccountService {
 
 
     List<PasswordResetRequest> getPendingResetRequests();
+
+    void toggleAccountStatus(Long id);
 }

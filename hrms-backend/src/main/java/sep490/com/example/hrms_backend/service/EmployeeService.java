@@ -16,11 +16,13 @@ public interface EmployeeService {
     void softDeleteEmployee(Long id);
     ByteArrayInputStream exportEmployeesToExcel();
     List<EmployeeResponseDTO> getEmployeeByDepartmentId(Long id);
-    String getNextEmployeeCode();
+
 
     List<EmployeeResponseDTO> getEmployeesNotInLine(Long lineId, String search);
     List<EmployeeResponseDTO> getEmployeeByLineId(Long id);
 
     void addEmployeesToLine(Long lineId, List<Long> employeeIds);
+    String getNextEmployeeCodeByPosition(Long positionId);
 
+    String getNextEmployeeCode();
 }

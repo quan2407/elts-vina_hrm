@@ -44,6 +44,16 @@ export const systemMenus = [
       />
     ),
   },
+  {
+    text: "Yêu cầu tạo tài khoản",
+    path: "/admin/account-requests",
+    icon: (isActive) => (
+      <UserPlus
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
 ];
 
 export const hrMenus = [
@@ -87,6 +97,17 @@ export const hrMenus = [
       />
     ),
   },
+  {
+    text: "Quản lý ngày nghỉ",
+    path: "/holiday-management",
+    icon: (isActive) => (
+      <CalendarCheck
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+
   {
     text: "Danh sách phỏng vấn",
     path: "/interviews-management",

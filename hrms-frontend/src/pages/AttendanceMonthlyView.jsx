@@ -22,12 +22,28 @@ const AttendanceMonthlyView = () => {
   const [leaveRecordId, setLeaveRecordId] = useState(null);
   const [leaveDate, setLeaveDate] = useState(null);
   const [leaveCellMeta, setLeaveCellMeta] = useState({});
+  const [validationErrors, setValidationErrors] = useState({});
+  const [page, setPage] = useState(0);
+  const [size] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
 
   const handleOpenLeaveModal = (recordId, dateStr, cellMeta) => {
     setLeaveRecordId(recordId);
     setLeaveDate(dateStr);
-    setLeaveCellMeta(cellMeta); // chứa holidayFlag và weekendFlag
+    setLeaveCellMeta(cellMeta);
     setLeaveModalOpen(true);
+  };
+  const getPageNumbers = () => {
+    const delta = 2;
+    const range = [];
+    for (
+      let i = Math.max(0, page - delta);
+      i <= Math.min(totalPages - 1, page + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+    return range;
   };
 
   const handleSaveLeaveCode = async (id, code, targetField) => {
@@ -66,15 +82,18 @@ const AttendanceMonthlyView = () => {
     if (month && year) {
       fetchAttendance();
     }
-  }, [month, year]);
+  }, [month, year, page]);
 
   const fetchAttendance = async () => {
     try {
       const response = await attendanceService.getMonthlyAttendance(
         month,
-        year
+        year,
+        page,
+        size
       );
-      setData(response.data);
+      setData(response.data.content);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error("Fetch attendance failed:", error);
     }
@@ -110,11 +129,20 @@ const AttendanceMonthlyView = () => {
         checkIn,
         checkOut,
       });
-      await fetchAttendance(); // reload lại bảng công
+      await fetchAttendance();
       setModalOpen(false);
+      setValidationErrors({});
     } catch (error) {
       console.error("Cập nhật giờ vào/ra thất bại:", error);
-      alert("Cập nhật thất bại!");
+      if (
+        error.response &&
+        error.response.status === 400 &&
+        typeof error.response.data === "object"
+      ) {
+        setValidationErrors(error.response.data);
+      } else {
+        alert("Cập nhật thất bại!");
+      }
     }
   };
 
@@ -122,49 +150,132 @@ const AttendanceMonthlyView = () => {
     <MainLayout>
       <div className="attendance-container">
         <div className="attendance-controls">
-          <select
-            value={month || ""}
-            onChange={(e) => setMonth(Number(e.target.value))}
-          >
-            <option
-              value=""
-              disabled
+          <div className="attendance-filters">
+            <select
+              value={month || ""}
+              onChange={(e) => {
+                setMonth(Number(e.target.value));
+                setPage(0);
+              }}
             >
-              -- Chọn tháng --
-            </option>
-            {Array.from(new Set(availableMonths.map((m) => m.month))).map(
-              (m) => (
-                <option
-                  key={m}
-                  value={m}
-                >
-                  Tháng {m < 10 ? `0${m}` : m}
-                </option>
-              )
-            )}
-          </select>
+              <option
+                value=""
+                disabled
+              >
+                -- Chọn tháng --
+              </option>
+              {Array.from(new Set(availableMonths.map((m) => m.month))).map(
+                (m) => (
+                  <option
+                    key={m}
+                    value={m}
+                  >
+                    Tháng {m < 10 ? `0${m}` : m}
+                  </option>
+                )
+              )}
+            </select>
 
-          <select
-            value={year || ""}
-            onChange={(e) => setYear(Number(e.target.value))}
-          >
-            <option
-              value=""
-              disabled
+            <select
+              value={year || ""}
+              onChange={(e) => {
+                setYear(Number(e.target.value));
+                setPage(0);
+              }}
             >
-              -- Chọn năm --
-            </option>
-            {Array.from(new Set(availableMonths.map((m) => m.year))).map(
-              (y) => (
-                <option
-                  key={y}
-                  value={y}
-                >
-                  Năm {y}
-                </option>
-              )
-            )}
-          </select>
+              <option
+                value=""
+                disabled
+              >
+                -- Chọn năm --
+              </option>
+              {Array.from(new Set(availableMonths.map((m) => m.year))).map(
+                (y) => (
+                  <option
+                    key={y}
+                    value={y}
+                  >
+                    Năm {y}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
+
+          <div className="leave-code-popover-wrapper">
+            <button
+              className="leave-code-toggle-btn"
+              onClick={() =>
+                document
+                  .getElementById("leave-code-popover")
+                  .classList.toggle("show")
+              }
+            >
+              🛈 Ghi chú mã nghỉ
+            </button>
+            <div
+              id="leave-code-popover"
+              className="leave-code-popover"
+            >
+              <div className="leave-code-columns">
+                <ul>
+                  <li>
+                    <strong>NL</strong>: Nghỉ nguyên lương
+                  </li>
+                  <li>
+                    <strong>VPHĐ</strong>: Vi phạm HĐ
+                  </li>
+                  <li>
+                    <strong>VR</strong>: Việc riêng có lương
+                  </li>
+                </ul>
+                <ul>
+                  <li>
+                    <strong>BH</strong>: Nghỉ hưởng BH
+                  </li>
+                  <li>
+                    <strong>KL</strong>: Không lương
+                  </li>
+                  <li>
+                    <strong>KL1</strong>: KL hưởng CC
+                  </li>
+                </ul>
+                <ul>
+                  <li>
+                    <strong>KL1_2</strong>: KL hưởng CC 2h
+                  </li>
+                  <li>
+                    <strong>KL1_4</strong>: KL hưởng CC 4h
+                  </li>
+                  <li>
+                    <strong>KL1_2_4</strong>: KL hưởng CC 2+4h
+                  </li>
+                </ul>
+                <ul>
+                  <li>
+                    <strong>P</strong>: Nghỉ phép
+                  </li>
+                  <li>
+                    <strong>P_4</strong>: Nửa phép
+                  </li>
+                  <li>
+                    <strong>NDB</strong>: Cách ly 8h
+                  </li>
+                </ul>
+                <ul>
+                  <li>
+                    <strong>NDB_4</strong>: Cách ly 4h
+                  </li>
+                  <li>
+                    <strong>NDB_1_5</strong>: Cách ly 1.5h
+                  </li>
+                  <li>
+                    <strong>NTS</strong>: Nghỉ tự sắp xếp
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="attendance-table-wrapper">
@@ -283,12 +394,56 @@ const AttendanceMonthlyView = () => {
             </tbody>
           </table>
         </div>
+        <div className="attendance-pagination-container">
+          <button
+            className="attendance-pagination-btn"
+            onClick={() => setPage(0)}
+            disabled={page === 0}
+          >
+            «
+          </button>
+          <button
+            className="attendance-pagination-btn"
+            onClick={() => setPage(page - 1)}
+            disabled={page === 0}
+          >
+            ‹
+          </button>
+
+          {getPageNumbers().map((p) => (
+            <button
+              key={p}
+              onClick={() => setPage(p)}
+              className={`attendance-pagination-btn ${
+                p === page ? "attendance-pagination-active" : ""
+              }`}
+            >
+              {p + 1}
+            </button>
+          ))}
+
+          <button
+            className="attendance-pagination-btn"
+            onClick={() => setPage(page + 1)}
+            disabled={page === totalPages - 1}
+          >
+            ›
+          </button>
+          <button
+            className="attendance-pagination-btn"
+            onClick={() => setPage(totalPages - 1)}
+            disabled={page === totalPages - 1}
+          >
+            »
+          </button>
+        </div>
       </div>
 
       <AttendanceModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onSave={handleSave}
+        errorMessages={validationErrors}
         data={{
           employeeName: selectedEmployee,
           date: selectedDate,

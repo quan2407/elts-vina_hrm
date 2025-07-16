@@ -18,6 +18,7 @@ function WorkScheduleModal({
     workType,
     id,
     onDelete,
+    canEdit = true,
   } = data;
 
   const formattedDate = new Date(date).toLocaleDateString("vi-VN");
@@ -44,7 +45,11 @@ function WorkScheduleModal({
     >
       <div className="work-schedule-modal-container">
         <h2 className="work-schedule-modal-title">
-          {id ? "Cập nhật lịch làm việc" : "Thêm lịch làm việc"}
+          {!canEdit
+            ? "Chi tiết lịch làm việc"
+            : id
+            ? "Cập nhật lịch làm việc"
+            : "Thêm lịch làm việc"}
         </h2>
 
         <div className="work-schedule-modal-field">
@@ -67,6 +72,7 @@ function WorkScheduleModal({
           <select
             value={workType}
             onChange={(e) => onChange("workType", e.target.value)}
+            disabled={!canEdit}
           >
             <option value="normal">Ca thường (08:00 - 17:00)</option>
             <option value="overtime">Ca tăng ca (08:00 - 20:00)</option>
@@ -91,6 +97,7 @@ function WorkScheduleModal({
               <select
                 value={endTime}
                 onChange={(e) => onChange("endTime", e.target.value)}
+                disabled={!canEdit}
               >
                 {validEndTimes.map((t) => (
                   <option
@@ -109,21 +116,23 @@ function WorkScheduleModal({
         )}
 
         <div className="work-schedule-modal-actions">
-          <button
-            className="work-schedule-modal-save-btn"
-            onClick={onSave}
-          >
-            Lưu
-          </button>
+          {canEdit && (
+            <button
+              className="work-schedule-modal-save-btn"
+              onClick={onSave}
+            >
+              Lưu
+            </button>
+          )}
 
           <button
             className="work-schedule-modal-cancel-btn"
             onClick={onClose}
           >
-            Hủy
+            Đóng
           </button>
 
-          {id && onDelete && (
+          {canEdit && id && onDelete && (
             <button
               className="work-schedule-modal-delete-btn"
               onClick={() => {

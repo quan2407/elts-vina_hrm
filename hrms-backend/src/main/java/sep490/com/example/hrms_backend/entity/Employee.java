@@ -86,8 +86,10 @@ public class Employee {
     private String trainingMajor;
 
 
-    @Column(name = "image")
-    private String image;
+    @Column(name = "cccd_front_image")
+    private String cccdFrontImage;
+    @Column(name = "cccd_back_image")
+    private String cccdBackImage;
 
     @PastOrPresent
     @Column(name = "start_work_at")
@@ -157,6 +159,10 @@ public class Employee {
 
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
+
+    @Column(name = "is_account_requested")
+    private Boolean isAccountRequested;
+
 
 
 

@@ -6,12 +6,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.repository.AccountRepository;
+import sep490.com.example.hrms_backend.repository.EmployeeRepository;
 
 @Component
 @RequiredArgsConstructor
 public class CurrentUserUtils {
 
     private final AccountRepository accountRepository;
+    private final EmployeeRepository employeeRepository;
+
 
     public String getCurrentUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -35,5 +38,13 @@ public class CurrentUserUtils {
                 })
                 .orElseThrow(() -> new HRMSAPIException("Tài khoản không tồn tại!"));
     }
+    public String getCurrentEmployeeName() {
+        Long employeeId = getCurrentEmployeeId();
+
+        return employeeRepository.findById(employeeId)
+                .map(employee -> employee.getEmployeeName())
+                .orElseThrow(() -> new HRMSAPIException("Không tìm thấy thông tin nhân viên hiện tại!"));
+    }
+
 }
 

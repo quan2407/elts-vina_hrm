@@ -19,6 +19,8 @@ public class EmployeeDetailDTO {
     private String originPlace;
     private String nationality;
     private String citizenId;
+    private String cccdFrontImage;
+    private String cccdBackImage;
     private LocalDate citizenIssueDate;
     private LocalDate citizenExpiryDate;
     private String address;

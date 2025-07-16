@@ -13,8 +13,8 @@ body,
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  background-color: #ffffff; /* Nền mặc định trắng */
-  color: #213547; /* Màu chữ mặc định */
+  background-color: #ffffff;
+  color: #213547;
 }
 
 a {

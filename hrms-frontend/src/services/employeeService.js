@@ -17,16 +17,24 @@ const employeeService = {
     return axiosClient.get(`/employees/department/${id}`);
   },
 
-  createEmployee: (payload) => {
-    return axiosClient.post("/employees", payload);
+  createEmployee: (formData) => {
+    return axiosClient.post("/employees", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
   },
 
   getEmployeeById: (id) => {
     return axiosClient.get(`/employees/${id}`);
   },
 
-  updateEmployee: (id, payload) => {
-    return axiosClient.put(`/employees/${id}`, payload);
+  updateEmployee: (id, formData) => {
+    return axiosClient.put(`/employees/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
   },
   getOwnProfile: () => axiosClient.get("/employees/profile"),
   updateOwnProfile: (data) => axiosClient.put("/employees/profile", data),
@@ -42,6 +50,9 @@ const employeeService = {
     return axiosClient.put(`employees/add-to-line/${lineId}`, employeeIds);
   },
   getNextEmployeeCode: () => axiosClient.get("/employees/next-code"),
+  getNextEmployeeCodeByPosition: (positionId) => {
+    return axiosClient.get(`/employees/next-code/${positionId}`);
+  },
 };
 
 export default employeeService;

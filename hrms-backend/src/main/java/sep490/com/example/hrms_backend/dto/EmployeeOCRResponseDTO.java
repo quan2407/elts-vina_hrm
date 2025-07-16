@@ -23,4 +23,6 @@ public class EmployeeOCRResponseDTO {
     private String address;                // Nơi thường trú
 
     private String faceBoundingBox;        // Bounding box của khuôn mặt từ ảnh mặt trước (nếu có)
+    private String frontImagePath;
+    private String backImagePath;
 }

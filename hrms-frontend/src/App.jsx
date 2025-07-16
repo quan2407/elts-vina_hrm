@@ -40,6 +40,9 @@ import EmployeeInLineManagement from "./pages/EmployeeInLineManagement.jsx";
 import EmployeeWorkScheduleView from "./pages/EmployeeWorkScheduleView";
 import EmployeeAttendanceMonthlyView from "./pages/EmployeeAttendanceMonthlyView.jsx";
 import EmpSalaryView from "./pages/EmployeeSalaryView.jsx";
+import HolidayManagement from "./pages/HolidayManagement";
+import AccountRequestPage from "./pages/AccountRequestPage.jsx";
+
 
 function App() {
   return (
@@ -73,6 +76,23 @@ function App() {
             <Route
               path="/applyjob/:id"
               element={<ApplyJob />}
+            />
+            <Route
+              path="/admin/account-requests"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
+                  <AccountRequestPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/holiday-management"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                  <HolidayManagement />
+                </ProtectedRoute>
+              }
             />
 
             <Route
@@ -293,7 +313,6 @@ function App() {
               }
             />
 
-            {/* Catch all unmatched routes */}
             <Route
               path="*"
               element={

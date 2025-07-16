@@ -1,0 +1,51 @@
+.holiday-table {
+  min-width: 900px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.holiday-table-header,
+.holiday-table-row {
+  display: grid;
+  grid-template-columns: 60px 1.5fr 1fr 1fr 0.7fr 1fr;
+  padding: 12px 24px;
+  margin-bottom: 6px;
+  background-color: #f9f9f9;
+  align-items: center;
+  border-radius: 8px;
+}
+
+.holiday-table-row:hover {
+  background-color: #eef6ff;
+}
+
+.holiday-header-cell {
+  font-weight: 600;
+  font-size: 15px;
+  color: #333;
+  text-align: center;
+}
+
+.holiday-table-cell {
+  text-align: center;
+  font-weight: 400;
+  color: #333;
+  white-space: nowrap;
+}
+
+.holiday-table-cell button {
+  margin: 0 4px;
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.holiday-table-cell button:hover {
+  background-color: #0056b3;
+}
