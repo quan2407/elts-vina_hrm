@@ -15,4 +15,6 @@ public class LineWorkScheduleViewDTO {
     private List<WorkScheduleDayDetailDTO> workDetails;
     private boolean isSubmitted;
     private boolean isAccepted;
+    private String rejectReason;
+
 }
