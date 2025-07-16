@@ -16,6 +16,7 @@ import sep490.com.example.hrms_backend.service.AccountService;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     private final PositionRepository positionRepository;
     private final AccountRepository accountRepository;
     private final AccountService accountService;
+    private final AccountRequestRepository accountRequestRepository;
 
     @Override
     public List<EmployeeResponseDTO> getAllEmployees() {
@@ -39,10 +41,11 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
 
     @Override
     public String getNextEmployeeCode() {
-        long count = employeeRepository.count();
+        long count = employeeRepository.countByPosition_PositionNameNotIgnoreCase("HR");
         long next = count + 1;
         return "ELTSSX" + String.format("%04d", next);
     }
+
     @Override
     public String getNextEmployeeCodeByPosition(Long positionId) {
         Position position = positionRepository.findById(positionId)
@@ -59,6 +62,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
 
         return prefix + String.format("%04d", count + 1);
     }
+
 
     @Override
     public List<EmployeeResponseDTO> getEmployeesNotInLine(Long lineId, String search) {
@@ -128,9 +132,14 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         Employee employee = EmployeeMapper.mapToEmployee(dto);
         employee.setDepartment(fetchDepartment(dto.getDepartmentId()));
         employee.setPosition(fetchPosition(dto.getPositionId()));
-//        accountService.createAutoAccountForEmployee(employee);
         employee = employeeRepository.save(employee);
+        AccountRequest accountRequest = AccountRequest.builder()
+                .employee(employee)
+                .requestedAt(LocalDateTime.now())
+                .approved(null)
+                .build();
 
+        accountRequestRepository.save(accountRequest);
         return EmployeeMapper.mapToEmployeeResponseDTO(employee);
     }
 

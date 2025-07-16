@@ -160,6 +160,10 @@ public class Employee {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
+    @Column(name = "is_account_requested")
+    private Boolean isAccountRequested;
+
+
 
 
 
