@@ -33,6 +33,14 @@ public class AttendanceRecordController {
     ) {
         return ResponseEntity.ok(attendanceRecordService.getMonthlyAttendance(month, year, page, size));
     }
+    @GetMapping("/employee")
+    public ResponseEntity<List<AttendanceMonthlyViewDTO>> viewEmpAttendanceByMonthById(
+            @RequestParam int month,
+            @RequestParam int year
+    ) {
+        Long employeeId = currentUserUtils.getCurrentEmployeeId();
+        return ResponseEntity.ok(attendanceRecordService.getEmpMonthlyAttendanceById(employeeId, month, year));
+    }
 
     @GetMapping("/available-months")
     public ResponseEntity<List<MonthYearDTO>> getAvailableMonths() {
