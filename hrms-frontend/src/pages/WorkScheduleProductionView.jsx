@@ -10,6 +10,8 @@ function WorkScheduleProductionView() {
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [year, setYear] = useState(today.getFullYear());
   const [status, setStatus] = useState("not-submitted");
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
 
   const getStatusLabel = () => {
     switch (status) {
@@ -50,9 +52,68 @@ function WorkScheduleProductionView() {
             <h1 className="page-title">
               Lịch làm việc theo tháng (chế độ xem)
             </h1>
-            <div className="work-schedule-status-bar">{getStatusLabel()}</div>
+            <div className="work-schedule-status-bar">
+              {getStatusLabel()}
+              {status === "not-submitted" && rejectReason && (
+                <p className="reject-reason">Lý do từ chối: {rejectReason}</p>
+              )}
+            </div>
           </div>
           <div className="work-schedule-page-actions">
+            <button
+              className="work-schedule-add-button"
+              onClick={() => setShowRejectModal(true)}
+              disabled={status !== "submitted"}
+              style={{
+                backgroundColor: status === "submitted" ? "#dc2626" : "#999",
+                cursor: status === "submitted" ? "pointer" : "not-allowed",
+                marginLeft: "8px",
+              }}
+            >
+              <Plus
+                size={16}
+                style={{ marginRight: "6px" }}
+              />
+              <span>Từ chối</span>
+            </button>
+            {showRejectModal && (
+              <div className="work-schedule-reject-overlay">
+                <div className="work-schedule-reject-modal">
+                  <h3>
+                    Từ chối lịch làm việc tháng {month}/{year}
+                  </h3>
+                  <textarea
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    rows={4}
+                    placeholder="Nhập lý do từ chối..."
+                  />
+                  <div className="work-schedule-reject-actions">
+                    <button onClick={() => setShowRejectModal(false)}>
+                      Hủy
+                    </button>
+                    <button
+                      onClick={() => {
+                        workScheduleService
+                          .rejectWorkSchedules(month, year, rejectReason)
+                          .then(() => {
+                            alert("Từ chối lịch làm việc thành công!");
+                            setStatus("not-submitted");
+                            setShowRejectModal(false);
+                          })
+                          .catch(() => {
+                            alert("Lỗi khi từ chối lịch");
+                          });
+                      }}
+                      disabled={!rejectReason.trim()}
+                    >
+                      Gửi lý do
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <button
               className="work-schedule-add-button"
               onClick={handleApprove}
@@ -77,6 +138,7 @@ function WorkScheduleProductionView() {
           setMonth={setMonth}
           setYear={setYear}
           canEdit={false}
+          onRejectReasonChange={setRejectReason}
           onStatusChange={setStatus}
           onMonthYearChange={(m, y) => {
             setMonth(m);

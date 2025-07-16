@@ -15,6 +15,7 @@ function WorkScheduleTable({
   onMonthYearChange,
   canEdit = true,
   reloadTrigger,
+  onRejectReasonChange = () => {},
 }) {
   const [dates, setDates] = useState([]);
   const [data, setData] = useState([]);
@@ -32,6 +33,8 @@ function WorkScheduleTable({
   const [endTime, setEndTime] = useState("17:00");
   const [holidays, setHolidays] = useState([]);
   const [selectedDetailId, setSelectedDetailId] = useState(null);
+  const [canEditModal, setCanEditModal] = useState(true);
+
   const getTotalMonthValue = (m, y) => y * 12 + m;
   const handleDelete = (id) => {
     workScheduleService
@@ -128,6 +131,29 @@ function WorkScheduleTable({
           else if (allSubmitted) onStatusChange("submitted");
           else onStatusChange("not-submitted");
         }
+        if (onRejectReasonChange) {
+          const allLines = res.data.flatMap((dept) => dept.lines);
+          const firstRejected = allLines.find(
+            (line) => !line.isAccepted && !line.isSubmitted && line.rejectReason
+          );
+          onRejectReasonChange(firstRejected?.rejectReason || "");
+        }
+
+        if (onStatusChange) {
+          const allLines = res.data.flatMap((dept) => dept.lines);
+
+          const allSubmitted =
+            allLines.length > 0 &&
+            allLines.every((line) => String(line.submitted) === "true");
+
+          const allAccepted =
+            allLines.length > 0 &&
+            allLines.every((line) => String(line.accepted) === "true");
+
+          if (allAccepted) onStatusChange("approved");
+          else if (allSubmitted) onStatusChange("submitted");
+          else onStatusChange("not-submitted");
+        }
       })
       .catch(() => {
         setData([]);
@@ -219,7 +245,8 @@ function WorkScheduleTable({
     lineName,
     dateIso,
     workScheduleId,
-    detail = null
+    detail = null,
+    editable = true
   ) => {
     setSelectedDeptId(deptId);
     setSelectedLineId(lineId);
@@ -244,6 +271,7 @@ function WorkScheduleTable({
       setStartTime(start);
       setEndTime(end);
       setSelectedDetailId(detail.id);
+      setCanEditModal(editable);
 
       console.log("Giờ làm việc:", start, "-", end);
     } else {
@@ -470,7 +498,8 @@ function WorkScheduleTable({
                                 line?.lineName ?? "",
                                 dates[i].iso,
                                 detail.workScheduleId,
-                                detail
+                                detail,
+                                canEdit
                               )
                             }
                           >
@@ -481,7 +510,7 @@ function WorkScheduleTable({
                           canEdit && (
                             <button
                               className="work-schedule-add-btn"
-                              onClick={() =>
+                              onClick={() => {
                                 handleOpenModal(
                                   dept.departmentId,
                                   dept.departmentName,
@@ -489,9 +518,10 @@ function WorkScheduleTable({
                                   line?.lineName ?? "",
                                   dates[i].iso,
                                   detail.workScheduleId,
-                                  null
-                                )
-                              }
+                                  null,
+                                  canEdit
+                                );
+                              }}
                             >
                               +
                             </button>
@@ -537,6 +567,7 @@ function WorkScheduleTable({
           workScheduleId: selectedWorkScheduleId,
           id: selectedDetailId,
           onDelete: handleDelete,
+          canEdit: canEditModal,
         }}
         errorMessages={errorMessage}
       />

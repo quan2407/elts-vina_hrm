@@ -10,14 +10,15 @@ function WorkScheduleManagement() {
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [year, setYear] = useState(today.getFullYear());
   const [status, setStatus] = useState("not-submitted");
-  const [reloadTrigger, setReloadTrigger] = useState(0); // 🔥 Thêm state reload
+  const [reloadTrigger, setReloadTrigger] = useState(0);
+  const [rejectReason, setRejectReason] = useState("");
 
   const handleSubmit = () => {
     workScheduleService
       .submitWorkSchedules(month, year)
       .then(() => {
         alert("Gửi lịch làm việc thành công!");
-        setReloadTrigger((prev) => prev + 1); // 🔥 Ép reload lại bảng
+        setReloadTrigger((prev) => prev + 1);
       })
       .catch((err) => {
         console.error("Lỗi gửi lịch:", err);
@@ -47,7 +48,12 @@ function WorkScheduleManagement() {
         <div className="page-header">
           <div>
             <h1 className="page-title">Lịch làm việc theo tháng</h1>
-            <div className="work-schedule-status-bar">{getStatusLabel()}</div>
+            <div className="work-schedule-status-bar">
+              {getStatusLabel()}
+              {status === "not-submitted" && rejectReason && (
+                <p className="reject-reason">Lý do từ chối: {rejectReason}</p>
+              )}
+            </div>
           </div>
 
           <div className="work-schedule-page-actions">
@@ -80,12 +86,9 @@ function WorkScheduleManagement() {
           year={year}
           setMonth={setMonth}
           setYear={setYear}
-          reloadTrigger={reloadTrigger} // ✅ Truyền vào bảng
+          reloadTrigger={reloadTrigger}
           onStatusChange={(newStatus) => {
-            console.log(
-              "📥 Trạng thái cập nhật từ WorkScheduleTable:",
-              newStatus
-            );
+            console.log("Trạng thái cập nhật từ WorkScheduleTable:", newStatus);
             if (
               newStatus === "approved" ||
               newStatus === "submitted" ||
@@ -94,8 +97,9 @@ function WorkScheduleManagement() {
               setStatus(newStatus);
             }
           }}
+          onRejectReasonChange={setRejectReason}
           onMonthYearChange={(m, y) => {
-            console.log("📤 Gọi onMonthYearChange với:", m, y);
+            console.log("Gọi onMonthYearChange với:", m, y);
             setMonth(m);
             setYear(y);
           }}

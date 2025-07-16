@@ -42,6 +42,11 @@ const workScheduleService = {
       params: { month, year },
     });
   },
+  rejectWorkSchedules: (month, year, reason) => {
+    return axiosClient.put("/work-schedules/reject", null, {
+      params: { month, year, reason },
+    });
+  },
 };
 
 export default workScheduleService;
