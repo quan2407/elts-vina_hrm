@@ -70,7 +70,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                 }
             }
 
-            boolean isHoliday = holidayRepository.existsByDate(record.getDate());
+            boolean isHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(record.getDate());
 
             AttendanceCellDTO cell = AttendanceCellDTO.builder()
                     .attendanceRecordId(record.getId())
