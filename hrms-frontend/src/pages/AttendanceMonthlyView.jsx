@@ -23,12 +23,27 @@ const AttendanceMonthlyView = () => {
   const [leaveDate, setLeaveDate] = useState(null);
   const [leaveCellMeta, setLeaveCellMeta] = useState({});
   const [validationErrors, setValidationErrors] = useState({});
+  const [page, setPage] = useState(0);
+  const [size] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
 
   const handleOpenLeaveModal = (recordId, dateStr, cellMeta) => {
     setLeaveRecordId(recordId);
     setLeaveDate(dateStr);
     setLeaveCellMeta(cellMeta);
     setLeaveModalOpen(true);
+  };
+  const getPageNumbers = () => {
+    const delta = 2;
+    const range = [];
+    for (
+      let i = Math.max(0, page - delta);
+      i <= Math.min(totalPages - 1, page + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+    return range;
   };
 
   const handleSaveLeaveCode = async (id, code, targetField) => {
@@ -67,15 +82,18 @@ const AttendanceMonthlyView = () => {
     if (month && year) {
       fetchAttendance();
     }
-  }, [month, year]);
+  }, [month, year, page]);
 
   const fetchAttendance = async () => {
     try {
       const response = await attendanceService.getMonthlyAttendance(
         month,
-        year
+        year,
+        page,
+        size
       );
-      setData(response.data);
+      setData(response.data.content);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error("Fetch attendance failed:", error);
     }
@@ -135,7 +153,10 @@ const AttendanceMonthlyView = () => {
           <div className="attendance-filters">
             <select
               value={month || ""}
-              onChange={(e) => setMonth(Number(e.target.value))}
+              onChange={(e) => {
+                setMonth(Number(e.target.value));
+                setPage(0);
+              }}
             >
               <option
                 value=""
@@ -157,7 +178,10 @@ const AttendanceMonthlyView = () => {
 
             <select
               value={year || ""}
-              onChange={(e) => setYear(Number(e.target.value))}
+              onChange={(e) => {
+                setYear(Number(e.target.value));
+                setPage(0);
+              }}
             >
               <option
                 value=""
@@ -369,6 +393,49 @@ const AttendanceMonthlyView = () => {
               )}
             </tbody>
           </table>
+        </div>
+        <div className="attendance-pagination-container">
+          <button
+            className="attendance-pagination-btn"
+            onClick={() => setPage(0)}
+            disabled={page === 0}
+          >
+            «
+          </button>
+          <button
+            className="attendance-pagination-btn"
+            onClick={() => setPage(page - 1)}
+            disabled={page === 0}
+          >
+            ‹
+          </button>
+
+          {getPageNumbers().map((p) => (
+            <button
+              key={p}
+              onClick={() => setPage(p)}
+              className={`attendance-pagination-btn ${
+                p === page ? "attendance-pagination-active" : ""
+              }`}
+            >
+              {p + 1}
+            </button>
+          ))}
+
+          <button
+            className="attendance-pagination-btn"
+            onClick={() => setPage(page + 1)}
+            disabled={page === totalPages - 1}
+          >
+            ›
+          </button>
+          <button
+            className="attendance-pagination-btn"
+            onClick={() => setPage(totalPages - 1)}
+            disabled={page === totalPages - 1}
+          >
+            »
+          </button>
         </div>
       </div>
 

@@ -77,7 +77,7 @@
 }
 
 .attendance-table td:not(:first-child):not(:nth-child(7)):not(:last-child) {
-  min-width: 70px; /* 👈 Làm ô ngày to hơn */
+  min-width: 70px;
   height: 40px;
 }
 .modal-backdrop {
@@ -204,4 +204,37 @@
 .leave-code-columns li {
   margin-bottom: 4px;
   font-size: 12px;
+}
+.attendance-pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1.5rem;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.attendance-pagination-btn {
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  background-color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  min-width: 36px;
+  line-height: 1.2;
+  color: #111;
+  font-weight: 500;
+}
+
+.attendance-pagination-btn:disabled {
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+.attendance-pagination-active {
+  background-color: #3b82f6;
+  color: white;
+  font-weight: bold;
+  border-color: #3b82f6;
 }
