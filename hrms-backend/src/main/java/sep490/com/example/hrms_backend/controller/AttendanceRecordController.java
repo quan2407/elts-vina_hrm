@@ -1,6 +1,7 @@
 
 package sep490.com.example.hrms_backend.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,7 +37,7 @@ public class AttendanceRecordController {
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<?> updateCheckInOut(
             @PathVariable Long id,
-            @RequestBody AttendanceCheckInOutDTO dto
+            @Valid @RequestBody AttendanceCheckInOutDTO dto
     ) {
         attendanceRecordService.updateCheckInOut(id, dto);
         return ResponseEntity.ok("Updated successfully");

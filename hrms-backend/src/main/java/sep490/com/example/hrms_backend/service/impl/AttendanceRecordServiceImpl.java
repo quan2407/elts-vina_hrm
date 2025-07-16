@@ -229,7 +229,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         String leaveCodeStr = dto.getLeaveCode();
         String field = dto.getTargetField();
 
-        // ✅ Validate leaveCode hợp lệ theo enum
         LeaveCode leaveCode;
         try {
             leaveCode = LeaveCode.valueOf(leaveCodeStr); // chuyển String -> Enum
@@ -237,7 +236,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
             throw new IllegalArgumentException("Invalid leave code: " + leaveCodeStr);
         }
 
-        // ✅ Cập nhật đúng field
         if (field == null || field.isBlank()) {
             throw new IllegalArgumentException("Target field is required");
         }
