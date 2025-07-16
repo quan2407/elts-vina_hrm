@@ -22,11 +22,12 @@ const AttendanceMonthlyView = () => {
   const [leaveRecordId, setLeaveRecordId] = useState(null);
   const [leaveDate, setLeaveDate] = useState(null);
   const [leaveCellMeta, setLeaveCellMeta] = useState({});
+  const [validationErrors, setValidationErrors] = useState({});
 
   const handleOpenLeaveModal = (recordId, dateStr, cellMeta) => {
     setLeaveRecordId(recordId);
     setLeaveDate(dateStr);
-    setLeaveCellMeta(cellMeta); // chứa holidayFlag và weekendFlag
+    setLeaveCellMeta(cellMeta);
     setLeaveModalOpen(true);
   };
 
@@ -110,11 +111,20 @@ const AttendanceMonthlyView = () => {
         checkIn,
         checkOut,
       });
-      await fetchAttendance(); // reload lại bảng công
+      await fetchAttendance();
       setModalOpen(false);
+      setValidationErrors({});
     } catch (error) {
       console.error("Cập nhật giờ vào/ra thất bại:", error);
-      alert("Cập nhật thất bại!");
+      if (
+        error.response &&
+        error.response.status === 400 &&
+        typeof error.response.data === "object"
+      ) {
+        setValidationErrors(error.response.data);
+      } else {
+        alert("Cập nhật thất bại!");
+      }
     }
   };
 
@@ -289,6 +299,7 @@ const AttendanceMonthlyView = () => {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onSave={handleSave}
+        errorMessages={validationErrors}
         data={{
           employeeName: selectedEmployee,
           date: selectedDate,
