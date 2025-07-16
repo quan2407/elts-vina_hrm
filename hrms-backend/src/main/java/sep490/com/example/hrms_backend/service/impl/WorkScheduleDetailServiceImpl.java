@@ -168,6 +168,7 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
                     .workDetails(workDetails)
                     .isSubmitted(sampleSchedule != null && sampleSchedule.isSubmitted())
                     .isAccepted(sampleSchedule != null && sampleSchedule.isAccepted())
+                    .rejectReason(sampleSchedule != null ? sampleSchedule.getRejectReason() : null)
                     .build());
         }
 
@@ -220,6 +221,7 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
                             .workDetails(workDetails)
                             .isSubmitted(sampleSchedule != null && sampleSchedule.isSubmitted())
                             .isAccepted(sampleSchedule != null && sampleSchedule.isAccepted())
+                            .rejectReason(sampleSchedule != null ? sampleSchedule.getRejectReason() : null)
                             .build()))
                     .build());
         }

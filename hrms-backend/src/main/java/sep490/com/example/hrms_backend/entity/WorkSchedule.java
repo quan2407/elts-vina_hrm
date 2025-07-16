@@ -41,4 +41,7 @@ public class WorkSchedule {
     private boolean isAccepted = false;
     @Column(name = "is_submitted", nullable = false)
     private boolean isSubmitted = false;
+    @Column(name = "reject_reason")
+    private String rejectReason;
+
 }

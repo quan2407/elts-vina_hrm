@@ -15,4 +15,9 @@ public class WorkScheduleResponseDTO {
     private String lineName;
     private String departmentId;
     private String departmentName;
+
+    private boolean isAccepted;
+    private boolean isSubmitted;
+    private String rejectReason;
 }
+
