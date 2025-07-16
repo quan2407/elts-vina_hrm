@@ -1,6 +1,10 @@
 package sep490.com.example.hrms_backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.entity.AttendanceRecord;
@@ -26,15 +30,17 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     private final HolidayRepository holidayRepository;
 
     @Override
-    public List<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year) {
-        List<Employee> employees = employeeRepository.findAllActive();
+    public Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Employee> employeePage = employeeRepository.findAllActive(pageable);
+
         List<AttendanceRecord> records = attendanceRecordRepository.findByMonthAndYear(month, year);
         Map<Long, List<AttendanceRecord>> recordsByEmployee = records.stream()
                 .collect(Collectors.groupingBy(r -> r.getEmployee().getEmployeeId()));
 
-        List<AttendanceMonthlyViewDTO> result = new ArrayList<>();
+        List<AttendanceMonthlyViewDTO> dtoList = new ArrayList<>();
 
-        for (Employee emp : employees) {
+        for (Employee emp : employeePage.getContent()) {
             AttendanceMonthlyViewDTO dto = AttendanceMonthlyViewDTO.builder()
                     .employeeCode(emp.getEmployeeCode())
                     .employeeName(emp.getEmployeeName())
@@ -62,7 +68,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                             .findFirst();
                     if (detailOpt.isPresent()) {
                         hasSchedule = true;
-                        isWeekend = detailOpt.get().getDateWork().getDayOfWeek().getValue() == 7; // CN
+                        isWeekend = detailOpt.get().getDateWork().getDayOfWeek().getValue() == 7;
                     }
                 }
 
@@ -94,11 +100,12 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                     + dto.getTotalWeekendHours()
                     + dto.getTotalHolidayHours());
 
-            result.add(dto);
+            dtoList.add(dto);
         }
 
-        return result;
+        return new PageImpl<>(dtoList, pageable, employeePage.getTotalElements());
     }
+
 
 
 
@@ -231,7 +238,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
         LeaveCode leaveCode;
         try {
-            leaveCode = LeaveCode.valueOf(leaveCodeStr); // chuyển String -> Enum
+            leaveCode = LeaveCode.valueOf(leaveCodeStr); 
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid leave code: " + leaveCodeStr);
         }
@@ -241,7 +248,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         }
 
         switch (field) {
-            case "dayShift" -> record.setDayShift(leaveCode.name()); // vẫn lưu String nhưng đảm bảo đúng Enum
+            case "dayShift" -> record.setDayShift(leaveCode.name());
             case "otShift" -> record.setOtShift(leaveCode.name());
             case "weekendShift" -> record.setWeekendShift(leaveCode.name());
             case "holidayShift" -> record.setHolidayShift(leaveCode.name());

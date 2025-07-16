@@ -3,6 +3,7 @@ package sep490.com.example.hrms_backend.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -22,12 +23,15 @@ public class AttendanceRecordController {
     private final AttendanceRecordService attendanceRecordService;
 
     @GetMapping("/view-by-month")
-    public ResponseEntity<List<AttendanceMonthlyViewDTO>> viewAttendanceByMonth(
+    public ResponseEntity<Page<AttendanceMonthlyViewDTO>> viewAttendanceByMonth(
             @RequestParam int month,
-            @RequestParam int year
+            @RequestParam int year,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        return ResponseEntity.ok(attendanceRecordService.getMonthlyAttendance(month, year));
+        return ResponseEntity.ok(attendanceRecordService.getMonthlyAttendance(month, year, page, size));
     }
+
     @GetMapping("/available-months")
     public ResponseEntity<List<MonthYearDTO>> getAvailableMonths() {
         List<MonthYearDTO> result = attendanceRecordService.getAvailableMonths();

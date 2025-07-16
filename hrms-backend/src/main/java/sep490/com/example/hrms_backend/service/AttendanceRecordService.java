@@ -1,5 +1,6 @@
 package sep490.com.example.hrms_backend.service;
 
+import org.springframework.data.domain.Page;
 import sep490.com.example.hrms_backend.dto.AttendanceCheckInOutDTO;
 import sep490.com.example.hrms_backend.dto.AttendanceMonthlyViewDTO;
 import sep490.com.example.hrms_backend.dto.LeaveCodeUpdateDTO;
@@ -8,7 +9,8 @@ import sep490.com.example.hrms_backend.dto.MonthYearDTO;
 import java.util.List;
 
 public interface AttendanceRecordService {
-    List<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year);
+    Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year, int page, int size);
+
 
     List<MonthYearDTO> getAvailableMonths();
 

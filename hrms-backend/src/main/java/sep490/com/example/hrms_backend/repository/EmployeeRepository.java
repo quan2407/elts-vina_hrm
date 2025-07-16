@@ -1,5 +1,7 @@
 package sep490.com.example.hrms_backend.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -36,6 +38,10 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     @Query("SELECT e FROM Employee e WHERE e.isDeleted = false")
     List<Employee> findAllActive();
+
+    @Query("SELECT e FROM Employee e WHERE e.isDeleted = false")
+    Page<Employee> findAllActive(Pageable pageable);
+
 
 
     @Query("SELECT e FROM Employee e WHERE (e.line IS NULL OR e.line.lineId <> :lineId) AND e.department.departmentName = 'Sản Xuất'")
