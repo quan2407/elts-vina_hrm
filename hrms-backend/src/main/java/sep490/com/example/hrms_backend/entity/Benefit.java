@@ -91,8 +91,8 @@ public class Benefit {
     // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
     // Một phúc lợi có thể được nhiều nhân viên đăng ký
-    @OneToMany(mappedBy = "benefit", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BenefitRegistration> registrations;
+//    @OneToMany(mappedBy = "benefit", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<BenefitRegistration> registrations;
 
     @OneToMany(mappedBy = "benefit",  cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BenefitPosition> benefitPositions;

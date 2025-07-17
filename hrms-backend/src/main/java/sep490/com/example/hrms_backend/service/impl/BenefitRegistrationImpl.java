@@ -78,41 +78,42 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
 
     @Override
     public BenefitRegistrationDTO registerBenefitForEmployee(Long benefitId, Long employeeId, String note) {
-        //Tim kiem thong tin nhan vien (exception: 0 co nhan vien)
-        Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new HRMSAPIException("Employee not found with id: " + employeeId));
-
-        //Tim kiem phuc loi                        (exception:0 co phuc loi)
-        Benefit benefit = benefitRepository.findById(benefitId)
-                .orElseThrow(() -> new HRMSAPIException("Benefit not found with id: " + benefitId));
-
-        //Kiem tra trang thai phuc loi             exception: trang thai benefit dang inactive)
-        if(!benefit.getIsActive() || benefit.getEndDate().isBefore(java.time.LocalDate.now()) ) {
-            throw new HRMSAPIException("Benefit is not active or expired");
-        }
-
-        //Kiem tra so luong nguoi dang ki toi da (exception: so lg ng dky dat toi da)
-        long currentRegistrations = benefitRegistrationRepository.countByBenefit(benefit);
-        if(currentRegistrations >= benefit.getMaxParticipants()){
-            throw new HRMSAPIException("Maximum number of participants has been reached. Please contact the administrator for more information.");
-        }
-
-        //kiem tra xem nhan vien da dang ki chua (exception: nhan vien dang ki r)
-        boolean alreadyRegistered = benefitRegistrationRepository.existsByBenefitAndEmployee(benefit, employee);
-        if(alreadyRegistered){
-            throw new HRMSAPIException("You have already registered for this benefit. Please contact the administrator for more information.");
-        }
-
-        //tao ban dang ki moi
-        BenefitRegistration benefitRegistration = new BenefitRegistration();
-        BenefitRegistration newBenefitRegistration = BenefitRegistration.builder()
-                .benefit(benefit)
-                .employee(employee)
-                .registeredAt(LocalDateTime.now())
-                .isRegister(true)
-                .note(note)
-                .build();
-
-        return modelMapper.map(newBenefitRegistration, BenefitRegistrationDTO.class);
+//        //Tim kiem thong tin nhan vien (exception: 0 co nhan vien)
+//        Employee employee = employeeRepository.findById(employeeId)
+//                .orElseThrow(() -> new HRMSAPIException("Employee not found with id: " + employeeId));
+//
+//        //Tim kiem phuc loi                        (exception:0 co phuc loi)
+//        Benefit benefit = benefitRepository.findById(benefitId)
+//                .orElseThrow(() -> new HRMSAPIException("Benefit not found with id: " + benefitId));
+//
+//        //Kiem tra trang thai phuc loi             exception: trang thai benefit dang inactive)
+//        if(!benefit.getIsActive() || benefit.getEndDate().isBefore(java.time.LocalDate.now()) ) {
+//            throw new HRMSAPIException("Benefit is not active or expired");
+//        }
+//
+//        //Kiem tra so luong nguoi dang ki toi da (exception: so lg ng dky dat toi da)
+//        long currentRegistrations = benefitRegistrationRepository.countByBenefit(benefit);
+//        if(currentRegistrations >= benefit.getMaxParticipants()){
+//            throw new HRMSAPIException("Maximum number of participants has been reached. Please contact the administrator for more information.");
+//        }
+//
+//        //kiem tra xem nhan vien da dang ki chua (exception: nhan vien dang ki r)
+//        boolean alreadyRegistered = benefitRegistrationRepository.existsByBenefitAndEmployee(benefit, employee);
+//        if(alreadyRegistered){
+//            throw new HRMSAPIException("You have already registered for this benefit. Please contact the administrator for more information.");
+//        }
+//
+//        //tao ban dang ki moi
+//        BenefitRegistration benefitRegistration = new BenefitRegistration();
+//        BenefitRegistration newBenefitRegistration = BenefitRegistration.builder()
+//                .benefit(benefit)
+//                .employee(employee)
+//                .registeredAt(LocalDateTime.now())
+//                .isRegister(true)
+//                .note(note)
+//                .build();
+//
+//        return modelMapper.map(newBenefitRegistration, BenefitRegistrationDTO.class);
+        return null;
     }
 }

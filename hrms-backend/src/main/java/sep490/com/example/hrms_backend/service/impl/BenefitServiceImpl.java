@@ -1,6 +1,7 @@
 package sep490.com.example.hrms_backend.service.impl;
 
 import jakarta.persistence.criteria.Predicate;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,9 +14,11 @@ import sep490.com.example.hrms_backend.dto.benefit.BenefitDTO;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitResponse;
 import sep490.com.example.hrms_backend.dto.benefit.PatchBenefitDTO;
 import sep490.com.example.hrms_backend.entity.Benefit;
+import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.enums.BenefitType;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
+import sep490.com.example.hrms_backend.mapper.BenefitMapper;
 import sep490.com.example.hrms_backend.repository.BenefitRepository;
 import sep490.com.example.hrms_backend.service.BenefitService;
 
@@ -23,6 +26,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class BenefitServiceImpl implements BenefitService {
 
@@ -31,6 +35,8 @@ public class BenefitServiceImpl implements BenefitService {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    private final BenefitMapper benefitMapper;
 
     @Transactional
     @Override
@@ -95,6 +101,16 @@ public class BenefitServiceImpl implements BenefitService {
 
         List<Benefit> benefits = benefitPage.getContent();
 
+//        System.out.println("🐞 DEBUG: Bắt đầu duyệt benefits");
+//        Benefit benefit = new Benefit();
+//        benefit.getBenefitPositions()
+//                .stream()
+//                .flatMap(bp -> bp.getRegistrations().stream())
+//                .map(r -> {
+//                    Employee e = r.getEmployee();
+//                    System.out.println(e.getEmployeeName() + " → Dept: " + (e.getDepartment() != null ? e.getDepartment().getDepartmentName() : "null"));
+//                    return null;
+//                }).count();
 
 
 
@@ -105,8 +121,10 @@ public class BenefitServiceImpl implements BenefitService {
 
         //Neu oke thi chuyen ve DTO
         //List<BenefitDTO> benefitDTOList = modelMapper.map(benefits, List.class); //ko nen dung
-        List<BenefitDTO> benefitDTOList = benefits.stream()
-                .map(benefit -> modelMapper.map(benefit, BenefitDTO.class)).toList();
+//        List<BenefitDTO> benefitDTOList = benefits.stream()
+//                .map(benefit -> modelMapper.map(benefit, BenefitDTO.class)).toList();
+        List<BenefitDTO> benefitDTOList = benefitMapper.toBenefitDTOs(benefits);
+
 
         //Tao doi tuong BenefitResponse va luu nhung thong tin da dc dinh nghia trong BenefitResponse
         BenefitResponse benefitResponse = new BenefitResponse();
@@ -116,6 +134,8 @@ public class BenefitServiceImpl implements BenefitService {
         benefitResponse.setTotalElements(benefitPage.getTotalElements());
         benefitResponse.setTotalPages(benefitPage.getTotalPages());
         benefitResponse.setLastPage(benefitPage.isLast());
+
+
 
         return benefitResponse;
     }

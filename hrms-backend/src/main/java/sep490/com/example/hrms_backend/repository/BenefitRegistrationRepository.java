@@ -15,14 +15,14 @@ public interface BenefitRegistrationRepository extends JpaRepository<BenefitRegi
 
     Page<Benefit> findByEmployeeOrderById(Employee employee, Pageable pageable);
 
-    long countByBenefit(Benefit benefit);
+//    long countByBenefit(Benefit benefit);
 
-    boolean existsByBenefitAndEmployee(Benefit benefit, Employee employee);
+//    boolean existsByBenefitAndEmployee(Benefit benefit, Employee employee);
 
-    @Query("SELECT br.benefit.id, COUNT(br.employee)" +
-            "FROM BenefitRegistration br " +
-            "WHERE br.isRegister = true AND br.benefit IN :benefitIds " +
-            "GROUP BY br.benefit")
-    List<Object[]> countRegisteredParticipants(@Param("benefitIds") List<Long> benefitIds);
+//    @Query("SELECT br.benefit.id, COUNT(br.employee)" +
+//            "FROM BenefitRegistration br " +
+//            "WHERE br.isRegister = true AND br.benefit IN :benefitIds " +
+//            "GROUP BY br.benefit")
+//    List<Object[]> countRegisteredParticipants(@Param("benefitIds") List<Long> benefitIds);
 }
 

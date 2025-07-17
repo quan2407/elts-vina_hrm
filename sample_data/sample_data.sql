@@ -273,11 +273,21 @@ MODIFY COLUMN created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6);
 ALTER TABLE benefit
 MODIFY COLUMN updated_at TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
 
-
-
 INSERT INTO benefit(title, description, end_date, is_active, max_participants, start_date, benefit_type, detail ) values
  ('Bảo hiểm sức khỏe mở rộng', 'Cung cấp gói bảo hiểm sức khỏe cao cấp cho nhân viên và người thân.', '2025-12-31', 1, 200, '2025-06-29', 'PHU_CAP', 'Gói bảo hiểm mở rộng áp dụng cho tất cả nhân viên chính thức và người thân trực hệ.'),
 ('Khóa học nâng cao kỹ năng', 'Tài trợ 100% chi phí các khóa học trực tuyến hoặc offline để nâng cao kỹ năng mềm và chuyên môn.', '2025-09-30', 1, 150, '2025-06-30','PHU_CAP', 'Nhân viên đăng ký trên hệ thống nội bộ và được phê duyệt trước khi tham gia.'),
 ('Du lịch công ty 2025', 'Chuyến du lịch thường niên cùng công ty đến Đà Nẵng trong 3 ngày 2 đêm.', '2025-08-15', 0, 100, '2025-06-28','SU_KIEN','Chương trình chỉ áp dụng cho nhân viên đạt đủ điều kiện làm việc từ 6 tháng trở lên.'),
 ('Gói hỗ trợ sức khỏe tinh thần', 'Miễn phí 5 buổi tư vấn tâm lý cùng chuyên gia.', '2026-01-15', 1, 300, '2025-07-01','PHU_CAP','Đăng ký qua phòng nhân sự, ưu tiên nhân viên làm việc trên 1 năm.'),
 ('Phụ cấp thể thao', 'Hỗ trợ chi phí tham gia phòng gym, yoga, hoặc các hoạt động thể thao.', '2025-11-01', 1, 5, '2025-06-28','KHAU_TRU','Hỗ trợ 50% chi phí hàng tháng, tối đa 500.000đ/người.');
+
+INSERT INTO benefit_position (benefit_id, position_id, formula_value, formula_type)
+VALUES
+(1, 3, 500000, 'AMOUNT'),
+(1, 6, 10.0, 'PERCENTAGE');
+
+INSERT INTO benefit_registrations (is_register, registered_at, benefit_position_id, employee_id)
+VALUES
+(true,  NOW(), 3, 1),
+(true,  NOW(), 3, 2),
+(false,  NOW(), 4, 3);
+

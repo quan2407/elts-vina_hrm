@@ -17,4 +17,6 @@ public interface BenefitRepository extends JpaRepository<Benefit, Long>, JpaSpec
     Benefit findByTitle(@NotBlank String title);
 
     Page<Benefit> findByTitleLikeIgnoreCase(String s, Pageable pageable);
+
+    
 }

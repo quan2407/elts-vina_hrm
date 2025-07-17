@@ -10,6 +10,7 @@ import sep490.com.example.hrms_backend.enums.BenefitType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -42,5 +43,6 @@ public class BenefitDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private List<PositionRegistrationDTO> positions;
 
 }
