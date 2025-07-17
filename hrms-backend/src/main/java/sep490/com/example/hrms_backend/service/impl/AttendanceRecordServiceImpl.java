@@ -188,13 +188,10 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
             try {
                 LeaveCode code = LeaveCode.valueOf(value);
                 return switch (code) {
-                    case NL, VR, KL1, P -> 8f;
-                    case KL1_2 -> 2f;
-                    case KL1_4, P_4, NDB_4 -> 4f;
-                    case KL1_2_4 -> 2.4f;
-                    case NDB -> 5f;
+                    case NL, P,NTS,CKH,KH,NT,NDB -> 8f;
+                    case P_4, NDB_4 -> 4f;
                     case NDB_1_5 -> 1.5f;
-                    case VPHĐ, KL, NTS -> 0f;
+                    case VPHĐ, KL,VR-> 0f;
                 };
             } catch (IllegalArgumentException ex) {
                 return 0f;
@@ -217,7 +214,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
-        // Cập nhật giờ checkIn / checkOut
+
         if (dto.getCheckIn() != null && !dto.getCheckIn().isBlank()) {
             record.setCheckInTime(LocalTime.parse(dto.getCheckIn(), formatter));
         } else {
@@ -245,8 +242,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
                 LocalTime checkIn = record.getCheckInTime();
                 LocalTime checkOut = record.getCheckOutTime();
-
-                // Reset kết quả trước khi tính
                 record.setDayShift(null);
                 record.setOtShift(null);
                 record.setWeekendShift(null);

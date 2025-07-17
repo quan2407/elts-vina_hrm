@@ -3,12 +3,11 @@ package sep490.com.example.hrms_backend.enums;
 public enum LeaveCode {
     NL,         // Nghỉ nguyên lương
     VPHĐ,       // Nghỉ vi phạm HĐ
-    VR,         // Nghỉ việc riêng có hưởng lương
+    VR,         // Nghỉ việc riêng
     KL,         // Nghỉ không lương
-    KL1,        // Nghỉ KL hưởng CC
-    KL1_2,      // Nghỉ KL hưởng CC 2h
-    KL1_4,      // Nghỉ KL hưởng CC nửa ngày
-    KL1_2_4,    // Nghỉ KL hưởng CC 2.4h
+    KH, // Ket hon
+    CKH, // Con ket hon
+    NT, // Nghi tang
     P,          // Nghỉ phép
     P_4,        // Nghỉ phép nửa ngày
     NTS,        // Nghỉ thai sản
