@@ -40,12 +40,12 @@ function EmployeeTableInLine({ searchTerm, reloadFlag }) {
         fetchEmployees();
     }, [id, reloadFlag]);
 
-    const handleCheckboxChange = (employeeId) => {
-        if (employeeId !== leaderId) {
-            setPendingLeaderId(employeeId);
-            setShowConfirm(true);
-        }
-    };
+    // const handleCheckboxChange = (employeeId) => {
+    //     if (employeeId !== leaderId) {
+    //         setPendingLeaderId(employeeId);
+    //         setShowConfirm(true);
+    //     }
+    // };
 
     const confirmNewLeader = async () => {
         try {
@@ -75,11 +75,8 @@ function EmployeeTableInLine({ searchTerm, reloadFlag }) {
                     <div className="employee-header-cell">Tài khoản</div>
                     <div className="employee-header-cell">Họ và tên</div>
                     <div className="employee-header-cell">Giới tính</div>
-                    <div className="employee-header-cell">Ngày sinh</div>
-                    <div className="employee-header-cell">Ngày vào công ty</div>
+
                     <div className="employee-header-cell">Số điện thoại</div>
-                    <div className="employee-header-cell">Phòng ban</div>
-                    <div className="employee-header-cell">Chuyền sản xuất</div>
                     <div className="employee-header-cell">Vị trí</div>
                     <div className="employee-header-cell">Tổ trưởng</div>
                 </div>
@@ -94,17 +91,14 @@ function EmployeeTableInLine({ searchTerm, reloadFlag }) {
                         <div className="employee-table-cell">{emp.accountUsername}</div>
                         <div className="employee-table-cell">{emp.employeeName}</div>
                         <div className="employee-table-cell">{emp.gender}</div>
-                        <div className="employee-table-cell">{emp.dob}</div>
-                        <div className="employee-table-cell">{emp.startWorkAt}</div>
                         <div className="employee-table-cell">{emp.phoneNumber}</div>
-                        <div className="employee-table-cell">{emp.departmentName}</div>
-                        <div className="employee-table-cell">{emp.lineName}</div>
+
                         <div className="employee-table-cell">{emp.positionName}</div>
                         <div className="employee-table-cell">
                             <input
                                 type="checkbox"
                                 checked={emp.employeeId === leaderId}
-                                onChange={() => handleCheckboxChange(emp.employeeId)}
+                                // onChange={() => handleCheckboxChange(emp.employeeId)}
                             />
                         </div>
                     </div>

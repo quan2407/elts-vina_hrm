@@ -1,5 +1,4 @@
 .employee-table-wrapper {
-    overflow-x: auto;
   max-width: 100%;
   background-color: #fff;
   border-radius: 24px;
@@ -9,7 +8,7 @@
 }
 
 .employee-table {
-  min-width: 1500px;
+  min-width: 1200px;
 
 }
 
@@ -20,12 +19,8 @@
     150px /* mã NV */
     150px /* tài khoản */
     180px /* họ tên */
-    100px /* giới tính */
-    150px /* ngày sinh */
-    150px /* ngày vào cty */
+    150px /* giới tính */
     150px /* sđt */
-    150px /* phòng ban */
-    150px /* line */
     200px /* vị trí */
     200px; /* tổ trưởng */
   gap: 10px;

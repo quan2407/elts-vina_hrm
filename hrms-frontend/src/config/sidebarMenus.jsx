@@ -175,7 +175,7 @@ export const productionManagerMenus = [
   },
   {
     text: "Danh sách line",
-    path: "/line-management-pmc",
+    path: "/line-management-pm",
     icon: (isActive) => (
       <Rows4 
         size={20}

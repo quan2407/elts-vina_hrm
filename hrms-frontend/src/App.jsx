@@ -362,7 +362,7 @@ function App() {
               path="/line-management-pm"
               element={
                 <ProtectedRoute allowedRoles={["ROLE_PRODUCTION_MANAGER"]}>
-                  <EmployeeWorkScheduleView />
+                  <LineManagement />
                 </ProtectedRoute>
               }
             />
