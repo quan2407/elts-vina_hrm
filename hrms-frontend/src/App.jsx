@@ -358,6 +358,15 @@ function App() {
               }
             />
 
+            <Route
+              path="/line-management-pm"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_PRODUCTION_MANAGER"]}>
+                  <EmployeeWorkScheduleView />
+                </ProtectedRoute>
+              }
+            />
+
           </Routes>
         </Router>
       </AntdApp>

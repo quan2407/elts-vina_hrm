@@ -162,7 +162,28 @@ export const pmcMenus = [
   }
 ];
 export const lineLeaderMenus = [];
-export const productionManagerMenus = [];
+export const productionManagerMenus = [
+  {
+    text: "Lịch làm việc",
+    path: "/work-schedule-production",
+    icon: (isActive) => (
+      <CalendarCheck
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+  {
+    text: "Danh sách line",
+    path: "/line-management-pmc",
+    icon: (isActive) => (
+      <Rows4 
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+];
 export const canteenMenus = [];
 export const employeeMenus = [
   {
