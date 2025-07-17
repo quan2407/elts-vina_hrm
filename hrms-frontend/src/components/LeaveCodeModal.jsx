@@ -13,10 +13,30 @@ const LeaveCodeModal = ({
   const [targetField, setTargetField] = useState("dayShift");
 
   useEffect(() => {
-    if (dateMeta?.holidayFlag) setTargetField("holidayShift");
-    else if (dateMeta?.weekendFlag) setTargetField("weekendShift");
-    else setTargetField("dayShift");
+    if (dateMeta?.holidayFlag) {
+      setTargetField("holidayShift");
+    } else if (dateMeta?.weekendFlag) {
+      setTargetField("weekendShift");
+    } else {
+      setTargetField("dayShift");
+    }
   }, [dateMeta]);
+
+  const getAvailableTargetFields = () => {
+    if (dateMeta?.holidayFlag) {
+      return [{ value: "holidayShift", label: "Ngày lễ" }];
+    }
+    if (dateMeta?.weekendFlag) {
+      return [{ value: "weekendShift", label: "Cuối tuần" }];
+    }
+    const fields = [{ value: "dayShift", label: "Công ngày" }];
+    if (dateMeta?.hasOt) {
+      fields.push({ value: "otShift", label: "Tăng ca" });
+    }
+    return fields;
+  };
+
+  const availableTargetFields = getAvailableTargetFields();
 
   const handleSave = () => {
     if (leaveCode && targetField) {
@@ -40,19 +60,17 @@ const LeaveCodeModal = ({
             <option value="">-- Chọn mã --</option>
             {[
               "NL",
-              "VR",
+              "VPHĐ",
+              "KL",
+              "KH",
+              "CKH",
+              "NT",
               "P",
               "P_4",
-              "KL",
-              "KL1",
-              "KL1_2",
-              "KL1_4",
-              "KL1_2_4",
+              "NTS",
               "NDB",
               "NDB_4",
               "NDB_1_5",
-              "VPHĐ",
-              "NTS",
             ].map((code) => (
               <option
                 key={code}
@@ -70,10 +88,14 @@ const LeaveCodeModal = ({
             value={targetField}
             onChange={(e) => setTargetField(e.target.value)}
           >
-            <option value="dayShift">Công ngày</option>
-            <option value="otShift">Tăng ca</option>
-            <option value="weekendShift">Cuối tuần</option>
-            <option value="holidayShift">Ngày lễ</option>
+            {availableTargetFields.map((field) => (
+              <option
+                key={field.value}
+                value={field.value}
+              >
+                {field.label}
+              </option>
+            ))}
           </select>
         </div>
 

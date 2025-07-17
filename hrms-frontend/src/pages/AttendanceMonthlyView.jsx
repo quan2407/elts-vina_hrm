@@ -223,54 +223,48 @@ const AttendanceMonthlyView = () => {
                     <strong>NL</strong>: Nghỉ nguyên lương
                   </li>
                   <li>
-                    <strong>VPHĐ</strong>: Vi phạm HĐ
+                    <strong>VPHĐ</strong>: Nghỉ vi phạm HĐ
                   </li>
                   <li>
-                    <strong>VR</strong>: Việc riêng có lương
+                    <strong>VR</strong>: Nghỉ việc riêng
                   </li>
                 </ul>
                 <ul>
                   <li>
-                    <strong>BH</strong>: Nghỉ hưởng BH
+                    <strong>KL</strong>: Nghỉ không lương
                   </li>
                   <li>
-                    <strong>KL</strong>: Không lương
+                    <strong>KH</strong>: Kết hôn
                   </li>
                   <li>
-                    <strong>KL1</strong>: KL hưởng CC
+                    <strong>CKH</strong>: Con kết hôn
                   </li>
                 </ul>
                 <ul>
                   <li>
-                    <strong>KL1_2</strong>: KL hưởng CC 2h
+                    <strong>NT</strong>: Nghỉ tang
                   </li>
-                  <li>
-                    <strong>KL1_4</strong>: KL hưởng CC 4h
-                  </li>
-                  <li>
-                    <strong>KL1_2_4</strong>: KL hưởng CC 2+4h
-                  </li>
-                </ul>
-                <ul>
                   <li>
                     <strong>P</strong>: Nghỉ phép
                   </li>
                   <li>
-                    <strong>P_4</strong>: Nửa phép
-                  </li>
-                  <li>
-                    <strong>NDB</strong>: Cách ly 8h
+                    <strong>P_4</strong>: Nghỉ phép nửa ngày
                   </li>
                 </ul>
                 <ul>
                   <li>
-                    <strong>NDB_4</strong>: Cách ly 4h
+                    <strong>NTS</strong>: Nghỉ thai sản
                   </li>
                   <li>
-                    <strong>NDB_1_5</strong>: Cách ly 1.5h
+                    <strong>NDB</strong>: Dịch bệnh hưởng công nguyên ngày
                   </li>
                   <li>
-                    <strong>NTS</strong>: Nghỉ tự sắp xếp
+                    <strong>NDB_4</strong>: Dịch bệnh hưởng công 4h
+                  </li>
+                </ul>
+                <ul>
+                  <li>
+                    <strong>NDB_1_5</strong>: Dịch bệnh hưởng công 1.5h
                   </li>
                 </ul>
               </div>
@@ -361,6 +355,7 @@ const AttendanceMonthlyView = () => {
                                       {
                                         holidayFlag: cell.holidayFlag,
                                         weekendFlag: cell.weekendFlag,
+                                        hasOt: parseFloat(cell.overtime) > 0,
                                       }
                                     )
                                   }
