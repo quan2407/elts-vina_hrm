@@ -5,9 +5,9 @@ public enum LeaveCode {
     VPHĐ,       // Nghỉ vi phạm HĐ
     VR,         // Nghỉ việc riêng
     KL,         // Nghỉ không lương
-    KH, // Ket hon
-    CKH, // Con ket hon
-    NT, // Nghi tang
+    KH,         // Ket hon
+    CKH,        // Con ket hon
+    NT,         // Nghi tang
     P,          // Nghỉ phép
     P_4,        // Nghỉ phép nửa ngày
     NTS,        // Nghỉ thai sản
