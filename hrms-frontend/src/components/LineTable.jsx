@@ -10,7 +10,7 @@ import { getAllLines } from "../services/linesService";
 import { jwtDecode } from "jwt-decode";
 
 
-const LineTable = forwardRef(({searchTerm}) => {
+const LineTable = forwardRef(({ searchTerm }) => {
 
     const [line, setLine] = useState([]);
     const navigate = useNavigate();
@@ -33,15 +33,16 @@ const LineTable = forwardRef(({searchTerm}) => {
     const handleEmployeeClick = (id, userRole) => {
 
         if (userRole === 'pmc') {
-        navigate(`/employee/line/${id}`);}
-        else if (userRole === 'production_manager') {
-            navigate(`/employee/line-pm/${id}`);
+            navigate(`/employee/line/${id}`);
+        }
+        else if (userRole === 'hr') {
+            navigate(`/employee/line-hr/${id}`);
         } else {
             console.error("Không có quyền truy cập vào danh sách nhân viên của line này.");
         }
     }
 
- useEffect(() => {
+    useEffect(() => {
         const token = localStorage.getItem('accessToken');
 
         if (token) {
@@ -54,8 +55,8 @@ const LineTable = forwardRef(({searchTerm}) => {
 
                     if (roles.includes('ROLE_PMC')) {
                         setUserRole('pmc');
-                    } else if (roles.includes('ROLE_PRODUCTION_MANAGER')) {
-                        setUserRole('production_manager');
+                    } else if (roles.includes('ROLE_HR')) {
+                        setUserRole('hr');
                     }
                 }
             } catch (error) {

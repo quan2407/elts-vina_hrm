@@ -42,7 +42,7 @@ import EmployeeAttendanceMonthlyView from "./pages/EmployeeAttendanceMonthlyView
 import EmpSalaryView from "./pages/EmployeeSalaryView.jsx";
 import HolidayManagement from "./pages/HolidayManagement";
 import AccountRequestPage from "./pages/AccountRequestPage.jsx";
-
+import EmployeeInLineHr from "./pages/EmployeeInLineHr.jsx";
 
 function App() {
   return (
@@ -326,7 +326,7 @@ function App() {
             <Route
               path="/line-management"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_PMC"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_PMC"]}>
                   <LineManagement />
                 </ProtectedRoute>
               }
@@ -336,6 +336,15 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["ROLE_PMC"]}>
                   <EmployeeInLineManagement />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/employee/line-hr/:id"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                  <EmployeeInLineHr />
                 </ProtectedRoute>
               }
             />
