@@ -13,10 +13,14 @@ import sep490.com.example.hrms_backend.mapper.WorkScheduleMapper;
 import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.WorkScheduleService;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +32,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     private final EmployeeRepository employeeRepository;
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final WorkScheduleDetailRepository workScheduleDetailRepository;
-
+    private final HolidayRepository holidayRepository;
     @Override
     public List<WorkScheduleResponseDTO> createWorkSchedulesForAll(WorkScheduleCreateDTO dto) {
         int month = dto.getMonth();
@@ -36,7 +40,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
 
         List<Department> departments = departmentRepository.findAll();
         List<Line> allLines = lineRepository.findAllWithDepartment();
-        List<WorkScheduleResponseDTO> createdList = new ArrayList<>();
+        List<WorkSchedule> createdSchedules = new ArrayList<>();
 
         for (Department dept : departments) {
             List<Line> lines = allLines.stream()
@@ -57,7 +61,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                             .isSubmitted(false)
                             .build();
                     WorkSchedule saved = workScheduleRepository.save(entity);
-                    createdList.add(WorkScheduleMapper.toDTO(saved));
+                    createdSchedules.add(saved);
                 }
             } else {
                 for (Line line : lines) {
@@ -74,13 +78,55 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                                 .isSubmitted(false)
                                 .build();
                         WorkSchedule saved = workScheduleRepository.save(entity);
-                        createdList.add(WorkScheduleMapper.toDTO(saved));
+                        createdSchedules.add(saved);
                     }
                 }
             }
         }
 
-        return createdList;
+        // 👉 Sau khi tất cả WorkSchedule đã được tạo xong
+        for (WorkSchedule schedule : createdSchedules) {
+            generateDefaultWorkScheduleDetails(schedule);
+        }
+
+        return createdSchedules.stream()
+                .map(WorkScheduleMapper::toDTO)
+                .collect(Collectors.toList());
+
+    }
+
+    private void generateDefaultWorkScheduleDetails(WorkSchedule workSchedule) {
+        int month = workSchedule.getMonth();
+        int year = workSchedule.getYear();
+
+        LocalTime startTime = LocalTime.of(8, 0);
+        LocalTime endTime = LocalTime.of(17, 0);
+        int daysInMonth = YearMonth.of(year, month).lengthOfMonth();
+
+        List<WorkScheduleDetail> details = new ArrayList<>();
+
+        for (int day = 1; day <= daysInMonth; day++) {
+            LocalDate date = LocalDate.of(year, month, day);
+
+            // Skip Sunday
+            if (date.getDayOfWeek() == DayOfWeek.SUNDAY) continue;
+
+            // Skip holidays
+            boolean isHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(date);
+            if (isHoliday) continue;
+
+            WorkScheduleDetail detail = WorkScheduleDetail.builder()
+                    .dateWork(date)
+                    .startTime(startTime)
+                    .endTime(endTime)
+                    .isOvertime(false)
+                    .workSchedule(workSchedule)
+                    .build();
+
+            details.add(detail);
+        }
+
+        workScheduleDetailRepository.saveAll(details);
     }
 
     private void generateAttendanceRecords(WorkSchedule workSchedule) {
