@@ -326,28 +326,29 @@ const AttendanceMonthlyView = () => {
 
                       if (type.key === "checkInOut") {
                         if (cell.hasScheduleDetail) {
+                          const isPastDay = isBeforeYesterday(dayDate);
                           return (
                             <td key={d}>
-                              {cell.checkIn || cell.checkOut ? (
-                                <span
-                                  className="attendance-edit-icon"
-                                  onClick={() =>
-                                    handleOpenModal(emp, day, cell)
-                                  }
-                                >
-                                  {`${cell.checkIn || "--"} - ${
-                                    cell.checkOut || "--"
-                                  }`}
-                                </span>
-                              ) : (
-                                <span className="attendance-empty-cell">
-                                  --
-                                </span>
-                              )}
+                              {isPastDay ? (
+                                <>
+                                  {cell.checkIn || cell.checkOut ? (
+                                    <span
+                                      className="attendance-edit-icon"
+                                      onClick={() =>
+                                        handleOpenModal(emp, day, cell)
+                                      }
+                                    >
+                                      {`${cell.checkIn || "--"} - ${
+                                        cell.checkOut || "--"
+                                      }`}
+                                    </span>
+                                  ) : (
+                                    <span className="attendance-empty-cell">
+                                      --
+                                    </span>
+                                  )}
 
-                              <div className="attendance-buttons">
-                                {isBeforeYesterday(dayDate) && (
-                                  <>
+                                  <div className="attendance-buttons">
                                     <button
                                       className="attendance-action-btn edit"
                                       onClick={() =>
@@ -378,19 +379,31 @@ const AttendanceMonthlyView = () => {
                                     >
                                       🛏️
                                     </button>
-                                  </>
-                                )}
-                              </div>
+                                  </div>
+                                </>
+                              ) : (
+                                <span className="attendance-empty-cell">
+                                  --
+                                </span>
+                              )}
                             </td>
                           );
                         } else {
                           return <td key={d}></td>;
                         }
                       } else {
+                        if (
+                          !isBeforeYesterday(dayDate) ||
+                          !cell.hasScheduleDetail
+                        ) {
+                          return <td key={d}></td>;
+                        }
+
                         const value = cell[type.key] || "";
                         return <td key={d}>{value}</td>;
                       }
                     })}
+
                     <td className="highlight-bold">{emp[type.totalKey]}</td>
                     {i === 0 && (
                       <td
