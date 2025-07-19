@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MainLayout from "../components/MainLayout";
 import WorkScheduleTable from "../components/WorkScheduleTable";
 import "../styles/WorkScheduleManagement.css";
+import CustomRangeModal from "../components/CustomRangeModal";
 import { Plus, Download } from "lucide-react";
 import workScheduleService from "../services/workScheduleService";
-
+import departmentService from "../services/departmentService";
 function WorkScheduleManagement() {
   const today = new Date();
   const [month, setMonth] = useState(today.getMonth() + 1);
@@ -12,7 +13,14 @@ function WorkScheduleManagement() {
   const [status, setStatus] = useState("not-submitted");
   const [reloadTrigger, setReloadTrigger] = useState(0);
   const [rejectReason, setRejectReason] = useState("");
-
+  const [showRangeModal, setShowRangeModal] = useState(false);
+  const [departments, setDepartments] = useState([]);
+  const [lines, setLines] = useState([]);
+  const handleDepartmentChange = (deptId) => {
+    departmentService
+      .getLinesByDepartment(deptId)
+      .then((res) => setLines(res.data)); // ❌ không thêm phần tử "-- Không chọn --"
+  };
 
   const handleSubmit = () => {
     workScheduleService
@@ -42,6 +50,21 @@ function WorkScheduleManagement() {
         return <span className="status not-submitted">Chưa gửi</span>;
     }
   };
+  useEffect(() => {
+    if (showRangeModal) {
+      departmentService
+        .getAllDepartments()
+        .then((res) => setDepartments(res.data));
+    }
+  }, [showRangeModal]);
+
+  useEffect(() => {
+    if (departments.length > 0) {
+      departmentService
+        .getLinesByDepartment(departments[0].departmentId)
+        .then((res) => setLines(res.data)); // ❌ không thêm phần tử "-- Không chọn --"
+    }
+  }, [departments]);
 
   return (
     <MainLayout>
@@ -58,6 +81,17 @@ function WorkScheduleManagement() {
           </div>
 
           <div className="work-schedule-page-actions">
+            <button
+              className="work-schedule-add-button"
+              onClick={() => setShowRangeModal(true)}
+            >
+              <Plus
+                size={16}
+                style={{ marginRight: "6px" }}
+              />
+              Dải lịch theo khoảng
+            </button>
+
             <button
               className="work-schedule-add-button"
               onClick={handleSubmit}
@@ -81,6 +115,22 @@ function WorkScheduleManagement() {
             </button>
           </div>
         </div>
+        <CustomRangeModal
+          isOpen={showRangeModal}
+          onClose={() => setShowRangeModal(false)}
+          departments={departments}
+          lines={lines}
+          month={month}
+          year={year}
+          onDepartmentChange={handleDepartmentChange}
+          onSubmit={(payload) => {
+            workScheduleService.createCustomWorkSchedule(payload).then(() => {
+              alert("Dải lịch thành công!");
+              setShowRangeModal(false);
+              setReloadTrigger((prev) => prev + 1);
+            });
+          }}
+        />
 
         <WorkScheduleTable
           month={month}
