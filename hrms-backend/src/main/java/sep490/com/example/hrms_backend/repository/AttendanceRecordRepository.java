@@ -28,4 +28,8 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
             "LEFT JOIN FETCH ws.workScheduleDetails " +
             "WHERE ar.month = :month AND ar.year = :year AND ar.employee.employeeId = :employeeId ")
     List<AttendanceRecord> findByEmpIdAndMonthAndYear(@Param("employeeId") Long employeeId, @Param("month") int month, @Param("year") int year);
+
+    List<AttendanceRecord> findByDate(LocalDate date);
+
+    boolean existsByEmployee_EmployeeIdAndDate(Long employeeId, LocalDate workDate);
 }

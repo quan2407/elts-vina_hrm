@@ -232,7 +232,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         workScheduleDetailRepository.saveAll(details);
     }
 
-    private void generateAttendanceRecords(WorkSchedule workSchedule) {
+    public void generateAttendanceRecords(WorkSchedule workSchedule) {
         int year = workSchedule.getYear();
         int month = workSchedule.getMonth();
         Long departmentId = workSchedule.getDepartment().getDepartmentId();
@@ -244,17 +244,65 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
 
         List<WorkScheduleDetail> scheduleDetails = workSchedule.getWorkScheduleDetails();
 
-        if (scheduleDetails == null || scheduleDetails.isEmpty()) {
-            System.out.println("Detail la " + workSchedule.getWorkScheduleDetails().size());
-            return;
-        };
-        System.out.println("Da co du lieu work detail");
+        if (scheduleDetails == null || scheduleDetails.isEmpty()) return;
+
+        LocalDate today = LocalDate.now();
         List<AttendanceRecord> records = new ArrayList<>();
 
         for (Employee employee : employees) {
-            System.out.println("Ten nhan vien la: " + employee.getEmployeeName());
             for (WorkScheduleDetail detail : scheduleDetails) {
                 LocalDate workDate = detail.getDateWork();
+
+                // 👉 Chỉ xử lý ngày trước hôm nay
+                if (!workDate.isBefore(today)) continue;
+
+                // 🔒 Kiểm tra trùng (tránh sinh lại)
+                boolean exists = attendanceRecordRepository
+                        .existsByEmployee_EmployeeIdAndDate(employee.getEmployeeId(), workDate);
+                if (exists) continue;
+
+                LocalTime start = detail.getStartTime();
+                LocalTime end = detail.getEndTime();
+
+                boolean isHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(workDate);
+                boolean isWeekend = workDate.getDayOfWeek() == DayOfWeek.SUNDAY;
+                LocalTime standardEnd = LocalTime.of(17, 0);
+
+                // Tính công ngày
+                LocalTime dayShiftIn = start;
+                LocalTime dayShiftOut = end.isBefore(standardEnd) ? end : standardEnd;
+
+                int startSec = dayShiftIn.toSecondOfDay();
+                int endSec = dayShiftOut.toSecondOfDay();
+                int breakStart = LocalTime.of(11, 30).toSecondOfDay();
+                int breakEnd = LocalTime.of(12, 30).toSecondOfDay();
+                int overlapStart = Math.max(startSec, breakStart);
+                int overlapEnd = Math.min(endSec, breakEnd);
+                int overlap = Math.max(0, overlapEnd - overlapStart);
+
+                float shiftHours = (float) (endSec - startSec - overlap) / 3600f;
+                shiftHours = Math.max(0, shiftHours);
+
+                // Tính tăng ca
+                float overtimeHours = 0f;
+                if (end.isAfter(standardEnd)) {
+                    overtimeHours = (float) (end.toSecondOfDay() - standardEnd.toSecondOfDay()) / 3600f;
+                }
+
+                String dayShiftStr = null, otShiftStr = null, weekendStr = null, holidayStr = null;
+
+                if (isHoliday && isWeekend) {
+                    String value = String.format("%.2f", shiftHours + overtimeHours);
+                    holidayStr = value;
+                    weekendStr = value;
+                } else if (isHoliday) {
+                    holidayStr = String.format("%.2f", shiftHours + overtimeHours);
+                } else if (isWeekend) {
+                    weekendStr = String.format("%.2f", shiftHours + overtimeHours);
+                } else {
+                    if (shiftHours > 0) dayShiftStr = String.format("%.2f", shiftHours);
+                    if (overtimeHours > 0) otShiftStr = String.format("%.2f", overtimeHours);
+                }
 
                 AttendanceRecord record = AttendanceRecord.builder()
                         .employee(employee)
@@ -262,10 +310,12 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                         .date(workDate)
                         .month(workDate.getMonthValue())
                         .year(workDate.getYear())
-                        .dayShift("")
-                        .otShift(detail.getIsOvertime() != null && detail.getIsOvertime() ? "" : null)
-                        .weekendShift("")
-                        .holidayShift("")
+                        .checkInTime(start)
+                        .checkOutTime(end)
+                        .dayShift(dayShiftStr)
+                        .otShift(otShiftStr)
+                        .weekendShift(weekendStr)
+                        .holidayShift(holidayStr)
                         .build();
 
                 records.add(record);
@@ -274,6 +324,9 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
 
         attendanceRecordRepository.saveAll(records);
     }
+
+
+
 
     @Override
     public List<WorkScheduleMonthDTO> getAvailableMonths() {

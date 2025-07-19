@@ -9,13 +9,13 @@ import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.entity.AttendanceRecord;
 import sep490.com.example.hrms_backend.entity.Employee;
+import sep490.com.example.hrms_backend.entity.WorkSchedule;
 import sep490.com.example.hrms_backend.entity.WorkScheduleDetail;
 import sep490.com.example.hrms_backend.enums.LeaveCode;
-import sep490.com.example.hrms_backend.repository.AttendanceRecordRepository;
-import sep490.com.example.hrms_backend.repository.EmployeeRepository;
-import sep490.com.example.hrms_backend.repository.HolidayRepository;
+import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.AttendanceRecordService;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -24,11 +24,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AttendanceRecordServiceImpl implements AttendanceRecordService {
-
+    private final WorkScheduleRepository workScheduleRepository;
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final EmployeeRepository employeeRepository;
     private final HolidayRepository holidayRepository;
-
+    private final WorkScheduleServiceImpl workScheduleService;
+    private final WorkScheduleDetailRepository workScheduleDetailRepository;
 
     @Override
     public List<AttendanceMonthlyViewDTO> getEmpMonthlyAttendanceById(Long employeeId, int month, int year) {
@@ -214,7 +215,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
-
         if (dto.getCheckIn() != null && !dto.getCheckIn().isBlank()) {
             record.setCheckInTime(LocalTime.parse(dto.getCheckIn(), formatter));
         } else {
@@ -227,72 +227,23 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
             record.setCheckOutTime(null);
         }
 
-        // Bắt đầu tính toán công
-        if (record.getWorkSchedule() != null && record.getWorkSchedule().getWorkScheduleDetails() != null) {
-            Optional<WorkScheduleDetail> optionalDetail = record.getWorkSchedule().getWorkScheduleDetails().stream()
-                    .filter(detail -> detail.getDateWork().equals(record.getDate()))
-                    .findFirst();
-
-            if (optionalDetail.isPresent()) {
-                WorkScheduleDetail detail = optionalDetail.get();
-                LocalTime scheduledStart = detail.getStartTime();
-                LocalTime scheduledEnd = detail.getEndTime();
-                boolean isWeekend = detail.getDateWork().getDayOfWeek().getValue() == 7;
-                boolean isHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(record.getDate());
-
-                LocalTime checkIn = record.getCheckInTime();
-                LocalTime checkOut = record.getCheckOutTime();
-                record.setDayShift(null);
-                record.setOtShift(null);
-                record.setWeekendShift(null);
-                record.setHolidayShift(null);
-
-                if (checkIn != null && checkOut != null && scheduledStart != null && scheduledEnd != null) {
-                    LocalTime dayShiftIn = checkIn.isBefore(scheduledStart) ? scheduledStart : checkIn;
-                    LocalTime dayShiftOut = checkOut.isBefore(scheduledEnd) ? checkOut : scheduledEnd;
-                    LocalTime standardEnd = LocalTime.of(17, 0);
-
-
-                    LocalTime endPoint = checkOut.isBefore(standardEnd) ? checkOut : standardEnd;
-                    int startSec = dayShiftIn.toSecondOfDay();
-                    int endSec = endPoint.toSecondOfDay();
-
-
-                    int breakStart = LocalTime.of(11, 30).toSecondOfDay();
-                    int breakEnd = LocalTime.of(12, 30).toSecondOfDay();
-
-
-                    int overlapStart = Math.max(startSec, breakStart);
-                    int overlapEnd = Math.min(endSec, breakEnd);
-                    int overlap = Math.max(0, overlapEnd - overlapStart);
-
-                    float shiftHours = (float) (endSec - startSec - overlap) / 3600f;
-                    shiftHours = Math.max(0, shiftHours);
-
-
-                    float overtimeHours = 0f;
-                    if (checkOut.isAfter(standardEnd)) {
-                        overtimeHours = (float) (dayShiftOut.toSecondOfDay() - standardEnd.toSecondOfDay()) / 3600;
-                    }
-
-                    if (isHoliday && isWeekend) {
-                        String value = String.format("%.2f", shiftHours + overtimeHours);
-                        record.setWeekendShift(value);
-                        record.setHolidayShift(value);
-                    } else if (isHoliday) {
-                        record.setHolidayShift(String.format("%.2f", shiftHours + overtimeHours));
-                    } else if (isWeekend) {
-                        record.setWeekendShift(String.format("%.2f", shiftHours + overtimeHours));
-                    } else {
-                        if (shiftHours > 0) record.setDayShift(String.format("%.2f", shiftHours));
-                        if (overtimeHours > 0) record.setOtShift(String.format("%.2f", overtimeHours));
-                    }
-                }
-            }
+        // 👉 Tính công nếu có lịch làm và giờ vào/ra
+        if (record.getWorkSchedule() != null
+                && record.getWorkSchedule().getWorkScheduleDetails() != null
+                && record.getCheckInTime() != null
+                && record.getCheckOutTime() != null) {
+            calculateShift(record);
+        } else {
+            // Xoá công nếu không đủ thông tin
+            record.setDayShift(null);
+            record.setOtShift(null);
+            record.setWeekendShift(null);
+            record.setHolidayShift(null);
         }
 
         attendanceRecordRepository.save(record);
     }
+
 
     public void updateLeaveCode(Long id, LeaveCodeUpdateDTO dto) {
         AttendanceRecord record = attendanceRecordRepository.findById(id)
@@ -319,6 +270,89 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         }
 
         attendanceRecordRepository.save(record);
+    }
+    @Override
+    public void updateDailyAttendanceForDate(LocalDate date) {
+        int month = date.getMonthValue();
+        int year = date.getYear();
+
+        // Chỉ lấy lịch đã được duyệt
+        List<WorkSchedule> acceptedSchedules = workScheduleRepository
+                .findByMonthAndYearAndIsAcceptedTrue(month, year);
+
+        for (WorkSchedule schedule : acceptedSchedules) {
+            // ✅ Ép load chi tiết trước khi xử lý (tránh lazy)
+            List<WorkScheduleDetail> details = workScheduleDetailRepository
+                    .findByWorkSchedule_Id(schedule.getId());
+
+            schedule.setWorkScheduleDetails(details); // gán thủ công vào entity
+
+            boolean hasDetailForDate = details != null &&
+                    details.stream().anyMatch(d -> d.getDateWork().isEqual(date));
+
+            if (hasDetailForDate) {
+                workScheduleService.generateAttendanceRecords(schedule);
+            }
+        }
+    }
+
+    private void calculateShift(AttendanceRecord record) {
+        Optional<WorkScheduleDetail> optionalDetail = record.getWorkSchedule().getWorkScheduleDetails().stream()
+                .filter(detail -> detail.getDateWork().equals(record.getDate()))
+                .findFirst();
+
+        if (optionalDetail.isEmpty()) return;
+
+        WorkScheduleDetail detail = optionalDetail.get();
+        LocalTime scheduledStart = detail.getStartTime();
+        LocalTime scheduledEnd = detail.getEndTime();
+        boolean isWeekend = detail.getDateWork().getDayOfWeek().getValue() == 7;
+        boolean isHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(record.getDate());
+
+        LocalTime checkIn = record.getCheckInTime();
+        LocalTime checkOut = record.getCheckOutTime();
+
+        record.setDayShift(null);
+        record.setOtShift(null);
+        record.setWeekendShift(null);
+        record.setHolidayShift(null);
+
+        if (checkIn != null && checkOut != null && scheduledStart != null && scheduledEnd != null) {
+            LocalTime dayShiftIn = checkIn.isBefore(scheduledStart) ? scheduledStart : checkIn;
+            LocalTime dayShiftOut = checkOut.isBefore(scheduledEnd) ? checkOut : scheduledEnd;
+            LocalTime standardEnd = LocalTime.of(17, 0);
+
+            LocalTime endPoint = checkOut.isBefore(standardEnd) ? checkOut : standardEnd;
+            int startSec = dayShiftIn.toSecondOfDay();
+            int endSec = endPoint.toSecondOfDay();
+
+            int breakStart = LocalTime.of(11, 30).toSecondOfDay();
+            int breakEnd = LocalTime.of(12, 30).toSecondOfDay();
+            int overlapStart = Math.max(startSec, breakStart);
+            int overlapEnd = Math.min(endSec, breakEnd);
+            int overlap = Math.max(0, overlapEnd - overlapStart);
+
+            float shiftHours = (float) (endSec - startSec - overlap) / 3600f;
+            shiftHours = Math.max(0, shiftHours);
+
+            float overtimeHours = 0f;
+            if (checkOut.isAfter(standardEnd)) {
+                overtimeHours = (float) (dayShiftOut.toSecondOfDay() - standardEnd.toSecondOfDay()) / 3600;
+            }
+
+            if (isHoliday && isWeekend) {
+                String value = String.format("%.2f", shiftHours + overtimeHours);
+                record.setWeekendShift(value);
+                record.setHolidayShift(value);
+            } else if (isHoliday) {
+                record.setHolidayShift(String.format("%.2f", shiftHours + overtimeHours));
+            } else if (isWeekend) {
+                record.setWeekendShift(String.format("%.2f", shiftHours + overtimeHours));
+            } else {
+                if (shiftHours > 0) record.setDayShift(String.format("%.2f", shiftHours));
+                if (overtimeHours > 0) record.setOtShift(String.format("%.2f", overtimeHours));
+            }
+        }
     }
 
 

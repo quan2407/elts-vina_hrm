@@ -6,6 +6,7 @@ import sep490.com.example.hrms_backend.dto.AttendanceMonthlyViewDTO;
 import sep490.com.example.hrms_backend.dto.LeaveCodeUpdateDTO;
 import sep490.com.example.hrms_backend.dto.MonthYearDTO;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface AttendanceRecordService {
@@ -19,4 +20,6 @@ public interface AttendanceRecordService {
     void updateLeaveCode(Long id, LeaveCodeUpdateDTO dto);
 
     List<AttendanceMonthlyViewDTO> getEmpMonthlyAttendanceById(Long employeeId, int month, int year);
+    void updateDailyAttendanceForDate(LocalDate date);
+
 }
