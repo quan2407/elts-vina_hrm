@@ -3,10 +3,7 @@ package sep490.com.example.hrms_backend.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import sep490.com.example.hrms_backend.dto.EmployeeWorkScheduleDTO;
-import sep490.com.example.hrms_backend.dto.WorkScheduleCreateDTO;
-import sep490.com.example.hrms_backend.dto.WorkScheduleMonthDTO;
-import sep490.com.example.hrms_backend.dto.WorkScheduleResponseDTO;
+import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.entity.*;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.mapper.WorkScheduleMapper;
@@ -94,6 +91,112 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                 .collect(Collectors.toList());
 
     }
+    public void createCustomWorkSchedules(WorkScheduleRangeDTO dto) {
+        if (dto.getStartDate().getMonthValue() != dto.getEndDate().getMonthValue()
+                || dto.getStartDate().getYear() != dto.getEndDate().getYear()) {
+            throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Ngày bắt đầu và kết thúc phải nằm trong cùng một tháng và năm");
+        }
+
+        Department department = departmentRepository.findById(dto.getDepartmentId())
+                .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "Không tìm thấy phòng ban"));
+
+        List<Line> lines = new ArrayList<>();
+
+        if (dto.getLineId() != null) {
+            // Nếu có chuyền cụ thể
+            Line line = lineRepository.findById(dto.getLineId())
+                    .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "Không tìm thấy tổ"));
+            lines.add(line);
+        } else {
+            // Nếu không có chuyền thì kiểm tra xem phòng ban có chuyền nào không
+            lines = lineRepository.findByDepartment_DepartmentId(department.getDepartmentId());
+
+            if (lines.isEmpty()) {
+                // Phòng ban không có chuyền -> tạo lịch ở cấp phòng ban (line = null)
+                createScheduleWithoutLine(department, dto);
+                return;
+            }
+        }
+
+        // Có ít nhất 1 chuyền
+        for (Line line : lines) {
+            createScheduleForLine(department, line, dto);
+        }
+    }
+    private void createScheduleForLine(Department department, Line line, WorkScheduleRangeDTO dto) {
+        LocalDate currentDate = dto.getStartDate();
+        while (!currentDate.isAfter(dto.getEndDate())) {
+            int month = currentDate.getMonthValue();
+            int year = currentDate.getYear();
+
+            WorkSchedule schedule = workScheduleRepository
+                    .findByDepartment_DepartmentIdAndLine_LineIdAndMonthAndYear(
+                            department.getDepartmentId(), line.getLineId(), month, year)
+                    .orElseGet(() -> workScheduleRepository.save(
+                            WorkSchedule.builder()
+                                    .department(department)
+                                    .line(line)
+                                    .month(month)
+                                    .year(year)
+                                    .isDeleted(false)
+                                    .isAccepted(false)
+                                    .isSubmitted(false)
+                                    .build()
+                    ));
+
+            saveOrUpdateScheduleDetail(schedule, currentDate, dto);
+            currentDate = currentDate.plusDays(1);
+        }
+    }
+
+    private void createScheduleWithoutLine(Department department, WorkScheduleRangeDTO dto) {
+        LocalDate currentDate = dto.getStartDate();
+        while (!currentDate.isAfter(dto.getEndDate())) {
+            int month = currentDate.getMonthValue();
+            int year = currentDate.getYear();
+
+            WorkSchedule schedule = workScheduleRepository
+                    .findByDepartment_DepartmentIdAndLineIsNullAndMonthAndYear(
+                            department.getDepartmentId(), month, year)
+                    .orElseGet(() -> workScheduleRepository.save(
+                            WorkSchedule.builder()
+                                    .department(department)
+                                    .line(null)
+                                    .month(month)
+                                    .year(year)
+                                    .isDeleted(false)
+                                    .isAccepted(false)
+                                    .isSubmitted(false)
+                                    .build()
+                    ));
+
+            saveOrUpdateScheduleDetail(schedule, currentDate, dto);
+            currentDate = currentDate.plusDays(1);
+        }
+    }
+
+    private void saveOrUpdateScheduleDetail(WorkSchedule schedule, LocalDate currentDate, WorkScheduleRangeDTO dto) {
+        // Nếu đã có detail cho ngày đó, xóa đi để ghi đè
+        workScheduleDetailRepository.findByWorkSchedule_IdAndDateWork(schedule.getId(), currentDate)
+                .ifPresent(workScheduleDetailRepository::delete);
+
+        boolean isHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(currentDate);
+        boolean isWeekend = currentDate.getDayOfWeek() == DayOfWeek.SUNDAY;
+        boolean isLate = dto.getEndTime().isAfter(LocalTime.of(17, 0));
+        boolean isOvertime = isHoliday || isWeekend || isLate;
+
+        WorkScheduleDetail detail = WorkScheduleDetail.builder()
+                .dateWork(currentDate)
+                .startTime(dto.getStartTime())
+                .endTime(dto.getEndTime())
+                .isOvertime(isOvertime)
+                .workSchedule(schedule)
+                .build();
+
+        workScheduleDetailRepository.save(detail);
+    }
+
+
 
     private void generateDefaultWorkScheduleDetails(WorkSchedule workSchedule) {
         int month = workSchedule.getMonth();
