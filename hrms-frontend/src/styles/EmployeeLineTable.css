@@ -1,4 +1,4 @@
-.employee-table-wrapper {
+.employeeLine-table-wrapper {
   max-width: 100%;
   background-color: #fff;
   border-radius: 24px;
@@ -9,23 +9,20 @@
 
 }
 
-.employee-table {
+.employeeLine-table {
   min-width: 1200px;
 
 }
 
-.employee-table-header,
-.employee-table-row {
+.employeeLine-table-header,
+.employeeLine-table-row {
   display: grid;
   grid-template-columns:
     150px /* mã NV */
     150px /* tài khoản */
     180px /* họ tên */
     150px /* giới tính */
-    150px
-    150px /* ngày sinh */
     150px /* sđt */
-    150px
     150px /* vị trí */
     200px; /* tổ trưởng */
   gap: 10px;
@@ -35,7 +32,7 @@
 
 }
 
-.employee-header-cell {
+.employeeLine-header-cell {
   color: #000;
   font-size: 16px;
   font-weight: 700;
@@ -48,7 +45,7 @@
 
 }
 
-.employee-table-cell {
+.employeeLine-table-cell {
   color: #000;
   font-size: 16px;
   font-weight: 400;

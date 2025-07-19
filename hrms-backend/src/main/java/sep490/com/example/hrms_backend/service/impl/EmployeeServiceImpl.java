@@ -83,11 +83,25 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
 
     @Override
     public List<EmployeeResponseDTO> getEmployeeByLineId(Long id) {
+
         Line line = lineRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Line", "id", id));
         List<EmployeeResponseDTO> employees = line.getEmployees().stream()
                 .map(EmployeeMapper::mapToEmployeeResponseDTO)
+                .sorted((e1, e2) -> {
+
+                    if ("Tổ Trưởng".equalsIgnoreCase(e1.getPositionName()) && !"Tổ Trưởng".equalsIgnoreCase(e2.getPositionName())) {
+                        return -1;
+                    } else if (!"Tổ Trưởng".equalsIgnoreCase(e1.getPositionName()) && "Tổ Trưởng".equalsIgnoreCase(e2.getPositionName())) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                })
                 .collect(Collectors.toList());
+
+
+
         return employees;
     }
 

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import employeeService from "../services/employeeService";
-import "../styles/EmployeeTable.css";
+import "../styles/EmployeeLineTable.css";
 import { useParams } from "react-router-dom";
 import { updateLineLeader, getLineById } from "../services/linesService";
 import SuccessModal from "../components/popup/SuccessModal";
+import { jwtDecode } from "jwt-decode";
 
 function EmployeeTableInLine({ searchTerm, reloadFlag }) {
     const [employees, setEmployees] = useState([]);
@@ -13,6 +14,7 @@ function EmployeeTableInLine({ searchTerm, reloadFlag }) {
     const [showSuccess, setShowSuccess] = useState(false);
     const { id } = useParams();
     const [line, setLine] = useState([]);
+    const [userRole, setUserRole] = useState("");
 
     useEffect(() => {
         const fetchCandidates = async () => {
@@ -37,6 +39,31 @@ function EmployeeTableInLine({ searchTerm, reloadFlag }) {
     };
 
     useEffect(() => {
+        const token = localStorage.getItem('accessToken');
+
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token);
+                console.log("Decoded token:", decodedToken);
+
+                if (decodedToken.roles) {
+                    const roles = decodedToken.roles;
+
+                    if (roles.includes('ROLE_PMC')) {
+                        setUserRole('pmc');
+                    } else if (roles.includes('ROLE_HR')) {
+                        setUserRole('hr');
+                    }
+                }
+            } catch (error) {
+                console.error('Error decoding token:', error);
+                setUserRole('employee');
+            }
+        } else {
+            setUserRole('employee');
+        }
+    }, []);
+    useEffect(() => {
         fetchEmployees();
     }, [id, reloadFlag]);
 
@@ -53,6 +80,9 @@ function EmployeeTableInLine({ searchTerm, reloadFlag }) {
             setLeaderId(pendingLeaderId);
             setShowConfirm(false);
             setShowSuccess(true);
+            await fetchEmployees();
+            const updatedLine = await getLineById(id);
+            setLine(updatedLine);
         } catch (error) {
             console.error("Cập nhật tổ trưởng thất bại", error);
         }
@@ -68,43 +98,39 @@ function EmployeeTableInLine({ searchTerm, reloadFlag }) {
     );
 
     return (
-        <div className="employee-table-wrapper">
-            <div className="employee-table">
-                <div className="employee-table-header">
-                    <div className="employee-header-cell">Mã nhân viên</div>
-                    <div className="employee-header-cell">Tài khoản</div>
-                    <div className="employee-header-cell">Họ và tên</div>
-                    <div className="employee-header-cell">Giới tính</div>
-                    <div className="employee-header-cell">Ngày sinh</div>
-                    <div className="employee-header-cell">Ngày vào công ty</div>
-                    <div className="employee-header-cell">Số điện thoại</div>
-                    <div className="employee-header-cell">Phòng ban</div>
-                    <div className="employee-header-cell">Chuyền sản xuất</div>
-                    <div className="employee-header-cell">Vị trí</div>
-                    <div className="employee-header-cell">Tổ trưởng</div>
+        <div className="employeeLine-table-wrapper">
+            <div className="employeeLine-table">
+                <div className="employeeLine-table-header">
+                    <div className="employeeLine-header-cell">Mã nhân viên</div>
+                    <div className="employeeLine-header-cell">Tài khoản</div>
+                    <div className="employeeLine-header-cell">Họ và tên</div>
+                    <div className="employeeLine-header-cell">Giới tính</div>
+
+                    <div className="employeeLine-header-cell">Số điện thoại</div>
+                    <div className="employeeLine-header-cell">Vị trí</div>
+                    <div className="employeeLine-header-cell">Tổ trưởng</div>
                 </div>
 
                 {filteredEmployees.length === 0 && (
-                    <div className="employee-table-empty" style={{ color: 'red' , marginLeft: '45px'}}>Không tìm thấy nhân viên nào phù hợp.</div>
+                    <div className="employeeLine-table-empty" style={{ color: 'red', marginLeft: '45px' }}>Không tìm thấy nhân viên nào phù hợp.</div>
                 )}
 
                 {filteredEmployees.map((emp) => (
-                    <div key={emp.employeeId} className="employee-table-row">
-                        <div className="employee-table-cell">{emp.employeeCode}</div>
-                        <div className="employee-table-cell">{emp.accountUsername}</div>
-                        <div className="employee-table-cell">{emp.employeeName}</div>
-                        <div className="employee-table-cell">{emp.gender}</div>
-                        <div className="employee-table-cell">{emp.dob}</div>
-                        <div className="employee-table-cell">{emp.startWorkAt}</div>
-                        <div className="employee-table-cell">{emp.phoneNumber}</div>
-                        <div className="employee-table-cell">{emp.departmentName}</div>
-                        <div className="employee-table-cell">{emp.lineName}</div>
-                        <div className="employee-table-cell">{emp.positionName}</div>
-                        <div className="employee-table-cell">
+                    <div key={emp.employeeId} className="employeeLine-table-row">
+                        <div className="employeeLine-table-cell">{emp.employeeCode}</div>
+                        <div className="employeeLine-table-cell">{emp.accountUsername}</div>
+                        <div className="employeeLine-table-cell">{emp.employeeName}</div>
+                        <div className="employeeLine-table-cell">{emp.gender}</div>
+                        <div className="employeeLine-table-cell">{emp.phoneNumber}</div>
+
+                        <div className="employeeLine-table-cell">{emp.positionName}</div>
+                        <div className="employeeLine-table-cell">
                             <input
                                 type="checkbox"
                                 checked={emp.employeeId === leaderId}
                                 onChange={() => handleCheckboxChange(emp.employeeId)}
+                                disabled={userRole !== 'hr'}
+
                             />
                         </div>
                     </div>

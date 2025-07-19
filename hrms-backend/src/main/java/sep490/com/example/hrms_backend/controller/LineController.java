@@ -5,6 +5,7 @@ import org.apache.catalina.LifecycleState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.DepartmentDTO;
 import sep490.com.example.hrms_backend.dto.LineDTO;
@@ -28,6 +29,8 @@ public class LineController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('HR', 'PMC')")
+
     public ResponseEntity<?> getLine(@RequestParam(required = false) String search) {
         List<LinePMCDto> linePMCDtoList = lineService.getAllLine(search);
         return new ResponseEntity<>(linePMCDtoList, HttpStatus.OK);

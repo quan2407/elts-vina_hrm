@@ -131,7 +131,7 @@
                 }
             }
 
-            public InterviewScheduleDTO editInterview(Long id, @Valid InterviewScheduleDTO interviewScheduleDTO) {
+            public InterviewScheduleDTO editInterview(Long id, InterviewScheduleDTO interviewScheduleDTO) {
                 InterviewSchedule interviewSchedule = interviewScheduleRepository.findById(id).orElse(null);
 
                 LocalDateTime oldTime = interviewSchedule.getScheduledAt();

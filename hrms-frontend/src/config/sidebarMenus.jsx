@@ -88,6 +88,16 @@ export const hrMenus = [
     ),
   },
   {
+    text: "Danh sách line",
+    path: "/line-management",
+    icon: (isActive) => (
+      <Rows4
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+  {
     text: "Quản lý phúc lợi ",
     path: "/benefit",
     icon: (isActive) => (
@@ -132,7 +142,7 @@ export const hrMenus = [
     text: "Bảng lương tháng",
     path: "/salary-monthly",
     icon: (isActive) => (
-      <Wallet 
+      <Wallet
         size={20}
         stroke={isActive ? "#4f46e5" : "white"}
       />
@@ -154,7 +164,7 @@ export const pmcMenus = [
     text: "Danh sách line",
     path: "/line-management",
     icon: (isActive) => (
-      <Rows4 
+      <Rows4
         size={20}
         stroke={isActive ? "#4f46e5" : "white"}
       />
@@ -162,7 +172,18 @@ export const pmcMenus = [
   }
 ];
 export const lineLeaderMenus = [];
-export const productionManagerMenus = [];
+export const productionManagerMenus = [
+  {
+    text: "Lịch làm việc",
+    path: "/work-schedule-production",
+    icon: (isActive) => (
+      <CalendarCheck
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  }
+];
 export const canteenMenus = [];
 export const employeeMenus = [
   {
@@ -190,7 +211,7 @@ export const employeeMenus = [
     text: "Bảng lương tháng",
     path: "/my-salary-monthly",
     icon: (isActive) => (
-      <Wallet 
+      <Wallet
         size={20}
         stroke={isActive ? "#4f46e5" : "white"}
       />
