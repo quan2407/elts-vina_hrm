@@ -26,6 +26,17 @@ const AttendanceMonthlyView = () => {
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
+  const today = new Date();
+
+  const isBeforeYesterday = (date) => {
+    const d1 = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const d2 = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() - 1
+    );
+    return d1 <= d2;
+  };
 
   const handleOpenLeaveModal = (recordId, dateStr, cellMeta) => {
     setLeaveRecordId(recordId);
@@ -288,9 +299,9 @@ const AttendanceMonthlyView = () => {
                 <th rowSpan="2">Xác nhận</th>
               </tr>
               <tr>
-                {[...Array(daysInMonth)].map((_, i) => (
-                  <th key={i + 1}>{i + 1}</th>
-                ))}
+                {[...Array(daysInMonth)].map((_, i) => {
+                  return <th key={i + 1}>{i + 1}</th>;
+                })}
               </tr>
             </thead>
             <tbody>
@@ -310,6 +321,7 @@ const AttendanceMonthlyView = () => {
                     <td>{type.label}</td>
                     {Array.from({ length: daysInMonth }, (_, d) => {
                       const day = (d + 1).toString();
+                      const dayDate = new Date(year, month - 1, d + 1);
                       const cell = emp.attendanceByDate[day] || {};
 
                       if (type.key === "checkInOut") {
@@ -334,35 +346,40 @@ const AttendanceMonthlyView = () => {
                               )}
 
                               <div className="attendance-buttons">
-                                <button
-                                  className="attendance-action-btn edit"
-                                  onClick={() =>
-                                    handleOpenModal(emp, day, cell)
-                                  }
-                                  title="Chỉnh sửa giờ vào/ra"
-                                >
-                                  <Pencil size={14} />
-                                </button>
-                                <button
-                                  className="attendance-action-btn leave"
-                                  onClick={() =>
-                                    handleOpenLeaveModal(
-                                      cell.attendanceRecordId,
-                                      `${year}-${String(month).padStart(
-                                        2,
-                                        "0"
-                                      )}-${String(day).padStart(2, "0")}`,
-                                      {
-                                        holidayFlag: cell.holidayFlag,
-                                        weekendFlag: cell.weekendFlag,
-                                        hasOt: parseFloat(cell.overtime) > 0,
+                                {isBeforeYesterday(dayDate) && (
+                                  <>
+                                    <button
+                                      className="attendance-action-btn edit"
+                                      onClick={() =>
+                                        handleOpenModal(emp, day, cell)
                                       }
-                                    )
-                                  }
-                                  title="Chọn loại nghỉ phép"
-                                >
-                                  🛏️
-                                </button>
+                                      title="Chỉnh sửa giờ vào/ra"
+                                    >
+                                      <Pencil size={14} />
+                                    </button>
+                                    <button
+                                      className="attendance-action-btn leave"
+                                      onClick={() =>
+                                        handleOpenLeaveModal(
+                                          cell.attendanceRecordId,
+                                          `${year}-${String(month).padStart(
+                                            2,
+                                            "0"
+                                          )}-${String(day).padStart(2, "0")}`,
+                                          {
+                                            holidayFlag: cell.holidayFlag,
+                                            weekendFlag: cell.weekendFlag,
+                                            hasOt:
+                                              parseFloat(cell.overtime) > 0,
+                                          }
+                                        )
+                                      }
+                                      title="Chọn loại nghỉ phép"
+                                    >
+                                      🛏️
+                                    </button>
+                                  </>
+                                )}
                               </div>
                             </td>
                           );
