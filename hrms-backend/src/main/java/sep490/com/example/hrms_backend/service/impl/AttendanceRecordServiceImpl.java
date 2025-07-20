@@ -275,12 +275,10 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         int month = date.getMonthValue();
         int year = date.getYear();
 
-        // Chỉ lấy lịch đã được duyệt
         List<WorkSchedule> acceptedSchedules = workScheduleRepository
                 .findByMonthAndYearAndIsAcceptedTrue(month, year);
 
         for (WorkSchedule schedule : acceptedSchedules) {
-            // ✅ Ép load chi tiết trước khi xử lý (tránh lazy)
             List<WorkScheduleDetail> details = workScheduleDetailRepository
                     .findByWorkSchedule_Id(schedule.getId());
 

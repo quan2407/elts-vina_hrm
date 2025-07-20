@@ -1,8 +1,12 @@
 package sep490.com.example.hrms_backend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
+import sep490.com.example.hrms_backend.enums.HalfDayType;
+import sep490.com.example.hrms_backend.enums.LeaveCode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -50,6 +54,16 @@ public class Application {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "leave_code")
+    private LeaveCode leaveCode;
+
+    @Column(name = "is_half_day")
+    private Boolean isHalfDay;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "half_day_type")
+    private HalfDayType halfDayType;
 
     @ManyToOne
     @JoinColumn(name = "employee_id")
@@ -63,4 +77,8 @@ public class Application {
 
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ApplicationApprovalStep> approvalSteps;
+
+    @Column(name = "attachment_path")
+    private String attachmentPath;
+
 }

@@ -316,6 +316,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                         .otShift(otShiftStr)
                         .weekendShift(weekendStr)
                         .holidayShift(holidayStr)
+                        .leaveDaysRemaining(1.0f)
                         .build();
 
                 records.add(record);
