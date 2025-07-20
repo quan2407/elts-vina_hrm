@@ -231,17 +231,6 @@ const AttendanceMonthlyView = () => {
               <div className="leave-code-columns">
                 <ul>
                   <li>
-                    <strong>NL</strong>: Nghỉ nguyên lương
-                  </li>
-                  <li>
-                    <strong>VPHĐ</strong>: Nghỉ vi phạm HĐ
-                  </li>
-                  <li>
-                    <strong>VR</strong>: Nghỉ việc riêng
-                  </li>
-                </ul>
-                <ul>
-                  <li>
                     <strong>KL</strong>: Nghỉ không lương
                   </li>
                   <li>
@@ -259,23 +248,12 @@ const AttendanceMonthlyView = () => {
                     <strong>P</strong>: Nghỉ phép
                   </li>
                   <li>
-                    <strong>P_4</strong>: Nghỉ phép nửa ngày
+                    <strong>P_2</strong>: Nghỉ phép nửa ngày
                   </li>
                 </ul>
                 <ul>
                   <li>
                     <strong>NTS</strong>: Nghỉ thai sản
-                  </li>
-                  <li>
-                    <strong>NDB</strong>: Dịch bệnh hưởng công nguyên ngày
-                  </li>
-                  <li>
-                    <strong>NDB_4</strong>: Dịch bệnh hưởng công 4h
-                  </li>
-                </ul>
-                <ul>
-                  <li>
-                    <strong>NDB_1_5</strong>: Dịch bệnh hưởng công 1.5h
                   </li>
                 </ul>
               </div>

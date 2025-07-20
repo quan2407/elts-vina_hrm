@@ -58,20 +58,7 @@ const LeaveCodeModal = ({
             onChange={(e) => setLeaveCode(e.target.value)}
           >
             <option value="">-- Chọn mã --</option>
-            {[
-              "NL",
-              "VPHĐ",
-              "KL",
-              "KH",
-              "CKH",
-              "NT",
-              "P",
-              "P_4",
-              "NTS",
-              "NDB",
-              "NDB_4",
-              "NDB_1_5",
-            ].map((code) => (
+            {["KL", "KH", "CKH", "NT", "P", "P_2", "NTS"].map((code) => (
               <option
                 key={code}
                 value={code}
