@@ -47,6 +47,9 @@ const workScheduleService = {
       params: { month, year, reason },
     });
   },
+  createCustomWorkSchedule: (payload) => {
+    return axiosClient.put("/work-schedules/custom-range", payload);
+  },
 };
 
 export default workScheduleService;
