@@ -189,10 +189,9 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
             try {
                 LeaveCode code = LeaveCode.valueOf(value);
                 return switch (code) {
-                    case NL, P,NTS,CKH,KH,NT,NDB -> 8f;
-                    case P_4, NDB_4 -> 4f;
-                    case NDB_1_5 -> 1.5f;
-                    case VPHĐ, KL,VR-> 0f;
+                    case P,NTS,CKH,KH,NT -> 8f;
+                    case P_2 -> 4f;
+                    case KL -> 0f;
                 };
             } catch (IllegalArgumentException ex) {
                 return 0f;
