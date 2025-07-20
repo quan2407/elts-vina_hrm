@@ -43,7 +43,7 @@ import EmpSalaryView from "./pages/EmployeeSalaryView.jsx";
 import HolidayManagement from "./pages/HolidayManagement";
 import AccountRequestPage from "./pages/AccountRequestPage.jsx";
 import EmployeeInLineHr from "./pages/EmployeeInLineHr.jsx";
-
+import ApplicationCreate from "./pages/ApplicationCreate";
 function App() {
   return (
     <ConfigProvider>
@@ -375,7 +375,10 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
+            <Route
+              path="/create-application"
+              element={<ApplicationCreate />}
+            />
           </Routes>
         </Router>
       </AntdApp>
