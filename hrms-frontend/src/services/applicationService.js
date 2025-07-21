@@ -8,6 +8,9 @@ const applicationService = {
       },
     });
   },
+  getMyApplications: (page = 0, size = 10) => {
+    return axiosClient.get(`/applications/me?page=${page}&size=${size}`);
+  },
 };
 
 export default applicationService;

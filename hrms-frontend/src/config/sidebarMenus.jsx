@@ -9,7 +9,7 @@ import {
   Gift,
   CalendarCheck,
   Rows4,
-  Wallet
+  Wallet,
 } from "lucide-react";
 
 export const systemMenus = [
@@ -169,7 +169,7 @@ export const pmcMenus = [
         stroke={isActive ? "#4f46e5" : "white"}
       />
     ),
-  }
+  },
 ];
 export const lineLeaderMenus = [];
 export const productionManagerMenus = [
@@ -182,7 +182,7 @@ export const productionManagerMenus = [
         stroke={isActive ? "#4f46e5" : "white"}
       />
     ),
-  }
+  },
 ];
 export const canteenMenus = [];
 export const employeeMenus = [
@@ -205,8 +205,7 @@ export const employeeMenus = [
         stroke={isActive ? "#4f46e5" : "white"}
       />
     ),
-  }
-  ,
+  },
   {
     text: "Bảng lương tháng",
     path: "/my-salary-monthly",
@@ -216,5 +215,15 @@ export const employeeMenus = [
         stroke={isActive ? "#4f46e5" : "white"}
       />
     ),
-  }
+  },
+  {
+    text: "Đơn từ của tôi",
+    path: "/my-applications",
+    icon: (isActive) => (
+      <Briefcase
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
 ];

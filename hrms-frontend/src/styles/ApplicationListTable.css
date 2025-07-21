@@ -1,0 +1,81 @@
+.application-list-wrapper {
+  max-width: 100%;
+  background-color: #fff;
+  border-radius: 24px;
+  padding: 20px;
+  font-family: "Product Sans", sans-serif;
+  overflow-x: auto;
+}
+
+.application-list-table {
+  min-width: 900px;
+}
+
+.application-list-header,
+.application-list-row {
+  display: grid;
+  grid-template-columns: 250px 150px 150px 200px 150px;
+  gap: 10px;
+  padding: 12px 20px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+}
+
+.application-header-cell {
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  word-break: break-word;
+}
+
+.application-list-cell {
+  font-size: 16px;
+  text-align: center;
+  word-break: break-word;
+}
+.application-list-page-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+}
+
+.application-list-page-btn.active {
+  background-color: #4f46e5;
+  color: white;
+  font-weight: 600;
+}
+.application-list-pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1.5rem;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.application-list-pagination-btn {
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  background-color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  min-width: 36px;
+  line-height: 1.2;
+  color: #111;
+  font-weight: 500;
+}
+
+.application-list-pagination-btn:disabled {
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+.application-list-pagination-active {
+  background-color: #3b82f6;
+  color: white;
+  font-weight: bold;
+  border-color: #3b82f6;
+}

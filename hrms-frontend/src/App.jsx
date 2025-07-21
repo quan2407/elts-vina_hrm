@@ -44,6 +44,7 @@ import HolidayManagement from "./pages/HolidayManagement";
 import AccountRequestPage from "./pages/AccountRequestPage.jsx";
 import EmployeeInLineHr from "./pages/EmployeeInLineHr.jsx";
 import ApplicationCreate from "./pages/ApplicationCreate";
+import ApplicationListPage from "./pages/ApplicationListPage.jsx";
 function App() {
   return (
     <ConfigProvider>
@@ -73,6 +74,11 @@ function App() {
               path="/jobs/:id"
               element={<JobDetail />}
             />
+            <Route
+              path="/my-applications"
+              element={<ApplicationListPage />}
+            />
+
             <Route
               path="/applyjob/:id"
               element={<ApplyJob />}
