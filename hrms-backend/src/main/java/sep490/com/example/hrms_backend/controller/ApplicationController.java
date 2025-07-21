@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sep490.com.example.hrms_backend.dto.ApplicationCreateDTO;
+import sep490.com.example.hrms_backend.dto.ApplicationDetailDTO;
 import sep490.com.example.hrms_backend.dto.ApplicationListItemDTO;
 import sep490.com.example.hrms_backend.enums.ApplicationStatus;
 import sep490.com.example.hrms_backend.service.ApplicationService;
@@ -59,7 +60,7 @@ public class ApplicationController {
         Long employeeId = currentUserUtils.getCurrentEmployeeId();
         Page<ApplicationListItemDTO> apps = applicationService.getApplicationsForEmployee(
                 employeeId,
-                status, // có thể null
+                status,
                 PageRequest.of(page, size)
         );
         return ResponseEntity.ok(apps);
@@ -77,4 +78,11 @@ public class ApplicationController {
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         return uploadDir + "/" + filename;
     }
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PMC','PRODUCTION_MANAGER','EMPLOYEE')")
+    public ResponseEntity<ApplicationDetailDTO> getApplicationDetail(@PathVariable Long id) {
+        ApplicationDetailDTO dto = applicationService.getApplicationDetail(id);
+        return ResponseEntity.ok(dto);
+    }
+
 }

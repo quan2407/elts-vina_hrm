@@ -6,14 +6,23 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.ApplicationCreateDTO;
+import sep490.com.example.hrms_backend.dto.ApplicationDetailDTO;
 import sep490.com.example.hrms_backend.dto.ApplicationListItemDTO;
-import sep490.com.example.hrms_backend.entity.*;
+import sep490.com.example.hrms_backend.dto.ApprovalStepDTO;
+import sep490.com.example.hrms_backend.entity.Application;
+import sep490.com.example.hrms_backend.entity.ApplicationApprovalStep;
+import sep490.com.example.hrms_backend.entity.ApplicationType;
+import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.enums.ApplicationStatus;
 import sep490.com.example.hrms_backend.enums.ApprovalStepStatus;
-import sep490.com.example.hrms_backend.repository.*;
+import sep490.com.example.hrms_backend.repository.ApplicationApprovalStepRepository;
+import sep490.com.example.hrms_backend.repository.ApplicationRepository;
+import sep490.com.example.hrms_backend.repository.ApplicationTypeRepository;
+import sep490.com.example.hrms_backend.repository.EmployeeRepository;
 import sep490.com.example.hrms_backend.service.ApplicationService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -99,4 +108,36 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .applicationTypeName(app.getApplicationType().getName())
                 .build();
     }
+    @Override
+    public ApplicationDetailDTO getApplicationDetail(Long id) {
+        Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
+
+        List<ApprovalStepDTO> stepDTOs = application.getApprovalSteps().stream()
+                .map(step -> ApprovalStepDTO.builder()
+                        .step(step.getStep())
+                        .approverName(step.getApprover() != null ? step.getApprover().getEmployeeName() : null)
+                        .status(step.getStatus())
+                        .note(step.getNote())
+                        .approvedAt(step.getApprovedAt())
+                        .build())
+                .collect(Collectors.toList());
+
+        return ApplicationDetailDTO.builder()
+                .id(application.getId())
+                .title(application.getTitle())
+                .content(application.getContent())
+                .startDate(application.getStartDate())
+                .endDate(application.getEndDate())
+                .applicationTypeName(application.getApplicationType().getName())
+                .status(application.getStatus())
+                .statusLabel(application.getStatus().getLabel())
+                .createdAt(application.getCreatedAt())
+                .updatedAt(application.getUpdatedAt())
+                .attachmentPath(application.getAttachmentPath())
+                .rejectReason(application.getRejectReason())
+                .approvalSteps(stepDTOs)
+                .build();
+    }
+
 }
