@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
+import sep490.com.example.hrms_backend.enums.ApplicationStatus;
 import sep490.com.example.hrms_backend.enums.HalfDayType;
 import sep490.com.example.hrms_backend.enums.LeaveCode;
 
@@ -42,9 +43,10 @@ public class Application {
     @Column(name = "end_date")
     private LocalDate endDate;
 
-    @NotBlank
-    @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private ApplicationStatus status;
+
 
     @PastOrPresent
     @Column(name = "created_at")
@@ -80,5 +82,7 @@ public class Application {
 
     @Column(name = "attachment_path")
     private String attachmentPath;
+    @Column(name = "reject_reason")
+    private String rejectReason;
 
 }

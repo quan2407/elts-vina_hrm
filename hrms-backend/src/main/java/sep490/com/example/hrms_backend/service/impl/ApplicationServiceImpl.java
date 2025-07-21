@@ -7,6 +7,8 @@ import sep490.com.example.hrms_backend.entity.Application;
 import sep490.com.example.hrms_backend.entity.ApplicationApprovalStep;
 import sep490.com.example.hrms_backend.entity.ApplicationType;
 import sep490.com.example.hrms_backend.entity.Employee;
+import sep490.com.example.hrms_backend.enums.ApplicationStatus;
+import sep490.com.example.hrms_backend.enums.ApprovalStepStatus;
 import sep490.com.example.hrms_backend.repository.ApplicationApprovalStepRepository;
 import sep490.com.example.hrms_backend.repository.ApplicationRepository;
 import sep490.com.example.hrms_backend.repository.ApplicationTypeRepository;
@@ -47,7 +49,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .applicationType(type)
                 .employee(employee)
                 .attachmentPath(dto.getAttachmentPath())
-                .status("PENDING")
+                .status(ApplicationStatus.PENDING_MANAGER_APPROVAL)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -62,8 +64,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .application(application)
                 .approver(null)
                 .step(1)
-                .status("PENDING")
+                .status(ApprovalStepStatus.PENDING)
                 .build();
     }
-
 }
