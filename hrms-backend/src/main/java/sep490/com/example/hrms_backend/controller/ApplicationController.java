@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sep490.com.example.hrms_backend.dto.ApplicationCreateDTO;
 import sep490.com.example.hrms_backend.dto.ApplicationListItemDTO;
+import sep490.com.example.hrms_backend.enums.ApplicationStatus;
 import sep490.com.example.hrms_backend.service.ApplicationService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
@@ -51,12 +52,14 @@ public class ApplicationController {
     @GetMapping("/me")
     @PreAuthorize("hasAnyRole('ADMIN', 'PMC','PRODUCTION_MANAGER','EMPLOYEE')")
     public ResponseEntity<Page<ApplicationListItemDTO>> getMyApplications(
+            @RequestParam(value = "status", required = false) ApplicationStatus status,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
     ) {
         Long employeeId = currentUserUtils.getCurrentEmployeeId();
         Page<ApplicationListItemDTO> apps = applicationService.getApplicationsForEmployee(
                 employeeId,
+                status, // có thể null
                 PageRequest.of(page, size)
         );
         return ResponseEntity.ok(apps);

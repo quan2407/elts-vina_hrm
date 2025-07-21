@@ -68,8 +68,14 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public Page<ApplicationListItemDTO> getApplicationsForEmployee(Long employeeId, Pageable pageable) {
-        Page<Application> applications = applicationRepository.findByEmployee_EmployeeId(employeeId, pageable);
+    public Page<ApplicationListItemDTO> getApplicationsForEmployee(Long employeeId, ApplicationStatus status, Pageable pageable) {
+        Page<Application> applications;
+
+        if (status != null) {
+            applications = applicationRepository.findByEmployee_EmployeeIdAndStatus(employeeId, status, pageable);
+        } else {
+            applications = applicationRepository.findByEmployee_EmployeeId(employeeId, pageable);
+        }
 
         return new PageImpl<>(
                 applications.getContent().stream().map(this::toListItemDTO).collect(Collectors.toList()),
@@ -77,6 +83,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 applications.getTotalElements()
         );
     }
+
 
 
     private ApplicationListItemDTO toListItemDTO(Application app) {
