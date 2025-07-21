@@ -1,21 +1,20 @@
 package sep490.com.example.hrms_backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.ApplicationCreateDTO;
-import sep490.com.example.hrms_backend.entity.Application;
-import sep490.com.example.hrms_backend.entity.ApplicationApprovalStep;
-import sep490.com.example.hrms_backend.entity.ApplicationType;
-import sep490.com.example.hrms_backend.entity.Employee;
+import sep490.com.example.hrms_backend.dto.ApplicationListItemDTO;
+import sep490.com.example.hrms_backend.entity.*;
 import sep490.com.example.hrms_backend.enums.ApplicationStatus;
 import sep490.com.example.hrms_backend.enums.ApprovalStepStatus;
-import sep490.com.example.hrms_backend.repository.ApplicationApprovalStepRepository;
-import sep490.com.example.hrms_backend.repository.ApplicationRepository;
-import sep490.com.example.hrms_backend.repository.ApplicationTypeRepository;
-import sep490.com.example.hrms_backend.repository.EmployeeRepository;
+import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.ApplicationService;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -65,6 +64,32 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .approver(null)
                 .step(1)
                 .status(ApprovalStepStatus.PENDING)
+                .build();
+    }
+
+    @Override
+    public Page<ApplicationListItemDTO> getApplicationsForEmployee(Long employeeId, Pageable pageable) {
+        Page<Application> applications = applicationRepository.findByEmployee_EmployeeId(employeeId, pageable);
+
+        return new PageImpl<>(
+                applications.getContent().stream().map(this::toListItemDTO).collect(Collectors.toList()),
+                pageable,
+                applications.getTotalElements()
+        );
+    }
+
+
+    private ApplicationListItemDTO toListItemDTO(Application app) {
+        return ApplicationListItemDTO.builder()
+                .id(app.getId())
+                .title(app.getTitle())
+                .content(app.getContent())
+                .startDate(app.getStartDate())
+                .endDate(app.getEndDate())
+                .status(app.getStatus())
+                .statusLabel(app.getStatus().getLabel())
+                .createdAt(app.getCreatedAt())
+                .applicationTypeName(app.getApplicationType().getName())
                 .build();
     }
 }

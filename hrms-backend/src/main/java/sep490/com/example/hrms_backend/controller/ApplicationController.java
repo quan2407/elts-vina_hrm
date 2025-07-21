@@ -1,12 +1,15 @@
 package sep490.com.example.hrms_backend.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sep490.com.example.hrms_backend.dto.ApplicationCreateDTO;
+import sep490.com.example.hrms_backend.dto.ApplicationListItemDTO;
 import sep490.com.example.hrms_backend.service.ApplicationService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
@@ -44,6 +47,21 @@ public class ApplicationController {
         applicationService.createApplication(dto, employeeId);
         return ResponseEntity.ok("Application created successfully");
     }
+
+    @GetMapping("/me")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PMC','PRODUCTION_MANAGER','EMPLOYEE')")
+    public ResponseEntity<Page<ApplicationListItemDTO>> getMyApplications(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        Long employeeId = currentUserUtils.getCurrentEmployeeId();
+        Page<ApplicationListItemDTO> apps = applicationService.getApplicationsForEmployee(
+                employeeId,
+                PageRequest.of(page, size)
+        );
+        return ResponseEntity.ok(apps);
+    }
+
     public String saveFile(MultipartFile file) throws IOException {
         String uploadDir = "uploads/applications";
         Path uploadPath = Paths.get(uploadDir);
@@ -56,5 +74,4 @@ public class ApplicationController {
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         return uploadDir + "/" + filename;
     }
-
 }
