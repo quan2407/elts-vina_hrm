@@ -4,20 +4,31 @@ import applicationService from "../services/applicationService";
 import MainLayout from "../components/MainLayout";
 import "../styles/ApplicationListTable.css";
 
+const STATUS_FILTERS = [
+  { label: "Tất cả", value: null },
+  { label: "Chờ quản lý duyệt", value: "PENDING_MANAGER_APPROVAL" },
+  { label: "Quản lý duyệt", value: "MANAGER_APPROVED" },
+  { label: "Quản lý từ chối", value: "MANAGER_REJECTED" },
+  { label: "HR duyệt", value: "HR_APPROVED" },
+  { label: "HR từ chối", value: "HR_REJECTED" },
+  { label: "Đã hủy", value: "CANCELLED_BY_EMPLOYEE" },
+];
+
 function ApplicationListPage() {
   const [applications, setApplications] = useState([]);
   const [page, setPage] = useState(0);
   const size = 10;
   const [totalPages, setTotalPages] = useState(0);
+  const [selectedStatus, setSelectedStatus] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchApplications();
-  }, [page]);
+  }, [page, selectedStatus]);
 
   const fetchApplications = () => {
     applicationService
-      .getMyApplications(page, size)
+      .getMyApplications(page, size, selectedStatus)
       .then((res) => {
         setApplications(res.data.content);
         setTotalPages(res.data.totalPages);
@@ -47,9 +58,22 @@ function ApplicationListPage() {
 
   return (
     <MainLayout>
-      <div className="content-wrapper">
-        <div className="page-header">
-          <h1 className="page-title">Danh sách đơn đã gửi</h1>
+      <div className="application-layout-container">
+        <div className="application-status-sidebar">
+          {STATUS_FILTERS.map((item) => (
+            <button
+              key={item.label}
+              className={`application-filter-btn ${
+                selectedStatus === item.value ? "active" : ""
+              }`}
+              onClick={() => {
+                setSelectedStatus(item.value);
+                setPage(0);
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
         </div>
 
         <div className="application-list-wrapper">
@@ -95,7 +119,6 @@ function ApplicationListPage() {
             >
               ‹
             </button>
-
             {getPageNumbers().map((p) => (
               <button
                 key={p}
@@ -107,7 +130,6 @@ function ApplicationListPage() {
                 {p + 1}
               </button>
             ))}
-
             <button
               className="application-list-pagination-btn"
               onClick={() => setPage(page + 1)}

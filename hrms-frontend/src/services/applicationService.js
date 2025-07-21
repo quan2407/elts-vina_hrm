@@ -8,8 +8,11 @@ const applicationService = {
       },
     });
   },
-  getMyApplications: (page = 0, size = 10) => {
-    return axiosClient.get(`/applications/me?page=${page}&size=${size}`);
+  getMyApplications: (page = 0, size = 10, status = null) => {
+    const url = status
+      ? `/applications/me?page=${page}&size=${size}&status=${status}`
+      : `/applications/me?page=${page}&size=${size}`;
+    return axiosClient.get(url);
   },
 };
 
