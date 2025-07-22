@@ -44,6 +44,7 @@ import HolidayManagement from "./pages/HolidayManagement";
 import AccountRequestPage from "./pages/AccountRequestPage.jsx";
 import EmployeeInLineHr from "./pages/EmployeeInLineHr.jsx";
 import ApplicationCreate from "./pages/ApplicationCreate";
+import ApplicationDetail from "./pages/ApplicationDetail";
 import ApplicationListPage from "./pages/ApplicationListPage.jsx";
 function App() {
   return (
@@ -88,6 +89,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
                   <AccountRequestPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/applications/:id"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_EMPLOYEE"]}>
+                  <ApplicationDetail />
                 </ProtectedRoute>
               }
             />

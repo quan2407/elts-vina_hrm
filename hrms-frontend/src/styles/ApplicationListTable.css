@@ -61,7 +61,7 @@
 .application-list-header,
 .application-list-row {
   display: grid;
-  grid-template-columns: 250px 150px 150px 200px 150px;
+  grid-template-columns: 250px 150px 150px 200px 150px 200px;
   gap: 10px;
   padding: 12px 20px;
   margin-bottom: 10px;
@@ -115,4 +115,23 @@
   color: white;
   font-weight: bold;
   border-color: #3b82f6;
+}
+.application-list-action-button {
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+}
+
+.application-list-view-button {
+  background-color: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.application-list-cancel-button {
+  background-color: #ef4444;
+  color: white;
+  border-color: #ef4444;
 }

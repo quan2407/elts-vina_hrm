@@ -39,8 +39,18 @@ function ApplicationListPage() {
       });
   };
 
-  const handleRowClick = (id) => {
-    navigate(`/applications/${id}`);
+  const handleCancel = async (id) => {
+    const confirm = window.confirm("Bạn chắc chắn muốn hủy đơn này?");
+    if (!confirm) return;
+
+    try {
+      await applicationService.cancelApplication(id);
+      alert("Hủy đơn thành công.");
+      fetchApplications();
+    } catch (err) {
+      console.error("Lỗi khi hủy đơn", err);
+      alert("Không thể hủy đơn.");
+    }
   };
 
   const getPageNumbers = () => {
@@ -84,14 +94,13 @@ function ApplicationListPage() {
               <div className="application-header-cell">Đến ngày</div>
               <div className="application-header-cell">Loại đơn</div>
               <div className="application-header-cell">Trạng thái</div>
+              <div className="application-header-cell">Hành động</div>
             </div>
 
             {applications.map((app) => (
               <div
                 key={app.id}
                 className="application-list-row"
-                onClick={() => handleRowClick(app.id)}
-                style={{ cursor: "pointer" }}
               >
                 <div className="application-list-cell">{app.title}</div>
                 <div className="application-list-cell">{app.startDate}</div>
@@ -100,6 +109,23 @@ function ApplicationListPage() {
                   {app.applicationTypeName}
                 </div>
                 <div className="application-list-cell">{app.statusLabel}</div>
+                <div className="application-list-cell">
+                  <button
+                    onClick={() => navigate(`/applications/${app.id}`)}
+                    className="application-list-action-button application-list-view-button"
+                  >
+                    Xem
+                  </button>
+                  {app.status === "PENDING_MANAGER_APPROVAL" && (
+                    <button
+                      onClick={() => handleCancel(app.id)}
+                      className="application-list-action-button application-list-cancel-button"
+                      style={{ marginLeft: "8px" }}
+                    >
+                      Hủy
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>

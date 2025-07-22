@@ -14,6 +14,19 @@ const applicationService = {
       : `/applications/me?page=${page}&size=${size}`;
     return axiosClient.get(url);
   },
+  getApplicationDetail: (id) => {
+    return axiosClient.get(`/applications/${id}`);
+  },
+  cancelApplication: (id) => {
+    return axiosClient.post(`/applications/${id}/cancel`);
+  },
+  updateApplication: (id, formData) => {
+    return axiosClient.put(`/applications/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  },
 };
 
 export default applicationService;
