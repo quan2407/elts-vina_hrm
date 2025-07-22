@@ -11,6 +11,7 @@ import sep490.com.example.hrms_backend.enums.LeaveCode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -71,6 +72,11 @@ public class Application {
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
+    @Column(name = "check_in")
+    private LocalTime checkIn;
+
+    @Column(name = "check_out")
+    private LocalTime checkOut;
 
     @ManyToOne
     @JoinColumn(name = "application_type_id")

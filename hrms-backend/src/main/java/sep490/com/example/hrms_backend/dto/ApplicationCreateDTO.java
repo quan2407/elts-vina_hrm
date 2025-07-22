@@ -6,6 +6,7 @@ import sep490.com.example.hrms_backend.enums.HalfDayType;
 import sep490.com.example.hrms_backend.enums.LeaveCode;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -23,6 +24,8 @@ public class ApplicationCreateDTO {
     private LeaveCode leaveCode;
     private Boolean isHalfDay;
     private HalfDayType halfDayType;
+    private LocalTime checkIn;
+    private LocalTime checkOut;
     private Long applicationTypeId;
     private String attachmentPath;
 }

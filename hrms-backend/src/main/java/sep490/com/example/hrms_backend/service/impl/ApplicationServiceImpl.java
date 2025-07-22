@@ -58,6 +58,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .applicationType(type)
                 .employee(employee)
                 .attachmentPath(dto.getAttachmentPath())
+                .checkIn(dto.getCheckIn())
+                .checkOut(dto.getCheckOut())
                 .status(ApplicationStatus.PENDING_MANAGER_APPROVAL)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
@@ -144,6 +146,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .leaveCode(application.getLeaveCode() != null ? application.getLeaveCode().name() : null)
                 .isHalfDay(application.getIsHalfDay())
                 .halfDayType(application.getHalfDayType() != null ? application.getHalfDayType().name() : null)
+                .checkIn(application.getCheckIn())
+                .checkOut(application.getCheckOut())
                 .employeeId(String.valueOf(emp.getEmployeeId()))
                 .employeeCode(emp.getEmployeeCode())
                 .employeeName(emp.getEmployeeName())
@@ -188,6 +192,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setAttachmentPath(dto.getAttachmentPath());
         application.setApplicationType(type);
         application.setUpdatedAt(LocalDateTime.now());
+        application.setCheckIn(dto.getCheckIn());
+        application.setCheckOut(dto.getCheckOut());
 
         applicationRepository.save(application);
     }

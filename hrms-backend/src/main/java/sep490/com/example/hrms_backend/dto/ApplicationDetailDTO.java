@@ -6,6 +6,7 @@ import sep490.com.example.hrms_backend.enums.ApplicationStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Data
@@ -33,6 +34,9 @@ public class ApplicationDetailDTO {
     private String leaveCode;
     private Boolean isHalfDay;
     private String halfDayType;
+    private LocalTime checkIn;
+    private LocalTime checkOut;
+
     private List<ApprovalStepDTO> approvalSteps;
     private boolean isCreator;
 
