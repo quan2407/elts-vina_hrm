@@ -30,7 +30,7 @@ function ApplicationCreate() {
     try {
       await applicationService.createApplication(formData);
       alert("Tạo đơn thành công!");
-      navigate("/applications/my-applications");
+      navigate("/my-applications");
     } catch (err) {
       console.error("Lỗi tạo đơn:", err);
       alert("Có lỗi xảy ra khi tạo đơn.");

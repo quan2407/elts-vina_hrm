@@ -17,5 +17,5 @@ public interface ApplicationService {
 
     void approveStep1(Long id, Long approverId, ApplicationApprovalRequestDTO request);
 
-    Page<ApplicationApprovalListItemDTO> getStep1Applications(Long approverId, ApplicationStatus status, PageRequest of);
+    Page<ApplicationApprovalListItemDTO> getStep1Applications(ApplicationStatus status, PageRequest of);
 }

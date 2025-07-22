@@ -12,4 +12,8 @@ public interface ApplicationApprovalStepRepository extends JpaRepository<Applica
     Page<ApplicationApprovalStep> findByStepAndApprover_EmployeeIdAndStatus(int i, Long approverId, ApprovalStepStatus stepStatus, PageRequest of);
 
     Page<ApplicationApprovalStep> findByStepAndApprover_EmployeeId(int i, Long approverId, PageRequest of);
+    Page<ApplicationApprovalStep> findByStepAndStatus(int step, ApprovalStepStatus status, PageRequest pageable);
+
+    Page<ApplicationApprovalStep> findByStep(int step, PageRequest pageable);
+
 }

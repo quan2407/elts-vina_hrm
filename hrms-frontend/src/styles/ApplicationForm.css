@@ -1,0 +1,203 @@
+.application-form-container {
+  display: flex;
+  gap: 20px;
+  flex: 1;
+}
+
+.application-form-content {
+  flex: 1;
+  border-radius: 15px;
+  padding: 64px 42px;
+  background-color: #fff;
+  min-width: 0;
+  overflow-y: auto;
+  max-height: calc(100vh - 100px);
+}
+
+.application-form-row {
+  display: flex;
+  gap: 28px;
+  margin-bottom: 40px;
+}
+
+.application-form-input-group {
+  flex: 1;
+}
+
+.application-form-input-label {
+  color: #000;
+  font-size: 18px;
+  font-weight: 400;
+  margin-bottom: 15px;
+}
+
+.application-form-input-field {
+  color: rgba(0, 0, 0, 0.7);
+  font-size: 18px;
+  font-weight: 400;
+  border-radius: 15px;
+  padding: 20px 36px;
+  height: 68px;
+  background-color: #e3edf9;
+  border: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.application-form-datepicker-wrapper input {
+  color: rgba(0, 0, 0, 0.7);
+  font-size: 18px;
+  font-weight: 400;
+  border-radius: 15px;
+  padding: 20px 36px;
+  height: 68px;
+  background-color: #e3edf9;
+  border: none;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.application-form-actions {
+  margin-top: 0px;
+  text-align: right;
+  padding-bottom: 24px;
+}
+
+.submit-button {
+  background-color: #0f62fe;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.submit-button:hover {
+  background-color: #0353e9;
+}
+
+.required-star {
+  color: red;
+  margin-left: 2px;
+}
+
+.disabled-input {
+  background-color: #f0f0f0;
+  color: #888;
+  cursor: not-allowed;
+}
+
+/* Quill editor */
+.react-quill {
+  height: 200px;
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+.react-quill .ql-editor {
+  font-size: 24px;
+  line-height: 1.6;
+}
+
+.react-quill .ql-toolbar button {
+  font-size: 16px;
+}
+
+/* Upload preview */
+.preview-img {
+  max-width: 300px;
+  height: auto;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.custom-upload-container {
+  margin-top: 8px;
+}
+
+.custom-upload-label {
+  display: block;
+  border: 1px dashed orange;
+  padding: 16px;
+  text-align: center;
+  border-radius: 6px;
+  color: #ff6600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.custom-upload-label:hover {
+  background-color: #fff7ec;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 2px;
+  font-weight: 500;
+}
+/* Fix DatePicker không chiếm full chiều rộng */
+.application-form-input-group .react-datepicker-wrapper {
+  width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .application-form-container {
+    flex-direction: column;
+  }
+
+  .application-form-content {
+    padding: 30px 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .application-form-row {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+/* ApplicationForm.css */
+
+.application-detail-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.application-detail-approve-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.application-detail-approve-btn:hover {
+  background-color: #218838;
+}
+
+.application-detail-reject-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.application-detail-reject-btn:hover {
+  background-color: #c82333;
+}

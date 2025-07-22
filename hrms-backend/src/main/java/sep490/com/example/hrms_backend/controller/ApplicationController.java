@@ -110,14 +110,13 @@ public class ApplicationController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
     ) {
-        Long approverId = currentUserUtils.getCurrentEmployeeId();
         Page<ApplicationApprovalListItemDTO> apps = applicationService.getStep1Applications(
-                approverId,
                 status,
                 PageRequest.of(page, size)
         );
         return ResponseEntity.ok(apps);
     }
+
 
     @PutMapping("/{id}/approve-step-1")
     @PreAuthorize("hasRole('PRODUCTION_MANAGER')")
@@ -129,6 +128,5 @@ public class ApplicationController {
         applicationService.approveStep1(id, approverId, request);
         return ResponseEntity.ok("Đã xử lý đơn ở bước 1");
     }
-
 
 }

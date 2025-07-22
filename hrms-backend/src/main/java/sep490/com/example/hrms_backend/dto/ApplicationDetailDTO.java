@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 public class ApplicationDetailDTO {
     private Long id;
+    private String employeeId;
     private String employeeCode;
     private String employeeName;
     private String positionName;
@@ -29,6 +30,10 @@ public class ApplicationDetailDTO {
     private LocalDateTime updatedAt;
     private String attachmentPath;
     private String rejectReason;
-
+    private String leaveCode;
+    private Boolean isHalfDay;
+    private String halfDayType;
     private List<ApprovalStepDTO> approvalSteps;
+    private boolean isCreator;
+
 }

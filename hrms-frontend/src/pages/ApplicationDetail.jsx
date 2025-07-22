@@ -55,7 +55,7 @@ function ApplicationDetail() {
     try {
       await applicationService.updateApplication(id, formData);
       alert("✅ Cập nhật đơn thành công!");
-      navigate("/applications");
+      navigate("/my-applications");
     } catch (err) {
       console.error("❌ Lỗi khi cập nhật đơn:", err);
       alert("Có lỗi xảy ra khi cập nhật đơn.");

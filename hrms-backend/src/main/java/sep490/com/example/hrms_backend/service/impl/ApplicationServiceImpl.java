@@ -20,6 +20,7 @@ import sep490.com.example.hrms_backend.repository.ApplicationRepository;
 import sep490.com.example.hrms_backend.repository.ApplicationTypeRepository;
 import sep490.com.example.hrms_backend.repository.EmployeeRepository;
 import sep490.com.example.hrms_backend.service.ApplicationService;
+import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,7 +34,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ApplicationTypeRepository applicationTypeRepository;
     private final EmployeeRepository employeeRepository;
     private final ApplicationApprovalStepRepository approvalStepRepository;
-
+    private final CurrentUserUtils currentUserUtils;
     @Override
     public void createApplication(ApplicationCreateDTO dto, Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
@@ -124,7 +125,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                         .approvedAt(step.getApprovedAt())
                         .build())
                 .collect(Collectors.toList());
-
+        Long currentEmployeeId = currentUserUtils.getCurrentEmployeeId();
         return ApplicationDetailDTO.builder()
                 .id(application.getId())
                 .title(application.getTitle())
@@ -140,12 +141,16 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .attachmentPath(application.getAttachmentPath())
                 .rejectReason(application.getRejectReason())
                 .approvalSteps(stepDTOs)
+                .leaveCode(application.getLeaveCode() != null ? application.getLeaveCode().name() : null)
+                .isHalfDay(application.getIsHalfDay())
+                .halfDayType(application.getHalfDayType() != null ? application.getHalfDayType().name() : null)
+                .employeeId(String.valueOf(emp.getEmployeeId()))
                 .employeeCode(emp.getEmployeeCode())
                 .employeeName(emp.getEmployeeName())
                 .positionName(emp.getPosition() != null ? emp.getPosition().getPositionName() : null)
                 .departmentName(emp.getDepartment() != null ? emp.getDepartment().getDepartmentName() : null)
                 .lineName(emp.getLine() != null ? emp.getLine().getLineName() : null)
-
+                .isCreator(emp.getEmployeeId().equals(currentEmployeeId))
                 .build();
     }
 
@@ -169,6 +174,10 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new IllegalArgumentException("Leave code is required for leave application");
         }
 
+        if (dto.getAttachmentPath() == null) {
+            dto.setAttachmentPath(application.getAttachmentPath());
+        }
+
         application.setTitle(dto.getTitle());
         application.setContent(dto.getContent());
         application.setStartDate(dto.getStartDate());
@@ -182,6 +191,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         applicationRepository.save(application);
     }
+
 
     @Override
     @Transactional
@@ -230,7 +240,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public Page<ApplicationApprovalListItemDTO> getStep1Applications(Long approverId, ApplicationStatus status, PageRequest of) {
+    public Page<ApplicationApprovalListItemDTO> getStep1Applications(ApplicationStatus status, PageRequest of) {
         Page<ApplicationApprovalStep> steps;
 
         if (status != null) {
@@ -241,9 +251,9 @@ public class ApplicationServiceImpl implements ApplicationService {
                 default -> throw new RuntimeException("Trạng thái không hợp lệ");
             };
 
-            steps = approvalStepRepository.findByStepAndApprover_EmployeeIdAndStatus(1, approverId, stepStatus, of);
+            steps = approvalStepRepository.findByStepAndStatus(1, stepStatus, of);
         } else {
-            steps = approvalStepRepository.findByStepAndApprover_EmployeeId(1, approverId, of);
+            steps = approvalStepRepository.findByStep(1, of);
         }
 
         List<ApplicationApprovalListItemDTO> dtos = steps.stream()
