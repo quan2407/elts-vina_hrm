@@ -77,7 +77,7 @@ public class ApplicationController {
         return uploadDir + "/" + filename;
     }
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PMC','PRODUCTION_MANAGER','EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PMC','PRODUCTION_MANAGER','EMPLOYEE','HR')")
     public ResponseEntity<ApplicationDetailDTO> getApplicationDetail(@PathVariable Long id) {
         ApplicationDetailDTO dto = applicationService.getApplicationDetail(id);
         return ResponseEntity.ok(dto);
@@ -127,6 +127,30 @@ public class ApplicationController {
         Long approverId = currentUserUtils.getCurrentEmployeeId();
         applicationService.approveStep1(id, approverId, request);
         return ResponseEntity.ok("Đã xử lý đơn ở bước 1");
+    }
+    @GetMapping("/step-2")
+    @PreAuthorize("hasRole('HR')")
+    public ResponseEntity<Page<ApplicationApprovalListItemDTO>> getStep2Applications(
+            @RequestParam(value = "status", required = false) ApplicationStatus status,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        Page<ApplicationApprovalListItemDTO> apps = applicationService.getStep2Applications(
+                status,
+                PageRequest.of(page, size)
+        );
+        return ResponseEntity.ok(apps);
+    }
+
+    @PutMapping("/{id}/approve-step-2")
+    @PreAuthorize("hasRole('HR')")
+    public ResponseEntity<String> approveStep2(
+            @PathVariable Long id,
+            @RequestBody ApplicationApprovalRequestDTO request
+    ) {
+        Long approverId = currentUserUtils.getCurrentEmployeeId();
+        applicationService.approveStep2(id, approverId, request);
+        return ResponseEntity.ok("Đã xử lý đơn ở bước 2");
     }
 
 }

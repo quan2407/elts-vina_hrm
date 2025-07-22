@@ -215,7 +215,6 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new RuntimeException("Bước đã được xử lý");
         }
 
-        // Gán người duyệt chính là người gửi request
         Employee approver = employeeRepository.findById(approverId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin người duyệt"));
         step1.setApprover(approver);
@@ -228,17 +227,16 @@ public class ApplicationServiceImpl implements ApplicationService {
         if (request.isApproved()) {
             app.setStatus(ApplicationStatus.MANAGER_APPROVED);
 
-            // Tạo bước 2 để HR duyệt
             ApplicationApprovalStep step2 = ApplicationApprovalStep.builder()
                     .application(app)
                     .step(2)
                     .status(ApprovalStepStatus.PENDING)
-                    .approver(null)  // HR sẽ được gán sau
+                    .approver(null)
                     .build();
             app.getApprovalSteps().add(step2);
         } else {
             app.setStatus(ApplicationStatus.MANAGER_REJECTED);
-            app.setRejectReason(request.getNote()); // <-- chính xác, gán vào reject_reason
+            app.setRejectReason(request.getNote());
         }
 
         app.setUpdatedAt(LocalDateTime.now());
@@ -286,6 +284,63 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .departmentName(emp.getDepartment() != null ? emp.getDepartment().getDepartmentName() : null)
                 .lineName(emp.getLine() != null ? emp.getLine().getLineName() : null)
                 .build();
+    }
+    @Override
+    @Transactional
+    public void approveStep2(Long applicationId, Long approverId, ApplicationApprovalRequestDTO request) {
+        Application app = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application", "id", applicationId));
+
+        ApplicationApprovalStep step2 = app.getApprovalSteps().stream()
+                .filter(s -> s.getStep() == 2 && s.getApprover() == null)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bước phê duyệt phù hợp với bạn"));
+
+        if (step2.getStatus() != ApprovalStepStatus.PENDING) {
+            throw new RuntimeException("Bước đã được xử lý");
+        }
+
+        Employee approver = employeeRepository.findById(approverId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin người duyệt"));
+        step2.setApprover(approver);
+
+        step2.setStatus(request.isApproved() ? ApprovalStepStatus.APPROVED : ApprovalStepStatus.REJECTED);
+        step2.setNote(request.getNote());
+        step2.setApprovedAt(LocalDateTime.now());
+
+        if (request.isApproved()) {
+            app.setStatus(ApplicationStatus.HR_APPROVED);
+        } else {
+            app.setStatus(ApplicationStatus.HR_REJECTED);
+            app.setRejectReason(request.getNote());
+        }
+
+        app.setUpdatedAt(LocalDateTime.now());
+        applicationRepository.save(app);
+    }
+
+    @Override
+    public Page<ApplicationApprovalListItemDTO> getStep2Applications(ApplicationStatus status, PageRequest pageRequest) {
+        Page<ApplicationApprovalStep> steps;
+
+        if (status != null) {
+            ApprovalStepStatus stepStatus = switch (status) {
+                case HR_APPROVED -> ApprovalStepStatus.APPROVED;
+                case HR_REJECTED -> ApprovalStepStatus.REJECTED;
+                case MANAGER_APPROVED -> ApprovalStepStatus.PENDING;
+                default -> throw new RuntimeException("Trạng thái không hợp lệ");
+            };
+
+            steps = approvalStepRepository.findByStepAndStatus(2, stepStatus, pageRequest);
+        } else {
+            steps = approvalStepRepository.findByStep(2, pageRequest);
+        }
+
+        List<ApplicationApprovalListItemDTO> dtos = steps.stream()
+                .map(step -> toApprovalListItemDTO(step.getApplication()))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(dtos, pageRequest, steps.getTotalElements());
     }
 
 
