@@ -96,7 +96,13 @@ function App() {
             <Route
               path="/applications/:id"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_EMPLOYEE"]}>
+                <ProtectedRoute
+                  allowedRoles={[
+                    "ROLE_EMPLOYEE",
+                    "ROLE_PRODUCTION_MANAGER",
+                    "ROLE_HR",
+                  ]}
+                >
                   <ApplicationDetail />
                 </ProtectedRoute>
               }

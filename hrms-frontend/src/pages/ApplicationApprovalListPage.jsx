@@ -114,9 +114,7 @@ function ApplicationApprovalListPage({ step = 1 }) {
                 <div className="approval-list-cell">{app.statusLabel}</div>
                 <div className="approval-list-cell">
                   <button
-                    onClick={() =>
-                      navigate(`/applications/approvals/${app.id}?step=${step}`)
-                    }
+                    onClick={() => navigate(`/applications/${app.id}`)}
                     className="approval-list-action-btn approval-list-view-btn"
                   >
                     Xem

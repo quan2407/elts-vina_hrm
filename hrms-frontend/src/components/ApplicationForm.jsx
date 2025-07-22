@@ -87,7 +87,60 @@ function ApplicationForm({
             />
           </div>
         </div>
+        {mode === "detail" && (
+          <div className="employeedetail-form-row">
+            <div className="employeedetail-input-group">
+              <div className="employeedetail-input-label">Mã nhân viên</div>
+              <input
+                type="text"
+                className="employeedetail-input-field"
+                value={data.employeeCode || ""}
+                readOnly
+              />
+            </div>
+            <div className="employeedetail-input-group">
+              <div className="employeedetail-input-label">Tên nhân viên</div>
+              <input
+                type="text"
+                className="employeedetail-input-field"
+                value={data.employeeName || ""}
+                readOnly
+              />
+            </div>
+          </div>
+        )}
 
+        {mode === "detail" && (
+          <div className="employeedetail-form-row">
+            <div className="employeedetail-input-group">
+              <div className="employeedetail-input-label">Chức vụ</div>
+              <input
+                type="text"
+                className="employeedetail-input-field"
+                value={data.positionName || ""}
+                readOnly
+              />
+            </div>
+            <div className="employeedetail-input-group">
+              <div className="employeedetail-input-label">Phòng ban</div>
+              <input
+                type="text"
+                className="employeedetail-input-field"
+                value={data.departmentName || ""}
+                readOnly
+              />
+            </div>
+            <div className="employeedetail-input-group">
+              <div className="employeedetail-input-label">Line</div>
+              <input
+                type="text"
+                className="employeedetail-input-field"
+                value={data.lineName || ""}
+                readOnly
+              />
+            </div>
+          </div>
+        )}
         <div className="employeedetail-form-row">
           <div className="employeedetail-input-group">
             <div className="employeedetail-input-label">Nội dung đơn</div>

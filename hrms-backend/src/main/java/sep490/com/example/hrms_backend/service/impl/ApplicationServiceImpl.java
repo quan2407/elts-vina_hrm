@@ -113,6 +113,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         Application application = applicationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
 
+        Employee emp = application.getEmployee();
+
         List<ApprovalStepDTO> stepDTOs = application.getApprovalSteps().stream()
                 .map(step -> ApprovalStepDTO.builder()
                         .step(step.getStep())
@@ -138,8 +140,15 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .attachmentPath(application.getAttachmentPath())
                 .rejectReason(application.getRejectReason())
                 .approvalSteps(stepDTOs)
+                .employeeCode(emp.getEmployeeCode())
+                .employeeName(emp.getEmployeeName())
+                .positionName(emp.getPosition() != null ? emp.getPosition().getPositionName() : null)
+                .departmentName(emp.getDepartment() != null ? emp.getDepartment().getDepartmentName() : null)
+                .lineName(emp.getLine() != null ? emp.getLine().getLineName() : null)
+
                 .build();
     }
+
     @Override
     public void updateApplication(Long id, ApplicationCreateDTO dto, Long employeeId) {
         Application application = applicationRepository.findById(id)

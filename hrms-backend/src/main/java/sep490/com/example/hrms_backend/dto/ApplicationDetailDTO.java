@@ -12,6 +12,11 @@ import java.util.List;
 @Builder
 public class ApplicationDetailDTO {
     private Long id;
+    private String employeeCode;
+    private String employeeName;
+    private String positionName;
+    private String departmentName;
+    private String lineName;
     private String title;
     private String content;
     private LocalDate startDate;
