@@ -149,6 +149,16 @@ export const hrMenus = [
     ),
   },
   {
+    text: "Lịch sản xuất",
+    path: "/work-schedule-view-hr",
+    icon: (isActive) => (
+      <CalendarCheck
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+  {
     text: "Duyệt đơn",
     path: "/applications/approvals/hr",
     icon: (isActive) => (
@@ -188,6 +198,16 @@ export const productionManagerMenus = [
     path: "/work-schedule-production",
     icon: (isActive) => (
       <CalendarCheck
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+  {
+    text: "Bảng công tháng",
+    path: "/attendance-monthly-view",
+    icon: (isActive) => (
+      <LayoutDashboard
         size={20}
         stroke={isActive ? "#4f46e5" : "white"}
       />

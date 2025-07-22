@@ -20,7 +20,7 @@ public class WorkScheduleDetailController {
 
     private final WorkScheduleDetailService workScheduleDetailService;
     @GetMapping("/view-by-month")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PMC','PRODUCTION_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PMC','PRODUCTION_MANAGER','HR')")
     public ResponseEntity<List<DepartmentWorkScheduleViewDTO>> viewByMonth(
             @RequestParam int month,
             @RequestParam int year

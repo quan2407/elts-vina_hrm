@@ -107,6 +107,22 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/work-schedule-view-hr"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                  <WorkScheduleProductionView canApprove={false} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/attendance-monthly-view"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_PRODUCTION_MANAGER"]}>
+                  <AttendanceMonthlyView readOnly={true} />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="/holiday-management"

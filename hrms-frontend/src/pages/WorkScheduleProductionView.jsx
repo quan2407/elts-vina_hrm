@@ -5,7 +5,7 @@ import "../styles/WorkScheduleManagement.css";
 import { Plus, Download } from "lucide-react";
 import workScheduleService from "../services/workScheduleService";
 
-function WorkScheduleProductionView() {
+function WorkScheduleProductionView({ canApprove = true }) {
   const today = new Date();
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [year, setYear] = useState(today.getFullYear());
@@ -60,75 +60,81 @@ function WorkScheduleProductionView() {
             </div>
           </div>
           <div className="work-schedule-page-actions">
-            <button
-              className="work-schedule-add-button"
-              onClick={() => setShowRejectModal(true)}
-              disabled={status !== "submitted"}
-              style={{
-                backgroundColor: status === "submitted" ? "#dc2626" : "#999",
-                cursor: status === "submitted" ? "pointer" : "not-allowed",
-                marginLeft: "8px",
-              }}
-            >
-              <Plus
-                size={16}
-                style={{ marginRight: "6px" }}
-              />
-              <span>Từ chối</span>
-            </button>
-            {showRejectModal && (
-              <div className="work-schedule-reject-overlay">
-                <div className="work-schedule-reject-modal">
-                  <h3>
-                    Từ chối lịch làm việc tháng {month}/{year}
-                  </h3>
-                  <textarea
-                    value={rejectReason}
-                    onChange={(e) => setRejectReason(e.target.value)}
-                    rows={4}
-                    placeholder="Nhập lý do từ chối..."
+            {canApprove && (
+              <>
+                <button
+                  className="work-schedule-add-button"
+                  onClick={() => setShowRejectModal(true)}
+                  disabled={status !== "submitted"}
+                  style={{
+                    backgroundColor:
+                      status === "submitted" ? "#dc2626" : "#999",
+                    cursor: status === "submitted" ? "pointer" : "not-allowed",
+                    marginLeft: "8px",
+                  }}
+                >
+                  <Plus
+                    size={16}
+                    style={{ marginRight: "6px" }}
                   />
-                  <div className="work-schedule-reject-actions">
-                    <button onClick={() => setShowRejectModal(false)}>
-                      Hủy
-                    </button>
-                    <button
-                      onClick={() => {
-                        workScheduleService
-                          .rejectWorkSchedules(month, year, rejectReason)
-                          .then(() => {
-                            alert("Từ chối lịch làm việc thành công!");
-                            setStatus("not-submitted");
-                            setShowRejectModal(false);
-                          })
-                          .catch(() => {
-                            alert("Lỗi khi từ chối lịch");
-                          });
-                      }}
-                      disabled={!rejectReason.trim()}
-                    >
-                      Gửi lý do
-                    </button>
+                  <span>Từ chối</span>
+                </button>
+                {showRejectModal && (
+                  <div className="work-schedule-reject-overlay">
+                    <div className="work-schedule-reject-modal">
+                      <h3>
+                        Từ chối lịch làm việc tháng {month}/{year}
+                      </h3>
+                      <textarea
+                        value={rejectReason}
+                        onChange={(e) => setRejectReason(e.target.value)}
+                        rows={4}
+                        placeholder="Nhập lý do từ chối..."
+                      />
+                      <div className="work-schedule-reject-actions">
+                        <button onClick={() => setShowRejectModal(false)}>
+                          Hủy
+                        </button>
+                        <button
+                          onClick={() => {
+                            workScheduleService
+                              .rejectWorkSchedules(month, year, rejectReason)
+                              .then(() => {
+                                alert("Từ chối lịch làm việc thành công!");
+                                setStatus("not-submitted");
+                                setShowRejectModal(false);
+                              })
+                              .catch(() => {
+                                alert("Lỗi khi từ chối lịch");
+                              });
+                          }}
+                          disabled={!rejectReason.trim()}
+                        >
+                          Gửi lý do
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            )}
+                )}
 
-            <button
-              className="work-schedule-add-button"
-              onClick={handleApprove}
-              disabled={status !== "submitted"}
-              style={{
-                backgroundColor: status === "submitted" ? "#16a34a" : "#999", // Xanh lá khi được bấm, xám khi disable
-                cursor: status === "submitted" ? "pointer" : "not-allowed",
-              }}
-            >
-              <Plus
-                size={16}
-                style={{ marginRight: "6px" }}
-              />
-              <span>Duyệt</span>
-            </button>
+                <button
+                  className="work-schedule-add-button"
+                  onClick={handleApprove}
+                  disabled={status !== "submitted"}
+                  style={{
+                    backgroundColor:
+                      status === "submitted" ? "#16a34a" : "#999", // Xanh lá khi được bấm, xám khi disable
+                    cursor: status === "submitted" ? "pointer" : "not-allowed",
+                  }}
+                >
+                  <Plus
+                    size={16}
+                    style={{ marginRight: "6px" }}
+                  />
+                  <span>Duyệt</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
 
