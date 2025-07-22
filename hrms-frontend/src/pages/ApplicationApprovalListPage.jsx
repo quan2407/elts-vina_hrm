@@ -23,8 +23,15 @@ function ApplicationApprovalListPage({ step = 1 }) {
 
   const STATUS_FILTERS =
     step === 1
-      ? ALL_STATUS_FILTERS.slice(0, 4) // manager only
-      : ALL_STATUS_FILTERS;
+      ? ALL_STATUS_FILTERS.slice(0, 4) // Tất cả + QL duyệt
+      : [
+          ALL_STATUS_FILTERS[0],
+          ...ALL_STATUS_FILTERS.filter((item) =>
+            ["MANAGER_APPROVED", "HR_APPROVED", "HR_REJECTED"].includes(
+              item.value
+            )
+          ),
+        ];
   useEffect(() => {
     fetchApplications();
   }, [page, selectedStatus]);

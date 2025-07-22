@@ -60,6 +60,11 @@ function ApplicationForm({
     isManager &&
     data?.status === "PENDING_MANAGER_APPROVAL" &&
     data?.approvalSteps?.[0]?.status === "PENDING";
+  const isHrApprover =
+    roles.includes("ROLE_HR") &&
+    data?.status === "MANAGER_APPROVED" &&
+    data?.approvalSteps?.[1]?.approverName === null &&
+    data?.approvalSteps?.[1]?.status === "PENDING";
 
   const isStillEditableByCreator =
     isCreator &&
@@ -503,6 +508,50 @@ function ApplicationForm({
               </button>
             </div>
           )}
+        {mode === "detail" && isHrApprover && (
+          <div
+            className="application-detail-actions"
+            style={{ marginTop: 20 }}
+          >
+            <button
+              className="application-detail-approve-btn"
+              onClick={() => {
+                const note = prompt("Ghi chú (nếu có):");
+                if (window.confirm("Bạn chắc chắn muốn duyệt đơn này?")) {
+                  applicationApprovalService
+                    .approveStep2(data.id, { approved: true, note })
+                    .then(() => {
+                      alert("✅ Đã duyệt đơn");
+                      window.location.reload();
+                    })
+                    .catch(() => alert("❌ Lỗi khi duyệt đơn"));
+                }
+              }}
+              style={{ marginRight: 10 }}
+            >
+              ✅ Duyệt đơn
+            </button>
+
+            <button
+              className="application-detail-reject-btn"
+              onClick={() => {
+                const note = prompt("Lý do từ chối:");
+                if (!note) return alert("❗ Vui lòng nhập lý do từ chối.");
+                if (window.confirm("Bạn chắc chắn muốn từ chối đơn này?")) {
+                  applicationApprovalService
+                    .approveStep2(data.id, { approved: false, note })
+                    .then(() => {
+                      alert("🚫 Đã từ chối đơn");
+                      window.location.reload();
+                    })
+                    .catch(() => alert("❌ Lỗi khi từ chối đơn"));
+                }
+              }}
+            >
+              ❌ Từ chối đơn
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
