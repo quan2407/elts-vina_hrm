@@ -42,6 +42,10 @@ function ApplicationDetail() {
     formData.append("isHalfDay", form.isHalfDay);
     formData.append("halfDayType", form.halfDayType);
     formData.append("applicationTypeId", data.applicationTypeId);
+    if (data.applicationTypeName === "Bù công") {
+      formData.append("checkIn", form.checkIn || "");
+      formData.append("checkOut", form.checkOut || "");
+    }
 
     if (form.attachment) {
       formData.append("attachment", form.attachment);

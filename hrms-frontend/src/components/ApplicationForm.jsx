@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import { vi } from "date-fns/locale";
 import applicationApprovalService from "../services/applicationApprovalService";
+import TimePicker from "react-time-picker";
+import "react-time-picker/dist/TimePicker.css";
 
 import ReactQuill from "react-quill";
 import "react-datepicker/dist/react-datepicker.css";
@@ -22,6 +24,13 @@ function ApplicationForm({
       [{ list: "ordered" }, { list: "bullet" }],
     ],
   };
+  function formatToHHmm(value) {
+    if (!value) return "";
+    const [h, m] = value.split(":");
+    const hour = String(h).padStart(2, "0");
+    const minute = String(m || "00").padStart(2, "0");
+    return `${hour}:${minute}`;
+  }
 
   const [errors, setErrors] = useState({});
   const [title, setTitle] = useState("");
@@ -34,6 +43,8 @@ function ApplicationForm({
   const [attachmentPath, setAttachmentPath] = useState(null);
   const [attachment, setAttachment] = useState(null);
   const [attachmentPreview, setAttachmentPreview] = useState(null);
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
 
   const [isReadOnly, setIsReadOnly] = useState(true);
 
@@ -83,6 +94,10 @@ function ApplicationForm({
     if (mode === "create" && initialDate) {
       setStartDate(initialDate);
       if (type === "leave") setEndDate(initialDate);
+      if (type === "makeup") {
+        setCheckIn("08:00");
+        setCheckOut("17:00");
+      }
     }
   }, [mode, initialDate, type]);
 
@@ -98,6 +113,8 @@ function ApplicationForm({
       setLeaveCode(data.leaveCode || "");
       setIsHalfDay(data.isHalfDay || false);
       setHalfDayType(data.halfDayType || "MORNING");
+      setCheckIn(formatToHHmm(data.checkIn || "08:00"));
+      setCheckOut(formatToHHmm(data.checkOut || "17:00"));
       setAttachmentPath(data.attachmentPath || null);
       setAttachmentPreview(null);
     }
@@ -232,6 +249,39 @@ function ApplicationForm({
             </div>
           )}
         </div>
+        {type === "makeup" && (
+          <div className="application-form-row">
+            <div className="application-form-input-group">
+              <div className="application-form-input-label">
+                Giờ vào (check-in)
+              </div>
+              <TimePicker
+                value={checkIn}
+                onChange={(value) => setCheckIn(formatToHHmm(value))}
+                format="HH:mm"
+                disableClock
+                clearIcon={null}
+                className="application-form-time-picker"
+                locale="vi-VN"
+              />
+            </div>
+            <div className="application-form-input-group">
+              <div className="application-form-input-label">
+                Giờ ra (check-out)
+              </div>
+              <TimePicker
+                value={checkOut}
+                onChange={(value) => setCheckOut(formatToHHmm(value))}
+                format="HH:mm"
+                disableClock
+                clearIcon={null}
+                className="application-form-time-picker"
+                locale="vi-VN"
+              />
+            </div>
+          </div>
+        )}
+
         {type === "leave" && (
           <div className="application-form-row">
             <div className="application-form-input-group">
@@ -392,6 +442,8 @@ function ApplicationForm({
                   isHalfDay,
                   halfDayType,
                   attachment,
+                  checkIn,
+                  checkOut,
                 })
               }
             >

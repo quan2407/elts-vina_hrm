@@ -16,15 +16,28 @@ function ApplicationCreate() {
     const formData = new FormData();
     formData.append("title", form.title?.trim());
     formData.append("content", form.content?.trim());
-    formData.append("startDate", form.startDate.toISOString().split("T")[0]);
-    formData.append("endDate", form.endDate.toISOString().split("T")[0]);
+    const formatDate = (date) => (date ? date.toISOString().split("T")[0] : "");
+
+    formData.append("startDate", formatDate(form.startDate));
+    formData.append(
+      "endDate",
+      type === "leave" ? formatDate(form.endDate) : formatDate(form.startDate)
+    );
+
     formData.append("applicationTypeId", type === "makeup" ? 2 : 1);
     formData.append("leaveCode", type === "leave" ? form.leaveCode : "");
     formData.append("isHalfDay", form.isHalfDay);
     formData.append("halfDayType", form.isHalfDay ? form.halfDayType : "");
+    if (type === "makeup") {
+      formData.append("checkIn", form.checkIn || "");
+      formData.append("checkOut", form.checkOut || "");
+    }
 
     if (form.attachment) {
       formData.append("attachment", form.attachment);
+    }
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
     }
 
     try {
