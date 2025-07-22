@@ -61,8 +61,6 @@ function ApplicationForm({
       setHalfDayType(data.halfDayType || "MORNING");
       setAttachmentPath(data.attachmentPath || null);
       setAttachmentPreview(null);
-
-      // 👇 Kiểm tra nếu tất cả các bước đều PENDING → cho sửa
       const editable =
         data.status === "PENDING_MANAGER_APPROVAL" &&
         data.approvalSteps?.every((step) => step.status === "PENDING");
@@ -76,7 +74,6 @@ function ApplicationForm({
   return (
     <div className="employeedetail-form-container">
       <div className="employeedetail-form-content">
-        {/* Tiêu đề đơn */}
         <div className="employeedetail-form-row">
           <div className="employeedetail-input-group">
             <div className="employeedetail-input-label">Tiêu đề đơn</div>
@@ -91,7 +88,6 @@ function ApplicationForm({
           </div>
         </div>
 
-        {/* Nội dung đơn */}
         <div className="employeedetail-form-row">
           <div className="employeedetail-input-group">
             <div className="employeedetail-input-label">Nội dung đơn</div>
@@ -111,8 +107,6 @@ function ApplicationForm({
             )}
           </div>
         </div>
-
-        {/* Ngày bắt đầu & kết thúc */}
         <div className="employeedetail-form-row">
           <div className="employeedetail-input-group">
             <div className="employeedetail-input-label">
@@ -191,11 +185,9 @@ function ApplicationForm({
           </div>
         )}
 
-        {/* Ảnh đính kèm */}
         <div className="employeedetail-form-row">
           <div className="employeedetail-input-group">
             <div className="employeedetail-input-label">Ảnh đính kèm</div>
-            {/* Ảnh đính kèm (luôn hiển thị nếu có) */}
             {attachmentPreview ? (
               <img
                 src={attachmentPreview}

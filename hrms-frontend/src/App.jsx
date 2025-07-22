@@ -46,6 +46,7 @@ import EmployeeInLineHr from "./pages/EmployeeInLineHr.jsx";
 import ApplicationCreate from "./pages/ApplicationCreate";
 import ApplicationDetail from "./pages/ApplicationDetail";
 import ApplicationListPage from "./pages/ApplicationListPage.jsx";
+import ApplicationApprovalListPage from "./pages/ApplicationApprovalListPage";
 function App() {
   return (
     <ConfigProvider>
@@ -165,6 +166,22 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["ROLE_HR"]}>
                   <RecruitmentDetailManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/applications/approvals/manager"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_PRODUCTION_MANAGER"]}>
+                  <ApplicationApprovalListPage step={1} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/applications/approvals/hr"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                  <ApplicationApprovalListPage step={2} />
                 </ProtectedRoute>
               }
             />

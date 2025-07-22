@@ -148,6 +148,16 @@ export const hrMenus = [
       />
     ),
   },
+  {
+    text: "Duyệt đơn",
+    path: "/applications/approvals/hr",
+    icon: (isActive) => (
+      <Briefcase
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
 ];
 export const pmcMenus = [
   {
@@ -178,6 +188,16 @@ export const productionManagerMenus = [
     path: "/work-schedule-production",
     icon: (isActive) => (
       <CalendarCheck
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+  {
+    text: "Duyệt đơn",
+    path: "/applications/approvals/manager",
+    icon: (isActive) => (
+      <Briefcase
         size={20}
         stroke={isActive ? "#4f46e5" : "white"}
       />
