@@ -13,4 +13,6 @@ public interface ApplicationService {
     Page<ApplicationListItemDTO> getApplicationsForEmployee(Long employeeId, ApplicationStatus status, Pageable pageable);
 
     ApplicationDetailDTO getApplicationDetail(Long id);
+    void updateApplication(Long id, ApplicationCreateDTO dto, Long employeeId);
+
 }

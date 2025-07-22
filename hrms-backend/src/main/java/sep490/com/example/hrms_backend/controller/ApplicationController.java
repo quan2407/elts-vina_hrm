@@ -84,5 +84,26 @@ public class ApplicationController {
         ApplicationDetailDTO dto = applicationService.getApplicationDetail(id);
         return ResponseEntity.ok(dto);
     }
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN', 'PMC','PRODUCTION_MANAGER','EMPLOYEE')")
+    public ResponseEntity<String> updateApplication(
+            @PathVariable Long id,
+            @ModelAttribute ApplicationCreateDTO dto,
+            @RequestParam(value = "attachment", required = false) MultipartFile attachment
+    ) {
+        Long employeeId = currentUserUtils.getCurrentEmployeeId();
+
+        if (attachment != null && !attachment.isEmpty()) {
+            try {
+                String filePath = saveFile(attachment);
+                dto.setAttachmentPath(filePath);
+            } catch (IOException e) {
+                return ResponseEntity.internalServerError().body("Lỗi khi lưu file");
+            }
+        }
+
+        applicationService.updateApplication(id, dto, employeeId);
+        return ResponseEntity.ok("Application updated successfully");
+    }
 
 }

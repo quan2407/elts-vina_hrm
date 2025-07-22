@@ -164,9 +164,6 @@ public class Employee {
     private Boolean isAccountRequested;
 
 
-
-
-
     public String getCitizenIssuePlaceSafe() {
         return citizenIssuePlace != null ? citizenIssuePlace : "";
     }

@@ -16,6 +16,7 @@ public class ApplicationDetailDTO {
     private String content;
     private LocalDate startDate;
     private LocalDate endDate;
+    private Long applicationTypeId;
     private String applicationTypeName;
     private ApplicationStatus status;
     private String statusLabel;

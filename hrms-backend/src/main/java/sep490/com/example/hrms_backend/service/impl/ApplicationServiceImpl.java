@@ -129,6 +129,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .content(application.getContent())
                 .startDate(application.getStartDate())
                 .endDate(application.getEndDate())
+                .applicationTypeId(application.getApplicationType().getId())
                 .applicationTypeName(application.getApplicationType().getName())
                 .status(application.getStatus())
                 .statusLabel(application.getStatus().getLabel())
@@ -138,6 +139,39 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .rejectReason(application.getRejectReason())
                 .approvalSteps(stepDTOs)
                 .build();
+    }
+    @Override
+    public void updateApplication(Long id, ApplicationCreateDTO dto, Long employeeId) {
+        Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
+
+        if (!application.getEmployee().getEmployeeId().equals(employeeId)) {
+            throw new RuntimeException("Bạn không có quyền sửa đơn này");
+        }
+
+        if (application.getStatus() != ApplicationStatus.PENDING_MANAGER_APPROVAL) {
+            throw new RuntimeException("Chỉ được sửa khi đơn đang chờ quản lý duyệt");
+        }
+
+        ApplicationType type = applicationTypeRepository.findById(dto.getApplicationTypeId())
+                .orElseThrow(() -> new RuntimeException("Application type not found"));
+
+        if (type.getName().equalsIgnoreCase("Nghỉ phép") && dto.getLeaveCode() == null) {
+            throw new IllegalArgumentException("Leave code is required for leave application");
+        }
+
+        application.setTitle(dto.getTitle());
+        application.setContent(dto.getContent());
+        application.setStartDate(dto.getStartDate());
+        application.setEndDate(dto.getEndDate());
+        application.setLeaveCode(dto.getLeaveCode());
+        application.setIsHalfDay(dto.getIsHalfDay());
+        application.setHalfDayType(dto.getHalfDayType());
+        application.setAttachmentPath(dto.getAttachmentPath());
+        application.setApplicationType(type);
+        application.setUpdatedAt(LocalDateTime.now());
+
+        applicationRepository.save(application);
     }
 
 }
