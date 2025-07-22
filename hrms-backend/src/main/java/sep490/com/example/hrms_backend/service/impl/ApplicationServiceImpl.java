@@ -1,20 +1,20 @@
 package sep490.com.example.hrms_backend.service.impl;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import sep490.com.example.hrms_backend.dto.ApplicationCreateDTO;
-import sep490.com.example.hrms_backend.dto.ApplicationDetailDTO;
-import sep490.com.example.hrms_backend.dto.ApplicationListItemDTO;
-import sep490.com.example.hrms_backend.dto.ApprovalStepDTO;
+import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.entity.Application;
 import sep490.com.example.hrms_backend.entity.ApplicationApprovalStep;
 import sep490.com.example.hrms_backend.entity.ApplicationType;
 import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.enums.ApplicationStatus;
 import sep490.com.example.hrms_backend.enums.ApprovalStepStatus;
+import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.repository.ApplicationApprovalStepRepository;
 import sep490.com.example.hrms_backend.repository.ApplicationRepository;
 import sep490.com.example.hrms_backend.repository.ApplicationTypeRepository;
@@ -173,5 +173,96 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         applicationRepository.save(application);
     }
+
+    @Override
+    @Transactional
+    public void approveStep1(Long applicationId, Long approverId, ApplicationApprovalRequestDTO request) {
+        Application app = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application", "id", applicationId));
+
+        // tìm step 1 chưa có người duyệt
+        ApplicationApprovalStep step1 = app.getApprovalSteps().stream()
+                .filter(s -> s.getStep() == 1 && s.getApprover() == null)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bước phê duyệt phù hợp với bạn"));
+
+        if (step1.getStatus() != ApprovalStepStatus.PENDING) {
+            throw new RuntimeException("Bước đã được xử lý");
+        }
+
+        // Gán người duyệt chính là người gửi request
+        Employee approver = employeeRepository.findById(approverId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin người duyệt"));
+        step1.setApprover(approver);
+
+        // Ghi nhận kết quả xử lý
+        step1.setStatus(request.isApproved() ? ApprovalStepStatus.APPROVED : ApprovalStepStatus.REJECTED);
+        step1.setNote(request.getNote());
+        step1.setApprovedAt(LocalDateTime.now());
+
+        if (request.isApproved()) {
+            app.setStatus(ApplicationStatus.MANAGER_APPROVED);
+
+            // Tạo bước 2 để HR duyệt
+            ApplicationApprovalStep step2 = ApplicationApprovalStep.builder()
+                    .application(app)
+                    .step(2)
+                    .status(ApprovalStepStatus.PENDING)
+                    .approver(null)  // HR sẽ được gán sau
+                    .build();
+            app.getApprovalSteps().add(step2);
+        } else {
+            app.setStatus(ApplicationStatus.MANAGER_REJECTED);
+            app.setRejectReason(request.getNote()); // <-- chính xác, gán vào reject_reason
+        }
+
+        app.setUpdatedAt(LocalDateTime.now());
+        applicationRepository.save(app);
+    }
+
+    @Override
+    public Page<ApplicationApprovalListItemDTO> getStep1Applications(Long approverId, ApplicationStatus status, PageRequest of) {
+        Page<ApplicationApprovalStep> steps;
+
+        if (status != null) {
+            ApprovalStepStatus stepStatus = switch (status) {
+                case PENDING_MANAGER_APPROVAL -> ApprovalStepStatus.PENDING;
+                case MANAGER_APPROVED -> ApprovalStepStatus.APPROVED;
+                case MANAGER_REJECTED -> ApprovalStepStatus.REJECTED;
+                default -> throw new RuntimeException("Trạng thái không hợp lệ");
+            };
+
+            steps = approvalStepRepository.findByStepAndApprover_EmployeeIdAndStatus(1, approverId, stepStatus, of);
+        } else {
+            steps = approvalStepRepository.findByStepAndApprover_EmployeeId(1, approverId, of);
+        }
+
+        List<ApplicationApprovalListItemDTO> dtos = steps.stream()
+                .map(step -> toApprovalListItemDTO(step.getApplication()))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(dtos, of, steps.getTotalElements());
+    }
+    private ApplicationApprovalListItemDTO toApprovalListItemDTO(Application app) {
+        Employee emp = app.getEmployee();
+        return ApplicationApprovalListItemDTO.builder()
+                .id(app.getId())
+                .title(app.getTitle())
+                .content(app.getContent())
+                .startDate(app.getStartDate())
+                .endDate(app.getEndDate())
+                .applicationTypeName(app.getApplicationType().getName())
+                .status(app.getStatus())
+                .statusLabel(app.getStatus().getLabel())
+                .createdAt(app.getCreatedAt())
+                .employeeCode(emp.getEmployeeCode())
+                .employeeName(emp.getEmployeeName())
+                .positionName(emp.getPosition() != null ? emp.getPosition().getPositionName() : null)
+                .departmentName(emp.getDepartment() != null ? emp.getDepartment().getDepartmentName() : null)
+                .lineName(emp.getLine() != null ? emp.getLine().getLineName() : null)
+                .build();
+    }
+
+
 
 }

@@ -8,9 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import sep490.com.example.hrms_backend.dto.ApplicationCreateDTO;
-import sep490.com.example.hrms_backend.dto.ApplicationDetailDTO;
-import sep490.com.example.hrms_backend.dto.ApplicationListItemDTO;
+import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.enums.ApplicationStatus;
 import sep490.com.example.hrms_backend.service.ApplicationService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
@@ -105,5 +103,32 @@ public class ApplicationController {
         applicationService.updateApplication(id, dto, employeeId);
         return ResponseEntity.ok("Application updated successfully");
     }
+    @GetMapping("/step-1")
+    @PreAuthorize("hasRole('PRODUCTION_MANAGER')")
+    public ResponseEntity<Page<ApplicationApprovalListItemDTO>> getStep1Applications(
+            @RequestParam(value = "status", required = false) ApplicationStatus status,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        Long approverId = currentUserUtils.getCurrentEmployeeId();
+        Page<ApplicationApprovalListItemDTO> apps = applicationService.getStep1Applications(
+                approverId,
+                status,
+                PageRequest.of(page, size)
+        );
+        return ResponseEntity.ok(apps);
+    }
+
+    @PutMapping("/{id}/approve-step-1")
+    @PreAuthorize("hasRole('PRODUCTION_MANAGER')")
+    public ResponseEntity<String> approveStep1(
+            @PathVariable Long id,
+            @RequestBody ApplicationApprovalRequestDTO request
+    ) {
+        Long approverId = currentUserUtils.getCurrentEmployeeId();
+        applicationService.approveStep1(id, approverId, request);
+        return ResponseEntity.ok("Đã xử lý đơn ở bước 1");
+    }
+
 
 }
