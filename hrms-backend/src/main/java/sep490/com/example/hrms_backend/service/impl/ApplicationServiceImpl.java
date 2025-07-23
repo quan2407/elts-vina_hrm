@@ -15,11 +15,9 @@ import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.enums.ApplicationStatus;
 import sep490.com.example.hrms_backend.enums.ApprovalStepStatus;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
-import sep490.com.example.hrms_backend.repository.ApplicationApprovalStepRepository;
-import sep490.com.example.hrms_backend.repository.ApplicationRepository;
-import sep490.com.example.hrms_backend.repository.ApplicationTypeRepository;
-import sep490.com.example.hrms_backend.repository.EmployeeRepository;
+import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.ApplicationService;
+import sep490.com.example.hrms_backend.service.AttendanceRecordService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
 import java.time.LocalDateTime;
@@ -35,6 +33,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final EmployeeRepository employeeRepository;
     private final ApplicationApprovalStepRepository approvalStepRepository;
     private final CurrentUserUtils currentUserUtils;
+    private final AttendanceRecordRepository attendanceRecordRepository;
+    private final AttendanceRecordService attendanceRecordService;
     @Override
     public void createApplication(ApplicationCreateDTO dto, Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
@@ -310,6 +310,18 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         if (request.isApproved()) {
             app.setStatus(ApplicationStatus.HR_APPROVED);
+            // Nếu đơn có checkin checkout thì cập nhật bảng công
+            if (app.getCheckIn() != null && app.getCheckOut() != null) {
+                attendanceRecordRepository.findByEmployee_EmployeeIdAndDate(app.getEmployee().getEmployeeId(), app.getStartDate())
+                        .ifPresent(record -> {
+                            AttendanceCheckInOutDTO updateDto = new AttendanceCheckInOutDTO();
+                            updateDto.setCheckIn(String.valueOf(app.getCheckIn()));
+                            updateDto.setCheckOut(String.valueOf(app.getCheckOut()));
+                            attendanceRecordService.updateCheckInOut(record.getId(), updateDto);
+                        });
+            }
+
+
         } else {
             app.setStatus(ApplicationStatus.HR_REJECTED);
             app.setRejectReason(request.getNote());

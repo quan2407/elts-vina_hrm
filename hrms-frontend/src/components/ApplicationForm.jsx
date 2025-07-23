@@ -247,11 +247,12 @@ function ApplicationForm({
                   <button
                     className="application-form-navigate-btn"
                     onClick={() => {
-                      const dateStr = data.startDate.substring(0, 10); // yyyy-MM-dd
-                      navigate(
+                      const dateStr = data.startDate.substring(0, 10);
+                      window.open(
                         `/attendance?focusEmployee=${
                           data.employeeId
-                        }&focusDate=${data.startDate.substring(0, 10)}`
+                        }&focusDate=${data.startDate.substring(0, 10)}`,
+                        "_blank"
                       );
                     }}
                   >
@@ -262,12 +263,12 @@ function ApplicationForm({
             {mode === "detail" &&
               type === "leave" &&
               data?.startDate &&
-              data?.departmentName && ( // dùng tên thay vì id
+              data?.departmentName && (
                 <div style={{ marginTop: "8px" }}>
                   <button
                     className="application-form-navigate-btn"
                     onClick={() => {
-                      const dateStr = data.startDate.substring(0, 10); // yyyy-MM-dd
+                      const dateStr = data.startDate.substring(0, 10);
                       const query = new URLSearchParams({
                         focusDate: dateStr,
                         departmentName: data.departmentName,
@@ -277,7 +278,10 @@ function ApplicationForm({
                         query.append("lineName", data.lineName);
                       }
 
-                      navigate(`/work-schedule?${query.toString()}`);
+                      window.open(
+                        `/work-schedule?${query.toString()}`,
+                        "_blank"
+                      );
                     }}
                   >
                     🗓️ Xem lịch làm việc ngày này

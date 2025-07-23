@@ -8,6 +8,7 @@ import sep490.com.example.hrms_backend.entity.Employee;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface AttendanceRecordRepository extends JpaRepository<AttendanceRecord, Long> {
     boolean existsByEmployeeAndDate(Employee employee, LocalDate date);
@@ -32,4 +33,7 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
     List<AttendanceRecord> findByDate(LocalDate date);
 
     boolean existsByEmployee_EmployeeIdAndDate(Long employeeId, LocalDate workDate);
+
+    Optional<AttendanceRecord> findByEmployee_EmployeeIdAndDate(Long employeeId, LocalDate date);
+
 }
