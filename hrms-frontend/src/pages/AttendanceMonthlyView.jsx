@@ -26,6 +26,17 @@ const AttendanceMonthlyView = () => {
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
+  const today = new Date();
+
+  const isBeforeYesterday = (date) => {
+    const d1 = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const d2 = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() - 1
+    );
+    return d1 <= d2;
+  };
 
   const handleOpenLeaveModal = (recordId, dateStr, cellMeta) => {
     setLeaveRecordId(recordId);
@@ -220,17 +231,6 @@ const AttendanceMonthlyView = () => {
               <div className="leave-code-columns">
                 <ul>
                   <li>
-                    <strong>NL</strong>: Nghỉ nguyên lương
-                  </li>
-                  <li>
-                    <strong>VPHĐ</strong>: Nghỉ vi phạm HĐ
-                  </li>
-                  <li>
-                    <strong>VR</strong>: Nghỉ việc riêng
-                  </li>
-                </ul>
-                <ul>
-                  <li>
                     <strong>KL</strong>: Nghỉ không lương
                   </li>
                   <li>
@@ -248,23 +248,12 @@ const AttendanceMonthlyView = () => {
                     <strong>P</strong>: Nghỉ phép
                   </li>
                   <li>
-                    <strong>P_4</strong>: Nghỉ phép nửa ngày
+                    <strong>P_2</strong>: Nghỉ phép nửa ngày
                   </li>
                 </ul>
                 <ul>
                   <li>
                     <strong>NTS</strong>: Nghỉ thai sản
-                  </li>
-                  <li>
-                    <strong>NDB</strong>: Dịch bệnh hưởng công nguyên ngày
-                  </li>
-                  <li>
-                    <strong>NDB_4</strong>: Dịch bệnh hưởng công 4h
-                  </li>
-                </ul>
-                <ul>
-                  <li>
-                    <strong>NDB_1_5</strong>: Dịch bệnh hưởng công 1.5h
                   </li>
                 </ul>
               </div>
@@ -288,9 +277,9 @@ const AttendanceMonthlyView = () => {
                 <th rowSpan="2">Xác nhận</th>
               </tr>
               <tr>
-                {[...Array(daysInMonth)].map((_, i) => (
-                  <th key={i + 1}>{i + 1}</th>
-                ))}
+                {[...Array(daysInMonth)].map((_, i) => {
+                  return <th key={i + 1}>{i + 1}</th>;
+                })}
               </tr>
             </thead>
             <tbody>
@@ -310,70 +299,89 @@ const AttendanceMonthlyView = () => {
                     <td>{type.label}</td>
                     {Array.from({ length: daysInMonth }, (_, d) => {
                       const day = (d + 1).toString();
+                      const dayDate = new Date(year, month - 1, d + 1);
                       const cell = emp.attendanceByDate[day] || {};
 
                       if (type.key === "checkInOut") {
                         if (cell.hasScheduleDetail) {
+                          const isPastDay = isBeforeYesterday(dayDate);
                           return (
                             <td key={d}>
-                              {cell.checkIn || cell.checkOut ? (
-                                <span
-                                  className="attendance-edit-icon"
-                                  onClick={() =>
-                                    handleOpenModal(emp, day, cell)
-                                  }
-                                >
-                                  {`${cell.checkIn || "--"} - ${
-                                    cell.checkOut || "--"
-                                  }`}
-                                </span>
+                              {isPastDay ? (
+                                <>
+                                  {cell.checkIn || cell.checkOut ? (
+                                    <span
+                                      className="attendance-edit-icon"
+                                      onClick={() =>
+                                        handleOpenModal(emp, day, cell)
+                                      }
+                                    >
+                                      {`${cell.checkIn || "--"} - ${
+                                        cell.checkOut || "--"
+                                      }`}
+                                    </span>
+                                  ) : (
+                                    <span className="attendance-empty-cell">
+                                      --
+                                    </span>
+                                  )}
+
+                                  <div className="attendance-buttons">
+                                    <button
+                                      className="attendance-action-btn edit"
+                                      onClick={() =>
+                                        handleOpenModal(emp, day, cell)
+                                      }
+                                      title="Chỉnh sửa giờ vào/ra"
+                                    >
+                                      <Pencil size={14} />
+                                    </button>
+                                    <button
+                                      className="attendance-action-btn leave"
+                                      onClick={() =>
+                                        handleOpenLeaveModal(
+                                          cell.attendanceRecordId,
+                                          `${year}-${String(month).padStart(
+                                            2,
+                                            "0"
+                                          )}-${String(day).padStart(2, "0")}`,
+                                          {
+                                            holidayFlag: cell.holidayFlag,
+                                            weekendFlag: cell.weekendFlag,
+                                            hasOt:
+                                              parseFloat(cell.overtime) > 0,
+                                          }
+                                        )
+                                      }
+                                      title="Chọn loại nghỉ phép"
+                                    >
+                                      🛏️
+                                    </button>
+                                  </div>
+                                </>
                               ) : (
                                 <span className="attendance-empty-cell">
                                   --
                                 </span>
                               )}
-
-                              <div className="attendance-buttons">
-                                <button
-                                  className="attendance-action-btn edit"
-                                  onClick={() =>
-                                    handleOpenModal(emp, day, cell)
-                                  }
-                                  title="Chỉnh sửa giờ vào/ra"
-                                >
-                                  <Pencil size={14} />
-                                </button>
-                                <button
-                                  className="attendance-action-btn leave"
-                                  onClick={() =>
-                                    handleOpenLeaveModal(
-                                      cell.attendanceRecordId,
-                                      `${year}-${String(month).padStart(
-                                        2,
-                                        "0"
-                                      )}-${String(day).padStart(2, "0")}`,
-                                      {
-                                        holidayFlag: cell.holidayFlag,
-                                        weekendFlag: cell.weekendFlag,
-                                        hasOt: parseFloat(cell.overtime) > 0,
-                                      }
-                                    )
-                                  }
-                                  title="Chọn loại nghỉ phép"
-                                >
-                                  🛏️
-                                </button>
-                              </div>
                             </td>
                           );
                         } else {
                           return <td key={d}></td>;
                         }
                       } else {
+                        if (
+                          !isBeforeYesterday(dayDate) ||
+                          !cell.hasScheduleDetail
+                        ) {
+                          return <td key={d}></td>;
+                        }
+
                         const value = cell[type.key] || "";
                         return <td key={d}>{value}</td>;
                       }
                     })}
+
                     <td className="highlight-bold">{emp[type.totalKey]}</td>
                     {i === 0 && (
                       <td

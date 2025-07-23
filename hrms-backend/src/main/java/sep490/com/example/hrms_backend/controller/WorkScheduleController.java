@@ -6,10 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import sep490.com.example.hrms_backend.dto.EmployeeWorkScheduleDTO;
-import sep490.com.example.hrms_backend.dto.WorkScheduleCreateDTO;
-import sep490.com.example.hrms_backend.dto.WorkScheduleMonthDTO;
-import sep490.com.example.hrms_backend.dto.WorkScheduleResponseDTO;
+import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.service.WorkScheduleService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
@@ -76,6 +73,12 @@ public class WorkScheduleController {
     ) {
         workScheduleService.rejectSubmittedSchedule(month, year, reason);
         return ResponseEntity.ok("Từ chối bảng phân ca thành công.");
+    }
+    @PutMapping("/custom-range")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PMC')")
+    public ResponseEntity<?> createCustomRangeWorkSchedule(@Valid @RequestBody WorkScheduleRangeDTO dto) {
+        workScheduleService.createCustomWorkSchedules(dto);
+        return ResponseEntity.ok("Đã dải lịch thành công theo yêu cầu.");
     }
 
 

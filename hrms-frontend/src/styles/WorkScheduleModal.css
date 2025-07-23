@@ -12,6 +12,9 @@
 }
 
 .work-schedule-modal-container {
+  position: relative; /* Rất quan trọng để không bị popup nhảy ra khỏi modal */
+  z-index: 1000;
+  overflow: visible;
   background: white;
   border-radius: 8px;
   padding: 24px;
@@ -82,4 +85,32 @@
 
 .work-schedule-modal-delete-btn:hover {
   background-color: #e43d3f;
+}
+.range-schedule-field-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.range-schedule-half-field {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.react-datepicker-popper {
+  z-index: 9999 !important;
+}
+
+.range-schedule-half-field {
+  position: relative; /* đảm bảo popup neo theo input */
+}
+
+.range-schedule-half-field .react-datepicker {
+  font-size: 14px;
+}
+
+.range-schedule-half-field input {
+  width: 100%;
+  padding: 6px 10px;
+  box-sizing: border-box;
 }
