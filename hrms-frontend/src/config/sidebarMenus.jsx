@@ -9,7 +9,8 @@ import {
   Gift,
   CalendarCheck,
   Rows4,
-  Wallet
+  Wallet,
+  ClipboardPlus
 } from "lucide-react";
 
 export const systemMenus = [
@@ -62,6 +63,16 @@ export const hrMenus = [
     path: "/dashboard",
     icon: (isActive) => (
       <LayoutDashboard
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+  {
+    text: "Báo cáo nhân lực",
+    path: "/human-report",
+    icon: (isActive) => (
+      <ClipboardPlus
         size={20}
         stroke={isActive ? "#4f46e5" : "white"}
       />

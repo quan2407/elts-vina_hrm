@@ -43,6 +43,7 @@ import EmpSalaryView from "./pages/EmployeeSalaryView.jsx";
 import HolidayManagement from "./pages/HolidayManagement";
 import AccountRequestPage from "./pages/AccountRequestPage.jsx";
 import EmployeeInLineHr from "./pages/EmployeeInLineHr.jsx";
+import HumanReport from "./pages/HumanReport.jsx";
 
 function App() {
   return (
@@ -320,6 +321,15 @@ function App() {
                   to="/"
                   replace
                 />
+              }
+            />
+
+            <Route
+              path="/human-report"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                  <HumanReport />
+                </ProtectedRoute>
               }
             />
 
