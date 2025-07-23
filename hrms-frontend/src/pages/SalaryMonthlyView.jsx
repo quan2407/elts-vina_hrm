@@ -49,36 +49,39 @@ const SalaryMonthlyView = () => {
     <MainLayout>
       <div className="attendance-container">
         <div className="attendance-controls">
-          <select
-            value={month}
-            onChange={(e) => setMonth(Number(e.target.value))}
-          >
-            {Array.from(
-              new Set(availableMonths.map((m) => m.split("-")[0]))
-            ).map((m) => (
-              <option
-                key={m}
-                value={Number(m)}
-              >
-                Tháng {m}
-              </option>
-            ))}
-          </select>
-          <select
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
-          >
-            {Array.from(
-              new Set(availableMonths.map((m) => m.split("-")[1]))
-            ).map((y) => (
-              <option
-                key={y}
-                value={Number(y)}
-              >
-                Năm {y}
-              </option>
-            ))}
-          </select>
+          <div className="attendance-filters">
+            <select
+              value={month}
+              onChange={(e) => setMonth(Number(e.target.value))}
+            >
+              {Array.from(
+                new Set(availableMonths.map((m) => m.split("-")[0]))
+              ).map((m) => (
+                <option
+                  key={m}
+                  value={Number(m)}
+                >
+                  Tháng {m}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={year}
+              onChange={(e) => setYear(Number(e.target.value))}
+            >
+              {Array.from(
+                new Set(availableMonths.map((m) => m.split("-")[1]))
+              ).map((y) => (
+                <option
+                  key={y}
+                  value={Number(y)}
+                >
+                  Năm {y}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <button
             className="btn-update"
@@ -90,7 +93,7 @@ const SalaryMonthlyView = () => {
               ) {
                 try {
                   await salaryService.regenerateMonthlySalaries(month, year);
-                  await fetchSalaries(); // tải lại lương sau khi cập nhật
+                  await fetchSalaries();
                   alert("Đã cập nhật bảng lương thành công!");
                 } catch (err) {
                   console.error("Lỗi khi cập nhật bảng lương:", err);

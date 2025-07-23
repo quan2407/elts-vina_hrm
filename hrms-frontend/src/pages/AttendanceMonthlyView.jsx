@@ -4,6 +4,7 @@ import MainLayout from "../components/MainLayout";
 import AttendanceModal from "../components/AttendanceModal";
 import LeaveCodeModal from "../components/LeaveCodeModal";
 import { useLocation } from "react-router-dom";
+import salaryService from "../services/salaryService";
 
 import "../styles/AttendanceMonthlyView.css";
 import { Pencil } from "lucide-react";
@@ -35,6 +36,17 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
   const targetCellId =
     empId && focusDate ? `attendance-cell-${empId}-${focusDate}` : null;
   console.log("🔍 targetCellId:", targetCellId);
+  const handleGenerateSalary = async () => {
+    if (!month || !year) return;
+
+    try {
+      await salaryService.regenerateMonthlySalaries(month, year);
+      alert(`Tạo bảng lương cho ${month}/${year} thành công.`);
+    } catch (error) {
+      console.error("Tạo bảng lương thất bại:", error);
+      alert("Tạo bảng lương thất bại!");
+    }
+  };
 
   const isBeforeYesterday = (date) => {
     const d1 = new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -257,51 +269,60 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
             </select>
           </div>
 
-          <div className="leave-code-popover-wrapper">
-            <button
-              className="leave-code-toggle-btn"
-              onClick={() =>
-                document
-                  .getElementById("leave-code-popover")
-                  .classList.toggle("show")
-              }
-            >
-              🛈 Ghi chú mã nghỉ
-            </button>
-            <div
-              id="leave-code-popover"
-              className="leave-code-popover"
-            >
-              <div className="leave-code-columns">
-                <ul>
-                  <li>
-                    <strong>KL</strong>: Nghỉ không lương
-                  </li>
-                  <li>
-                    <strong>KH</strong>: Kết hôn
-                  </li>
-                  <li>
-                    <strong>CKH</strong>: Con kết hôn
-                  </li>
-                </ul>
-                <ul>
-                  <li>
-                    <strong>NT</strong>: Nghỉ tang
-                  </li>
-                  <li>
-                    <strong>P</strong>: Nghỉ phép
-                  </li>
-                  <li>
-                    <strong>P_2</strong>: Nghỉ phép nửa ngày
-                  </li>
-                </ul>
-                <ul>
-                  <li>
-                    <strong>NTS</strong>: Nghỉ thai sản
-                  </li>
-                </ul>
+          <div className="attendance-actions">
+            <div className="leave-code-popover-wrapper">
+              <button
+                className="leave-code-toggle-btn"
+                onClick={() =>
+                  document
+                    .getElementById("leave-code-popover")
+                    .classList.toggle("show")
+                }
+              >
+                🛈 Ghi chú mã nghỉ
+              </button>
+              <div
+                id="leave-code-popover"
+                className="leave-code-popover"
+              >
+                <div className="leave-code-columns">
+                  <ul>
+                    <li>
+                      <strong>KL</strong>: Nghỉ không lương
+                    </li>
+                    <li>
+                      <strong>KH</strong>: Kết hôn
+                    </li>
+                    <li>
+                      <strong>CKH</strong>: Con kết hôn
+                    </li>
+                  </ul>
+                  <ul>
+                    <li>
+                      <strong>NT</strong>: Nghỉ tang
+                    </li>
+                    <li>
+                      <strong>P</strong>: Nghỉ phép
+                    </li>
+                    <li>
+                      <strong>P_2</strong>: Nghỉ phép nửa ngày
+                    </li>
+                  </ul>
+                  <ul>
+                    <li>
+                      <strong>NTS</strong>: Nghỉ thai sản
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
+
+            <button
+              className="generate-salary-btn"
+              onClick={handleGenerateSalary}
+            >
+              🧾 Tạo bảng lương
+            </button>
           </div>
         </div>
 

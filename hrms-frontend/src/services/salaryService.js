@@ -7,8 +7,11 @@ const salaryService = {
     });
   },
   regenerateMonthlySalaries: (month, year) => {
-    return axiosClient.put(`/salaries/regenerate?month=${month}&year=${year}`);
+    return axiosClient.put("/salaries/regenerate", null, {
+      params: { month, year },
+    });
   },
+
   getAvailableSalaryMonths: () => {
     return axiosClient.get("/salaries/available-months");
   },

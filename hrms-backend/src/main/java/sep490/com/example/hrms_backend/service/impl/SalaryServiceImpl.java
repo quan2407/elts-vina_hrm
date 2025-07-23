@@ -82,7 +82,7 @@ public class SalaryServiceImpl implements SalaryService {
             }
 
             float totalWorkingHours = totalDayHours + otHours + weekendHours + holidayHours;
-            float workingDays = totalWorkingHours / 8f;
+            float workingDays = totalDayHours / 8f;
 
 
             BigDecimal hourlyRate = employee.getBasicSalary()
@@ -108,7 +108,7 @@ public class SalaryServiceImpl implements SalaryService {
             BigDecimal bhxh = gross.multiply(BigDecimal.valueOf(0.08));
             BigDecimal bhyt = gross.multiply(BigDecimal.valueOf(0.015));
             BigDecimal bhtn = gross.multiply(BigDecimal.valueOf(0.01));
-            BigDecimal unionFee = BigDecimal.valueOf(50);
+            BigDecimal unionFee = employee.getUnionFee();
             BigDecimal totalDeduct = bhxh.add(bhyt).add(bhtn).add(unionFee);
 
             BigDecimal net = gross.subtract(totalDeduct);
