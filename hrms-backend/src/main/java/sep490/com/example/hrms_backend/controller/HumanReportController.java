@@ -38,7 +38,6 @@ public class HumanReportController {
         Map<String, List<AttendanceMonthlyViewDTO>> humanAbsent = humanReportService.getListEmpAbsent(date);
         return humanAbsent;
     }
-
     @GetMapping("/absentkl")
     @PreAuthorize("hasAnyRole('HR', 'PRODUCTION_MANAGER')")
     public Map<String, List<AttendanceMonthlyViewDTO>> getListEmpAbsentKL(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){

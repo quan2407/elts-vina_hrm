@@ -3,12 +3,28 @@ import departmentService from "../services/departmentService";
 import MainLayout from "../components/MainLayout";
 import "../styles/AttendanceMonthlyView.css";
 import { getAllLines } from "../services/linesService";
-import { getFullEmp } from "../services/humanReportService";
+import { getAbsentEmp, getAbsentEmpKL, getFullEmp } from "../services/humanReportService";
 
 const HumanReport = () => {
     const [line, setLine] = useState([]);
     const [department, setDepartments] = useState([]);
     const [reportData, setReportData] = useState({});
+    const [absentEmp, setAbsentEmp] = useState([]);
+    const [absentEmpKL, setAbsentEmpKL] = useState([]);
+
+    const getYesterdayLocalDate = () => {
+        const now = new Date();
+        now.setDate(now.getDate() - 1);
+
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`; // Format yyyy-MM-dd
+    };
+
+    const [selectedDate, setSelectedDate] = useState(getYesterdayLocalDate());
+
 
     useEffect(() => {
         const fetchDepartments = async () => {
@@ -46,6 +62,32 @@ const HumanReport = () => {
         fetchHumanReport();
     }, []);
 
+    useEffect(() => {
+        const fetchAbsentEmp = async () => {
+            try {
+                const data = await getAbsentEmp(selectedDate);
+                console.log("Absent Employees Data:", data);
+                setAbsentEmp(data);
+            } catch (error) {
+                console.error("Lỗi khi load danh sách nhân viên vắng mặt:", error);
+            }
+        }
+        fetchAbsentEmp();
+    }, [selectedDate]);
+
+    useEffect(() => {
+        const fetchAbsentEmpKL = async () => {
+            try {
+                const data = await getAbsentEmpKL(selectedDate);
+                console.log("Absent Employees by Line Data:", data);
+                setAbsentEmpKL(data);
+            } catch (error) {
+                console.error("Lỗi khi load danh sách nhân viên vắng mặt theo line:", error);
+            }
+        }
+        fetchAbsentEmpKL();
+    }, [selectedDate]);
+
     const rows = [
         { label: "Tỷ lệ công nhân viên đi làm", key: "workRate" },
         { label: "Nhân lực hiện có", key: "currentStaff" },
@@ -57,8 +99,16 @@ const HumanReport = () => {
     return (
         <MainLayout>
             <div className="attendance-container">
+                <div className="page-header">
+                    <h1 className="page-title">Báo cáo nhân lực</h1>
+                </div>
                 <div className="attendance-controls">
 
+                    <input type="date" value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        className="form-control"
+                        style={{ width: "240px" }}
+                        id="floatingInputValue" />
 
                 </div>
 
@@ -68,7 +118,6 @@ const HumanReport = () => {
                             <tr>
                                 <th rowSpan={2}>Phòng ban</th>
 
-                                {/* Render phòng ban "Sản Xuất" với rowSpan */}
                                 {department
                                     .filter(dep => dep.name === "Sản Xuất")
                                     .map(dep => (
@@ -77,7 +126,6 @@ const HumanReport = () => {
                                         </th>
                                     ))}
 
-                                {/* Các phòng ban khác */}
                                 {department
                                     .filter(dep => dep.name !== "Sản Xuất")
                                     .map(dep => (
@@ -103,61 +151,59 @@ const HumanReport = () => {
                                         .filter(dep => dep.name === "Sản Xuất")
                                         .flatMap(() =>
                                             line.map(l => {
-                                                const key = l.name; 
+                                                const key = l.name;
                                                 const employees = reportData[key] || [];
+                                                const absentEmployees = absentEmp[key] || [];
+                                                const absentEmployeesKL = absentEmpKL[key] || [];
                                                 let value = "";
 
                                                 if (row.key === "workRate") {
-                                                    // Tính tỷ lệ làm việc
                                                     const total = employees.length;
-                                                    const working = employees.filter(e => e.status === "Đang làm").length;
+                                                    const working = employees.length - absentEmployees.length - absentEmployeesKL.length;
                                                     value = total > 0 ? `${Math.round((working / total) * 100)}%` : "0%";
                                                 } else if (row.key === "currentStaff") {
                                                     value = employees.length;
                                                 } else if (row.key === "presentToday") {
-                                                    value = employees.filter(e => e.isPresent).length;
+                                                    value = employees.length - absentEmployees.length - absentEmployeesKL.length;
                                                 } else if (row.key === "onLeave") {
-                                                    value = employees.filter(e => e.status === "Nghỉ phép").length;
+                                                    value = absentEmployees.length;
                                                 } else if (row.key === "noSalary") {
-                                                    value = employees.filter(e => e.status === "Nghỉ không lương").length;
+                                                    value = absentEmployeesKL.length;
                                                 }
 
                                                 return <td key={key}>{value}</td>;
                                             })
                                         )}
 
-                                    {/* Dữ liệu cho các phòng ban khác */}
                                     {department
                                         .filter(dep => dep.name !== "Sản Xuất")
                                         .map(dep => {
                                             const key = dep.name;
                                             const employees = reportData[key] || [];
+                                            const absentEmployees = absentEmp[key] || [];
+                                            const absentEmployeesKL = absentEmpKL[key] || [];
                                             let value = "";
 
                                             if (row.key === "workRate") {
                                                 const total = employees.length;
-                                                const working = employees.filter(e => e.status === "Đang làm").length;
+                                                const working = employees.length - absentEmployees.length - absentEmployeesKL.length;
+                                                value = total > 0 ? `${Math.round((working / total) * 100)}%` : "0%";
                                                 value = total > 0 ? `${Math.round((working / total) * 100)}%` : "0%";
                                             } else if (row.key === "currentStaff") {
                                                 value = employees.length;
                                             } else if (row.key === "presentToday") {
-                                                value = employees.filter(e => e.isPresent).length;
+                                                value = employees.length - absentEmployees.length - absentEmployeesKL.length;
                                             } else if (row.key === "onLeave") {
-                                                value = employees.filter(e => e.status === "Nghỉ phép").length;
+                                                value = absentEmployees.length;
                                             } else if (row.key === "noSalary") {
-                                                value = employees.filter(e => e.status === "Nghỉ không lương").length;
+                                                value = absentEmployeesKL.length;
                                             }
 
                                             return <td key={key}>{value}</td>;
                                         })}
 
-                                    {/* Cột "Danh sách nghỉ" – ví dụ hiển thị tên nhân viên nghỉ phép */}
                                     <td>
-                                        {Object.values(reportData)
-                                            .flat()
-                                            .filter(e => ["Nghỉ phép", "Nghỉ không lương"].includes(e.status))
-                                            .map(e => e.employeeName)
-                                            .join(", ")}
+
                                     </td>
                                 </tr>
                             ))}
