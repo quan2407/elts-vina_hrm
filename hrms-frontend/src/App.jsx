@@ -48,7 +48,7 @@ import ApplicationDetail from "./pages/ApplicationDetail";
 import ApplicationListPage from "./pages/ApplicationListPage.jsx";
 import ApplicationApprovalListPage from "./pages/ApplicationApprovalListPage";
 import DynamicAttendanceWrapper from "./pages/DynamicAttendanceWrapper.jsx";
-
+import DynamicWorkScheduleWrapper from "./pages/DynamicWorkScheduleWrapper";
 function App() {
   return (
     <ConfigProvider>
@@ -295,6 +295,16 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["ROLE_PRODUCTION_MANAGER"]}>
                   <WorkScheduleProductionView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/work-schedule"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["ROLE_HR", "ROLE_PRODUCTION_MANAGER"]}
+                >
+                  <DynamicWorkScheduleWrapper />
                 </ProtectedRoute>
               }
             />

@@ -3,6 +3,7 @@ import workScheduleService from "../services/workScheduleService";
 import WorkScheduleModal from "./WorkScheduleModal";
 import holidayService from "../services/holidayService ";
 import "../styles/WorkScheduleTable.css";
+import { useSearchParams } from "react-router-dom";
 
 const weekdays = ["CN", "Th 2", "Th 3", "Th 4", "Th 5", "Th 6", "Th 7"];
 
@@ -17,6 +18,11 @@ function WorkScheduleTable({
   reloadTrigger,
   onRejectReasonChange = () => {},
 }) {
+  const [searchParams] = useSearchParams();
+  const focusDateParam = searchParams.get("focusDate"); // yyyy-MM-dd
+  const departmentNameParam = searchParams.get("departmentName");
+  const lineNameParam = searchParams.get("lineName");
+
   const [dates, setDates] = useState([]);
   const [data, setData] = useState([]);
   const [selectedDeptId, setSelectedDeptId] = useState(null);
@@ -167,6 +173,59 @@ function WorkScheduleTable({
       .then(() => fetchDataAndStatus(month, year))
       .catch((err) => console.error("Lỗi tạo lịch làm việc:", err));
   };
+  useEffect(() => {
+    if (
+      !departmentNameParam ||
+      !lineNameParam ||
+      data.length === 0 ||
+      dates.length === 0 ||
+      !focusDateParam
+    )
+      return;
+
+    const timeout = setTimeout(() => {
+      const decodedDept = decodeURIComponent(departmentNameParam);
+      const decodedLine = decodeURIComponent(lineNameParam);
+
+      const lineElements = document.querySelectorAll(
+        ".work-schedule-line-name"
+      );
+
+      for (let el of lineElements) {
+        const lineText = el.getAttribute("data-linename")?.trim();
+        const deptText = el.getAttribute("data-deptname")?.trim();
+
+        console.log("🔍 So sánh:", deptText, "-", lineText);
+
+        if (lineText === decodedLine && deptText === decodedDept) {
+          console.log("✅ Match:", deptText, lineText);
+
+          // Scroll dọc
+          el.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+          const index = dates.findIndex((d) => d.iso === focusDateParam);
+          if (index !== -1) {
+            const scrollContainer = document.querySelector(
+              ".work-schedule-scroll"
+            );
+            if (scrollContainer) {
+              const cellWidth = 100;
+              scrollContainer.scrollTo({
+                left: index * cellWidth,
+                behavior: "smooth",
+              });
+            }
+          }
+
+          break;
+        }
+      }
+    }, 200);
+
+    return () => clearTimeout(timeout);
+  }, [departmentNameParam, lineNameParam, data, dates, focusDateParam]);
 
   useEffect(() => {
     holidayService.getAllHolidays().then((res) => {
@@ -432,12 +491,17 @@ function WorkScheduleTable({
                   {idx === 0 && (
                     <div
                       className="work-schedule-cell work-schedule-dept-name"
+                      data-deptname={dept.departmentName}
                       style={{ gridRow: `span ${dept.lines.length}` }}
                     >
                       {dept.departmentName}
                     </div>
                   )}
-                  <div className="work-schedule-cell work-schedule-line-name">
+                  <div
+                    className="work-schedule-cell work-schedule-line-name"
+                    data-linename={line.lineName}
+                    data-deptname={dept.departmentName}
+                  >
                     {line.lineName || <i></i>}
                   </div>
                 </React.Fragment>
@@ -478,11 +542,16 @@ function WorkScheduleTable({
                   line.workDetails.map((detail, i) => {
                     const isOvertime =
                       detail.overtime === true || detail.overtime === "true";
-
+                    const isFocus =
+                      dates[i]?.iso === focusDateParam &&
+                      line.lineName === lineNameParam &&
+                      dept.departmentName === departmentNameParam;
                     return (
                       <div
                         key={`${dept.departmentId}-${idx}-${i}`}
-                        className="work-schedule-cell work-schedule-day-cell"
+                        className={`work-schedule-cell work-schedule-day-cell ${
+                          isFocus ? "work-schedule-focus-cell" : ""
+                        }`}
                       >
                         {detail.startTime && detail.endTime ? (
                           <span

@@ -259,6 +259,31 @@ function ApplicationForm({
                   </button>
                 </div>
               )}
+            {mode === "detail" &&
+              type === "leave" &&
+              data?.startDate &&
+              data?.departmentName && ( // dùng tên thay vì id
+                <div style={{ marginTop: "8px" }}>
+                  <button
+                    className="application-form-navigate-btn"
+                    onClick={() => {
+                      const dateStr = data.startDate.substring(0, 10); // yyyy-MM-dd
+                      const query = new URLSearchParams({
+                        focusDate: dateStr,
+                        departmentName: data.departmentName,
+                      });
+
+                      if (data.lineName) {
+                        query.append("lineName", data.lineName);
+                      }
+
+                      navigate(`/work-schedule?${query.toString()}`);
+                    }}
+                  >
+                    🗓️ Xem lịch làm việc ngày này
+                  </button>
+                </div>
+              )}
           </div>
 
           {type === "leave" && (
