@@ -20,6 +20,11 @@ const salaryService = {
       params: { month, year },
     });
   },
+  lockSalaryMonth: (month, year, locked) => {
+    return axiosClient.put("/salaries/lock", null, {
+      params: { month, year, locked },
+    });
+  },
 };
 
 export default salaryService;
