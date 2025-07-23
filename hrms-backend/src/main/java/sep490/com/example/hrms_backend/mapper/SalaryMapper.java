@@ -42,7 +42,7 @@ public class SalaryMapper {
 
                 // ✅ [G] Mốc thời gian
                 .salaryMonth(salary.getSalaryMonth())
-
+                .locked(salary.isLocked())
                 .build();
     }
 }

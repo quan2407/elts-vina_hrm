@@ -177,8 +177,12 @@ public class SalaryServiceImpl implements SalaryService {
     @Override
     @Transactional
     public void regenerateMonthlySalaries(int month, int year) {
-        LocalDate salaryMonth = LocalDate.of(year, month, 1);
 
+
+        LocalDate salaryMonth = LocalDate.of(year, month, 1);
+        if (salaryRepository.existsBySalaryMonthAndLockedTrue(salaryMonth)) {
+            throw new IllegalStateException("Bảng lương đã chốt, không thể cập nhật lại.");
+        }
 
         salaryRepository.deleteBySalaryMonth(salaryMonth);
 
@@ -194,6 +198,18 @@ public class SalaryServiceImpl implements SalaryService {
                 .distinct()
                 .sorted() // sắp xếp tăng dần
                 .collect(Collectors.toList());
+    }
+    @Override
+    @Transactional
+    public void lockSalariesByMonth(int month, int year, boolean locked) {
+        LocalDate salaryMonth = LocalDate.of(year, month, 1);
+        List<Salary> salaries = salaryRepository.findBySalaryMonth(salaryMonth);
+
+        for (Salary s : salaries) {
+            s.setLocked(locked);
+        }
+
+        salaryRepository.saveAll(salaries);
     }
 
 }
