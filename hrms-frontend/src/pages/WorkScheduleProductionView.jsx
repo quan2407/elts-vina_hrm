@@ -12,8 +12,14 @@ function WorkScheduleProductionView({ canApprove = true }) {
   const [status, setStatus] = useState("not-submitted");
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [requestReason, setRequestReason] = useState("");
+  const [needRevision, setNeedRevision] = useState(false);
 
   const getStatusLabel = () => {
+    if (needRevision) {
+      return <span className="status revision">Cần chỉnh sửa lại</span>;
+    }
     switch (status) {
       case "approved":
         return <span className="status approved">Đã duyệt</span>;
@@ -24,6 +30,7 @@ function WorkScheduleProductionView({ canApprove = true }) {
         return <span className="status not-submitted">Chưa gửi</span>;
     }
   };
+
   const handleApprove = () => {
     if (
       !window.confirm(
@@ -133,6 +140,60 @@ function WorkScheduleProductionView({ canApprove = true }) {
                   />
                   <span>Duyệt</span>
                 </button>
+                <button
+                  className="work-schedule-add-button"
+                  onClick={() => setShowRequestModal(true)}
+                  disabled={status !== "approved"}
+                  style={{
+                    backgroundColor: status === "approved" ? "#eab308" : "#999",
+                    cursor: status === "approved" ? "pointer" : "not-allowed",
+                    marginLeft: "8px",
+                  }}
+                >
+                  <Plus
+                    size={16}
+                    style={{ marginRight: "6px" }}
+                  />
+                  <span>Yêu cầu chỉnh sửa</span>
+                </button>
+                {showRequestModal && (
+                  <div className="work-schedule-reject-overlay">
+                    <div className="work-schedule-reject-modal">
+                      <h3>
+                        Yêu cầu chỉnh sửa lịch tháng {month}/{year}
+                      </h3>
+                      <textarea
+                        value={requestReason}
+                        onChange={(e) => setRequestReason(e.target.value)}
+                        rows={4}
+                        placeholder="Nhập lý do cần sửa..."
+                      />
+                      <div className="work-schedule-reject-actions">
+                        <button onClick={() => setShowRequestModal(false)}>
+                          Hủy
+                        </button>
+                        <button
+                          disabled={!requestReason.trim()}
+                          onClick={() => {
+                            workScheduleService
+                              .requestRevision(month, year, requestReason)
+                              .then(() => {
+                                alert("Yêu cầu chỉnh sửa lịch thành công!");
+                                setShowRequestModal(false);
+                                setStatus("not-submitted");
+                                setNeedRevision(true);
+                              })
+                              .catch(() =>
+                                alert("Lỗi khi gửi yêu cầu chỉnh sửa")
+                              );
+                          }}
+                        >
+                          Gửi yêu cầu
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -145,6 +206,7 @@ function WorkScheduleProductionView({ canApprove = true }) {
           setYear={setYear}
           canEdit={false}
           onRejectReasonChange={setRejectReason}
+          onNeedRevisionChange={setNeedRevision}
           onStatusChange={setStatus}
           onMonthYearChange={(m, y) => {
             setMonth(m);

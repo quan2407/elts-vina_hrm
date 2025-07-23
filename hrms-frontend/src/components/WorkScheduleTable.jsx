@@ -17,6 +17,7 @@ function WorkScheduleTable({
   canEdit = true,
   reloadTrigger,
   onRejectReasonChange = () => {},
+  onNeedRevisionChange = () => {},
 }) {
   const [searchParams] = useSearchParams();
   const focusDateParam = searchParams.get("focusDate"); // yyyy-MM-dd
@@ -116,49 +117,44 @@ function WorkScheduleTable({
       .then((res) => {
         setData(res.data);
 
+        const allLines = res.data.flatMap((dept) => dept.lines);
+        const anyNeedRevision = allLines.some(
+          (line) => line.needRevision === true
+        );
+        onNeedRevisionChange(anyNeedRevision);
         if (onStatusChange) {
-          const allLines = res.data.flatMap((dept) => dept.lines);
+          const allAccepted =
+            allLines.length > 0 &&
+            allLines.every((line) => String(line.accepted) === "true");
 
           const allSubmitted =
             allLines.length > 0 &&
             allLines.every((line) => String(line.submitted) === "true");
 
-          const allAccepted =
+          const allRejected =
             allLines.length > 0 &&
-            allLines.every((line) => String(line.accepted) === "true");
+            allLines.every(
+              (line) =>
+                !line.accepted &&
+                !line.submitted &&
+                line.rejectReason?.trim()?.length > 0
+            );
 
-          console.log(
-            "🔥 Gọi onStatusChange từ WorkScheduleTable với:",
+          console.log("🔥 Gọi onStatusChange từ WorkScheduleTable với:", {
             allAccepted,
-            allSubmitted
-          );
+            allSubmitted,
+            allRejected,
+          });
 
           if (allAccepted) onStatusChange("approved");
           else if (allSubmitted) onStatusChange("submitted");
           else onStatusChange("not-submitted");
         }
         if (onRejectReasonChange) {
-          const allLines = res.data.flatMap((dept) => dept.lines);
           const firstRejected = allLines.find(
-            (line) => !line.isAccepted && !line.isSubmitted && line.rejectReason
+            (line) => !line.accepted && !line.submitted && line.rejectReason
           );
           onRejectReasonChange(firstRejected?.rejectReason || "");
-        }
-
-        if (onStatusChange) {
-          const allLines = res.data.flatMap((dept) => dept.lines);
-
-          const allSubmitted =
-            allLines.length > 0 &&
-            allLines.every((line) => String(line.submitted) === "true");
-
-          const allAccepted =
-            allLines.length > 0 &&
-            allLines.every((line) => String(line.accepted) === "true");
-
-          if (allAccepted) onStatusChange("approved");
-          else if (allSubmitted) onStatusChange("submitted");
-          else onStatusChange("not-submitted");
         }
       })
       .catch(() => {

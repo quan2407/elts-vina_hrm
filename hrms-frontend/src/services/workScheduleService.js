@@ -50,6 +50,12 @@ const workScheduleService = {
   createCustomWorkSchedule: (payload) => {
     return axiosClient.put("/work-schedules/custom-range", payload);
   },
+  requestRevision: (month, year, reason) => {
+    return axiosClient.put("/work-schedules/request-revision", reason, {
+      params: { month, year, reason },
+      headers: { "Content-Type": "application/json" },
+    });
+  },
 };
 
 export default workScheduleService;
