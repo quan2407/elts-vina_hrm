@@ -104,11 +104,15 @@ const HumanReport = () => {
                 </div>
                 <div className="attendance-controls">
 
-                    <input type="date" value={selectedDate}
+                    <input
+                        type="date"
+                        value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
                         className="form-control"
                         style={{ width: "240px" }}
-                        id="floatingInputValue" />
+                        id="floatingInputValue"
+                        max={getYesterdayLocalDate()}
+                    />
 
                 </div>
 
@@ -203,8 +207,23 @@ const HumanReport = () => {
                                         })}
 
                                     <td>
-
+                                        {row.key === "onLeave"
+                                            ? Object.values(absentEmp).flat().map(e => (
+                                                <span >
+                                                    {e.employeeName}
+                                                    <br />
+                                                </span>
+                                            ))
+                                            : row.key === "noSalary"
+                                                ? Object.values(absentEmpKL).flat().map(e => (
+                                                    <span >
+                                                        {e.employeeName}
+                                                        <br />
+                                                    </span>
+                                                ))
+                                                : ""}
                                     </td>
+
                                 </tr>
                             ))}
                         </tbody>
