@@ -4,11 +4,11 @@ import { vi } from "date-fns/locale";
 import applicationApprovalService from "../services/applicationApprovalService";
 import TimePicker from "react-time-picker";
 import "react-time-picker/dist/TimePicker.css";
-
+import { useNavigate } from "react-router-dom";
 import ReactQuill from "react-quill";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-quill/dist/quill.snow.css";
-import "../styles/ApplicationForm.css"; // ✅ Đã đổi sang CSS riêng
+import "../styles/ApplicationForm.css";
 import { Save } from "lucide-react";
 
 function ApplicationForm({
@@ -45,6 +45,7 @@ function ApplicationForm({
   const [attachmentPreview, setAttachmentPreview] = useState(null);
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
+  const navigate = useNavigate();
 
   const [isReadOnly, setIsReadOnly] = useState(true);
 
@@ -238,6 +239,26 @@ function ApplicationForm({
               customInput={<CustomInput />}
               disabled={isReadOnly}
             />
+            {mode === "detail" &&
+              type === "makeup" &&
+              data?.employeeId &&
+              data?.startDate && (
+                <div style={{ margin: "16px 0" }}>
+                  <button
+                    className="application-form-navigate-btn"
+                    onClick={() => {
+                      const dateStr = data.startDate.substring(0, 10); // yyyy-MM-dd
+                      navigate(
+                        `/attendance?focusEmployee=${
+                          data.employeeId
+                        }&focusDate=${data.startDate.substring(0, 10)}`
+                      );
+                    }}
+                  >
+                    📅 Xem bảng công ngày này
+                  </button>
+                </div>
+              )}
           </div>
 
           {type === "leave" && (

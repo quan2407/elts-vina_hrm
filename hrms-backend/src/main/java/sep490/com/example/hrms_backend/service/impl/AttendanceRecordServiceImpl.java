@@ -115,6 +115,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
         for (Employee emp : employeePage.getContent()) {
             AttendanceMonthlyViewDTO dto = AttendanceMonthlyViewDTO.builder()
+                    .employeeId(emp.getEmployeeId())
                     .employeeCode(emp.getEmployeeCode())
                     .employeeName(emp.getEmployeeName())
                     .departmentName(emp.getDepartment() != null ? emp.getDepartment().getDepartmentName() : null)

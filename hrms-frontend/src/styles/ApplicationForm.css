@@ -267,3 +267,17 @@
   box-shadow: none !important;
   padding: 0 !important;
 }
+.application-form-navigate-btn {
+  background-color: #0d6efd;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.application-form-navigate-btn:hover {
+  background-color: #0b5ed7;
+}

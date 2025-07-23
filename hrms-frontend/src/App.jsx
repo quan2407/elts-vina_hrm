@@ -47,6 +47,8 @@ import ApplicationCreate from "./pages/ApplicationCreate";
 import ApplicationDetail from "./pages/ApplicationDetail";
 import ApplicationListPage from "./pages/ApplicationListPage.jsx";
 import ApplicationApprovalListPage from "./pages/ApplicationApprovalListPage";
+import DynamicAttendanceWrapper from "./pages/DynamicAttendanceWrapper.jsx";
+
 function App() {
   return (
     <ConfigProvider>
@@ -120,6 +122,16 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["ROLE_PRODUCTION_MANAGER"]}>
                   <AttendanceMonthlyView readOnly={true} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/attendance"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["ROLE_HR", "ROLE_PRODUCTION_MANAGER"]}
+                >
+                  <DynamicAttendanceWrapper />
                 </ProtectedRoute>
               }
             />

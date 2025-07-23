@@ -245,3 +245,19 @@
   font-weight: bold;
   border-color: #3b82f6;
 }
+.highlight-scroll-target {
+  outline: 2px solid orange;
+  animation: pulse-highlight 1s ease-in-out 2;
+}
+
+@keyframes pulse-highlight {
+  0% {
+    background-color: #fff3cd;
+  }
+  50% {
+    background-color: #ffeeba;
+  }
+  100% {
+    background-color: #fff3cd;
+  }
+}

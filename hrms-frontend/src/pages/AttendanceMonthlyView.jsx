@@ -3,11 +3,13 @@ import attendanceService from "../services/attendanceService";
 import MainLayout from "../components/MainLayout";
 import AttendanceModal from "../components/AttendanceModal";
 import LeaveCodeModal from "../components/LeaveCodeModal";
+import { useLocation } from "react-router-dom";
 
 import "../styles/AttendanceMonthlyView.css";
 import { Pencil } from "lucide-react";
 
 const AttendanceMonthlyView = ({ readOnly = false }) => {
+  const location = useLocation();
   const [data, setData] = useState([]);
   const [availableMonths, setAvailableMonths] = useState([]);
   const [month, setMonth] = useState(null);
@@ -27,6 +29,12 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const today = new Date();
+  const params = new URLSearchParams(location.search);
+  const empId = params.get("focusEmployee");
+  const focusDate = params.get("focusDate"); // yyyy-MM-dd
+  const targetCellId =
+    empId && focusDate ? `attendance-cell-${empId}-${focusDate}` : null;
+  console.log("🔍 targetCellId:", targetCellId);
 
   const isBeforeYesterday = (date) => {
     const d1 = new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -77,10 +85,23 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
       try {
         const res = await attendanceService.getAvailableMonths();
         setAvailableMonths(res.data);
-        if (res.data.length > 0) {
-          setMonth(res.data[0].month);
-          setYear(res.data[0].year);
+
+        // ✅ Nếu có focusDate trên URL → parse ra year & month
+        const focusDate = params.get("focusDate");
+        let defaultMonth = res.data[0].month;
+        let defaultYear = res.data[0].year;
+
+        if (focusDate) {
+          const [y, m] = focusDate.split("-").map(Number);
+          const exists = res.data.some((d) => d.month === m && d.year === y);
+          if (exists) {
+            defaultMonth = m;
+            defaultYear = y;
+          }
         }
+
+        setMonth(defaultMonth);
+        setYear(defaultYear);
       } catch (error) {
         console.error("Lỗi khi tải danh sách tháng/năm:", error);
       }
@@ -104,6 +125,10 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
         size
       );
       setData(response.data.content);
+      console.log(
+        "👤 Employees:",
+        response.data.content.map((e) => e.employeeId)
+      );
       setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error("Fetch attendance failed:", error);
@@ -156,6 +181,25 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
       }
     }
   };
+  useEffect(() => {
+    if (!targetCellId) return;
+
+    const tryScroll = () => {
+      const el = document.getElementById(targetCellId);
+      if (el) {
+        console.log("🎯 Found element:", targetCellId);
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("highlight-scroll-target");
+        setTimeout(() => el.classList.remove("highlight-scroll-target"), 3000);
+      } else {
+        console.log("❌ Element not found yet, retrying...");
+        setTimeout(tryScroll, 200);
+      }
+    };
+
+    // Delay đầu tiên sau khi render toàn bộ bảng
+    setTimeout(tryScroll, 500);
+  }, [data, targetCellId]);
 
   return (
     <MainLayout>
@@ -306,7 +350,15 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
                         if (cell.hasScheduleDetail) {
                           const isPastDay = isBeforeYesterday(dayDate);
                           return (
-                            <td key={d}>
+                            <td
+                              key={d}
+                              id={`attendance-cell-${
+                                emp.employeeId
+                              }-${year}-${String(month).padStart(
+                                2,
+                                "0"
+                              )}-${String(day).padStart(2, "0")}`}
+                            >
                               {isPastDay ? (
                                 <>
                                   {cell.checkIn || cell.checkOut ? (
