@@ -9,4 +9,5 @@ public interface BenefitRegistrationService {
     BenefitResponse searchBenefitByEmployee(Long employeeId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
     BenefitRegistrationDTO registerBenefitForEmployee(Long benefitId, Long employeeId, String note);
+
 }

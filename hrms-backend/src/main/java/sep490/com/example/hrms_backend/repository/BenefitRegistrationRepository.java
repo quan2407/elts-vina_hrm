@@ -15,6 +15,9 @@ public interface BenefitRegistrationRepository extends JpaRepository<BenefitRegi
 
     Page<Benefit> findByEmployeeOrderById(Employee employee, Pageable pageable);
 
+    @Query("SELECT bp.position.positionId  FROM BenefitPosition bp WHERE bp.benefit.id = :benefitId")
+    List<Long> findPositionIdsByBenefitId(@Param("benefitId") Long benefitId);
+
 //    long countByBenefit(Benefit benefit);
 
 //    boolean existsByBenefitAndEmployee(Benefit benefit, Employee employee);

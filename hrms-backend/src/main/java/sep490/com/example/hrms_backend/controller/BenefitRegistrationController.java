@@ -33,6 +33,8 @@ public class BenefitRegistrationController {
     }
 
 
+
+
     //2. đăng kí Benefit
     @PostMapping("register/employees/{employeeId}/benefits/{benefitId}")
     public ResponseEntity<BenefitRegistrationDTO> registerBenefit(@PathVariable Long employeeId, @PathVariable Long benefitId, @RequestBody(required = false) String note){

@@ -116,4 +116,6 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
 //        return modelMapper.map(newBenefitRegistration, BenefitRegistrationDTO.class);
         return null;
     }
+
+
 }

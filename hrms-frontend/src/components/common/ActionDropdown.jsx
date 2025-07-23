@@ -1,14 +1,21 @@
 import { Dropdown, Button } from 'antd';
 import { EditOutlined, EyeOutlined, DeleteOutlined, DownOutlined } from '@ant-design/icons';
 
-const ActionDropdown = ({ onView, onEdit, onDelete }) => {
+const ActionDropdown = ({ onView, onEdit, onDelete, onDetails }) => {
     const handleMenuClick = (e) => {
         if (e.key === 'view') onView?.();
         else if (e.key === 'edit') onEdit?.();
         else if (e.key === 'delete') onDelete?.();
+        else if (e.key === 'details') onDetails?.();
     };
 
     const items = [
+        {
+            key: 'details',  // Mới thêm mục Details
+            icon: <EyeOutlined />,
+            label: 'Xem chi tiết',
+        },
+
         {
             key: 'view',
             icon: <EyeOutlined />,
@@ -25,6 +32,7 @@ const ActionDropdown = ({ onView, onEdit, onDelete }) => {
             label: 'Xóa',
             danger: true,
         },
+
     ];
 
     return (

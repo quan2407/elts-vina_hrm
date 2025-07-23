@@ -258,5 +258,66 @@ public class BenefitServiceImpl implements BenefitService {
         return modelMapper.map(benefit, BenefitDTO.class);
     }
 
+    @Override
+    public BenefitResponse getEmployeeAndPositionRegistrationByBenefitId(Long benefitId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+
+        // 1. Tạo đối tượng sắp xếp (theo field và hướng sắp xếp: asc/desc)
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        // 2. Tạo đối tượng phân trang (Pageable) dựa trên số trang, kích thước trang và sắp xếp
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sortByAndOrder);
+
+        // 3. Gọi repository với điều kiện lọc động (Specification)
+        Page<Benefit> benefitPage = benefitRepository.findAll((root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // 3.1 Lọc theo id
+            predicates.add(cb.equal(root.get("id"), benefitId));
+
+            // 3.2 Lọc theo title
+//            if (title != null && !title.isEmpty()) {
+//                predicates.add(cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
+//            }
+
+
+
+            // 3.10 Trả về tất cả điều kiện AND lại
+            return cb.and(predicates.toArray(new Predicate[0]));
+        }, pageable);
+
+        // Lấy danh sách các Benefit từ trang hiện tại
+        List<Benefit> benefits = benefitPage.getContent();
+
+        // Kiểm tra nếu không có kết quả nào
+        if (benefits.isEmpty()) {
+            throw new HRMSAPIException("No Benefit found with id " + benefitId + ". Please check the id.");
+        }
+
+        // Chuyển đổi danh sách Benefit sang BenefitDTO
+        List<BenefitDTO> benefitDTOList = benefitMapper.toBenefitDTOs(benefits);
+
+        // Tạo đối tượng BenefitResponse và lưu thông tin phân trang
+        BenefitResponse benefitResponse = new BenefitResponse();
+        benefitResponse.setContent(benefitDTOList);
+        benefitResponse.setPageNumber(benefitPage.getNumber());
+        benefitResponse.setPageSize(benefitPage.getSize());
+        benefitResponse.setTotalElements(benefitPage.getTotalElements());
+        benefitResponse.setTotalPages(benefitPage.getTotalPages());
+        benefitResponse.setLastPage(benefitPage.isLast());
+
+        return benefitResponse;
+
+
+
+
+    }
+
+    @Override
+    public BenefitDTO getBenefitById(Long id) {
+        return modelMapper.map(benefitRepository.findById(id), BenefitDTO.class);
+    }
+
 
 }

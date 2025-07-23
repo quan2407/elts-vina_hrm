@@ -19,6 +19,8 @@ const BenefitCreateModal = ({onCreated}) => {
     const [open, setOpen] = useState(false);
     const [form] = Form.useForm();
 
+    const benefitType = Form.useWatch('benefitType', form);
+    const formulaType = Form.useWatch('formulaType', form);
 
     const handleSubmit = async () => {
         try {
@@ -29,11 +31,21 @@ const BenefitCreateModal = ({onCreated}) => {
             const payload = {
                 title: values.title,
                 description: values.description || '',
+                benefitType: values.benefitType,
+                defaultFormulaType: values.formulaType,
+                defaultFormulaValue: values.formulaValue,
                 startDate: startDate.format('YYYY-MM-DD'),
                 endDate: endDate.format('YYYY-MM-DD'),
                 maxParticipants: values.maxParticipants,
                 isActive: values.isActive,
+                detail: values.detail || ''
             };
+
+            // Thêm vào nếu có công thức tính
+            if (['PHU_CAP', 'KHAU_TRU'].includes(values.benefitType)) {
+                payload.formulaType = values.formulaType;
+                payload.formulaValue = values.formulaValue;
+            }
 
             const res =  await benefitService.create(payload);
 
@@ -91,6 +103,103 @@ const BenefitCreateModal = ({onCreated}) => {
                     </Form.Item>
 
                     <Form.Item
+                        label="Loại phúc lợi"
+                        name="benefitType"
+                        rules={[{ required: true, message: 'Vui lòng chọn loại phúc lợi' }]}
+                    >
+                        <Select placeholder="Chọn loại phúc lợi ">
+                            <Select.Option value={"SU_KIEN"}>Sự kiện</Select.Option>
+                            <Select.Option value={"PHU_CAP"}>Phụ cấp</Select.Option>
+                            <Select.Option value={"KHAU_TRU"}>Khấu trừ</Select.Option>
+                        </Select>
+                    </Form.Item>
+                    {/*{(benefitType === "PHU_CAP" || benefitType === "KHAU_TRU") && (*/}
+                    {/*    <>*/}
+                    {/*        <Form.Item*/}
+                    {/*            label="Cách tính (Formula Type)"*/}
+                    {/*            name="formulaType"*/}
+                    {/*            rules={[{ required: true, message: 'Vui lòng chọn cách tính' }]}*/}
+                    {/*        >*/}
+                    {/*            <Select placeholder="Chọn cách tính">*/}
+                    {/*                <Select.Option value="AMOUNT">Số tiền cố định</Select.Option>*/}
+                    {/*                <Select.Option value="PERCENTAGE">Theo phần trăm</Select.Option>*/}
+                    {/*            </Select>*/}
+                    {/*        </Form.Item>*/}
+
+                    {/*        <Form.Item*/}
+                    {/*            label="Giá trị"*/}
+                    {/*            name="formulaValue"*/}
+                    {/*            rules={[{ required: true, message: 'Vui lòng nhập giá trị' }]}*/}
+                    {/*        >*/}
+                    {/*            <InputNumber min={0} style={{ width: "100%" }} placeholder="Nhập số tiền hoặc %" />*/}
+                    {/*        </Form.Item>*/}
+                    {/*    </>*/}
+                    {/*)}*/}
+                    {/*<Form.Item label="Cách tính">*/}
+                    {/*    <Input.Group compact>*/}
+                    {/*        <Form.Item*/}
+                    {/*            name="formulaType"*/}
+                    {/*            noStyle*/}
+                    {/*            rules={[{ required: true, message: 'Chọn cách tính' }]}*/}
+                    {/*        >*/}
+                    {/*            <Select placeholder="Chọn cách tính" style={{ width: '50%' }}>*/}
+                    {/*                <Select.Option value="AMOUNT">Số tiền cố định</Select.Option>*/}
+                    {/*                <Select.Option value="PERCENTAGE">Theo phần trăm</Select.Option>*/}
+                    {/*            </Select>*/}
+                    {/*        </Form.Item>*/}
+
+                    {/*        {formulaType && (*/}
+                    {/*            <Form.Item*/}
+                    {/*                name="formulaValue"*/}
+                    {/*                noStyle*/}
+                    {/*                rules={[{ required: true, message: 'Nhập giá trị' }]}*/}
+                    {/*            >*/}
+                    {/*                <InputNumber*/}
+                    {/*                    min={0}*/}
+                    {/*                    style={{ width: '50%', textAlign: 'right' }}*/}
+                    {/*                    placeholder={*/}
+                    {/*                        formulaType === 'AMOUNT' ? 'Nhập số tiền' : 'Nhập phần trăm'*/}
+                    {/*                    }*/}
+                    {/*                    addonAfter={formulaType === 'AMOUNT' ? 'VND' : '%'}*/}
+                    {/*                />*/}
+                    {/*            </Form.Item>*/}
+                    {/*        )}*/}
+                    {/*    </Input.Group>*/}
+                    {/*</Form.Item>*/}
+                    {/* Chỉ hiển thị nếu là phụ cấp hoặc khấu trừ */}
+                    {['PHU_CAP', 'KHAU_TRU'].includes(benefitType) && (
+                        <Form.Item label="Cách tính">
+                            <Input.Group compact>
+                                <Form.Item
+                                    name="formulaType"
+                                    noStyle
+                                    rules={[{ required: true, message: 'Chọn cách tính' }]}
+                                >
+                                    <Select placeholder="Chọn cách tính" style={{ width: '50%' }}>
+                                        <Select.Option value="AMOUNT">Số tiền cố định</Select.Option>
+                                        <Select.Option value="PERCENTAGE">Theo phần trăm</Select.Option>
+                                    </Select>
+                                </Form.Item>
+
+                                {formulaType && (
+                                    <Form.Item
+                                        name="formulaValue"
+                                        noStyle
+                                        rules={[{ required: true, message: 'Nhập giá trị' }]}
+                                    >
+                                        <InputNumber
+                                            min={0}
+                                            style={{ width: '50%', textAlign: 'right' }}
+                                            placeholder={formulaType === 'AMOUNT' ? 'Nhập số tiền' : 'Nhập phần trăm'}
+                                            addonAfter={formulaType === 'AMOUNT' ? 'VND' : '%'}
+                                        />
+                                    </Form.Item>
+                                )}
+                            </Input.Group>
+                        </Form.Item>
+                    )}
+
+                    <Form.Item
                         label="Ngày bắt đầu - Ngày kết thúc"
                         name="dateRange"
                         rules={[{ required: true, message: 'Chọn khoảng ngày' }]}
@@ -115,6 +224,10 @@ const BenefitCreateModal = ({onCreated}) => {
                             <Select.Option value={true}>Hoạt động</Select.Option>
                             <Select.Option value={false}>Ngưng hoạt động</Select.Option>
                         </Select>
+                    </Form.Item>
+
+                    <Form.Item label="Đặc tả chi tiết" name="detail">
+                        <Input.TextArea rows={3} placeholder="Nhập đặc tả (không bắt buộc)" />
                     </Form.Item>
                 </Form>
             </Modal>

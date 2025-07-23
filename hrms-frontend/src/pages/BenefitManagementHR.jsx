@@ -6,6 +6,7 @@ import "../styles/EmployeeTable.css";
 import { PlusOutlined } from "@ant-design/icons";
 import { Button } from "antd";
 import BenefitCreateModal from "../components/modals/benefit/BenefitCreateModal.jsx";
+import Breadcrumb from "../components/Breadcrumb";
 import { useEffect, useState } from "react";
 import benefitService from "../services/benefitService.js";
 
@@ -15,19 +16,23 @@ function BenefitManagementHR() {
    * This variable is intended to hold information detailing the advantages,
    * perks, or positive outcomes related to the context in which it is used.
    */
-  const [benefits, setBenefits] = useState([]);
-  const fetchBenefits = async () => {
-    try {
-      const res = await benefitService.getAll();
-      setBenefits(res.data); // hoặc res nếu không có .data
-    } catch (err) {
-      console.error("Lỗi tải phúc lợi:", err);
-    }
-  };
+  // const [benefits, setBenefits] = useState([]);
+  // const fetchBenefits = async () => {
+  //   try {
+  //     const res = await benefitService.getAll();
+  //     setBenefits(res.data); // hoặc res nếu không có .data
+  //   } catch (err) {
+  //     console.error("Lỗi tải phúc lợi:", err);
+  //   }
+  // };
+  //
+  // useEffect(() => {
+  //   fetchBenefits().then(setBenefits);
+  // }, []);
+  const breadcrumbPaths = [
+        { name: "Quản lý phúc lợi"}
 
-  useEffect(() => {
-    fetchBenefits().then(setBenefits);
-  }, []);
+      ];
   return (
     <MainLayout>
       <div className="content-wrapper">
@@ -61,6 +66,7 @@ function BenefitManagementHR() {
                 </defs>
               </svg>
             </div>
+            <Breadcrumb paths={breadcrumbPaths} />
             {/*<div className="create-button">*/}
             {/*    <span className="export-text" >*/}
             {/*          <PlusOutlined className="create-icon" />*/}
@@ -82,7 +88,7 @@ function BenefitManagementHR() {
             {/*    </svg>*/}
             {/*</div>*/}
 
-            <BenefitCreateModal onCreated={fetchBenefits} />
+            <BenefitCreateModal />
           </div>
         </div>
         <BenefitHrTable />

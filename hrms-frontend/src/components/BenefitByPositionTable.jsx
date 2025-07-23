@@ -4,14 +4,13 @@ import benefitService from "../services/benefitService.js";
 import Paging from "./common/Paging.jsx";
 import BenefitSearchForm from "./common/search/BenefitSearchForm.jsx";
 import ActionDropdown from "./common/ActionDropdown.jsx";
-import BenefitUpdateModal from "./modals/benefit/BenefitUpdateModal.jsx";
+import BenefitPositionUpdateModal from "./modals/benefit/BenefitPositionUpdateModal.jsx";
 import { Modal, message } from "antd";
-import getBenefitTypeDisplay from '../utils/DisplayBenefitType.js'
 import { useNavigate } from 'react-router-dom';
 
-const BenefitHRTableHeader = () => {
+const BenefitByPositionHeader = () => {
     const headers = [
-        "Id", "Tiêu đề", "Mô tả", "Loại phúc lợi", "Ngày bắt đầu", "Ngày kết thúc", "Số lượng người tham gia tối đa", "Trạng thái hoạt động", "Ngày tạo"
+        "Id", "Tên vị trí", "Giá trị tính vào lương",
     ];
 
     return (
@@ -25,7 +24,7 @@ const BenefitHRTableHeader = () => {
     );
 };
 
-const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
+const BenefitByPositionTableRow = ({ benefit, onUpdateSuccess }) => {
     const formatDate = (date) => new Date(date).toLocaleDateString("en-GB");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
@@ -38,7 +37,8 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
 
     const handleUpdate = async (updatedData) => {
         try {
-            await benefitService.update(updatedData, benefit.id);
+            console.log("á", updatedData);
+            await benefitService.updateFormula(updatedData);
             message.success("Cập nhật thành công!");
             setIsModalOpen(false);
             onUpdateSuccess?.(); // để reload bảng sau khi cập nhật
@@ -71,46 +71,26 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
 
     return (
         <div className="employee-table-row">
-            <div className="employee-table-cell">{benefit.id}</div>
-            <div className="employee-table-cell">{benefit.title}</div>
-            <div className="employee-table-cell">{benefit.description}</div>
-            <div className="employee-table-cell">{getBenefitTypeDisplay(benefit.benefitType)}</div>
-            <div className="employee-table-cell">{formatDate(benefit.startDate)}</div>
-            <div className="employee-table-cell">{formatDate(benefit.endDate)}</div>
-            <div className="employee-table-cell">{benefit.maxParticipants}</div>
-            <div className="employee-table-cell">{benefit.isActive ? 'Đang hoạt động' : 'Ngừng hoạt động'}</div>
-            <div className="employee-table-cell">{formatDate(benefit.createdAt)}</div>
+            <div className="employee-table-cell">{benefit.positions.positionId}</div>
+            <div className="employee-table-cell">{benefit.positions.positionName}</div>
+            <div className="employee-table-cell"> {benefit.positions.formulaType === "AMOUNT"
+                ? `Lương cơ bản + ${benefit.positions.formulaValue}`
+                : `${benefit.positions.formulaValue}% Lương cơ bản`}</div>
+            {/*<div className="employee-table-cell">{getBenefitTypeDisplay(benefit.benefitType)}</div>*/}
+            {/*<div className="employee-table-cell">{formatDate(benefit.startDate)}</div>*/}
+            {/*<div className="employee-table-cell">{formatDate(benefit.endDate)}</div>*/}
+            {/*<div className="employee-table-cell">{benefit.maxParticipants}</div>*/}
+            {/*<div className="employee-table-cell">{benefit.isActive ? 'Đang hoạt động' : 'Ngừng hoạt động'}</div>*/}
+            {/*<div className="employee-table-cell">{formatDate(benefit.createdAt)}</div>*/}
             <div className="employee-table-cell">
                 <ActionDropdown
                     onEdit={handleEdit}
-                    // onView={() => Modal.info({ title: 'Chi tiết', content: benefit.detail })}
-                    onView={() => {
-                        if (benefit.detail) {
-                            Modal.info({
-                                title: 'Chi tiết phúc lợi',
-                                content: benefit.detail,
-                            });
-                        } else {
-                            Modal.confirm({
-                                title: 'Chưa có chi tiết',
-                                content: 'Bạn chưa nhập chi tiết cho phúc lợi này. Bạn có muốn thêm không?',
-                                okText: 'Thêm ngay',
-                                cancelText: 'Đóng',
-                                onOk: () => {
-                                    // Cách 1: Navigate sang trang update:
-                                    // navigate(`/benefit/update/${benefit.id}`);
-
-                                    // Cách 2: Mở modal cập nhật tại chỗ:
-                                    setIsModalOpen(true);
-                                },
-                            });
-                        }
-                    }}
+                    onView={() => Modal.info({ title: 'Chi tiết', content: benefit.detail })}
                     onDelete={() => Modal.confirm({
                         title: "Bạn có chắc chắn muốn xóa?",
                         onOk: async () => {
                             try {
-                                await benefitService.delete(benefit.id);
+                                await benefitService.unassignPositionsFromBenefit(benefit.id,benefit.positions.positionId);
                                 message.success("Đã xóa thành công!");
                                 onUpdateSuccess();
                             } catch {
@@ -121,7 +101,7 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
                     onDetails={handleDetails}
                 />
             </div>
-            <BenefitUpdateModal
+            <BenefitPositionUpdateModal
                 open={isModalOpen}
                 onCancel={() => setIsModalOpen(false)}
                 onSubmit={handleUpdate}
@@ -131,7 +111,7 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
     );
 };
 
-function BenefitHrTable() {
+function BenefitByPositionTable({ benefitId }) {
     const [benefits, setBenefit] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -139,29 +119,42 @@ function BenefitHrTable() {
     const [pageSize, setPageSize] = useState(10);
     const [totalElements, setTotalElements] = useState(0);
     const [filters, setFilters] = useState({});
-
+    console.log("✅ benefitId từ URL:", benefitId);
+    console.log(localStorage.getItem("accessToken"));
     useEffect(() => {
+        if (!benefitId) {
+            console.warn("❗ benefitId chưa có, không gọi API");
+            return;
+        }
+
         const params = {
             page: pageNumber,
             size: pageSize,
             ...filters
         };
 
+
+
         setError(null);
+        setLoading(true);
+        console.log("🧪 Đang gọi API:", `http://localhost:8080/api/hr/benefits/${benefitId}`, params);
 
         benefitService
-            .getAll(params)
+            .getPositionRegisterationDetail(params, benefitId)
             .then((res) => {
+
                 setBenefit(res.data.content);
+
                 setTotalElements(res.data.totalElements);
 
             })
             .catch((err) => {
-                console.error("Failed to fetch benefits", err);
+                console.error("Lỗi khi fetch benefit", err);
                 setError("Không thể lấy dữ liệu phúc lợi tương ứng");
             })
             .finally(() => setLoading(false));
-    }, [pageNumber, pageSize, filters]);
+    }, [benefitId,pageNumber, pageSize, filters]);
+    console.log(benefits);
 
     return (
         <div className="employee-table-wrapper">
@@ -172,7 +165,7 @@ function BenefitHrTable() {
                     setPageNumber(1); // reset về page đầu khi search
                 }}
             />
-            <BenefitHRTableHeader />
+            <BenefitByPositionHeader />
 
             <div className="employee-table">
 
@@ -180,14 +173,20 @@ function BenefitHrTable() {
                 {loading && <p>Loading...</p>}
                 {error && <p style={{ color: "red" }}>{error}</p>}
                 {!loading && benefits.length === 0 && <p>No benefits found.</p>}
-                {!error && !loading && Array.isArray(benefits) && benefits.map((benefit) => (
-                    <BenefitHRTableRow
-                        key={benefit.id}
-                        benefit={benefit}
-
-                        onUpdateSuccess={() => setPageNumber((prev) => prev)}
-                    />
-                ))}
+                {!error && !loading && Array.isArray(benefits) &&
+                    benefits.flatMap((benefit) =>
+                        benefit.positions.map((position, index) => (
+                            <BenefitByPositionTableRow
+                                key={`${benefit.id}-${index}`}
+                                benefit={{
+                                    id: benefit.id,
+                                    positionId: position.positionId,
+                                    positions: position
+                                }}
+                                onUpdateSuccess={() => setPageNumber(prev => prev)}
+                            />
+                        ))
+                    )}
             </div>
 
             {!loading && totalElements > 0 && (
@@ -203,4 +202,4 @@ function BenefitHrTable() {
     );
 }
 
-export default BenefitHrTable;
+export default BenefitByPositionTable;

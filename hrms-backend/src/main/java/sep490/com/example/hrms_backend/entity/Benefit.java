@@ -16,6 +16,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import sep490.com.example.hrms_backend.enums.BenefitType;
+import sep490.com.example.hrms_backend.enums.FormulaType;
 
 @Entity
 @Table(name = "benefit")
@@ -48,7 +49,12 @@ public class Benefit {
     @Column(name = "benefit_type", nullable = false)
     private BenefitType benefitType;
 
+    @Column(name = "default_formula_value")
+    private BigDecimal defaultFormulaValue;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "default_formula_type")
+    private FormulaType defaultFormulaType;
 
 
     @NotNull

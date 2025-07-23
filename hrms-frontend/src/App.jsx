@@ -38,6 +38,7 @@ import SalaryMonthlyView from "./pages/SalaryMonthlyView";
 import LineManagement from "./pages/LineManagementPMC.jsx";
 import EmployeeInLineManagement from "./pages/EmployeeInLineManagement.jsx";
 import EmployeeWorkScheduleView from "./pages/EmployeeWorkScheduleView";
+import BenefitDetail from "./pages/BenefitDetail.jsx";
 
 function App() {
   return (
@@ -290,6 +291,15 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+              <Route
+                  path="/benefit/:benefitId"
+                  element={
+                      <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_USER"]}>
+                          <BenefitDetail />
+                      </ProtectedRoute>
+                  }
+              />
 
             {/* Catch all unmatched routes */}
             <Route
