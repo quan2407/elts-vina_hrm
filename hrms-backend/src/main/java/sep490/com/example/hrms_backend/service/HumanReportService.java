@@ -9,7 +9,7 @@ import java.util.Map;
 
 public interface HumanReportService {
 
-    Map<String, List<EmployeeResponseDTO>> getFullEmp();
+    Map<String, List<AttendanceMonthlyViewDTO>> getFullEmp(LocalDate date);
 
     Map<String, List<AttendanceMonthlyViewDTO>> getListEmpAbsent(LocalDate date);
 

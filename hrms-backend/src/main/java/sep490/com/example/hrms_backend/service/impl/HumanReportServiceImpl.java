@@ -36,9 +36,9 @@ public class HumanReportServiceImpl implements HumanReportService {
     LineRepository lineRepository;
 
     @Override
-    public Map<String, List<EmployeeResponseDTO>> getFullEmp() {
+    public Map<String, List<AttendanceMonthlyViewDTO>> getFullEmp(LocalDate date) {
 
-        Map<String, List<EmployeeResponseDTO>> fullEmp = new HashMap<>();
+        Map<String, List<AttendanceMonthlyViewDTO>> fullEmp = new HashMap<>();
 
         List<Department> departmentList = departmentRepository.findAll();
 
@@ -48,18 +48,17 @@ public class HumanReportServiceImpl implements HumanReportService {
 
         for (Department d : departmentList) {
             if (d != department) {
-                List<Employee> employeeList = d.getEmployees();
-                List<EmployeeResponseDTO> employeeResponseDTOList = employeeList.stream().map(EmployeeMapper::mapToEmployeeResponseDTO)
-                        .toList();
-                fullEmp.put(d.getDepartmentName(), employeeResponseDTOList);
+                List<AttendanceRecord> attendanceRecordList = attendanceRecordRepository.getEmployees(date, d.getDepartmentId());
+                List<AttendanceMonthlyViewDTO> attendanceMonthlyViewDTOList = AttendenceReportMapper.mapToAttendanceMonthlyViewDTOList(attendanceRecordList);
+                fullEmp.put(d.getDepartmentName(), attendanceMonthlyViewDTOList);
             }
         }
 
         for (Line l : lineList) {
-            List<Employee> employeeList = l.getEmployees();
-            List<EmployeeResponseDTO> employeeResponseDTOList = employeeList.stream().map(EmployeeMapper::mapToEmployeeResponseDTO)
-                    .toList();
-            fullEmp.put(l.getLineName(), employeeResponseDTOList);
+            List<AttendanceRecord> attendanceRecordList = attendanceRecordRepository.findAllEmpByDateLine(date, l.getLineId());
+            List<AttendanceMonthlyViewDTO> attendanceMonthlyViewDTOList = AttendenceReportMapper.mapToAttendanceMonthlyViewDTOList(attendanceRecordList);
+
+            fullEmp.put(l.getLineName(), attendanceMonthlyViewDTOList);
         }
 
         return fullEmp;

@@ -70,5 +70,21 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
     List<AttendanceRecord> findAbsentEmpByDateDepartmentKL(@Param("date") LocalDate date,
                                                            @Param("departmentId") Long departmentId);
 
+    @Query("SELECT ar FROM AttendanceRecord ar " +
+            "JOIN FETCH ar.employee e " +
+            "JOIN e.department d " +
+            "WHERE ar.date = :date " +
+            "AND d.departmentId = :departmentId ")
+    List<AttendanceRecord> getEmployees(@Param("date") LocalDate date,
+                                @Param("departmentId") Long departmentId);
+
+    @Query("SELECT ar FROM AttendanceRecord ar " +
+            "JOIN FETCH ar.employee e " +
+            "JOIN e.line l " +
+            "WHERE ar.date = :date " +
+            "AND l.lineId = :lineId ")
+    List<AttendanceRecord> findAllEmpByDateLine(@Param("date") LocalDate date,
+                                                   @Param("lineId") Long lineId);
+
 }
 

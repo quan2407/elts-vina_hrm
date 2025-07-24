@@ -25,9 +25,9 @@ public class HumanReportController {
 
     @GetMapping("/full-emp")
     @PreAuthorize("hasAnyRole('HR', 'PRODUCTION_MANAGER')")
-    public Map<String, List<EmployeeResponseDTO>> getListEmp(){
+    public Map<String, List<AttendanceMonthlyViewDTO>> getListEmp(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
 
-        Map<String, List<EmployeeResponseDTO>> humanReport = humanReportService.getFullEmp();
+        Map<String, List<AttendanceMonthlyViewDTO>> humanReport = humanReportService.getFullEmp(date);
         return humanReport;
     }
 
