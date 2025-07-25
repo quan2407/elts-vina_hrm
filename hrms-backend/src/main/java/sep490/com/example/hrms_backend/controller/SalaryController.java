@@ -20,7 +20,7 @@ public class SalaryController {
     private final CurrentUserUtils currentUserUtils;
 
     @PostMapping
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<String> generateSalary(
             @RequestParam int month,
             @RequestParam int year
@@ -38,7 +38,7 @@ public class SalaryController {
         return ResponseEntity.ok(salaries);
     }
     @PutMapping("/regenerate")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<String> regenerateSalary(
             @RequestParam int month,
             @RequestParam int year
@@ -47,7 +47,7 @@ public class SalaryController {
         return ResponseEntity.ok("Cập nhật bảng lương thành công cho " + month + "/" + year);
     }
     @GetMapping("/available-months")
-    @PreAuthorize("hasAnyRole('HR', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('HR', 'EMPLOYEE', 'HR_MANAGER')")
     public ResponseEntity<List<String>> getAvailableSalaryMonths() {
         List<LocalDate> salaryDates = salaryService.getAvailableSalaryMonths();
         List<String> formatted = salaryDates.stream()
@@ -69,7 +69,7 @@ public class SalaryController {
         return ResponseEntity.ok(salaries);
     }
     @PutMapping("/lock")
-    @PreAuthorize("hasRole('HR')")
+    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<String> lockSalaries(
             @RequestParam int month,
             @RequestParam int year,

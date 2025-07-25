@@ -48,23 +48,22 @@ public class AttendanceRecordController {
         return ResponseEntity.ok(result);
     }
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
-    public ResponseEntity<?> updateCheckInOut(
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'HR_MANAGER')")
+    public ResponseEntity<String> updateCheckInOut(
             @PathVariable Long id,
             @Valid @RequestBody AttendanceCheckInOutDTO dto
     ) {
         attendanceRecordService.updateCheckInOut(id, dto);
-        return ResponseEntity.ok("Updated successfully");
+        return ResponseEntity.ok("Cập nhật giờ vào – giờ ra thành công");
     }
+
     @PutMapping("/{id}/leave-code")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
-    public ResponseEntity<Void> updateLeaveCode(
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'HR_MANAGER')")
+    public ResponseEntity<String> updateLeaveCode(
             @PathVariable Long id,
-            @RequestBody LeaveCodeUpdateDTO dto) {
+            @RequestBody LeaveCodeUpdateDTO dto
+    ) {
         attendanceRecordService.updateLeaveCode(id, dto);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("Cập nhật mã nghỉ thành công");
     }
-
-
-
 }
