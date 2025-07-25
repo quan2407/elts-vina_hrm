@@ -100,5 +100,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
         return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
     }
-
+    @ExceptionHandler(HRMSFieldValidationException.class)
+    public ResponseEntity<Map<String, List<String>>> handleFieldValidation(HRMSFieldValidationException ex) {
+        return ResponseEntity.badRequest().body(ex.getFieldErrors());
+    }
 }

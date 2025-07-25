@@ -29,7 +29,7 @@ public class LineController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('HR', 'PMC')")
+    @PreAuthorize("hasAnyRole('HR', 'PMC', 'HR_MANAGER')")
 
     public ResponseEntity<?> getLine(@RequestParam(required = false) String search) {
         List<LinePMCDto> linePMCDtoList = lineService.getAllLine(search);

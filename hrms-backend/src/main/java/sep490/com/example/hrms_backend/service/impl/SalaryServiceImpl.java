@@ -93,7 +93,7 @@ public class SalaryServiceImpl implements SalaryService {
 
 
             BigDecimal overtimeSalary = hourlyRate.multiply(
-                    BigDecimal.valueOf(otHours + weekendHours * 2 + holidayHours * 3)
+                    BigDecimal.valueOf(otHours*2 + weekendHours * 2 + holidayHours * 3)
             );
 
             BigDecimal totalAllowance = sum(employee.getAllowancePhone())

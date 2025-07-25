@@ -18,7 +18,7 @@ public class DashboardController {
     private final RecruitmentService recruitmentService;
 
     @GetMapping("/recruitment-graph")
-    @PreAuthorize("hasAnyRole('HR')")
+    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<List<RecruitmentGraphResponse>> getRecruitmentGraph() {
         return ResponseEntity.ok(recruitmentService.getGraphData());
     }

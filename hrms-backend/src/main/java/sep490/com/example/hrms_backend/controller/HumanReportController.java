@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import sep490.com.example.hrms_backend.dto.AttendanceMonthlyViewDTO;
-import sep490.com.example.hrms_backend.dto.EmployeeResponseDTO;
 import sep490.com.example.hrms_backend.service.HumanReportService;
 
 import java.time.LocalDate;
@@ -24,7 +23,7 @@ public class HumanReportController {
     private HumanReportService humanReportService;
 
     @GetMapping("/full-emp")
-    @PreAuthorize("hasAnyRole('HR', 'PRODUCTION_MANAGER')")
+    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER', 'PRODUCTION_MANAGER')")
     public Map<String, List<AttendanceMonthlyViewDTO>> getListEmp(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
 
         Map<String, List<AttendanceMonthlyViewDTO>> humanReport = humanReportService.getFullEmp(date);
@@ -32,14 +31,14 @@ public class HumanReportController {
     }
 
     @GetMapping("/absent")
-    @PreAuthorize("hasAnyRole('HR', 'PRODUCTION_MANAGER')")
+    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER', 'PRODUCTION_MANAGER')")
     public Map<String, List<AttendanceMonthlyViewDTO>> getListEmpAbsent(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
 
         Map<String, List<AttendanceMonthlyViewDTO>> humanAbsent = humanReportService.getListEmpAbsent(date);
         return humanAbsent;
     }
     @GetMapping("/absentkl")
-    @PreAuthorize("hasAnyRole('HR', 'PRODUCTION_MANAGER')")
+    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER', 'PRODUCTION_MANAGER')")
     public Map<String, List<AttendanceMonthlyViewDTO>> getListEmpAbsentKL(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
 
         Map<String, List<AttendanceMonthlyViewDTO>> humanAbsent = humanReportService.getListEmpAbsentKL(date);

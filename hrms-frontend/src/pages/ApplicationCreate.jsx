@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MainLayout from "../components/MainLayout";
 import applicationService from "../services/applicationService";
@@ -9,7 +9,7 @@ function ApplicationCreate() {
   const type = query.get("type"); // 'leave' hoặc 'makeup'
   const dateParam = query.get("date");
   const initialDate = dateParam ? new Date(dateParam) : null;
-
+  const [formErrors, setFormErrors] = useState({});
   const navigate = useNavigate();
 
   const handleSubmit = async (form) => {
@@ -46,7 +46,20 @@ function ApplicationCreate() {
       navigate("/my-applications");
     } catch (err) {
       console.error("Lỗi tạo đơn:", err);
-      alert("Có lỗi xảy ra khi tạo đơn.");
+
+      if (err.response?.data) {
+        const data = err.response.data;
+
+        if (typeof data === "object" && !Array.isArray(data)) {
+          setFormErrors(data);
+        } else if (data.message) {
+          setFormErrors({ general: data.message });
+        } else {
+          setFormErrors({ general: "Có lỗi xảy ra khi gửi đơn." });
+        }
+      } else {
+        setFormErrors({ general: "Có lỗi xảy ra khi gửi đơn." });
+      }
     }
   };
 
@@ -61,6 +74,7 @@ function ApplicationCreate() {
           type={type}
           initialDate={initialDate}
           onSubmit={handleSubmit}
+          externalErrors={formErrors}
         />
       </div>
     </MainLayout>

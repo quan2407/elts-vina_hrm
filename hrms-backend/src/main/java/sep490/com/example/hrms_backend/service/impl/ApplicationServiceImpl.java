@@ -19,6 +19,7 @@ import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.ApplicationService;
 import sep490.com.example.hrms_backend.service.AttendanceRecordService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
+import sep490.com.example.hrms_backend.validation.ApplicationValidator;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,6 +36,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final CurrentUserUtils currentUserUtils;
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final AttendanceRecordService attendanceRecordService;
+    private final ApplicationValidator applicationValidator;
+
     @Override
     public void createApplication(ApplicationCreateDTO dto, Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
@@ -42,10 +45,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         ApplicationType type = applicationTypeRepository.findById(dto.getApplicationTypeId())
                 .orElseThrow(() -> new RuntimeException("Application type not found"));
-
-        if (type.getName().equalsIgnoreCase("Nghỉ phép") && dto.getLeaveCode() == null) {
-            throw new IllegalArgumentException("Leave code is required for leave application");
-        }
+        applicationValidator.validate(dto, type.getName());
 
         Application application = Application.builder()
                 .title(dto.getTitle())
@@ -68,6 +68,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         applicationRepository.save(application);
         ApplicationApprovalStep step1 = createInitialApprovalStep(application);
         approvalStepRepository.save(step1);
+
     }
 
     private ApplicationApprovalStep createInitialApprovalStep(Application application) {
@@ -174,9 +175,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         ApplicationType type = applicationTypeRepository.findById(dto.getApplicationTypeId())
                 .orElseThrow(() -> new RuntimeException("Application type not found"));
 
-        if (type.getName().equalsIgnoreCase("Nghỉ phép") && dto.getLeaveCode() == null) {
-            throw new IllegalArgumentException("Leave code is required for leave application");
-        }
+        applicationValidator.validate(dto, type.getName());
 
         if (dto.getAttachmentPath() == null) {
             dto.setAttachmentPath(application.getAttachmentPath());
@@ -205,7 +204,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         Application app = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Application", "id", applicationId));
 
-        // tìm step 1 chưa có người duyệt
         ApplicationApprovalStep step1 = app.getApprovalSteps().stream()
                 .filter(s -> s.getStep() == 1 && s.getApprover() == null)
                 .findFirst()
@@ -310,7 +308,6 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         if (request.isApproved()) {
             app.setStatus(ApplicationStatus.HR_APPROVED);
-            // Nếu đơn có checkin checkout thì cập nhật bảng công
             if (app.getCheckIn() != null && app.getCheckOut() != null) {
                 attendanceRecordRepository.findByEmployee_EmployeeIdAndDate(app.getEmployee().getEmployeeId(), app.getStartDate())
                         .ifPresent(record -> {

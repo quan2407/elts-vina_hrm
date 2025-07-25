@@ -17,6 +17,7 @@ function ApplicationForm({
   type = "leave",
   onSubmit,
   initialDate = null,
+  externalErrors = {},
 }) {
   const quillModules = {
     toolbar: [
@@ -80,10 +81,11 @@ function ApplicationForm({
     { value, onClick, placeholder },
     ref
   ) {
+    const isMakeupReadOnly = mode === "create" && type === "makeup";
     return (
       <input
         className="application-form-input-field"
-        onClick={onClick}
+        onClick={isMakeupReadOnly ? undefined : onClick}
         value={value || ""}
         placeholder={placeholder}
         readOnly
@@ -91,9 +93,15 @@ function ApplicationForm({
       />
     );
   });
+
   useEffect(() => {
     console.log("🧾 FULL DATA:", data);
   }, [data]);
+  useEffect(() => {
+    if (externalErrors) {
+      setErrors(externalErrors);
+    }
+  }, [externalErrors]);
 
   // ✅ Khởi tạo giá trị nếu tạo đơn mới
   useEffect(() => {
@@ -127,6 +135,37 @@ function ApplicationForm({
   }, [mode, data, isEditable]);
 
   const apiBase = import.meta.env.VITE_API_URL || "";
+  const handleSubmit = async () => {
+    setErrors({});
+    try {
+      await onSubmit({
+        title,
+        content,
+        startDate,
+        endDate,
+        leaveCode,
+        isHalfDay,
+        halfDayType,
+        attachment,
+        checkIn,
+        checkOut,
+      });
+    } catch (err) {
+      console.error("❌ Lỗi gửi đơn:", err);
+
+      if (err.response && err.response.data) {
+        const data = err.response.data;
+
+        if (typeof data === "object" && !Array.isArray(data)) {
+          setErrors(data);
+        } else if (data.message) {
+          setErrors({ general: data.message });
+        } else {
+          setErrors({ general: "Có lỗi xảy ra khi gửi đơn." });
+        }
+      }
+    }
+  };
 
   return (
     <div className="application-form-container">
@@ -142,6 +181,9 @@ function ApplicationForm({
               placeholder="Nhập tiêu đề"
               readOnly={isReadOnly}
             />
+            {errors.title && (
+              <div className="error-message">{errors.title.join(", ")}</div>
+            )}
           </div>
         </div>
 
@@ -233,12 +275,20 @@ function ApplicationForm({
             </div>
             <DatePicker
               selected={startDate}
-              onChange={(date) => setStartDate(date)}
+              onChange={(date) => {
+                if (!(mode === "create" && type === "makeup")) {
+                  setStartDate(date);
+                }
+              }}
               locale={vi}
               dateFormat="dd/MM/yyyy"
               customInput={<CustomInput />}
               disabled={isReadOnly}
             />
+
+            {errors.startDate && (
+              <div className="error-message">{errors.startDate.join(", ")}</div>
+            )}
             {mode === "detail" &&
               type === "makeup" &&
               data?.employeeId &&
@@ -301,6 +351,9 @@ function ApplicationForm({
                 customInput={<CustomInput />}
                 disabled={isReadOnly}
               />
+              {errors.endDate && (
+                <div className="error-message">{errors.endDate.join(", ")}</div>
+              )}
             </div>
           )}
         </div>
@@ -319,6 +372,9 @@ function ApplicationForm({
                 className="application-form-time-picker"
                 locale="vi-VN"
               />
+              {errors.checkIn && (
+                <div className="error-message">{errors.checkIn.join(", ")}</div>
+              )}
             </div>
             <div className="application-form-input-group">
               <div className="application-form-input-label">
@@ -333,6 +389,11 @@ function ApplicationForm({
                 className="application-form-time-picker"
                 locale="vi-VN"
               />
+              {errors.checkOut && (
+                <div className="error-message">
+                  {errors.checkOut.join(", ")}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -356,6 +417,11 @@ function ApplicationForm({
                 <option value="P_2">P_2 - Nghỉ phép nửa ngày</option>
                 <option value="NTS">NTS - Nghỉ thai sản</option>
               </select>
+              {errors.leaveCode && (
+                <div className="error-message">
+                  {errors.leaveCode.join(", ")}
+                </div>
+              )}
             </div>
 
             {leaveCode === "P_2" && (
@@ -487,20 +553,7 @@ function ApplicationForm({
           <div className="application-form-actions">
             <button
               className="submit-button"
-              onClick={() =>
-                onSubmit({
-                  title,
-                  content,
-                  startDate,
-                  endDate,
-                  leaveCode,
-                  isHalfDay,
-                  halfDayType,
-                  attachment,
-                  checkIn,
-                  checkOut,
-                })
-              }
+              onClick={handleSubmit}
             >
               <Save
                 size={16}

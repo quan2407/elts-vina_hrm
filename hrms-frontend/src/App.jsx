@@ -114,7 +114,7 @@ function App() {
             <Route
               path="/work-schedule-view-hr"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
                   <WorkScheduleProductionView canApprove={false} />
                 </ProtectedRoute>
               }
@@ -131,7 +131,11 @@ function App() {
               path="/attendance"
               element={
                 <ProtectedRoute
-                  allowedRoles={["ROLE_HR", "ROLE_PRODUCTION_MANAGER"]}
+                  allowedRoles={[
+                    "ROLE_HR",
+                    "ROLE_HR_MANAGER",
+                    "ROLE_PRODUCTION_MANAGER",
+                  ]}
                 >
                   <DynamicAttendanceWrapper />
                 </ProtectedRoute>
@@ -141,7 +145,7 @@ function App() {
             <Route
               path="/holiday-management"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
                   <HolidayManagement />
                 </ProtectedRoute>
               }
@@ -150,7 +154,7 @@ function App() {
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
                   <Dashboard />
                 </ProtectedRoute>
               }
@@ -166,7 +170,7 @@ function App() {
             <Route
               path="/jobs-management"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
                   <JobsManagement />
                 </ProtectedRoute>
               }
@@ -174,7 +178,7 @@ function App() {
             <Route
               path="/recruitment-create"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
                   <RecruitmentCreate />
                 </ProtectedRoute>
               }
@@ -191,7 +195,7 @@ function App() {
             <Route
               path="/attendance-monthly"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
                   <AttendanceMonthlyView />
                 </ProtectedRoute>
               }
@@ -200,7 +204,7 @@ function App() {
             <Route
               path="/jobsdetail-management/:jobId"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
                   <RecruitmentDetailManagement />
                 </ProtectedRoute>
               }
@@ -216,7 +220,7 @@ function App() {
             <Route
               path="/applications/approvals/hr"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
                   <ApplicationApprovalListPage step={2} />
                 </ProtectedRoute>
               }
@@ -225,7 +229,7 @@ function App() {
             <Route
               path="candidates-management/:jobId"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
                   <CandidateManagement />
                 </ProtectedRoute>
               }
@@ -234,7 +238,7 @@ function App() {
             <Route
               path="/add-interview/:id"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
                   <InterviewCreate />
                 </ProtectedRoute>
               }
@@ -243,7 +247,7 @@ function App() {
             <Route
               path="/interviews-management"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
                   <InterviewManagement />
                 </ProtectedRoute>
               }
@@ -252,7 +256,7 @@ function App() {
             <Route
               path="/interviews-management/:id"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
                   <InterviewDetail />
                 </ProtectedRoute>
               }
@@ -260,7 +264,7 @@ function App() {
             <Route
               path="/salary-monthly"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
                   <SalaryMonthlyView />
                 </ProtectedRoute>
               }
@@ -279,7 +283,9 @@ function App() {
             <Route
               path="/employees/:id"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_ADMIN"]}>
+                <ProtectedRoute
+                  allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_ADMIN"]}
+                >
                   <EmployeeDetails />
                 </ProtectedRoute>
               }
@@ -304,7 +310,11 @@ function App() {
               path="/work-schedule"
               element={
                 <ProtectedRoute
-                  allowedRoles={["ROLE_HR", "ROLE_PRODUCTION_MANAGER"]}
+                  allowedRoles={[
+                    "ROLE_HR",
+                    "ROLE_HR_MANAGER",
+                    "ROLE_PRODUCTION_MANAGER",
+                  ]}
                 >
                   <DynamicWorkScheduleWrapper />
                 </ProtectedRoute>
@@ -348,7 +358,9 @@ function App() {
             <Route
               path="/employee-management"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_ADMIN"]}>
+                <ProtectedRoute
+                  allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_ADMIN"]}
+                >
                   <EmployeeManagement />
                 </ProtectedRoute>
               }
@@ -356,7 +368,7 @@ function App() {
             <Route
               path="/employee-create"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
                   <EmployeeCreate />
                 </ProtectedRoute>
               }
@@ -404,7 +416,7 @@ function App() {
             <Route
               path="/human-report"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
                   <HumanReport />
                 </ProtectedRoute>
               }
@@ -413,7 +425,9 @@ function App() {
             <Route
               path="/line-management"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_PMC"]}>
+                <ProtectedRoute
+                  allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_PMC"]}
+                >
                   <LineManagement />
                 </ProtectedRoute>
               }
@@ -430,7 +444,7 @@ function App() {
             <Route
               path="/employee/line-hr/:id"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
                   <EmployeeInLineHr />
                 </ProtectedRoute>
               }

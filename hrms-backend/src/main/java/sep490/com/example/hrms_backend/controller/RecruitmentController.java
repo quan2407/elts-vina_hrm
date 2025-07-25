@@ -46,14 +46,14 @@ public class RecruitmentController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('HR')")
+    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<RecruitmentDto> createRecruitment(@Valid @RequestBody RecruitmentDto recruitmentDto) {
         RecruitmentDto created = recruitmentService.createRecruitment(recruitmentDto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('HR')")
+    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<?> editRecruitment(@PathVariable Long id, @Valid @RequestBody RecruitmentDto recruitmentDto) {
         try {
             RecruitmentDto updatedDto = recruitmentService.editRecruitment(id, recruitmentDto);

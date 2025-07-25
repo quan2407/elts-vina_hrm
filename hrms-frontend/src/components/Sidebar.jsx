@@ -10,6 +10,7 @@ import {
   canteenMenus,
   lineLeaderMenus,
   employeeMenus,
+  hrManagerMenus,
 } from "../config/sidebarMenus";
 import "../styles/Sidebar.css";
 
@@ -38,6 +39,8 @@ function Sidebar() {
     menus = pmcMenus;
   } else if (roles.includes("HR")) {
     menus = hrMenus;
+  } else if (roles.includes("HR_MANAGER")) {
+    menus = hrManagerMenus;
   } else if (roles.includes("LINE_LEADER")) {
     menus = lineLeaderMenus;
   } else if (roles.includes("PRODUCTION_MANAGER")) {

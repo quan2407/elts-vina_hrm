@@ -1,6 +1,5 @@
 package sep490.com.example.hrms_backend.controller;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import sep490.com.example.hrms_backend.dto.CandidateResponseDTO;
 import sep490.com.example.hrms_backend.service.CandidateService;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(path = "/api/candidate", produces = (MediaType.APPLICATION_JSON_VALUE))
@@ -39,7 +37,7 @@ public class CandidateController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('HR')")
+    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<?> getCandidateByRecruitment(@PathVariable Long id) {
         List<CandidateResponseDTO> candidates = candidateService.getCandidatesByRecruitmentId(id);
         return ResponseEntity.ok(candidates);

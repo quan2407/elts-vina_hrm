@@ -63,6 +63,7 @@ function ApplicationDetail() {
     } catch (err) {
       console.error("❌ Lỗi khi cập nhật đơn:", err);
       alert("Có lỗi xảy ra khi cập nhật đơn.");
+      throw err;
     }
   };
 
