@@ -10,7 +10,7 @@ import {
   CalendarCheck,
   Rows4,
   Wallet,
-  ClipboardPlus
+  ClipboardPlus,
 } from "lucide-react";
 
 export const systemMenus = [
@@ -272,6 +272,19 @@ export const employeeMenus = [
     path: "/my-applications",
     icon: (isActive) => (
       <Briefcase
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+];
+export const hrManagerMenus = [
+  ...hrMenus,
+  {
+    text: "Phê duyệt đặc biệt",
+    path: "/special-approvals",
+    icon: (isActive) => (
+      <Target
         size={20}
         stroke={isActive ? "#4f46e5" : "white"}
       />

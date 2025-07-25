@@ -35,7 +35,10 @@ function LoginPage() {
       console.log("Roles:", roles);
       if (roles.includes("ROLE_ADMIN")) {
         navigate("/accounts");
-      } else if (roles.includes("ROLE_HR")) {
+      } else if (
+        roles.includes("ROLE_HR") ||
+        roles.includes("ROLE_HR_MANAGER")
+      ) {
         navigate("/employee-management");
       } else if (roles.includes("ROLE_PMC")) {
         navigate("/work-schedule-management");
