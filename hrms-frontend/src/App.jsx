@@ -44,6 +44,12 @@ import HolidayManagement from "./pages/HolidayManagement";
 import AccountRequestPage from "./pages/AccountRequestPage.jsx";
 import EmployeeInLineHr from "./pages/EmployeeInLineHr.jsx";
 import HumanReport from "./pages/HumanReport.jsx";
+import ApplicationCreate from "./pages/ApplicationCreate";
+import ApplicationDetail from "./pages/ApplicationDetail";
+import ApplicationListPage from "./pages/ApplicationListPage.jsx";
+import ApplicationApprovalListPage from "./pages/ApplicationApprovalListPage";
+import DynamicAttendanceWrapper from "./pages/DynamicAttendanceWrapper.jsx";
+import DynamicWorkScheduleWrapper from "./pages/DynamicWorkScheduleWrapper";
 
 function App() {
   return (
@@ -75,6 +81,11 @@ function App() {
               element={<JobDetail />}
             />
             <Route
+              path="/my-applications"
+              element={<ApplicationListPage />}
+            />
+
+            <Route
               path="/applyjob/:id"
               element={<ApplyJob />}
             />
@@ -83,6 +94,46 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
                   <AccountRequestPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/applications/:id"
+              element={
+                <ProtectedRoute
+                  allowedRoles={[
+                    "ROLE_EMPLOYEE",
+                    "ROLE_PRODUCTION_MANAGER",
+                    "ROLE_HR",
+                  ]}
+                >
+                  <ApplicationDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/work-schedule-view-hr"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                  <WorkScheduleProductionView canApprove={false} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/attendance-monthly-view"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_PRODUCTION_MANAGER"]}>
+                  <AttendanceMonthlyView readOnly={true} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/attendance"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["ROLE_HR", "ROLE_PRODUCTION_MANAGER"]}
+                >
+                  <DynamicAttendanceWrapper />
                 </ProtectedRoute>
               }
             />
@@ -151,6 +202,22 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["ROLE_HR"]}>
                   <RecruitmentDetailManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/applications/approvals/manager"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_PRODUCTION_MANAGER"]}>
+                  <ApplicationApprovalListPage step={1} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/applications/approvals/hr"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                  <ApplicationApprovalListPage step={2} />
                 </ProtectedRoute>
               }
             />
@@ -230,6 +297,16 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["ROLE_PRODUCTION_MANAGER"]}>
                   <WorkScheduleProductionView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/work-schedule"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["ROLE_HR", "ROLE_PRODUCTION_MANAGER"]}
+                >
+                  <DynamicWorkScheduleWrapper />
                 </ProtectedRoute>
               }
             />
@@ -385,7 +462,10 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
+            <Route
+              path="/create-application"
+              element={<ApplicationCreate />}
+            />
           </Routes>
         </Router>
       </AntdApp>

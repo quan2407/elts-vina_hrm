@@ -64,4 +64,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @Query("SELECT COUNT(e) FROM Employee e WHERE LOWER(e.position.positionName) <> LOWER(:positionName)")
     long countByPosition_PositionNameNotIgnoreCase(@Param("positionName") String positionName);
 
+    List<Employee> findByPosition_PositionName(String positionName);
 }

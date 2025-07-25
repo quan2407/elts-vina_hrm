@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import attendanceService from "../services/attendanceService";
 import MainLayout from "../components/MainLayout";
 
-
 import "../styles/AttendanceMonthlyView.css";
 import { Pencil } from "lucide-react";
 
@@ -11,7 +10,6 @@ const EmployeeAttendanceMonthlyView = () => {
   const [availableMonths, setAvailableMonths] = useState([]);
   const [month, setMonth] = useState(null);
   const [year, setYear] = useState(null);
-
 
   useEffect(() => {
     const fetchAvailableMonths = async () => {
@@ -58,12 +56,9 @@ const EmployeeAttendanceMonthlyView = () => {
     { key: "checkInOut", label: "Giờ vào/ra", totalKey: null },
   ];
 
-
-
   return (
     <MainLayout>
       <div className="attendance-container">
-
         <h1 className="attendance-title">Xem bảng công theo tháng</h1>
 
         <div className="attendance-controls">
@@ -154,24 +149,50 @@ const EmployeeAttendanceMonthlyView = () => {
 
                       if (type.key === "checkInOut") {
                         if (cell.hasScheduleDetail) {
+                          const formattedDate = `${year}-${String(
+                            month
+                          ).padStart(2, "0")}-${String(d + 1).padStart(
+                            2,
+                            "0"
+                          )}`;
                           return (
                             <td key={d}>
-                              {cell.checkIn || cell.checkOut ? (
-                                <span
-                                  className="attendance-edit-icon"
-
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  alignItems: "center",
+                                }}
+                              >
+                                {cell.checkIn || cell.checkOut ? (
+                                  <span className="attendance-edit-icon">
+                                    {`${cell.checkIn || "--"} - ${
+                                      cell.checkOut || "--"
+                                    }`}
+                                  </span>
+                                ) : (
+                                  <span className="attendance-empty-cell">
+                                    --
+                                  </span>
+                                )}
+                                <button
+                                  style={{
+                                    marginTop: "4px",
+                                    fontSize: "10px",
+                                    padding: "2px 6px",
+                                    backgroundColor: "#1976d2",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "4px",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() => {
+                                    window.location.href = `/create-application?type=makeup&date=${formattedDate}`;
+                                  }}
                                 >
-                                  {`${cell.checkIn || "--"} - ${
-                                    cell.checkOut || "--"
-                                  }`}
-                                </span>
-                              ) : (
-                                <span className="attendance-empty-cell">
-                                  --
-                                </span>
-                              )}
-
-                              
+                                  Tạo đơn
+                                </button>
+                              </div>
                             </td>
                           );
                         } else {
@@ -198,8 +219,6 @@ const EmployeeAttendanceMonthlyView = () => {
           </table>
         </div>
       </div>
-
-      
     </MainLayout>
   );
 };

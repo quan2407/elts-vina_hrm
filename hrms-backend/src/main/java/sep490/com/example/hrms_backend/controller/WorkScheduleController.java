@@ -80,6 +80,16 @@ public class WorkScheduleController {
         workScheduleService.createCustomWorkSchedules(dto);
         return ResponseEntity.ok("Đã dải lịch thành công theo yêu cầu.");
     }
+    @PutMapping("/request-revision")
+    @PreAuthorize("hasRole('PRODUCTION_MANAGER')")
+    public ResponseEntity<?> requestRevision(
+            @RequestParam int month,
+            @RequestParam int year,
+            @RequestParam String reason
+    ) {
+        workScheduleService.requestRevision(month, year, reason);
+        return ResponseEntity.ok("Đã yêu cầu PMC chỉnh sửa lại toàn bộ lịch đã duyệt.");
+    }
 
 
 }

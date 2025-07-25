@@ -115,6 +115,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
         for (Employee emp : employeePage.getContent()) {
             AttendanceMonthlyViewDTO dto = AttendanceMonthlyViewDTO.builder()
+                    .employeeId(emp.getEmployeeId())
                     .employeeCode(emp.getEmployeeCode())
                     .employeeName(emp.getEmployeeName())
                     .departmentName(emp.getDepartment() != null ? emp.getDepartment().getDepartmentName() : null)
@@ -275,12 +276,10 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         int month = date.getMonthValue();
         int year = date.getYear();
 
-        // Chỉ lấy lịch đã được duyệt
         List<WorkSchedule> acceptedSchedules = workScheduleRepository
                 .findByMonthAndYearAndIsAcceptedTrue(month, year);
 
         for (WorkSchedule schedule : acceptedSchedules) {
-            // ✅ Ép load chi tiết trước khi xử lý (tránh lazy)
             List<WorkScheduleDetail> details = workScheduleDetailRepository
                     .findByWorkSchedule_Id(schedule.getId());
 

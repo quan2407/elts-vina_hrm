@@ -3,11 +3,14 @@ import attendanceService from "../services/attendanceService";
 import MainLayout from "../components/MainLayout";
 import AttendanceModal from "../components/AttendanceModal";
 import LeaveCodeModal from "../components/LeaveCodeModal";
+import { useLocation } from "react-router-dom";
+import salaryService from "../services/salaryService";
 
 import "../styles/AttendanceMonthlyView.css";
 import { Pencil } from "lucide-react";
 
-const AttendanceMonthlyView = () => {
+const AttendanceMonthlyView = ({ readOnly = false }) => {
+  const location = useLocation();
   const [data, setData] = useState([]);
   const [availableMonths, setAvailableMonths] = useState([]);
   const [month, setMonth] = useState(null);
@@ -27,6 +30,23 @@ const AttendanceMonthlyView = () => {
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const today = new Date();
+  const params = new URLSearchParams(location.search);
+  const empId = params.get("focusEmployee");
+  const focusDate = params.get("focusDate"); // yyyy-MM-dd
+  const targetCellId =
+    empId && focusDate ? `attendance-cell-${empId}-${focusDate}` : null;
+  console.log("🔍 targetCellId:", targetCellId);
+  const handleGenerateSalary = async () => {
+    if (!month || !year) return;
+
+    try {
+      await salaryService.regenerateMonthlySalaries(month, year);
+      alert(`Tạo bảng lương cho ${month}/${year} thành công.`);
+    } catch (error) {
+      console.error("Tạo bảng lương thất bại:", error);
+      alert("Tạo bảng lương thất bại!");
+    }
+  };
 
   const isBeforeYesterday = (date) => {
     const d1 = new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -77,10 +97,23 @@ const AttendanceMonthlyView = () => {
       try {
         const res = await attendanceService.getAvailableMonths();
         setAvailableMonths(res.data);
-        if (res.data.length > 0) {
-          setMonth(res.data[0].month);
-          setYear(res.data[0].year);
+
+        // ✅ Nếu có focusDate trên URL → parse ra year & month
+        const focusDate = params.get("focusDate");
+        let defaultMonth = res.data[0].month;
+        let defaultYear = res.data[0].year;
+
+        if (focusDate) {
+          const [y, m] = focusDate.split("-").map(Number);
+          const exists = res.data.some((d) => d.month === m && d.year === y);
+          if (exists) {
+            defaultMonth = m;
+            defaultYear = y;
+          }
         }
+
+        setMonth(defaultMonth);
+        setYear(defaultYear);
       } catch (error) {
         console.error("Lỗi khi tải danh sách tháng/năm:", error);
       }
@@ -104,6 +137,10 @@ const AttendanceMonthlyView = () => {
         size
       );
       setData(response.data.content);
+      console.log(
+        "👤 Employees:",
+        response.data.content.map((e) => e.employeeId)
+      );
       setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error("Fetch attendance failed:", error);
@@ -156,6 +193,25 @@ const AttendanceMonthlyView = () => {
       }
     }
   };
+  useEffect(() => {
+    if (!targetCellId) return;
+
+    const tryScroll = () => {
+      const el = document.getElementById(targetCellId);
+      if (el) {
+        console.log("🎯 Found element:", targetCellId);
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("highlight-scroll-target");
+        setTimeout(() => el.classList.remove("highlight-scroll-target"), 3000);
+      } else {
+        console.log("❌ Element not found yet, retrying...");
+        setTimeout(tryScroll, 200);
+      }
+    };
+
+    // Delay đầu tiên sau khi render toàn bộ bảng
+    setTimeout(tryScroll, 500);
+  }, [data, targetCellId]);
 
   return (
     <MainLayout>
@@ -213,51 +269,60 @@ const AttendanceMonthlyView = () => {
             </select>
           </div>
 
-          <div className="leave-code-popover-wrapper">
-            <button
-              className="leave-code-toggle-btn"
-              onClick={() =>
-                document
-                  .getElementById("leave-code-popover")
-                  .classList.toggle("show")
-              }
-            >
-              🛈 Ghi chú mã nghỉ
-            </button>
-            <div
-              id="leave-code-popover"
-              className="leave-code-popover"
-            >
-              <div className="leave-code-columns">
-                <ul>
-                  <li>
-                    <strong>KL</strong>: Nghỉ không lương
-                  </li>
-                  <li>
-                    <strong>KH</strong>: Kết hôn
-                  </li>
-                  <li>
-                    <strong>CKH</strong>: Con kết hôn
-                  </li>
-                </ul>
-                <ul>
-                  <li>
-                    <strong>NT</strong>: Nghỉ tang
-                  </li>
-                  <li>
-                    <strong>P</strong>: Nghỉ phép
-                  </li>
-                  <li>
-                    <strong>P_2</strong>: Nghỉ phép nửa ngày
-                  </li>
-                </ul>
-                <ul>
-                  <li>
-                    <strong>NTS</strong>: Nghỉ thai sản
-                  </li>
-                </ul>
+          <div className="attendance-actions">
+            <div className="leave-code-popover-wrapper">
+              <button
+                className="leave-code-toggle-btn"
+                onClick={() =>
+                  document
+                    .getElementById("leave-code-popover")
+                    .classList.toggle("show")
+                }
+              >
+                🛈 Ghi chú mã nghỉ
+              </button>
+              <div
+                id="leave-code-popover"
+                className="leave-code-popover"
+              >
+                <div className="leave-code-columns">
+                  <ul>
+                    <li>
+                      <strong>KL</strong>: Nghỉ không lương
+                    </li>
+                    <li>
+                      <strong>KH</strong>: Kết hôn
+                    </li>
+                    <li>
+                      <strong>CKH</strong>: Con kết hôn
+                    </li>
+                  </ul>
+                  <ul>
+                    <li>
+                      <strong>NT</strong>: Nghỉ tang
+                    </li>
+                    <li>
+                      <strong>P</strong>: Nghỉ phép
+                    </li>
+                    <li>
+                      <strong>P_2</strong>: Nghỉ phép nửa ngày
+                    </li>
+                  </ul>
+                  <ul>
+                    <li>
+                      <strong>NTS</strong>: Nghỉ thai sản
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
+
+            <button
+              className="generate-salary-btn"
+              onClick={handleGenerateSalary}
+            >
+              🧾 Tạo bảng lương
+            </button>
           </div>
         </div>
 
@@ -306,16 +371,19 @@ const AttendanceMonthlyView = () => {
                         if (cell.hasScheduleDetail) {
                           const isPastDay = isBeforeYesterday(dayDate);
                           return (
-                            <td key={d}>
+                            <td
+                              key={d}
+                              id={`attendance-cell-${
+                                emp.employeeId
+                              }-${year}-${String(month).padStart(
+                                2,
+                                "0"
+                              )}-${String(day).padStart(2, "0")}`}
+                            >
                               {isPastDay ? (
                                 <>
                                   {cell.checkIn || cell.checkOut ? (
-                                    <span
-                                      className="attendance-edit-icon"
-                                      onClick={() =>
-                                        handleOpenModal(emp, day, cell)
-                                      }
-                                    >
+                                    <span className="attendance-edit-icon">
                                       {`${cell.checkIn || "--"} - ${
                                         cell.checkOut || "--"
                                       }`}
@@ -326,38 +394,40 @@ const AttendanceMonthlyView = () => {
                                     </span>
                                   )}
 
-                                  <div className="attendance-buttons">
-                                    <button
-                                      className="attendance-action-btn edit"
-                                      onClick={() =>
-                                        handleOpenModal(emp, day, cell)
-                                      }
-                                      title="Chỉnh sửa giờ vào/ra"
-                                    >
-                                      <Pencil size={14} />
-                                    </button>
-                                    <button
-                                      className="attendance-action-btn leave"
-                                      onClick={() =>
-                                        handleOpenLeaveModal(
-                                          cell.attendanceRecordId,
-                                          `${year}-${String(month).padStart(
-                                            2,
-                                            "0"
-                                          )}-${String(day).padStart(2, "0")}`,
-                                          {
-                                            holidayFlag: cell.holidayFlag,
-                                            weekendFlag: cell.weekendFlag,
-                                            hasOt:
-                                              parseFloat(cell.overtime) > 0,
-                                          }
-                                        )
-                                      }
-                                      title="Chọn loại nghỉ phép"
-                                    >
-                                      🛏️
-                                    </button>
-                                  </div>
+                                  {!readOnly && (
+                                    <div className="attendance-buttons">
+                                      <button
+                                        className="attendance-action-btn edit"
+                                        onClick={() =>
+                                          handleOpenModal(emp, day, cell)
+                                        }
+                                        title="Chỉnh sửa giờ vào/ra"
+                                      >
+                                        <Pencil size={14} />
+                                      </button>
+                                      <button
+                                        className="attendance-action-btn leave"
+                                        onClick={() =>
+                                          handleOpenLeaveModal(
+                                            cell.attendanceRecordId,
+                                            `${year}-${String(month).padStart(
+                                              2,
+                                              "0"
+                                            )}-${String(day).padStart(2, "0")}`,
+                                            {
+                                              holidayFlag: cell.holidayFlag,
+                                              weekendFlag: cell.weekendFlag,
+                                              hasOt:
+                                                parseFloat(cell.overtime) > 0,
+                                            }
+                                          )
+                                        }
+                                        title="Chọn loại nghỉ phép"
+                                      >
+                                        🛏️
+                                      </button>
+                                    </div>
+                                  )}
                                 </>
                               ) : (
                                 <span className="attendance-empty-cell">
@@ -442,44 +512,49 @@ const AttendanceMonthlyView = () => {
         </div>
       </div>
 
-      <AttendanceModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSave={handleSave}
-        errorMessages={validationErrors}
-        data={{
-          employeeName: selectedEmployee,
-          date: selectedDate,
-          checkIn,
-          checkOut,
-          onChange: (field, value) => {
-            if (field === "checkIn") setCheckIn(value);
-            if (field === "checkOut") setCheckOut(value);
-          },
-          attendanceRecordId: selectedRecord,
-          onDelete: async (id) => {
-            try {
-              await attendanceService.updateCheckInOut(id, {
-                checkIn: null,
-                checkOut: null,
-              });
-              await fetchAttendance();
-              setModalOpen(false);
-            } catch (error) {
-              console.error("Xóa giờ vào/ra thất bại:", error);
-              alert("Xóa thất bại!");
-            }
-          },
-        }}
-      />
-      <LeaveCodeModal
-        isOpen={leaveModalOpen}
-        onClose={() => setLeaveModalOpen(false)}
-        onSave={handleSaveLeaveCode}
-        recordId={leaveRecordId}
-        dateInfo={leaveDate}
-        dateMeta={leaveCellMeta}
-      />
+      {!readOnly && (
+        <>
+          <AttendanceModal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            onSave={handleSave}
+            errorMessages={validationErrors}
+            data={{
+              employeeName: selectedEmployee,
+              date: selectedDate,
+              checkIn,
+              checkOut,
+              onChange: (field, value) => {
+                if (field === "checkIn") setCheckIn(value);
+                if (field === "checkOut") setCheckOut(value);
+              },
+              attendanceRecordId: selectedRecord,
+              onDelete: async (id) => {
+                try {
+                  await attendanceService.updateCheckInOut(id, {
+                    checkIn: null,
+                    checkOut: null,
+                  });
+                  await fetchAttendance();
+                  setModalOpen(false);
+                } catch (error) {
+                  console.error("Xóa giờ vào/ra thất bại:", error);
+                  alert("Xóa thất bại!");
+                }
+              },
+            }}
+          />
+
+          <LeaveCodeModal
+            isOpen={leaveModalOpen}
+            onClose={() => setLeaveModalOpen(false)}
+            onSave={handleSaveLeaveCode}
+            recordId={leaveRecordId}
+            dateInfo={leaveDate}
+            dateMeta={leaveCellMeta}
+          />
+        </>
+      )}
     </MainLayout>
   );
 };
