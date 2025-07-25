@@ -61,8 +61,8 @@ INSERT INTO role (role_id, role_name) VALUES
 (4, 'ROLE_PRODUCTION_MANAGER'),
 (5, 'ROLE_CANTEEN'),
 (6, 'ROLE_EMPLOYEE'),
-(7, 'ROLE_PMC');
-
+(7, 'ROLE_PMC'),
+(8, 'ROLE_HR_MANAGER');
 
 
 INSERT INTO department (department_id, department_name) VALUES
@@ -85,8 +85,8 @@ INSERT INTO position (position_id, position_name, description) VALUES
 (12, 'Quản Lý Vật Tư', NULL),
 (15, 'Tổ Trưởng', NULL),
 (17, 'HR', 'Nhân viên nhân sự'),
-(18, 'PMC', 'Nhân viên phòng kế hoạch sản xuất & vật tư');
-
+(18, 'PMC', 'Nhân viên phòng kế hoạch sản xuất & vật tư'),
+(19, 'Trưởng Phòng Nhân Sự', 'Quản lý phòng Nhân sự');
 
 INSERT INTO department_position (department_id, position_id) VALUES
 (1, 1),  
@@ -99,8 +99,8 @@ INSERT INTO department_position (department_id, position_id) VALUES
 (6, 1),  
 (6, 15), 
 (8, 17), 
-(9, 18); 
-
+(9, 18),
+(8, 19);
 
 INSERT INTO employee (
     employee_id, employee_code, employee_name, gender, dob,
@@ -423,6 +423,21 @@ VALUES
 (48, 'ELTSSX0048', 'Bùi Văn D2', 'NAM', '1994-01-12', 6, 1, 5100000, '0903000002', 'user48@example.com', 94000, 208000, 450000, 33000),
 (49, 'ELTSSX0049', 'Nguyễn Thị D3', 'NỮ', '1992-11-05', 6, 1, 5300000, '0903000003', 'user49@example.com', 94000, 208000, 450000, 33000);
 
+INSERT INTO employee (
+    employee_id, employee_code, employee_name, gender, dob,
+    place_of_birth, origin_place, nationality, citizen_id,
+    citizen_issue_date, citizen_expiry_date, citizen_issue_place,
+    address, image, start_work_at, phone_number, email,
+    department_id, position_id,
+    basic_salary, allowance_phone, allowance_meal, allowance_attendance, allowance_transport
+) VALUES
+(50, 'ELTSHC0002', 'Ngô Văn HR', 'NAM', '1980-12-12',
+ NULL, NULL, 'Vietnam', '0123456999',
+ '2005-01-01', '2025-01-01', 'Hà Nội',
+ NULL, NULL, '2010-01-01', '0911999999', 'truongphonghr@example.com',
+ 8, 19,
+ 8000000, 120000, 250000, 550000, 50000);
+
 
 INSERT INTO account (account_id, username, password_hash, email, is_active, created_at, updated_at, last_login_at, login_attempts, must_change_password, employee_id, role_id) VALUES
 (1, 'user1', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user1@example.com', true, NOW(), NOW(), NULL, 5, false, 1, 1),
@@ -481,6 +496,13 @@ INSERT INTO account (account_id, username, password_hash, email, is_active, crea
 (48, 'user48', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user48@example.com', true, NOW(), NOW(), NULL, 5, false, 48, 6),
 (49, 'user49', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user49@example.com', true, NOW(), NOW(), NULL, 5, false, 49, 6);
 
+INSERT INTO account (
+    account_id, username, password_hash, email, is_active, created_at, updated_at,
+    last_login_at, login_attempts, must_change_password, employee_id, role_id
+) VALUES
+(50, 'hrmanager', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy',
+ 'truongphonghr@example.com', true, NOW(), NOW(),
+ NULL, 5, false, 50, 8);
 
 
 
