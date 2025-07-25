@@ -101,12 +101,18 @@ const HumanReport = () => {
             <div className="humanreport-container">
                 <div className="page-header">
                     <h1 className="page-title">Báo cáo nhân lực</h1>
+                    <div className="page-actions">
+                    <div className="export-button " style={{ height: "55px" }} >
+                        <span className="export-text">Export</span>
+                    </div>
                 </div>
-
+                </div>
+                
                 <div className="humanreport-controls">
                     <input
                         type="date"
                         value={selectedDate}
+                        name="selectedDate"
                         onChange={(e) => setSelectedDate(e.target.value)}
                         className="form-control"
                         style={{ width: "240px" }}
