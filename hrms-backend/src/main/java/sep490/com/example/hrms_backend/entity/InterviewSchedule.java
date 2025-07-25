@@ -3,6 +3,8 @@ package sep490.com.example.hrms_backend.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import sep490.com.example.hrms_backend.enums.InterviewResult;
+import sep490.com.example.hrms_backend.enums.InterviewScheduleStatus;
 
 import java.time.LocalDateTime;
 
@@ -25,11 +27,15 @@ public class InterviewSchedule {
     @Column(name = "scheduled_at")
     private LocalDateTime scheduledAt;
 
-    @NotBlank
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private InterviewScheduleStatus status;
 
     private String feedback;
 
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private InterviewResult result;
 
     @ManyToOne
     @JoinColumn(name = "candidate_id")

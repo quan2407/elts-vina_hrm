@@ -15,7 +15,6 @@ import java.util.List;
 @Builder
 public class Line {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "line_id")
@@ -35,4 +34,7 @@ public class Line {
 
     @OneToMany(mappedBy = "line")
     private List<Employee> employees;
+
+    @OneToMany(mappedBy = "line")
+    private List<WorkSchedule> workSchedules;
 }

@@ -25,8 +25,10 @@ public class RecruitmentController {
 
 
     @GetMapping()
-    public ResponseEntity<?> getRecruitmentList() {
-        List<RecruitmentDto> recruitmentDtoList = recruitmentService.getRecruitmentList();
+    public ResponseEntity<?> getRecruitmentList(@RequestParam(required = false) String search,
+                                                @RequestParam(required = false, defaultValue = "createAt") String sortField,
+                                                @RequestParam(required = false, defaultValue = "desc") String sortOrder) {
+        List<RecruitmentDto> recruitmentDtoList = recruitmentService.getRecruitmentList(search, sortField, sortOrder);
         if (recruitmentDtoList != null && !recruitmentDtoList.isEmpty()) {
             return new ResponseEntity<>(recruitmentDtoList, HttpStatus.OK);
         }
@@ -51,6 +53,7 @@ public class RecruitmentController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('HR')")
     public ResponseEntity<?> editRecruitment(@PathVariable Long id, @Valid @RequestBody RecruitmentDto recruitmentDto) {
         try {
             RecruitmentDto updatedDto = recruitmentService.editRecruitment(id, recruitmentDto);

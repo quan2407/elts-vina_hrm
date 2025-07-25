@@ -3,6 +3,8 @@ package sep490.com.example.hrms_backend.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import sep490.com.example.hrms_backend.enums.BenefitType;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +17,7 @@ import java.time.LocalDateTime;
 @Builder
 public class BenefitRegistration {
 
+    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,21 +25,27 @@ public class BenefitRegistration {
     private Long id;
 
     @PastOrPresent
+    @CreationTimestamp
     @Column(name = "registered_at")
-    private LocalDateTime registeredAt;
+    private LocalDateTime registeredAt; // thời điểm đăng ký
 
-    @NotBlank
-    @Column(name = "status")
-    private String status;
+    @NotNull
+    @Column(name = "is_register")
+    private Boolean isRegister = false ;
 
     @Column(name = "note")
-    private String note;
+    private String note; // ghi chú (nếu có)
 
 
-    @ManyToOne
-    @JoinColumn(name = "benefit_id")
+
+    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
+
+    // Đăng ký này thuộc về một phúc lợi
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "benefit_id", nullable = false, updatable = false)
     private Benefit benefit;
 
+    // Đăng ký này được tạo bởi một nhân viên
     @ManyToOne
     @JoinColumn(name = "employee_id")
     private Employee employee;

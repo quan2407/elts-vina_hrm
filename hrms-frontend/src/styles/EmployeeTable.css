@@ -1,37 +1,38 @@
 .employee-table-wrapper {
-  overflow-x: auto;
   max-width: 100%;
   background-color: #fff;
   border-radius: 24px;
   padding: 20px;
   font-family: "Product Sans", sans-serif;
+  word-wrap: break-word;
+  overflow-x: auto;
+
 }
 
 .employee-table {
-  min-width: 1900px;
+  min-width: 1200px;
+
 }
 
 .employee-table-header,
 .employee-table-row {
   display: grid;
   grid-template-columns:
-    200px /* mã NV */
+    150px /* mã NV */
     150px /* tài khoản */
     180px /* họ tên */
-    100px /* giới tính */
+    150px /* giới tính */
+    150px
     150px /* ngày sinh */
-    150px /* nơi sinh */
-    150px /* quốc tịch */
-    200px /* địa chỉ */
-    150px /* ngày vào cty */
     150px /* sđt */
-    150px /* phòng ban */
-    150px /* line */
-    150px; /* vị trí */
+    150px
+    150px /* vị trí */
+    200px; /* tổ trưởng */
   gap: 10px;
   padding: 12px 20px;
   margin-bottom: 10px;
   border-radius: 6px;
+
 }
 
 .employee-header-cell {
@@ -39,8 +40,12 @@
   font-size: 16px;
   font-weight: 700;
   text-align: center;
-  white-space: nowrap;
   text-overflow: ellipsis;
+  white-space: normal; 
+  word-break: break-word;
+  overflow: hidden;
+
+
 }
 
 .employee-table-cell {
@@ -50,4 +55,94 @@
   text-align: center;
   word-break: break-word;
   white-space: normal;
+
+}
+
+.create-button {
+  display: inline-flex;
+  align-items: center;
+  background-color: #388e3c; /* màu xanh lá */
+  color: white;
+  font-weight: 600;
+  padding: 6px 18px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.creat-button:hover {
+  background-color: #2e7d32;
+}
+
+.create-icon {
+  font-size: 14px;
+  margin-right: 6px;
+  position: relative;
+  top: 1px; /* cân chỉnh thẳng hàng với chữ */
+}
+
+.create-label {
+  font-size: 15px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  background-color: white;
+  border-radius: 12px;
+  padding: 24px 32px;
+  max-width: 680px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+.modal-title {
+  font-size: 30px;
+  font-weight: 300;
+  margin-bottom: 16px;
+}
+.modal-content {
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 16px;
+  
+}
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 30px;
+}
+
+.btn-confirm {
+  background-color: #2e7d32;
+  color: white;
+  font-weight: bold;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background-color: #e70c0c;
+  color: #ffffff;
+  font-weight: 500;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
 }

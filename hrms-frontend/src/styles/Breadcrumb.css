@@ -1,0 +1,37 @@
+/* styles/Breadcrumb.css */
+.breadcrumb {
+  margin: 50px 275px;
+  font-family: "Arial", sans-serif;
+}
+
+.breadcrumb-list {
+  list-style: none;
+  display: flex;
+  padding: 0;
+  margin: 0;
+}
+
+.breadcrumb-item {
+  font-size: 16px;
+  color: #555;
+}
+
+.breadcrumb-link {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb-link:hover {
+  color: #0056b3;
+}
+
+.breadcrumb-separator {
+  margin: 0 5px;
+  color: #888;
+}
+
+.breadcrumb-text {
+  color: #888;
+}

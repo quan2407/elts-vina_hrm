@@ -3,10 +3,12 @@ package sep490.com.example.hrms_backend.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "salary")
@@ -17,37 +19,98 @@ import java.util.List;
 @Builder
 public class Salary {
 
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "salary_id")
     private Long id;
 
-    @DecimalMin(value = "0.0", inclusive = true)
-    @Column(name = "basic_salary")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employee_id", nullable = false)
+    private Employee employee;
+
+    // ✅ [A] Phần cố định
+    @DecimalMin("0.0")
+    @Column(name = "basic_salary", nullable = false)
     private BigDecimal basicSalary;
 
-    @PastOrPresent
-    @Column(name = "date_paid_at")
-    private LocalDateTime datePaidAt;
+    // ✅ [B] Phụ cấp
+    @DecimalMin("0.0")
+    @Column(name = "allowance_phone")
+    private BigDecimal allowancePhone;
 
-    @PastOrPresent
-    @Column(name = "created_at")
+    @DecimalMin("0.0")
+    @Column(name = "allowance_meal")
+    private BigDecimal allowanceMeal;
+
+    @DecimalMin("0.0")
+    @Column(name = "allowance_attendance")
+    private BigDecimal allowanceAttendance;
+
+    @DecimalMin("0.0")
+    @Column(name = "allowance_transport")
+    private BigDecimal allowanceTransport;
+
+    // ✅ [C] Lương sản xuất
+    @Column(name = "working_days")
+    private Float workingDays;
+
+    @DecimalMin("0.0")
+    @Column(name = "production_salary")
+    private BigDecimal productionSalary;
+
+    // ✅ [D] Lương thêm giờ
+    @Column(name = "overtime_hours")
+    private Float overtimeHours;
+
+    @DecimalMin("0.0")
+    @Column(name = "overtime_salary")
+    private BigDecimal overtimeSalary;
+
+    // ✅ [E] Các khoản khấu trừ
+    @DecimalMin("0.0")
+    @Column(name = "social_insurance") // BHXH 8%
+    private BigDecimal socialInsurance;
+
+    @DecimalMin("0.0")
+    @Column(name = "health_insurance") // BHYT 1.5%
+    private BigDecimal healthInsurance;
+
+    @DecimalMin("0.0")
+    @Column(name = "unemployment_insurance") // BHTN 1%
+    private BigDecimal unemploymentInsurance;
+
+    @DecimalMin("0.0")
+    @Column(name = "union_fee") // Đoàn phí
+    private BigDecimal unionFee;
+
+    @DecimalMin("0.0")
+    @Column(name = "total_deduction") // Tổng trừ
+    private BigDecimal totalDeduction;
+
+    // ✅ [F] Tổng thu nhập
+    @DecimalMin("0.0")
+    @Column(name = "total_income")
+    private BigDecimal totalIncome;
+
+    // ✅ [G] Mốc thời gian
+    @NotNull
+    @Column(name = "salary_month")
+    private LocalDate salaryMonth;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @PastOrPresent
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-
     @OneToOne
-    @JoinColumn(name = "monthly_attendance_id")
-    private MonthlyAttendance monthlyAttendance;
+    @JoinColumn(name = "attendance_record_id")
+    private AttendanceRecord attendanceRecord;
+    @Column(name = "locked")
+    private boolean locked = false;
 
-    @OneToMany(mappedBy = "salary", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Allowance> allowances;
-
-    @OneToMany(mappedBy = "salary", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Deduction> deductions;
 }
+
+

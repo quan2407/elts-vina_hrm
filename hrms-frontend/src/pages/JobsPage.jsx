@@ -22,7 +22,7 @@ const JobCard = ({
   createAt,
   expiredAt,
   title,
-  location,
+  benefits,
   salary,
   description,
   onClick,
@@ -30,13 +30,16 @@ const JobCard = ({
   <div
     className="job-card"
     style={{ backgroundColor: "#eeeeee" }}
-    
+
   >
     <div className="job-ref">
       {formatDate(createAt)} - {formatDate(expiredAt)}
     </div>
     <div className="job-title">{title}</div>
-    <div className="job-location"><b>Địa điểm làm việc: </b>{location}</div>
+
+    {benefits && benefits.trim() !== "" && (
+      <div className="job-location"><b>Quyền lợi công việc: </b>{benefits}</div>
+    )}
     <div className="job-salary"><b>Mức lương: </b>{salary}</div>
     <div className="job-description"><b>Mô tả công việc: </b>{description}</div>
     <div className="job-arrow-button" onClick={onClick}>
@@ -85,9 +88,6 @@ const JobsPage = () => {
         ) ||
         removeVietnameseTones(job.jobDescription.toLowerCase()).includes(
           normalizedSearch
-        ) ||
-        removeVietnameseTones(job.workLocation.toLowerCase()).includes(
-          normalizedSearch
         )
     );
     setFilteredJobs(filtered);
@@ -105,7 +105,7 @@ const JobsPage = () => {
         <div className="search-container">
           <input
             type="text"
-            placeholder="Tìm kiếm theo tên công việc"
+            placeholder="Tìm kiếm công việc"
             className="search-input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -136,8 +136,8 @@ const JobsPage = () => {
                 key={job.recruitmentId}
                 createAt={job.createAt}
                 expiredAt={job.expiredAt}
+                benefits={job.benefits}
                 title={job.title}
-                location={job.workLocation}
                 salary={`${job.minSalary} - ${job.maxSalary} VND`}
                 description={job.jobDescription}
                 onClick={() => handleViewDetails(job.recruitmentId)}

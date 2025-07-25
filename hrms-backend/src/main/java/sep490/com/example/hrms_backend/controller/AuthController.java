@@ -42,7 +42,24 @@ public class AuthController {
         accountService.changePassword(dto);
         return ResponseEntity.ok("Đổi mật khẩu thành công");
     }
+    @PostMapping("request-reset-password")
+    public ResponseEntity<String> requestResetPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        accountService.requestResetPassword(email);
+        return ResponseEntity.ok("Yêu cầu reset mật khẩu đã được gửi và chờ admin phê duyệt.");
+    }
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/pending-reset-requests")
+    public ResponseEntity<?> getPendingResetRequests() {
+        return ResponseEntity.ok(accountService.getPendingResetRequests());
+    }
 
-
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/admin/approve-reset-password")
+    public ResponseEntity<String> approveResetPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        accountService.approveResetPassword(email);
+        return ResponseEntity.ok("Reset mật khẩu thành công. Mật khẩu mới đã được gửi qua email.");
+    }
 
 }

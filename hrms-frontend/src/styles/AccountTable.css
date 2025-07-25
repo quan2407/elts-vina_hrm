@@ -121,3 +121,35 @@
     padding: 8px 16px;
   }
 }
+.account-table-action-btn {
+  padding: 10px 16px;
+  margin: 0 4px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.account-table-active-btn {
+  background-color: #28a745; /* xanh lá */
+}
+
+.account-table-active-btn:hover {
+  background-color: #218838;
+}
+
+.account-table-deactive-btn {
+  background-color: #dc3545; /* đỏ */
+}
+
+.account-table-deactive-btn:hover {
+  background-color: #c82333;
+}
+
+.account-table-action-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}

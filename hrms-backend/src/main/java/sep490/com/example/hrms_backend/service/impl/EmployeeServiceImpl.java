@@ -14,6 +14,9 @@ import sep490.com.example.hrms_backend.mapper.EmployeeMapper;
 import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.AccountService;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +30,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     private final PositionRepository positionRepository;
     private final AccountRepository accountRepository;
     private final AccountService accountService;
+    private final AccountRequestRepository accountRequestRepository;
 
     @Override
     public List<EmployeeResponseDTO> getAllEmployees() {
@@ -35,12 +39,105 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public String getNextEmployeeCode() {
+        long count = employeeRepository.countByPosition_PositionNameNotIgnoreCase("HR");
+        long next = count + 1;
+        return "ELTSSX" + String.format("%04d", next);
+    }
+
+    @Override
+    public String getNextEmployeeCodeByPosition(Long positionId) {
+        Position position = positionRepository.findById(positionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Position", "id", positionId));
+
+        String prefix = position.getPositionName().equalsIgnoreCase("HR") ? "ELTSHC" : "ELTSSX";
+
+        long count;
+        if (prefix.equals("ELTSHC")) {
+            count = employeeRepository.countByPosition_PositionNameIgnoreCase("HR");
+        } else {
+            count = employeeRepository.countByPosition_PositionNameNotIgnoreCase("HR");
+        }
+
+        return prefix + String.format("%04d", count + 1);
+    }
+
+
+    @Override
+    public List<EmployeeResponseDTO> getEmployeesNotInLine(Long lineId, String search) {
+        List<Employee> employees;
+
+        if (search == null || search.trim().isEmpty()) {
+            employees = employeeRepository.findEmployeesNotInLine(lineId);
+        } else {
+            employees = employeeRepository.findEmployeesNotInLineWithSearch(lineId, "%" + search.trim().toLowerCase() + "%");
+        }
+
+        return employees.stream()
+                .map(EmployeeMapper::mapToEmployeeResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+
+
+    @Override
+    public List<EmployeeResponseDTO> getEmployeeByLineId(Long id) {
+
+        Line line = lineRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Line", "id", id));
+        List<EmployeeResponseDTO> employees = line.getEmployees().stream()
+                .map(EmployeeMapper::mapToEmployeeResponseDTO)
+                .sorted((e1, e2) -> {
+
+                    if ("Tổ Trưởng".equalsIgnoreCase(e1.getPositionName()) && !"Tổ Trưởng".equalsIgnoreCase(e2.getPositionName())) {
+                        return -1;
+                    } else if (!"Tổ Trưởng".equalsIgnoreCase(e1.getPositionName()) && "Tổ Trưởng".equalsIgnoreCase(e2.getPositionName())) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                })
+                .collect(Collectors.toList());
+
+
+
+        return employees;
+    }
+
+    @Override
+    @Transactional
+    public void addEmployeesToLine(Long lineId, List<Long> employeeIds) {
+        Line line = lineRepository.findById(lineId).orElseThrow(() -> new ResourceNotFoundException("Line", "id", lineId));
+
+        for (Long employeeId : employeeIds) {
+            Employee e = employeeRepository.findById(employeeId).orElseThrow(() -> new ResourceNotFoundException("Employee", "id", employeeId));
+
+            Line oldLine = e.getLine();
+            if (oldLine != null) {
+                Employee currentLeader = oldLine.getLeader();
+                if (currentLeader != null && currentLeader.getEmployeeId().equals(e.getEmployeeId())) {
+                    oldLine.setLeader(null);
+                    lineRepository.save(oldLine);
+                }
+            }
+
+            e.setLine(line);
+            employeeRepository.save(e);
+
+        }
+    }
+
 
     @Override
     @Transactional
     public EmployeeResponseDTO createEmployee(EmployeeRequestDTO dto) {
         checkDuplicateFieldsForCreate(dto);
-        checkPositionLineRequirements(dto.getDepartmentId(), dto.getPositionId(), dto.getLineId());
+        checkPositionRequirements(dto.getDepartmentId(), dto.getPositionId());
+        if (dto.getEmployeeCode() == null || dto.getEmployeeCode().isBlank()) {
+            dto.setEmployeeCode(getNextEmployeeCodeByPosition(dto.getPositionId()));
+        }
+
 
         if (!positionRepository.existsDepartmentPositionMapping(dto.getDepartmentId(), dto.getPositionId())) {
             throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Chức vụ không thuộc phòng ban đã chọn");
@@ -49,9 +146,14 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         Employee employee = EmployeeMapper.mapToEmployee(dto);
         employee.setDepartment(fetchDepartment(dto.getDepartmentId()));
         employee.setPosition(fetchPosition(dto.getPositionId()));
-        employee.setLine(fetchLine(dto.getLineId()));
-        accountService.createAutoAccountForEmployee(employee);
         employee = employeeRepository.save(employee);
+        AccountRequest accountRequest = AccountRequest.builder()
+                .employee(employee)
+                .requestedAt(LocalDateTime.now())
+                .approved(null)
+                .build();
+
+        accountRequestRepository.save(accountRequest);
         return EmployeeMapper.mapToEmployeeResponseDTO(employee);
     }
 
@@ -62,7 +164,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
 
         checkDuplicateFieldsForUpdate(dto, id, employee);
-        checkPositionLineRequirements(dto.getDepartmentId(), dto.getPositionId(), dto.getLineId());
+        checkPositionRequirements(dto.getDepartmentId(), dto.getPositionId());
 
         if (!positionRepository.existsDepartmentPositionMapping(dto.getDepartmentId(), dto.getPositionId())) {
             throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Chức vụ không thuộc phòng ban đã chọn");
@@ -71,9 +173,16 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         EmployeeMapper.updateEmployeeFromUpdateDTO(dto, employee);
         employee.setDepartment(fetchDepartment(dto.getDepartmentId()));
         employee.setPosition(fetchPosition(dto.getPositionId()));
-        employee.setLine(fetchLine(dto.getLineId()));
+        if (dto.getCccdFrontImage() != null) {
+            employee.setCccdFrontImage(dto.getCccdFrontImage());
+        }
+        if (dto.getCccdBackImage() != null) {
+            employee.setCccdBackImage(dto.getCccdBackImage());
+        }
+
 
         employee = employeeRepository.save(employee);
+
         return EmployeeMapper.mapToEmployeeResponseDTO(employee);
     }
 
@@ -83,6 +192,8 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
         return EmployeeMapper.mapToEmployeeDetailDTO(employee);
     }
+
+
 
     private void checkDuplicateFieldsForCreate(EmployeeRequestDTO dto) {
         if (employeeRepository.existsByEmployeeCode(dto.getEmployeeCode())) {
@@ -109,15 +220,10 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         }
     }
 
-    private void checkPositionLineRequirements(Long departmentId, Long positionId, Long lineId) {
+    private void checkPositionRequirements(Long departmentId, Long positionId) {
         List<Position> positions = positionRepository.findByDepartments_DepartmentId(departmentId);
         if (!positions.isEmpty() && positionId == null) {
             throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Vui lòng chọn chức vụ cho nhân viên");
-        }
-
-        List<Line> lines = lineRepository.findByDepartment_DepartmentId(departmentId);
-        if (!lines.isEmpty() && lineId == null) {
-            throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Vui lòng chọn chuyền sản xuất cho nhân viên");
         }
     }
 
@@ -138,11 +244,6 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
                 .orElseThrow(() -> new ResourceNotFoundException("Position", "id", id));
     }
 
-    private Line fetchLine(Long id) {
-        if (id == null) return null;
-        return lineRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Line", "id", id));
-    }
     @Override
     public EmployeeDetailDTO getOwnProfile() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -157,6 +258,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
 
         return EmployeeMapper.mapToEmployeeDetailDTO(employee);
     }
+
     @Override
     @Transactional
     public EmployeeDetailDTO updateOwnProfile(EmployeeOwnProfileUpdateDTO dto) {
@@ -170,9 +272,9 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         if (dto.getAddress() != null) employee.setAddress(dto.getAddress());
 
         employee = employeeRepository.save(employee);
-
         return EmployeeMapper.mapToEmployeeDetailDTO(employee);
     }
+
     @Override
     public void softDeleteEmployee(Long id) {
         Employee employee = employeeRepository.findByEmployeeIdAndIsDeletedFalse(id)
@@ -181,6 +283,26 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         employeeRepository.save(employee);
     }
 
+    @Override
+    public List<EmployeeResponseDTO> getEmployeeByDepartmentId(Long id) {
+        Department department = departmentRepository.findById(id).orElse(null);
 
+        List<EmployeeResponseDTO> employees = department.getEmployees().stream()
+                .map(EmployeeMapper::mapToEmployeeResponseDTO)
+                .collect(Collectors.toList());
+        return employees;
+    }
 
+    @Override
+    public ByteArrayInputStream exportEmployeesToExcel() {
+        List<EmployeeDetailDTO> list = employeeRepository.findByIsDeletedFalse().stream()
+                .map(EmployeeMapper::mapToEmployeeDetailDTO)
+                .collect(Collectors.toList());
+
+        try {
+            return sep490.com.example.hrms_backend.utils.EmployeeExcelExporter.export(list);
+        } catch (IOException e) {
+            throw new HRMSAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi xuất file Excel");
+        }
+    }
 }

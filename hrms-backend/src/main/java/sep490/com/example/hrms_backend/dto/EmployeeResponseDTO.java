@@ -13,7 +13,6 @@ public class EmployeeResponseDTO {
     private String gender;
     private LocalDate dob;
     private String placeOfBirth;
-    private String image;
     private String nationality;
     private String address;
     private LocalDate startWorkAt;

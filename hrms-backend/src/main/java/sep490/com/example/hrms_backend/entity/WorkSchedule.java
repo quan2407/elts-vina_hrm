@@ -1,10 +1,9 @@
 package sep490.com.example.hrms_backend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.FutureOrPresent;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "work_schedule")
@@ -15,24 +14,35 @@ import java.time.LocalDate;
 @Builder
 public class WorkSchedule {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "work_schedule_id")
     private Long id;
 
-    @FutureOrPresent
-    @Column(name = "date_work")
-    private LocalDate dateWork;
+    @Column(name = "month", nullable = false)
+    private int month;
 
-    @Column(name = "note")
-    private String note;
-
-    @ManyToOne
-    @JoinColumn(name = "employee_id")
-    private Employee employee;
+    @Column(name = "year", nullable = false)
+    private int year;
 
     @ManyToOne
-    @JoinColumn(name = "work_shift_id")
-    private WorkShift workShift;
+    @JoinColumn(name = "line_id")
+    private Line line;
+
+    @ManyToOne
+    @JoinColumn(name = "department_id", nullable = false)
+    private Department department;
+
+    @OneToMany(mappedBy = "workSchedule", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WorkScheduleDetail> workScheduleDetails;
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
+    @Column(name = "is_accepted", nullable = false)
+    private boolean isAccepted = false;
+    @Column(name = "is_submitted", nullable = false)
+    private boolean isSubmitted = false;
+    @Column(name = "reject_reason")
+    private String rejectReason;
+    @Column(name = "need_revision", nullable = false)
+    private boolean needRevision = false;
 }

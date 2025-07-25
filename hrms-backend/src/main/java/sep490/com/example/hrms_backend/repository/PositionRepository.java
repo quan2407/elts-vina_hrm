@@ -14,4 +14,6 @@ public interface PositionRepository extends JpaRepository<Position, Long> {
     boolean existsDepartmentPositionMapping(@Param("departmentId") Long departmentId, @Param("positionId") Long positionId);
 
     List<Position> findByDepartments_DepartmentId(Long departmentId);
+
+    Position findByPositionName(String x);
 }

@@ -14,10 +14,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import sep490.com.example.hrms_backend.dto.ErrorDetail;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -56,13 +53,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpStatusCode status,
                                                                   WebRequest request) {
         Map<String, List<String>> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String message = error.getDefaultMessage();
-            errors.computeIfAbsent(fieldName, key -> new java.util.ArrayList<>()).add(message);
+
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            if (error instanceof FieldError fieldError) {
+                String fieldName = fieldError.getField();
+                String message = fieldError.getDefaultMessage();
+                errors.computeIfAbsent(fieldName, key -> new ArrayList<>()).add(message);
+            } else {
+                // Đây là lỗi class-level (global validator như @ValidCheckInOut)
+                String message = error.getDefaultMessage();
+                errors.computeIfAbsent("checkInOut", key -> new ArrayList<>()).add(message); // sửa ở đây
+            }
         });
+
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
+
 
 
     // second approach
@@ -90,6 +96,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<String> handleIllegalStateException(IllegalStateException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
-
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
+        return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+    }
 
 }

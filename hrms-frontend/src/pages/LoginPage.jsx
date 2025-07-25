@@ -33,11 +33,16 @@ function LoginPage() {
 
       const roles = decoded.roles || [];
       console.log("Roles:", roles);
-
       if (roles.includes("ROLE_ADMIN")) {
         navigate("/accounts");
       } else if (roles.includes("ROLE_HR")) {
         navigate("/employee-management");
+      } else if (roles.includes("ROLE_PMC")) {
+        navigate("/work-schedule-management");
+      } else if (roles.includes("ROLE_PRODUCTION_MANAGER")) {
+        navigate("/work-schedule-production");
+      } else if (roles.includes("ROLE_EMPLOYEE")) {
+        navigate("/my-work-schedule");
       } else {
         navigate("/unauthorized");
       }
@@ -69,37 +74,27 @@ function LoginPage() {
   return (
     <div className="login-page">
       <div className="login-container">
-        <img
-          src="https://cdn.builder.io/api/v1/image/assets/TEMP/2d5bc447f9b1db2f7fd687b9d4fe361a0f951eac?placeholderIfAbsent=true&apiKey=305fd9be184a488087180f4b7cfd2d98"
-          alt="Background"
-          className="background-image"
-        />
-        <img
-          src="https://cdn.builder.io/api/v1/image/assets/TEMP/7b0992b36149c43e127ce390c6b217aa4b75a7e6?placeholderIfAbsent=true&apiKey=305fd9be184a488087180f4b7cfd2d98"
-          alt="Header Logo"
-          className="header-logo"
-        />
         <div className="overlay"></div>
         <form
           className="login-form-wrapper"
           onSubmit={handleLogin}
         >
           <img
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/11da01531e0457dff7f19452706b1cf360116459?placeholderIfAbsent=true&apiKey=305fd9be184a488087180f4b7cfd2d98"
-            alt="Company Logo"
-            className="company-logo"
+            src="/logo.jpg"
+            alt="Logo ELTS VINA"
+            className="login-form-logo"
           />
+
           <div className="login-title">Đăng nhập tài khoản.</div>
 
           <div className="form-field">
             <div className="field-label">Tên đăng nhập hoặc email</div>
             <input
-              type="text" // ✅ Cho phép nhập cả username hoặc email
+              type="text"
               className="input-field email-input"
               placeholder="Nhập tên đăng nhập của bạn hoặc email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
             />
             {errorFields.usernameOrEmail && (
               <div className="login-error-inline">
@@ -110,14 +105,12 @@ function LoginPage() {
 
           <div className="form-field">
             <div className="field-label">Mật khẩu</div>{" "}
-            {/* ✅ Đổi nhãn thành Mật khẩu */}
             <input
               type="password"
               className="input-field password-input"
               placeholder="Nhập mật khẩu của bạn (độ dài từ 4 - 50 ký tự)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
             />
             {errorFields.password && (
               <div className="login-error-inline">
@@ -133,19 +126,7 @@ function LoginPage() {
           )}
 
           <div className="form-options">
-            <div className="remember-me-section">
-              <input
-                type="checkbox"
-                id="remember"
-                className="checkbox-field"
-              />
-              <label
-                htmlFor="remember"
-                className="remember-me-text"
-              >
-                Remember me
-              </label>
-            </div>
+            <div className="remember-me-section"></div>
             <div
               className="reset-password-link"
               onClick={() => navigate("/reset-password")}

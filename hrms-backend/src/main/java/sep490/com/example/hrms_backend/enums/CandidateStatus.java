@@ -1,9 +1,9 @@
 package sep490.com.example.hrms_backend.enums;
 
 public enum CandidateStatus {
+    // đã ứng tuyển
     APPLIED,
-    INTERVIEWED,
-    PENDING,
-    REJECTED,
-    PASSED
+
+    // đã lên lịch phỏng vấn
+    INTERVIEW_SCHEDULED
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -59,10 +60,36 @@ public class Employee {
     @Column(name = "citizen_issue_place")
     private String citizenIssuePlace;
     @Column(name = "address")
-
     private String address;
-    @Column(name = "image")
-    private String image;
+    @Column(name = "current_address")
+    private String currentAddress;
+
+    @Column(name = "ethnicity")
+    private String ethnicity;
+
+    @Column(name = "religion")
+    private String religion;
+
+    @Column(name = "education_level")
+    private String educationLevel;
+
+    @Column(name = "specialized_level")
+    private String specializedLevel;
+
+    @Column(name = "foreign_languages")
+    private String foreignLanguages;
+
+    @Column(name = "training_type")
+    private String trainingType;
+
+    @Column(name = "training_major")
+    private String trainingMajor;
+
+
+    @Column(name = "cccd_front_image")
+    private String cccdFrontImage;
+    @Column(name = "cccd_back_image")
+    private String cccdBackImage;
 
     @PastOrPresent
     @Column(name = "start_work_at")
@@ -75,6 +102,29 @@ public class Employee {
     @Email
     @Column(name = "email")
     private String email;
+
+    @DecimalMin(value = "0.0", inclusive = true, message = "Lương cơ bản không hợp lệ")
+    @Column(name = "basic_salary")
+    private BigDecimal basicSalary;
+
+    @DecimalMin(value = "0.0", inclusive = true)
+    @Column(name = "allowance_phone")
+    private BigDecimal allowancePhone;
+
+    @DecimalMin(value = "0.0", inclusive = true)
+    @Column(name = "allowance_meal")
+    private BigDecimal allowanceMeal;
+
+    @DecimalMin(value = "0.0", inclusive = true)
+    @Column(name = "allowance_attendance")
+    private BigDecimal allowanceAttendance;
+
+    @DecimalMin(value = "0.0", inclusive = true)
+    @Column(name = "allowance_transport")
+    private BigDecimal allowanceTransport;
+
+    @Column(name = "union_fee")
+    private BigDecimal unionFee = BigDecimal.valueOf(50000);
 
 
     @ManyToOne
@@ -108,13 +158,13 @@ public class Employee {
     private List<BenefitRegistration> benefitRegistrations;
 
     @OneToMany(mappedBy = "employee")
-    private List<MonthlyAttendance> monthlyAttendances;
+    private List<AttendanceRecord> attendanceRecords;
 
-    @OneToMany(mappedBy = "employee")
-    private List<WorkSchedule> workSchedules;
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
+    @Column(name = "is_account_requested")
+    private Boolean isAccountRequested;
 
 
     public String getCitizenIssuePlaceSafe() {

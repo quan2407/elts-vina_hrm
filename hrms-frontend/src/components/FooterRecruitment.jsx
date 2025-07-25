@@ -6,7 +6,7 @@ const FooterRecruitment = () => {
     <footer className="footer-recruitment">
       <span>ELTS VINA</span>
       <span>
-        Liên hệ: <strong>0987654321</strong>
+        Liên hệ: <strong>02113 866 858</strong>
       </span>
     </footer>
   );

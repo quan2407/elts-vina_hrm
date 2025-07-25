@@ -1,0 +1,22 @@
+- BenefitHR:
+     - cần nhưng chưa làm:
+                               :hien thi them bao nhieu nguoi dang dang ki / max so ng co the dang ki (VD: 3/5)
+                                 :làm nốt nút view all   (*)
+                                  :thiều filter
+                               : chưa trả về message từ dưới BE lên
+                                : tạo bởi
+
+                XEM CHI TIẾT 1 BENEFIT   (1 PAGE MỚI KHI BẤM VÀO XEM Ở BẢNG BENEFIT)
+                        : đăng kí 1 benefit (Employee)
+
+
+
+
+
+
+     - chưa làm và chưa cần:
+                : breadcumb
+                : làm filter có các thẻ (dữ liệu có sẵn) rồi bấm chọn
+
+     - done:
+                : làm danh sách các action (done)

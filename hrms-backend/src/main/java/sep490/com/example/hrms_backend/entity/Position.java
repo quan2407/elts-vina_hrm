@@ -31,6 +31,9 @@ public class Position {
     @OneToMany(mappedBy = "position")
     private List<Employee> employees;
 
+    @OneToMany(mappedBy = "position",  cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BenefitPosition> benefitPositions;
+
     @ManyToMany
     @JoinTable(
             name = "department_position",

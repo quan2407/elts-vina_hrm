@@ -2,10 +2,6 @@ package sep490.com.example.hrms_backend.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
-import sep490.com.example.hrms_backend.entity.Candidate;
-import sep490.com.example.hrms_backend.entity.CandidateRecruitment;
-import sep490.com.example.hrms_backend.entity.Department;
-import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.enums.RecruitmentStatus;
 import sep490.com.example.hrms_backend.validation.ValidSalaryRange;
 
@@ -20,12 +16,11 @@ public class RecruitmentDto {
 
     @NotBlank(message = "Tiêu đề không được trống")
     private String title; // tiêu đề đợt tuyển dụng
-    @NotBlank(message = "Địa điểm làm việc không được trống")
 
-    private String workLocation; // địa điểm làm việc
     @NotBlank(message = "Loại hình công việc không được trống")
 
     private String employmentType; // loại hình (toàn thời gian, part-time,...)
+
     @NotBlank(message = "Mô tả công việc không được trống")
     private String jobDescription; // mô tả công việc
 
@@ -56,7 +51,6 @@ public class RecruitmentDto {
 //    @NotNull(message = "Trạng thái tuyển dụng không được để trống")
     private RecruitmentStatus status; // trạng thái (đang mở, đã đóng, v.v.)
 
-    // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
     // Mỗi đợt tuyển dụng thuộc về 1 phòng ban
     @NotNull(message = "Phòng ban không được trống")

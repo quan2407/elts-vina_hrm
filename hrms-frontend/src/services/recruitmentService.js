@@ -1,10 +1,11 @@
 import axiosClient from "./axiosClient";
-import axios from "axios";
 
 const API_URL = "/recruitment";
 
-export const getAllRecruitments = async () => {
-  const response = await axiosClient.get(API_URL);
+export const getAllRecruitments = async (search, sortField, sortOrder) => {
+  const response = await axiosClient.get(API_URL, {
+    params: { search, sortField, sortOrder },
+  });
   return response.data;
 };
 
@@ -18,10 +19,6 @@ export const getRecruitmentById = async (id) => {
   }
 };
 
-export const getAllCity = async () => {
-  const response = await axios.get("https://esgoo.net/api-tinhthanh/1/0.htm");
-  return response.data;
-};
 
 export const CreateRecruitment = async (payload) => {
   const response = await axiosClient.post(API_URL, payload);
@@ -32,3 +29,4 @@ export const EditRecruitment = async (payload, id) => {
   const response = await axiosClient.put(`${API_URL}/${id}`, payload);
   return response.data;
 };
+

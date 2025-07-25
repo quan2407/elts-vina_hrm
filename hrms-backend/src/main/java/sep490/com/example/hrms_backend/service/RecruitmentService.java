@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.RecruitmentDto;
+import sep490.com.example.hrms_backend.dto.RecruitmentGraphResponse;
 import sep490.com.example.hrms_backend.entity.Account;
 import sep490.com.example.hrms_backend.entity.Department;
 import sep490.com.example.hrms_backend.entity.Recruitment;
@@ -14,8 +15,10 @@ import sep490.com.example.hrms_backend.mapper.RecruitmentMapper;
 import sep490.com.example.hrms_backend.repository.AccountRepository;
 import sep490.com.example.hrms_backend.repository.DepartmentRepository;
 import sep490.com.example.hrms_backend.repository.RecruitmentRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -30,9 +33,28 @@ public class RecruitmentService {
     @Autowired
     private AccountRepository accountRepository;
 
-    public List<RecruitmentDto> getRecruitmentList() {
+    public List<RecruitmentDto> getRecruitmentList(String search, String sortField, String sortOrder) {
+        List<Recruitment> recruitments;
+        if (search != null && !search.isEmpty()) {
+            recruitments = recruitmentRepository
+                    .findByTitleContainingIgnoreCase(search); // Hoặc thêm điều kiện custom bằng @Query
+        } else {
+            recruitments = recruitmentRepository.findAll();
+        }
+        Comparator<Recruitment> comparator = switch (sortField) {
+            case "title" -> Comparator.comparing(Recruitment::getTitle, String.CASE_INSENSITIVE_ORDER);
+            case "employmentType" -> Comparator.comparing(Recruitment::getEmploymentType, String.CASE_INSENSITIVE_ORDER);
+            case "expiredAt" -> Comparator.comparing(Recruitment::getExpiredAt);
+            default -> Comparator.comparing(Recruitment::getCreateAt);
+        };
 
-        return RecruitmentMapper.mapToRecruitmentDtoList(recruitmentRepository.findAll());
+        if ("desc".equalsIgnoreCase(sortOrder)) {
+            comparator = comparator.reversed();
+        }
+
+        recruitments.sort(comparator);
+
+        return RecruitmentMapper.mapToRecruitmentDtoList(recruitments);
     }
 
     public RecruitmentDto getRecruitmentDtoById(long id) {
@@ -65,7 +87,6 @@ public class RecruitmentService {
         Recruitment recruitment = recruitmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy Recruitment với ID: " + id));
 
         recruitment.setTitle(recruitmentDto.getTitle());
-        recruitment.setWorkLocation(recruitmentDto.getWorkLocation());
         recruitment.setEmploymentType(recruitmentDto.getEmploymentType());
         recruitment.setJobDescription(recruitmentDto.getJobDescription());
         recruitment.setJobRequirement(recruitmentDto.getJobRequirement());
@@ -75,6 +96,7 @@ public class RecruitmentService {
         recruitment.setQuantity(recruitmentDto.getQuantity());
         recruitment.setExpiredAt(recruitmentDto.getExpiredAt());
         recruitment.setUpdateAt(LocalDateTime.now());
+        recruitment.setStatus(RecruitmentStatus.OPEN);
         // Cập nhật phòng ban nếu thay đổi
         if (recruitmentDto.getDepartmentId() != null) {
             Department department = departmentRepository.findById(recruitmentDto.getDepartmentId())
@@ -84,4 +106,24 @@ public class RecruitmentService {
         Recruitment updated = recruitmentRepository.save(recruitment);
         return RecruitmentMapper.mapToRecruitmentDto(updated, new RecruitmentDto());
     }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void updateRecruitmentStatus() {
+        List<Recruitment> recruitments = recruitmentRepository.findAll();
+
+        for (Recruitment recruitment : recruitments) {
+            if (recruitment.getExpiredAt() != null && recruitment.getExpiredAt().isBefore(LocalDateTime.now())) {
+                if (recruitment.getStatus() != RecruitmentStatus.CLOSE) {
+                    recruitment.setStatus(RecruitmentStatus.CLOSE);
+                    recruitment.setUpdateAt(LocalDateTime.now());
+                    recruitmentRepository.save(recruitment); // Cập nhật trạng thái mới
+                }
+            }
+        }
+    }
+
+    public List<RecruitmentGraphResponse> getGraphData() {
+        return recruitmentRepository.getRecruitmentGraphData();
+    }
 }
+
