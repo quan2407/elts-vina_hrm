@@ -20,7 +20,7 @@ function EmployeeManagement() {
 
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", "danhsachtuyendung.xlsx");
+      link.setAttribute("download", "danhsachnhanvien.xlsx");
       document.body.appendChild(link);
       link.click();
 
