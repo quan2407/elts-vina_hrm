@@ -43,12 +43,14 @@ import EmpSalaryView from "./pages/EmployeeSalaryView.jsx";
 import HolidayManagement from "./pages/HolidayManagement";
 import AccountRequestPage from "./pages/AccountRequestPage.jsx";
 import EmployeeInLineHr from "./pages/EmployeeInLineHr.jsx";
+import HumanReport from "./pages/HumanReport.jsx";
 import ApplicationCreate from "./pages/ApplicationCreate";
 import ApplicationDetail from "./pages/ApplicationDetail";
 import ApplicationListPage from "./pages/ApplicationListPage.jsx";
 import ApplicationApprovalListPage from "./pages/ApplicationApprovalListPage";
 import DynamicAttendanceWrapper from "./pages/DynamicAttendanceWrapper.jsx";
 import DynamicWorkScheduleWrapper from "./pages/DynamicWorkScheduleWrapper";
+
 function App() {
   return (
     <ConfigProvider>
@@ -396,6 +398,15 @@ function App() {
                   to="/"
                   replace
                 />
+              }
+            />
+
+            <Route
+              path="/human-report"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR"]}>
+                  <HumanReport />
+                </ProtectedRoute>
               }
             />
 
