@@ -2,9 +2,9 @@ import axiosClient from "./axiosClient";
 
 const API_URL = "/human-report";
 
-export const getFullEmp = async () => {
+export const getFullEmp = async (selectedDate) => {
   try {
-    const response = await axiosClient.get(`${API_URL}/full-emp`);
+    const response = await axiosClient.get(`${API_URL}/full-emp`, { params: { date: selectedDate } });
     return response.data;
   } catch (error) {
     console.error("Error fetching human report:", error);
