@@ -245,3 +245,65 @@
   font-weight: bold;
   border-color: #3b82f6;
 }
+.highlight-scroll-target {
+  outline: 2px solid orange;
+  animation: pulse-highlight 1s ease-in-out 2;
+}
+
+@keyframes pulse-highlight {
+  0% {
+    background-color: #fff3cd;
+  }
+  50% {
+    background-color: #ffeeba;
+  }
+  100% {
+    background-color: #fff3cd;
+  }
+}
+.attendance-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.attendance-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.generate-salary-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.generate-salary-btn:hover {
+  background-color: #218838;
+}
+.salary-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.btn-lock {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-lock:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
