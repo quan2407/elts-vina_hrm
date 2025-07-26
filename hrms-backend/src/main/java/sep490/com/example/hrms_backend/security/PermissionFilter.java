@@ -14,6 +14,7 @@ import sep490.com.example.hrms_backend.entity.Permission;
 import sep490.com.example.hrms_backend.repository.AccountRepository;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -22,41 +23,58 @@ public class PermissionFilter extends OncePerRequestFilter {
 
     private final AccountRepository accountRepository;
 
+    private static final List<String> PUBLIC_PATHS = List.of(
+            "/api/auth/",
+            "/uploads/",
+            "/api/candidate/apply/"
+    );
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("[DEBUG] Authentication = " + SecurityContextHolder.getContext().getAuthentication());
+        String requestPath = request.getRequestURI();
+        String method = request.getMethod();
 
-        if (authentication == null || !authentication.isAuthenticated()) {
+        // Log request nhận được
+        System.out.println("[PermissionFilter] Request: " + method + " " + requestPath);
+
+        if (isPublicPath(requestPath, method)) {
+            System.out.println("[PermissionFilter] Public path: Skip permission check.");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("[PermissionFilter] Authentication: " + authentication);
+
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            System.out.println("[PermissionFilter] Authentication failed or anonymous.");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Chưa đăng nhập");
             return;
         }
 
         String username = authentication.getName();
-        Account account = accountRepository.findByUsernameWithPermissions(username).orElse(null);
-        System.out.println(">> Role: " + account.getRole());
-        System.out.println(">> Permissions:");
-        account.getRole().getPermissions().forEach(p ->
-                System.out.println("- " + p.getMethod() + " " + p.getApiPath())
-        );
+        System.out.println("[PermissionFilter] Username: " + username);
 
+        Account account = accountRepository.findByUsernameWithPermissions(username).orElse(null);
 
         if (account == null || account.getRole() == null) {
+            System.out.println("[PermissionFilter] Account or role not found for user: " + username);
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Không có quyền");
             return;
         }
 
         Set<Permission> permissions = account.getRole().getPermissions();
-        String requestPath = request.getRequestURI();
-        String requestMethod = request.getMethod();
+        System.out.println("[PermissionFilter] Permissions from DB: " + permissions);
 
         boolean allowed = permissions.stream().anyMatch(p ->
                 matchPath(p.getApiPath(), requestPath) &&
-                        p.getMethod().equalsIgnoreCase(requestMethod)
+                        p.getMethod().equalsIgnoreCase(method)
         );
+
+        System.out.println("[PermissionFilter] Allowed: " + allowed);
 
         if (!allowed) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền truy cập API này");
@@ -66,6 +84,7 @@ public class PermissionFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+
     private boolean matchPath(String pattern, String path) {
         if (pattern.endsWith("/**")) {
             String prefix = pattern.substring(0, pattern.length() - 3);
@@ -73,4 +92,12 @@ public class PermissionFilter extends OncePerRequestFilter {
         }
         return pattern.equals(path);
     }
+
+    private boolean isPublicPath(String requestPath, String method) {
+        return requestPath.startsWith("/api/auth/")
+                || requestPath.startsWith("/uploads/")
+                || (requestPath.startsWith("/api/candidate/apply/") && method.equalsIgnoreCase("POST"))
+                || (requestPath.startsWith("/api/") && method.equalsIgnoreCase("GET"));
+    }
 }
+
