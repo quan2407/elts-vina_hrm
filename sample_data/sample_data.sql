@@ -5,8 +5,7 @@ SET SQL_SAFE_UPDATES = 0;
 UPDATE employee SET line_id = NULL;
 UPDATE `lines` SET leader_id = NULL;
 ALTER TABLE employee MODIFY COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0;
-DELETE FROM role_permission;
-DELETE FROM permission;
+
 
 DELETE FROM application_approval_step;
 DELETE FROM application;
@@ -29,6 +28,8 @@ DELETE FROM account;
 DELETE FROM employee;
 DELETE FROM position;
 DELETE FROM department;
+DELETE FROM role_permission;
+DELETE FROM permission;
 DELETE FROM role;
 
 
@@ -67,15 +68,379 @@ INSERT INTO role (role_id, role_name) VALUES
 (6, 'ROLE_EMPLOYEE'),
 (7, 'ROLE_PMC'),
 (8, 'ROLE_HR_MANAGER');
-INSERT INTO permission (permission_id, method, api_path, name) VALUES 
-(1, 'PUT', '/api/roles/**', 'Cập nhật phân quyền'),
-(2, 'POST', '/api/permissions', 'Tạo mới quyền'),
-(3, 'GET', '/api/permissions', 'Xem danh sách quyền');
+-- Insert quyền cho module Role Management
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
+(1, 'PUT', '/api/roles/**', 'Cập nhật phân quyền', 'Role Management'),
+(2, 'POST', '/api/permissions', 'Tạo mới quyền', 'Role Management'),
+(3, 'GET', '/api/permissions', 'Xem danh sách quyền', 'Role Management');
 
+-- Insert quyền cho module Account Management
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
+(4, 'GET', '/api/accounts', 'Xem danh sách tài khoản', 'Account Management'),
+(5, 'PUT', '/api/accounts/*/toggle-status', 'Kích hoạt/Vô hiệu hóa tài khoản', 'Account Management');
+
+-- Gán các permission mới vào role admin
+INSERT INTO role_permission (role_id, permission_id) VALUES 
+(1, 4), 
+(1, 5);
+
+-- Insert quyền cho module Account Request Management
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
+(6, 'GET', '/api/account-requests/*', 'Xem danh sách yêu cầu tạo tài khoản', 'Account Request Management'),
+(7, 'POST', '/api/account-requests/*/approve', 'Duyệt yêu cầu tạo tài khoản', 'Account Request Management'),
+(8, 'POST', '/api/account-requests/*/reject', 'Từ chối yêu cầu tạo tài khoản', 'Account Request Management');
+
+-- Gán các permission mới vào role admin
+INSERT INTO role_permission (role_id, permission_id) VALUES 
+(1, 6), 
+(1, 7), 
+(1, 8);
 
 -- Gán cho role admin
 INSERT INTO role_permission (role_id, permission_id) VALUES 
 (1, 2), (1, 3), (1, 1);
+
+-- Module: Application Management
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
+(9, 'POST', '/api/applications', 'Tạo mới đơn từ', 'Application Management'),
+(10, 'GET', '/api/applications/me', 'Xem danh sách đơn từ của bản thân', 'Application Management'),
+(11, 'GET', '/api/applications/*', 'Xem chi tiết đơn từ', 'Application Management'),
+(12, 'PUT', '/api/applications/*', 'Cập nhật đơn từ', 'Application Management'),
+
+(13, 'GET', '/api/applications/step-1', 'Xem danh sách đơn chờ duyệt bước 1', 'Application Management'),
+(14, 'PUT', '/api/applications/*/approve-step-1', 'Duyệt/từ chối đơn bước 1', 'Application Management'),
+
+(15, 'GET', '/api/applications/step-2', 'Xem danh sách đơn chờ duyệt bước 2', 'Application Management'),
+(16, 'PUT', '/api/applications/*/approve-step-2', 'Duyệt/từ chối đơn bước 2', 'Application Management');
+
+-- Phân quyền cho các role tương ứng
+-- ADMIN: tất cả các quyền
+INSERT INTO role_permission (role_id, permission_id) VALUES 
+(1, 9), (1, 10), (1, 11), (1, 12), (1, 13), (1, 14), (1, 15), (1, 16);
+
+-- PMC, EMPLOYEE: chỉ được tạo, xem danh sách của bản thân, chi tiết, sửa đơn
+INSERT INTO role_permission (role_id, permission_id) VALUES 
+(7, 9), (7, 10), (7, 11), (7, 12), -- PMC
+(6, 9), (6, 10), (6, 11), (6, 12); -- EMPLOYEE
+
+-- PRODUCTION_MANAGER: tạo, xem, sửa đơn và duyệt bước 1
+INSERT INTO role_permission (role_id, permission_id) VALUES 
+(4, 9), (4, 10), (4, 11), (4, 12), (4, 13), (4, 14);
+
+-- HR, HR_MANAGER: xem chi tiết, xem và duyệt bước 2
+INSERT INTO role_permission (role_id, permission_id) VALUES 
+(2, 11), (2, 15), (2, 16), -- HR
+(8, 11), (8, 15), (8, 16); -- HR_MANAGER
+-- Module: Attendance Management
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
+(17, 'GET', '/api/attendances/view-by-month', 'Xem bảng công theo tháng', 'Attendance Management'),
+(18, 'GET', '/api/attendances/employee', 'Xem bảng công cá nhân theo tháng', 'Attendance Management'),
+(19, 'GET', '/api/attendances/available-months', 'Xem danh sách tháng có dữ liệu bảng công', 'Attendance Management'),
+(20, 'PUT', '/api/attendances/*', 'Cập nhật giờ vào – giờ ra', 'Attendance Management'),
+(21, 'PUT', '/api/attendances/*/leave-code', 'Cập nhật mã nghỉ phép', 'Attendance Management');
+
+-- Gán quyền Attendance Management cho các role tương ứng:
+-- ADMIN, HR, HR_MANAGER, PRODUCTION_MANAGER được quyền xem bảng công tháng, cập nhật giờ vào ra và mã nghỉ phép:
+INSERT INTO role_permission (role_id, permission_id) VALUES 
+(1,17),(1,18),(1,19),(1,20),(1,21),   -- ADMIN
+(2,17),(2,18),(2,19),(2,20),(2,21),   -- HR
+(8,17),(8,18),(8,19),(8,20),(8,21),   -- HR_MANAGER
+(4,17),(4,18),(4,19);                 -- PRODUCTION_MANAGER chỉ xem, không sửa giờ ra vào/mã nghỉ
+
+-- EMPLOYEE, LINE_LEADER, PMC được quyền xem bảng công cá nhân và danh sách tháng:
+INSERT INTO role_permission (role_id, permission_id) VALUES 
+(6,18),(6,19),  -- EMPLOYEE
+(3,18),(3,19),  -- LINE_LEADER
+(7,18),(7,19);  -- PMC
+-- Module: Auth
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
+(22, 'POST', '/api/auth/login', 'Đăng nhập', 'Auth'),
+(23, 'POST', '/api/auth/reset-password', 'Reset mật khẩu bằng email', 'Auth'),
+(24, 'POST', '/api/auth/change-password', 'Đổi mật khẩu cá nhân', 'Auth'),
+(25, 'POST', '/api/auth/request-reset-password', 'Yêu cầu reset mật khẩu', 'Auth'),
+(26, 'GET', '/api/auth/admin/pending-reset-requests', 'Xem yêu cầu reset đang chờ duyệt', 'Auth'),
+(27, 'POST', '/api/auth/admin/approve-reset-password', 'Phê duyệt reset mật khẩu', 'Auth');
+
+-- Gán permission:
+INSERT INTO role_permission (role_id, permission_id) VALUES 
+(1,24),(1,26),(1,27),       -- ADMIN
+(2,24),                     -- HR
+(3,24),                     -- LINE_LEADER
+(4,24),                     -- PRODUCTION_MANAGER
+(5,24),                     -- CANTEEN
+(6,24),                     -- EMPLOYEE
+(7,24);                     -- PMC
+-- Module: Recruitment
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
+(28, 'GET', '/api/candidates/*', 'Xem danh sách ứng viên theo tin tuyển dụng', 'Recruitment');
+
+-- Gán quyền cho HR và HR_MANAGER
+INSERT INTO role_permission (role_id, permission_id) VALUES 
+(2, 28),  -- HR
+(8, 28);  -- HR_MANAGER
+-- Module: Recruitment
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
+(29, 'GET', '/api/recruitment', 'Xem danh sách tin tuyển dụng', 'Recruitment'),
+(30, 'GET', '/api/recruitment/*', 'Xem chi tiết tin tuyển dụng', 'Recruitment'),
+(31, 'POST', '/api/recruitment', 'Tạo tin tuyển dụng', 'Recruitment'),
+(32, 'PUT', '/api/recruitment/*', 'Chỉnh sửa tin tuyển dụng', 'Recruitment');
+
+-- Gán cho HR và HR_MANAGER quyền tạo/sửa
+INSERT INTO role_permission (role_id, permission_id) VALUES 
+(2, 31), (2, 32),    -- HR
+(8, 31), (8, 32);    -- HR_MANAGER
+-- Module: Dashboard
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
+(33, 'GET', '/api/dashboard/recruitment-graph', 'Xem biểu đồ tuyển dụng', 'Dashboard');
+
+-- Gán quyền cho HR và HR_MANAGER
+INSERT INTO role_permission (role_id, permission_id) VALUES 
+(2, 33),   -- HR
+(8, 33);   -- HR_MANAGER
+-- Module: Department
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
+(34, 'GET', '/api/departments', 'Xem danh sách phòng ban', 'Department'),
+(35, 'GET', '/api/departments/*/positions', 'Xem vị trí theo phòng ban', 'Department'),
+(36, 'GET', '/api/departments/*/lines', 'Xem line theo phòng ban', 'Department');
+
+-- Gán cho tất cả các role (id: 1-8)
+INSERT INTO role_permission (role_id, permission_id) VALUES 
+(1, 34), (1, 35), (1, 36),
+(2, 34), (2, 35), (2, 36),
+(3, 34), (3, 35), (3, 36),
+(4, 34), (4, 35), (4, 36),
+(5, 34), (5, 35), (5, 36),
+(6, 34), (6, 35), (6, 36),
+(7, 34), (7, 35), (7, 36),
+(8, 34), (8, 35), (8, 36);
+-- Module: Holiday
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
+(37, 'GET', '/api/holidays', 'Xem danh sách ngày nghỉ', 'Holiday'),
+(38, 'POST', '/api/holidays', 'Tạo ngày nghỉ', 'Holiday'),
+(39, 'GET', '/api/holidays/check/*', 'Kiểm tra ngày có phải ngày nghỉ', 'Holiday'),
+(40, 'DELETE', '/api/holidays/*', 'Xóa ngày nghỉ', 'Holiday'),
+(41, 'GET', '/api/holidays/*', 'Xem chi tiết ngày nghỉ', 'Holiday'),
+(42, 'PUT', '/api/holidays/*', 'Cập nhật ngày nghỉ', 'Holiday');
+
+-- Gán cho các role được phép
+INSERT INTO role_permission (role_id, permission_id) VALUES 
+-- ADMIN (1)
+(1, 37), (1, 38), (1, 39), (1, 40), (1, 41), (1, 42),
+-- HR (2)
+(2, 37), (2, 38), (2, 39), (2, 40), (2, 41), (2, 42),
+-- PRODUCTION_MANAGER (4)
+(4, 37), (4, 38), (4, 39), (4, 40), (4, 41), (4, 42),
+-- PMC (7)
+(7, 37), (7, 38), (7, 39), (7, 40), (7, 41), (7, 42),
+-- HR_MANAGER (8)
+(8, 37), (8, 38), (8, 39), (8, 40), (8, 41), (8, 42);
+-- Module: Employee
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
+(43, 'GET', '/api/employees', 'Xem danh sách nhân viên', 'Employee'),
+(44, 'POST', '/api/employees', 'Tạo mới nhân viên', 'Employee'),
+(45, 'PUT', '/api/employees/*', 'Cập nhật nhân viên', 'Employee'),
+(46, 'DELETE', '/api/employees/*', 'Xóa nhân viên', 'Employee'),
+(47, 'GET', '/api/employees/*', 'Xem chi tiết nhân viên', 'Employee'),
+(48, 'GET', '/api/employees/profile', 'Xem hồ sơ cá nhân', 'Employee'),
+(49, 'PUT', '/api/employees/profile', 'Cập nhật hồ sơ cá nhân', 'Employee'),
+(50, 'GET', '/api/employees/next-code', 'Lấy mã nhân viên tiếp theo', 'Employee'),
+(51, 'GET', '/api/employees/next-code/*', 'Lấy mã nhân viên theo vị trí', 'Employee'),
+(52, 'GET', '/api/employees/export', 'Export danh sách nhân viên', 'Employee'),
+(53, 'GET', '/api/employees/department/*', 'Lấy nhân viên theo phòng ban', 'Employee'),
+(54, 'GET', '/api/employees/line/*', 'Lấy nhân viên theo chuyền', 'Employee'),
+(55, 'GET', '/api/employees/not-in-line/*', 'Lấy NV chưa thuộc chuyền', 'Employee'),
+(56, 'PUT', '/api/employees/add-to-line/*', 'Thêm NV vào chuyền', 'Employee');
+-- ADMIN (1)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(1, 43), (1, 44), (1, 45), (1, 46), (1, 47),
+(1, 48), (1, 49), (1, 50), (1, 51), (1, 52), (1, 53), (1, 54), (1, 55), (1, 56);
+
+-- HR (2)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(2, 43), (2, 44), (2, 45), (2, 46), (2, 47),
+(2, 48), (2, 49), (2, 50), (2, 51), (2, 52), (2, 53), (2, 54);
+
+-- HR_MANAGER (8)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(8, 43), (8, 44), (8, 45), (8, 46), (8, 47),
+(8, 48), (8, 49), (8, 50), (8, 51), (8, 52), (8, 53), (8, 54);
+
+-- PMC (7)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(7, 48), (7, 49), (7, 54), (7, 55), (7, 56);
+
+-- PRODUCTION_MANAGER (4)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(4, 48), (4, 49);
+
+-- EMPLOYEE (6)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(6, 48), (6, 49);
+
+-- LINE_LEADER (3)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(3, 48), (3, 49);
+-- Module: HumanReport
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
+(57, 'GET', '/api/human-report/full-emp', 'Xem nhân lực đủ', 'HumanReport'),
+(58, 'GET', '/api/human-report/absent', 'Xem nhân lực vắng', 'HumanReport'),
+(59, 'GET', '/api/human-report/absentkl', 'Xem nhân lực vắng KL', 'HumanReport'),
+(60, 'GET', '/api/human-report/export', 'Export báo cáo nhân lực', 'HumanReport');
+-- HR (2)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(2, 57), (2, 58), (2, 59), (2, 60);
+
+-- HR_MANAGER (8)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(8, 57), (8, 58), (8, 59);
+
+-- PRODUCTION_MANAGER (4)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(4, 57), (4, 58), (4, 59);
+
+-- ADMIN (1)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(1, 60);
+-- HR_MANAGER (8) - thêm quyền export
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(8, 60);
+-- Interview permissions (module = 'Interview')
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
+(61, 'GET', '/api/interview', 'Xem danh sách lịch phỏng vấn', 'Interview'),
+(62, 'GET', '/api/interview/*', 'Xem chi tiết lịch phỏng vấn', 'Interview'),
+(63, 'GET', '/api/interview/candidate-recruitment/*', 'Xem lịch phỏng vấn theo ứng viên', 'Interview'),
+(64, 'POST', '/api/interview', 'Tạo lịch phỏng vấn', 'Interview'),
+(65, 'PUT', '/api/interview/*', 'Cập nhật lịch phỏng vấn', 'Interview'),
+(66, 'PUT', '/api/interview/*/status', 'Cập nhật trạng thái phỏng vấn', 'Interview'),
+(67, 'PUT', '/api/interview/*/result', 'Cập nhật kết quả phỏng vấn', 'Interview');
+-- HR (role_id = 2)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(2, 61), (2, 62), (2, 63), (2, 64), (2, 65), (2, 66), (2, 67);
+
+-- HR_MANAGER (role_id = 8)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(8, 61), (8, 62), (8, 63), (8, 64), (8, 65), (8, 66), (8, 67);
+-- Module: Line
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
+(68, 'GET', '/api/lines/*/department', 'Lấy phòng ban theo chuyền', 'Line'),
+(69, 'GET', '/api/lines', 'Xem danh sách chuyền', 'Line'),
+(70, 'GET', '/api/lines/*', 'Xem chi tiết chuyền', 'Line'),
+(71, 'PUT', '/api/lines/*/leader', 'Gán tổ trưởng cho chuyền', 'Line');
+
+-- HR (2)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(2, 68), (2, 69), (2, 70), (2, 71);
+
+-- HR_MANAGER (8)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(8, 68), (8, 69), (8, 70), (8, 71);
+
+-- PMC (7)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(7, 68), (7, 69), (7, 70), (7, 71);
+-- Module: OCR
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
+(72, 'POST', '/api/ocr/scan-cccd', 'Scan CCCD bằng OCR', 'OCR'),
+(73, 'GET', '/api/ocr/face-image', 'Tách ảnh khuôn mặt từ CCCD', 'OCR');
+
+-- ADMIN (1)
+INSERT INTO role_permission (role_id, permission_id) VALUES (1, 72), (1, 73);
+
+-- HR (2)
+INSERT INTO role_permission (role_id, permission_id) VALUES (2, 72), (2, 73);
+
+-- HR_MANAGER (8)
+INSERT INTO role_permission (role_id, permission_id) VALUES (8, 72), (8, 73);
+-- Permission ID 74: Cập nhật quyền
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
+(74, 'PUT', '/api/permissions/*', 'Cập nhật quyền', 'Role Management');
+
+-- Permission ID 75: Xóa quyền
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
+(75, 'DELETE', '/api/permissions/*', 'Xóa quyền', 'Role Management');
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(1, 74), (1, 75);
+-- ID tiếp theo: 76
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
+(76, 'GET', '/api/roles/**', 'Xem quyền theo vai trò', 'Role Management');
+
+-- Gán cho ADMIN (role_id = 1)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(1, 76);
+-- Module: Salary
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
+(77, 'POST', '/api/salaries', 'Tạo bảng lương', 'Salary'),
+(78, 'GET', '/api/salaries', 'Xem bảng lương', 'Salary'),
+(79, 'PUT', '/api/salaries/regenerate', 'Tạo lại bảng lương', 'Salary'),
+(80, 'GET', '/api/salaries/available-months', 'Xem các tháng có lương', 'Salary'),
+(81, 'GET', '/api/salaries/employee-months', 'Xem lương theo tháng (nhân viên)', 'Salary'),
+(82, 'PUT', '/api/salaries/lock', 'Chốt/bỏ chốt bảng lương', 'Salary');
+-- HR và HR_MANAGER có toàn quyền
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(2, 77), (2, 78), (2, 79), (2, 80), (2, 82),
+(8, 77), (8, 78), (8, 79), (8, 80), (8, 82);
+
+-- EMPLOYEE được xem lương của mình và danh sách tháng
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(6, 80), (6, 81);
+-- Module: WorkSchedule
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
+(83, 'POST', '/api/work-schedules', 'Tạo lịch làm việc cho toàn bộ', 'WorkSchedule'),
+(84, 'GET', '/api/work-schedules/available', 'Xem các tháng có lịch làm việc', 'WorkSchedule'),
+(85, 'GET', '/api/work-schedules/resolve-id', 'Tìm ID lịch làm việc theo phòng/chuyền/ngày', 'WorkSchedule'),
+(86, 'PUT', '/api/work-schedules/submit', 'Gửi lịch làm việc', 'WorkSchedule'),
+(87, 'PUT', '/api/work-schedules/accept', 'Duyệt lịch làm việc', 'WorkSchedule'),
+(88, 'GET', '/api/work-schedules/employee-view', 'Xem lịch làm việc nhân viên', 'WorkSchedule'),
+(89, 'PUT', '/api/work-schedules/reject', 'Từ chối lịch làm việc', 'WorkSchedule'),
+(90, 'PUT', '/api/work-schedules/custom-range', 'Tạo lịch theo khoảng tuỳ chỉnh', 'WorkSchedule'),
+(91, 'PUT', '/api/work-schedules/request-revision', 'Yêu cầu chỉnh sửa lại lịch đã duyệt', 'WorkSchedule');
+-- ADMIN (1)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(1, 83), (1, 84), (1, 85), (1, 86), (1, 87), (1, 88), (1, 89), (1, 90), (1, 91);
+
+-- PMC (7): tạo, dải, gửi
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(7, 83), (7, 84), (7, 85), (7, 86), (7, 90);
+
+-- PRODUCTION_MANAGER (4): duyệt, từ chối, yêu cầu sửa
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(4, 85), (4, 87), (4, 88), (4, 89), (4, 91);
+
+-- EMPLOYEE (6): chỉ xem lịch của mình
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(6, 88);
+-- Gán quyền permission_id = 84 cho các role còn thiếu
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(4, 84),  -- PRODUCTION_MANAGER
+(6, 84),  -- EMPLOYEE
+(2, 84),  -- HR
+(8, 84);  -- HR_MANAGER
+-- Module: WorkScheduleDetail
+INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
+(92, 'GET', '/api/work-schedule-details/view-by-month', 'Xem lịch theo tháng', 'WorkScheduleDetail'),
+(93, 'POST', '/api/work-schedule-details', 'Tạo chi tiết lịch làm việc', 'WorkScheduleDetail'),
+(94, 'PUT', '/api/work-schedule-details', 'Cập nhật chi tiết lịch làm việc', 'WorkScheduleDetail'),
+(95, 'DELETE', '/api/work-schedule-details/*', 'Xoá chi tiết lịch làm việc', 'WorkScheduleDetail');
+-- ADMIN (1): full quyền
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(1, 92), (1, 93), (1, 94), (1, 95);
+
+-- PMC (7): tạo, sửa, xoá, xem
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(7, 92), (7, 93), (7, 94), (7, 95);
+
+-- PRODUCTION_MANAGER (4): chỉ xem
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(4, 92);
+
+-- HR (2): chỉ xem
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(2, 92);
+
+-- HR_MANAGER (8): mới bổ sung – cũng chỉ xem
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(8, 92);
+
 
 INSERT INTO department (department_id, department_name) VALUES
 (1, 'Bán Tự Động'),
