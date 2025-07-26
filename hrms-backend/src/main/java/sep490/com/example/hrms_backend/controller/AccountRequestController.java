@@ -20,7 +20,6 @@ public class AccountRequestController {
         return ResponseEntity.ok(accountRequestService.getRequestsByStatus(status));
     }
 
-
     @PostMapping("/{id}/approve")
     public ResponseEntity<String> approveRequest(@PathVariable Long id) {
         accountRequestService.approveRequest(id);
