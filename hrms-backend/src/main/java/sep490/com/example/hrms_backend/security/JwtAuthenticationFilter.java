@@ -24,36 +24,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 🧾 Lấy JWT từ header
         String token = getTokenFromRequest(request);
+        System.out.println("[JwtAuthenticationFilter] Token: " + token);
 
-        // ✅ Nếu có token và token hợp lệ thì xử lý xác thực
-        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
+        if (StringUtils.hasText(token)) {
+            boolean validToken = jwtTokenProvider.validateToken(token);
+            System.out.println("[JwtAuthenticationFilter] Token valid: " + validToken);
 
-            // 🔍 Trích xuất username từ JWT
-            String username = jwtTokenProvider.getUsername(token);
+            if (validToken) {
+                String username = jwtTokenProvider.getUsername(token);
+                System.out.println("[JwtAuthenticationFilter] Username: " + username);
 
-            // 🔄 Load thông tin chi tiết của user từ DB (hoặc bộ nhớ)
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UsernamePasswordAuthenticationToken authenticationToken =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
 
-            // 🛡️ Tạo đối tượng xác thực dựa trên userDetails
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
+                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-            // Gắn thêm thông tin yêu cầu từ request (ví dụ IP, session, etc.)
-            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-            // 👮 Gán authentication vào SecurityContext (để các Controller dùng được user info)
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            } else {
+                System.out.println("[JwtAuthenticationFilter] Invalid token!");
+            }
+        } else {
+            System.out.println("[JwtAuthenticationFilter] No token found in request!");
         }
 
-        // Tiếp tục chuỗi filter
         filterChain.doFilter(request, response);
     }
+
     // 📦 Hàm hỗ trợ: Lấy token từ header
     private String getTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
