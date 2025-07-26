@@ -1,6 +1,6 @@
 package sep490.com.example.hrms_backend.service.impl;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.PermissionDTO;
@@ -39,9 +39,13 @@ public class RoleServiceImpl implements RoleService {
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role", "id", roleId));
 
+        // ép fetch để tránh lỗi lazy
+        role.getPermissions().size(); // force load
+
         return role.getPermissions().stream()
                 .map(PermissionMapper::toDTO)
                 .collect(Collectors.toSet());
     }
+
 }
 
