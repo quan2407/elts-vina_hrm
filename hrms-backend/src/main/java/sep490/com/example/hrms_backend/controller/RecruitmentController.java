@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.RecruitmentDto;
@@ -46,14 +45,12 @@ public class RecruitmentController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<RecruitmentDto> createRecruitment(@Valid @RequestBody RecruitmentDto recruitmentDto) {
         RecruitmentDto created = recruitmentService.createRecruitment(recruitmentDto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<?> editRecruitment(@PathVariable Long id, @Valid @RequestBody RecruitmentDto recruitmentDto) {
         try {
             RecruitmentDto updatedDto = recruitmentService.editRecruitment(id, recruitmentDto);

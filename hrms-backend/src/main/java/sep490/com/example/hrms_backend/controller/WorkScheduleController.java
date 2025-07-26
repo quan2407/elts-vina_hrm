@@ -31,7 +31,6 @@ public class WorkScheduleController {
         return ResponseEntity.ok(workScheduleService.getAvailableMonths());
     }
     @GetMapping("/resolve-id")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PMC','PRODUCTION_MANAGER')")
     public ResponseEntity<Long> resolveWorkScheduleId(
             @RequestParam Long departmentId,
             @RequestParam(required = false) Long lineId,
@@ -41,13 +40,11 @@ public class WorkScheduleController {
         return ResponseEntity.ok(id);
     }
     @PutMapping("/submit")
-    @PreAuthorize("hasRole('PMC')")
     public ResponseEntity<?> submitWorkSchedules(@RequestParam int month, @RequestParam int year) {
         workScheduleService.submitAllWorkSchedules(month, year);
         return ResponseEntity.ok().build();
     }
     @PutMapping("/accept")
-    @PreAuthorize("hasRole('PRODUCTION_MANAGER')")
     public ResponseEntity<?> acceptWorkSchedules(
             @RequestParam int month,
             @RequestParam int year) {
@@ -55,7 +52,6 @@ public class WorkScheduleController {
         return ResponseEntity.ok().build();
     }
     @GetMapping("/employee-view")
-    @PreAuthorize("hasRole('EMPLOYEE')")
     public ResponseEntity<List<EmployeeWorkScheduleDTO>> getEmployeeWorkSchedule(
             @RequestParam int month,
             @RequestParam int year
@@ -65,7 +61,6 @@ public class WorkScheduleController {
         return ResponseEntity.ok(result);
     }
     @PutMapping("/reject")
-    @PreAuthorize("hasRole('PRODUCTION_MANAGER')")
     public ResponseEntity<?> rejectWorkSchedules(
             @RequestParam int month,
             @RequestParam int year,
@@ -75,13 +70,11 @@ public class WorkScheduleController {
         return ResponseEntity.ok("Từ chối bảng phân ca thành công.");
     }
     @PutMapping("/custom-range")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PMC')")
     public ResponseEntity<?> createCustomRangeWorkSchedule(@Valid @RequestBody WorkScheduleRangeDTO dto) {
         workScheduleService.createCustomWorkSchedules(dto);
         return ResponseEntity.ok("Đã dải lịch thành công theo yêu cầu.");
     }
     @PutMapping("/request-revision")
-    @PreAuthorize("hasRole('PRODUCTION_MANAGER')")
     public ResponseEntity<?> requestRevision(
             @RequestParam int month,
             @RequestParam int year,
@@ -90,6 +83,4 @@ public class WorkScheduleController {
         workScheduleService.requestRevision(month, year, reason);
         return ResponseEntity.ok("Đã yêu cầu PMC chỉnh sửa lại toàn bộ lịch đã duyệt.");
     }
-
-
 }

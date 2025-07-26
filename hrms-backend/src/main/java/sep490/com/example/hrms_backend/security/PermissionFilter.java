@@ -90,14 +90,36 @@ public class PermissionFilter extends OncePerRequestFilter {
             String prefix = pattern.substring(0, pattern.length() - 3);
             return path.startsWith(prefix);
         }
+
+        if (pattern.contains("*")) {
+            // Chuyển * thành regex: /api/employees/* => /api/employees/[^/]+
+            String regex = pattern.replace("*", "[^/]+");
+            return path.matches(regex);
+        }
+
         return pattern.equals(path);
     }
 
+
     private boolean isPublicPath(String requestPath, String method) {
-        return requestPath.startsWith("/api/auth/")
-                || requestPath.startsWith("/uploads/")
-                || (requestPath.startsWith("/api/candidate/apply/") && method.equalsIgnoreCase("POST"))
-                || (requestPath.startsWith("/api/") && method.equalsIgnoreCase("GET"));
+        // Auth APIs (public)
+        if (requestPath.equals("/api/auth/login") && method.equalsIgnoreCase("POST")) return true;
+        if (requestPath.equals("/api/auth/reset-password") && method.equalsIgnoreCase("POST")) return true;
+        if (requestPath.equals("/api/auth/request-reset-password") && method.equalsIgnoreCase("POST")) return true;
+
+        // Uploads
+        if (requestPath.startsWith("/uploads/")) return true;
+
+        // Candidate apply
+        if (requestPath.startsWith("/api/candidate/apply/") && method.equalsIgnoreCase("POST")) return true;
+
+        // Public recruitment view
+        if (requestPath.equals("/api/recruitment") && method.equalsIgnoreCase("GET")) return true;
+        if (requestPath.matches("^/api/recruitment/\\d+$") && method.equalsIgnoreCase("GET")) return true;
+
+        return false;
     }
+
+
 }
 

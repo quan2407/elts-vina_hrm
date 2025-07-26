@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.InterviewScheduleDTO;
 import sep490.com.example.hrms_backend.service.InterviewScheduleService;
@@ -23,23 +22,18 @@ public class InterviewScheduleController {
     InterviewScheduleService interviewScheduleService;
 
     @GetMapping("/candidate-recruitment/{candidateRecruitmentId}")
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<?> getInterviewInitData(@Valid @PathVariable Long candidateRecruitmentId) {
         InterviewScheduleDTO interviewScheduleDTO = interviewScheduleService.getInterviewByCandidateRecruitmentId(candidateRecruitmentId);
         return ResponseEntity.ok(interviewScheduleDTO);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
-
     public ResponseEntity<?> getInterviewById(@Valid @PathVariable Long id) {
         InterviewScheduleDTO interviewScheduleDTO = interviewScheduleService.getInterviewById(id);
         return ResponseEntity.ok(interviewScheduleDTO);
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
-
     public ResponseEntity<?> getAllInterviewSchedule() {
         List<InterviewScheduleDTO> interviewScheduleDTOList = interviewScheduleService.getAllInterviewSchedule();
         if (interviewScheduleDTOList != null && !interviewScheduleDTOList.isEmpty()) {
@@ -49,14 +43,12 @@ public class InterviewScheduleController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<?> createInterviewSchedule(@Valid @RequestBody InterviewScheduleDTO dto) {
         InterviewScheduleDTO created = interviewScheduleService.createInterviewSchedule(dto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<?> editInterview(@PathVariable Long id, @Valid @RequestBody InterviewScheduleDTO interviewScheduleDTO) {
         try {
             InterviewScheduleDTO updateDto = interviewScheduleService.editInterview(id, interviewScheduleDTO);

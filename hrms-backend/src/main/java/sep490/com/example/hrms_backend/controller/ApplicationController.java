@@ -5,7 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sep490.com.example.hrms_backend.dto.*;
@@ -28,7 +27,6 @@ public class ApplicationController {
     private final CurrentUserUtils currentUserUtils;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN', 'PMC','PRODUCTION_MANAGER','EMPLOYEE')")
     public ResponseEntity<String> createApplication(
             @ModelAttribute ApplicationCreateDTO dto,
             @RequestParam(value = "attachment", required = false) MultipartFile attachment
@@ -49,7 +47,6 @@ public class ApplicationController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PMC','PRODUCTION_MANAGER','EMPLOYEE')")
     public ResponseEntity<Page<ApplicationListItemDTO>> getMyApplications(
             @RequestParam(value = "status", required = false) ApplicationStatus status,
             @RequestParam(value = "page", defaultValue = "0") int page,
@@ -77,13 +74,11 @@ public class ApplicationController {
         return uploadDir + "/" + filename;
     }
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PMC','PRODUCTION_MANAGER','EMPLOYEE','HR', 'HR_MANAGER')")
     public ResponseEntity<ApplicationDetailDTO> getApplicationDetail(@PathVariable Long id) {
         ApplicationDetailDTO dto = applicationService.getApplicationDetail(id);
         return ResponseEntity.ok(dto);
     }
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN', 'PMC','PRODUCTION_MANAGER','EMPLOYEE')")
     public ResponseEntity<String> updateApplication(
             @PathVariable Long id,
             @ModelAttribute ApplicationCreateDTO dto,
@@ -104,7 +99,6 @@ public class ApplicationController {
         return ResponseEntity.ok("Application updated successfully");
     }
     @GetMapping("/step-1")
-    @PreAuthorize("hasRole('PRODUCTION_MANAGER')")
     public ResponseEntity<Page<ApplicationApprovalListItemDTO>> getStep1Applications(
             @RequestParam(value = "status", required = false) ApplicationStatus status,
             @RequestParam(value = "page", defaultValue = "0") int page,
@@ -119,7 +113,6 @@ public class ApplicationController {
 
 
     @PutMapping("/{id}/approve-step-1")
-    @PreAuthorize("hasRole('PRODUCTION_MANAGER')")
     public ResponseEntity<String> approveStep1(
             @PathVariable Long id,
             @RequestBody ApplicationApprovalRequestDTO request
@@ -129,7 +122,6 @@ public class ApplicationController {
         return ResponseEntity.ok("Đã xử lý đơn ở bước 1");
     }
     @GetMapping("/step-2")
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<Page<ApplicationApprovalListItemDTO>> getStep2Applications(
             @RequestParam(value = "status", required = false) ApplicationStatus status,
             @RequestParam(value = "page", defaultValue = "0") int page,
@@ -143,7 +135,6 @@ public class ApplicationController {
     }
 
     @PutMapping("/{id}/approve-step-2")
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<String> approveStep2(
             @PathVariable Long id,
             @RequestBody ApplicationApprovalRequestDTO request

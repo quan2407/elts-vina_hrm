@@ -5,7 +5,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.AttendanceCheckInOutDTO;
 import sep490.com.example.hrms_backend.dto.AttendanceMonthlyViewDTO;
@@ -33,6 +32,7 @@ public class AttendanceRecordController {
     ) {
         return ResponseEntity.ok(attendanceRecordService.getMonthlyAttendance(month, year, page, size));
     }
+
     @GetMapping("/employee")
     public ResponseEntity<List<AttendanceMonthlyViewDTO>> viewEmpAttendanceByMonthById(
             @RequestParam int month,
@@ -44,11 +44,10 @@ public class AttendanceRecordController {
 
     @GetMapping("/available-months")
     public ResponseEntity<List<MonthYearDTO>> getAvailableMonths() {
-        List<MonthYearDTO> result = attendanceRecordService.getAvailableMonths();
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(attendanceRecordService.getAvailableMonths());
     }
+
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'HR_MANAGER')")
     public ResponseEntity<String> updateCheckInOut(
             @PathVariable Long id,
             @Valid @RequestBody AttendanceCheckInOutDTO dto
@@ -58,7 +57,6 @@ public class AttendanceRecordController {
     }
 
     @PutMapping("/{id}/leave-code")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'HR_MANAGER')")
     public ResponseEntity<String> updateLeaveCode(
             @PathVariable Long id,
             @RequestBody LeaveCodeUpdateDTO dto

@@ -5,7 +5,6 @@ import com.google.protobuf.ByteString;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sep490.com.example.hrms_backend.dto.EmployeeOCRResponseDTO;
@@ -25,7 +24,6 @@ public class OcrController {
     private final OcrService ocrService;
 
     @PostMapping("/scan-cccd")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<EmployeeOCRResponseDTO> scanCCCD(
             @RequestParam(value = "front", required = false) MultipartFile frontImage,
             @RequestParam(value = "back", required = false) MultipartFile backImage) {
@@ -33,7 +31,6 @@ public class OcrController {
     }
 
     @GetMapping("/face-image")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<byte[]> getFaceImageFromFrontCCCD(@RequestParam("front") MultipartFile frontImage) throws IOException {
         AnnotateImageResponse res = annotateImage(frontImage);
 

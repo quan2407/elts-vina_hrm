@@ -7,7 +7,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,7 +27,6 @@ public class HumanReportController {
     private HumanReportService humanReportService;
 
     @GetMapping("/full-emp")
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER', 'PRODUCTION_MANAGER')")
     public Map<String, List<AttendanceMonthlyViewDTO>> getListEmp(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
 
         Map<String, List<AttendanceMonthlyViewDTO>> humanReport = humanReportService.getFullEmp(date);
@@ -36,21 +34,18 @@ public class HumanReportController {
     }
 
     @GetMapping("/absent")
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER', 'PRODUCTION_MANAGER')")
     public Map<String, List<AttendanceMonthlyViewDTO>> getListEmpAbsent(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
 
         Map<String, List<AttendanceMonthlyViewDTO>> humanAbsent = humanReportService.getListEmpAbsent(date);
         return humanAbsent;
     }
     @GetMapping("/absentkl")
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER', 'PRODUCTION_MANAGER')")
     public Map<String, List<AttendanceMonthlyViewDTO>> getListEmpAbsentKL(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
 
         Map<String, List<AttendanceMonthlyViewDTO>> humanAbsent = humanReportService.getListEmpAbsentKL(date);
         return humanAbsent;
     }
     @GetMapping("/export")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<InputStreamResource> exportHumanReportToExcel(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         ByteArrayInputStream in = humanReportService.exportHumanReportToExcel(date);
         HttpHeaders headers = new HttpHeaders();
