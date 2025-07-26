@@ -55,11 +55,17 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
+                        // Auth APIs
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/reset-password").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/request-reset-password").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/candidate/apply/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/recruitment").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/recruitment/{id:\\d+}").permitAll()
                         .anyRequest().authenticated()
                 )
+
                 .exceptionHandling(
                         exception -> exception.authenticationEntryPoint(authenticationEntryPoint)
                 )

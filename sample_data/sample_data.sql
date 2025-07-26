@@ -64,7 +64,6 @@ INSERT INTO role (role_id, role_name) VALUES
 (2, 'ROLE_HR'),
 (3, 'ROLE_LINE_LEADER'),
 (4, 'ROLE_PRODUCTION_MANAGER'),
-(5, 'ROLE_CANTEEN'),
 (6, 'ROLE_EMPLOYEE'),
 (7, 'ROLE_PMC'),
 (8, 'ROLE_HR_MANAGER');
@@ -167,7 +166,6 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 (2,24),                     -- HR
 (3,24),                     -- LINE_LEADER
 (4,24),                     -- PRODUCTION_MANAGER
-(5,24),                     -- CANTEEN
 (6,24),                     -- EMPLOYEE
 (7,24);                     -- PMC
 -- Module: Recruitment
@@ -187,8 +185,8 @@ INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 
 -- Gán cho HR và HR_MANAGER quyền tạo/sửa
 INSERT INTO role_permission (role_id, permission_id) VALUES 
-(2, 31), (2, 32),    -- HR
-(8, 31), (8, 32);    -- HR_MANAGER
+(2, 31), (2, 32), (2,29),(2,30),   -- HR
+(8, 31), (8, 32),(8,29),(8,30);    -- HR_MANAGER
 -- Module: Dashboard
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
 (33, 'GET', '/api/dashboard/recruitment-graph', 'Xem biểu đồ tuyển dụng', 'Dashboard');
@@ -209,7 +207,6 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 (2, 34), (2, 35), (2, 36),
 (3, 34), (3, 35), (3, 36),
 (4, 34), (4, 35), (4, 36),
-(5, 34), (5, 35), (5, 36),
 (6, 34), (6, 35), (6, 36),
 (7, 34), (7, 35), (7, 36),
 (8, 34), (8, 35), (8, 36);
@@ -821,7 +818,7 @@ INSERT INTO account (account_id, username, password_hash, email, is_active, crea
 (2, 'user2', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user2@example.com', true, NOW(), NOW(), NULL, 5, false, 2, 2),
 (3, 'user3', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user3@example.com', true, NOW(), NOW(), NULL, 5, false, 3, 6),
 (4, 'user4', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user4@example.com', true, NOW(), NOW(), NULL, 5, false, 4, 3),
-(5, 'user5', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user5@example.com', true, NOW(), NOW(), NULL, 5, false, 5, 5),
+(5, 'user5', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user5@example.com', true, NOW(), NOW(), NULL, 5, false, 5, 6),
 (6, 'user6', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user6@example.com', true, NOW(), NOW(), NULL, 5, false, 6, 6),
 (7, 'user7', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user7@example.com', true, NOW(), NOW(), NULL, 5, false, 7, 4),
 (8, 'user8', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user8@example.com', true, NOW(), NOW(), NULL, 5, false, 8, 6),
