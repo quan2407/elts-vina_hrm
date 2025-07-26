@@ -5,6 +5,8 @@ SET SQL_SAFE_UPDATES = 0;
 UPDATE employee SET line_id = NULL;
 UPDATE `lines` SET leader_id = NULL;
 ALTER TABLE employee MODIFY COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0;
+DELETE FROM role_permission;
+DELETE FROM permission;
 
 DELETE FROM application_approval_step;
 DELETE FROM application;
@@ -31,6 +33,8 @@ DELETE FROM role;
 
 
 -- Reset AUTO_INCREMENT cho các bảng
+ALTER TABLE permission AUTO_INCREMENT = 1;
+ALTER TABLE role_permission AUTO_INCREMENT = 1;
 ALTER TABLE application_approval_step AUTO_INCREMENT = 1;
 ALTER TABLE application AUTO_INCREMENT = 1;
 ALTER TABLE account_request AUTO_INCREMENT = 1;
@@ -63,7 +67,15 @@ INSERT INTO role (role_id, role_name) VALUES
 (6, 'ROLE_EMPLOYEE'),
 (7, 'ROLE_PMC'),
 (8, 'ROLE_HR_MANAGER');
+INSERT INTO permission (permission_id, method, api_path, name) VALUES 
+(1, 'PUT', '/api/roles/**', 'Cập nhật phân quyền'),
+(2, 'POST', '/api/permissions', 'Tạo mới quyền'),
+(3, 'GET', '/api/permissions', 'Xem danh sách quyền');
 
+
+-- Gán cho role admin
+INSERT INTO role_permission (role_id, permission_id) VALUES 
+(1, 2), (1, 3), (1, 1);
 
 INSERT INTO department (department_id, department_name) VALUES
 (1, 'Bán Tự Động'),
