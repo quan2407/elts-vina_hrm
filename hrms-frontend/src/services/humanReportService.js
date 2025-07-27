@@ -31,3 +31,10 @@ export const getAbsentEmpKL = async (selectedDate) => {
     throw error;
   }
 }
+
+export const exportFile = async (selectedDate) => {
+  return axiosClient.get(`${API_URL}/export`, {
+    responseType: "blob",
+    params: { date: selectedDate } 
+  });
+}

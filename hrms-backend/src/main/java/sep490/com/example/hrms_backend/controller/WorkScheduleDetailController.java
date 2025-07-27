@@ -3,7 +3,6 @@ package sep490.com.example.hrms_backend.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.DepartmentWorkScheduleViewDTO;
 import sep490.com.example.hrms_backend.dto.WorkScheduleDetailCreateDTO;
@@ -20,7 +19,6 @@ public class WorkScheduleDetailController {
 
     private final WorkScheduleDetailService workScheduleDetailService;
     @GetMapping("/view-by-month")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PMC','PRODUCTION_MANAGER','HR')")
     public ResponseEntity<List<DepartmentWorkScheduleViewDTO>> viewByMonth(
             @RequestParam int month,
             @RequestParam int year
@@ -30,7 +28,6 @@ public class WorkScheduleDetailController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'PMC')")
     public ResponseEntity<WorkScheduleDetailResponseDTO> create(
             @Valid @RequestBody WorkScheduleDetailCreateDTO dto
     ) {
@@ -38,7 +35,6 @@ public class WorkScheduleDetailController {
         return ResponseEntity.ok(response);
     }
     @PutMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'PMC')")
     public ResponseEntity<WorkScheduleDetailResponseDTO> update(
             @Valid @RequestBody WorkScheduleDetailUpdateDTO dto
     ) {
@@ -47,7 +43,6 @@ public class WorkScheduleDetailController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PMC')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         workScheduleDetailService.delete(id);
         return ResponseEntity.noContent().build();

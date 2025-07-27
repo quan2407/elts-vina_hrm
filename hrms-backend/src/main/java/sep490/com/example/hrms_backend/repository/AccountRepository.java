@@ -1,6 +1,7 @@
 package sep490.com.example.hrms_backend.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import sep490.com.example.hrms_backend.entity.Account;
 
 import java.util.Optional;
@@ -17,5 +18,13 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     Boolean existsByEmail(String email);
 
     Optional<Account> findByEmployee_EmployeeId(Long employeeId);
+    @Query("""
+    SELECT a FROM Account a
+    JOIN FETCH a.role r
+    JOIN FETCH r.permissions
+    WHERE a.username = :username
+""")
+    Optional<Account> findByUsernameWithPermissions(String username);
+
 
 }

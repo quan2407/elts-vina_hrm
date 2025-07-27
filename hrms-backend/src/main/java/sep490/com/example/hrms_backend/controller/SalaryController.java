@@ -2,7 +2,6 @@ package sep490.com.example.hrms_backend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.SalaryDTO;
 import sep490.com.example.hrms_backend.service.SalaryService;
@@ -20,7 +19,6 @@ public class SalaryController {
     private final CurrentUserUtils currentUserUtils;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<String> generateSalary(
             @RequestParam int month,
             @RequestParam int year
@@ -38,7 +36,6 @@ public class SalaryController {
         return ResponseEntity.ok(salaries);
     }
     @PutMapping("/regenerate")
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<String> regenerateSalary(
             @RequestParam int month,
             @RequestParam int year
@@ -47,7 +44,6 @@ public class SalaryController {
         return ResponseEntity.ok("Cập nhật bảng lương thành công cho " + month + "/" + year);
     }
     @GetMapping("/available-months")
-    @PreAuthorize("hasAnyRole('HR', 'EMPLOYEE', 'HR_MANAGER')")
     public ResponseEntity<List<String>> getAvailableSalaryMonths() {
         List<LocalDate> salaryDates = salaryService.getAvailableSalaryMonths();
         List<String> formatted = salaryDates.stream()
@@ -58,8 +54,6 @@ public class SalaryController {
     }
 
     @GetMapping("/employee-months")
-    @PreAuthorize("hasRole('EMPLOYEE')")
-
     public ResponseEntity<List<SalaryDTO>> getEmpSalaryMonths(
             @RequestParam int month,
             @RequestParam int year
@@ -69,7 +63,6 @@ public class SalaryController {
         return ResponseEntity.ok(salaries);
     }
     @PutMapping("/lock")
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<String> lockSalaries(
             @RequestParam int month,
             @RequestParam int year,

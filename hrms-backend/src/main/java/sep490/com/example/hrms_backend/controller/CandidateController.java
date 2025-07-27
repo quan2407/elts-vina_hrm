@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.CandidateDto;
@@ -37,7 +36,6 @@ public class CandidateController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
     public ResponseEntity<?> getCandidateByRecruitment(@PathVariable Long id) {
         List<CandidateResponseDTO> candidates = candidateService.getCandidatesByRecruitmentId(id);
         return ResponseEntity.ok(candidates);

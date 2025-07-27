@@ -16,7 +16,9 @@ import sep490.com.example.hrms_backend.repository.DepartmentRepository;
 import sep490.com.example.hrms_backend.repository.EmployeeRepository;
 import sep490.com.example.hrms_backend.repository.LineRepository;
 import sep490.com.example.hrms_backend.service.HumanReportService;
+import sep490.com.example.hrms_backend.utils.HumanReportExcelExport;
 
+import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -114,5 +116,19 @@ public class HumanReportServiceImpl implements HumanReportService {
             absentEmp.put(l.getLineName(), attendanceMonthlyViewDTOList);
         }
         return absentEmp;
+    }
+
+    @Override
+    public ByteArrayInputStream exportHumanReportToExcel(LocalDate date) {
+
+        List<Department> departments = departmentRepository.findAll();
+        Department sanXuat = departmentRepository.findByDepartmentNameIgnoreCase("Sản Xuất");
+        List<Line> lines = lineRepository.findAll();
+
+        Map<String, List<AttendanceMonthlyViewDTO>> fullEmp = getFullEmp(date);
+        Map<String, List<AttendanceMonthlyViewDTO>> absentEmp = getListEmpAbsent(date);
+        Map<String, List<AttendanceMonthlyViewDTO>> absentEmpKL = getListEmpAbsentKL(date);
+
+        return HumanReportExcelExport.exportToExcel(date, departments, sanXuat, lines, fullEmp, absentEmp, absentEmpKL);
     }
 }

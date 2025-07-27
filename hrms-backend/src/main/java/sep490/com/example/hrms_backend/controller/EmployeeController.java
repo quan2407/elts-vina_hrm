@@ -6,7 +6,6 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sep490.com.example.hrms_backend.dto.*;
@@ -27,14 +26,12 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'HR_MANAGER')")
     public ResponseEntity<List<EmployeeResponseDTO>> getAllEmployees() {
         List<EmployeeResponseDTO> employeeList = employeeService.getAllEmployees();
         return ResponseEntity.ok(employeeList);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'HR_MANAGER')")
     public ResponseEntity<EmployeeResponseDTO> createEmployee(
             @Valid @ModelAttribute EmployeeRequestDTO dto,
             @RequestParam(value = "frontImageFile", required = false) MultipartFile frontImageFile,
@@ -68,7 +65,6 @@ public class EmployeeController {
 
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'HR_MANAGER')")
     public ResponseEntity<EmployeeResponseDTO> updateEmployee(
             @PathVariable Long id,
             @Valid @ModelAttribute EmployeeUpdateDTO dto,
@@ -95,7 +91,6 @@ public class EmployeeController {
 
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'HR_MANAGER')")
     public ResponseEntity<EmployeeDetailDTO> getEmployeeById(@PathVariable Long id) {
         EmployeeDetailDTO employeeDetail = employeeService.getEmployeeDetailById(id);
         return ResponseEntity.ok(employeeDetail);
@@ -103,14 +98,12 @@ public class EmployeeController {
 
 
     @GetMapping("/profile")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'EMPLOYEE', 'LINE_LEADER', 'PMC', 'CANTEEN', 'PRODUCTION_MANAGER','HR_MANAGER')")
     public ResponseEntity<EmployeeDetailDTO> getOwnProfile() {
         EmployeeDetailDTO employeeDetail = employeeService.getOwnProfile();
         return ResponseEntity.ok(employeeDetail);
     }
 
     @PutMapping("/profile")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'EMPLOYEE', 'LINE_LEADER', 'PMC', 'CANTEEN', 'PRODUCTION_MANAGER','HR_MANAGER')")
     public ResponseEntity<EmployeeDetailDTO> updateOwnProfile(@Valid @RequestBody EmployeeOwnProfileUpdateDTO dto) {
         EmployeeDetailDTO updated = employeeService.updateOwnProfile(dto);
         return ResponseEntity.ok(updated);
@@ -123,7 +116,6 @@ public class EmployeeController {
         return ResponseEntity.ok(nextCode);
     }
     @GetMapping("/next-code/{positionId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'HR_MANAGER')")
     public ResponseEntity<String> getNextEmployeeCodeByPosition(@PathVariable Long positionId) {
         String nextCode = employeeService.getNextEmployeeCodeByPosition(positionId);
         return ResponseEntity.ok(nextCode);
@@ -131,14 +123,12 @@ public class EmployeeController {
 
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'HR_MANAGER')")
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
         employeeService.softDeleteEmployee(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/export")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'HR_MANAGER')")
     public ResponseEntity<InputStreamResource> exportEmployeesToExcel() {
         ByteArrayInputStream in = employeeService.exportEmployeesToExcel();
         HttpHeaders headers = new HttpHeaders();
@@ -151,14 +141,12 @@ public class EmployeeController {
     }
 
     @GetMapping("/department/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'HR_MANAGER')")
     public ResponseEntity<List<EmployeeResponseDTO>> getEmployeeByDepartmentId(@PathVariable Long id) {
         List<EmployeeResponseDTO> employeeDetailInDepartment = employeeService.getEmployeeByDepartmentId(id);
         return ResponseEntity.ok(employeeDetailInDepartment);
     }
 
     @GetMapping("/line/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'PMC','HR_MANAGER')")
     public ResponseEntity<List<EmployeeResponseDTO>> getEmployeeByLineId(@PathVariable Long id) {
         List<EmployeeResponseDTO> employeeDetailInLine = employeeService.getEmployeeByLineId(id);
         return ResponseEntity.ok(employeeDetailInLine);

@@ -3,7 +3,7 @@ import departmentService from "../services/departmentService";
 import MainLayout from "../components/MainLayout";
 import "../styles/HumanReport.css";
 import { getAllLines } from "../services/linesService";
-import { getAbsentEmp, getAbsentEmpKL, getFullEmp } from "../services/humanReportService";
+import { getAbsentEmp, getAbsentEmpKL, getFullEmp, exportFile } from "../services/humanReportService";
 
 const HumanReport = () => {
     const [line, setLine] = useState([]);
@@ -22,6 +22,26 @@ const HumanReport = () => {
     };
 
     const [selectedDate, setSelectedDate] = useState(getYesterdayLocalDate());
+
+  const handleExport = async () => {
+    try {
+      const response = await exportFile(selectedDate);
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "baocaonhanluc.xlsx");
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert("Export failed. Please try again.");
+    }
+  };
 
     useEffect(() => {
         const fetchDepartments = async () => {
@@ -102,7 +122,7 @@ const HumanReport = () => {
                 <div className="page-header">
                     <h1 className="page-title">Báo cáo nhân lực</h1>
                     <div className="page-actions">
-                    <div className="export-button " style={{ height: "55px" }} >
+                    <div className="export-button " style={{ height: "55px" }} onClick={handleExport}>
                         <span className="export-text">Export</span>
                     </div>
                 </div>

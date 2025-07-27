@@ -55,6 +55,16 @@ export const systemMenus = [
       />
     ),
   },
+  {
+    text: "Danh sách vai trò",
+    path: "/admin/roles",
+    icon: (isActive) => (
+      <Users
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
 ];
 
 export const hrMenus = [
@@ -71,6 +81,7 @@ export const hrMenus = [
   {
     text: "Báo cáo nhân lực",
     path: "/human-report",
+    apiPath: "/api/human-report/full-emp",
     icon: (isActive) => (
       <ClipboardPlus
         size={20}
@@ -81,6 +92,7 @@ export const hrMenus = [
   {
     text: "Quản lý nhân viên",
     path: "/employee-management",
+    apiPath: "/api/employees",
     icon: (isActive) => (
       <Users
         size={20}
@@ -91,6 +103,7 @@ export const hrMenus = [
   {
     text: "Tuyển dụng",
     path: "/jobs-management",
+    apiPath: "/api/recruitment",
     icon: (isActive) => (
       <Briefcase
         size={20}
@@ -101,6 +114,7 @@ export const hrMenus = [
   {
     text: "Danh sách line",
     path: "/line-management",
+    apiPath: "/api/lines",
     icon: (isActive) => (
       <Rows4
         size={20}
@@ -121,6 +135,7 @@ export const hrMenus = [
   {
     text: "Quản lý ngày nghỉ",
     path: "/holiday-management",
+    apiPath: "/api/employees",
     icon: (isActive) => (
       <CalendarCheck
         size={20}
@@ -132,6 +147,7 @@ export const hrMenus = [
   {
     text: "Danh sách phỏng vấn",
     path: "/interviews-management",
+    apiPath: "/api/recruitment",
     icon: (isActive) => (
       <Briefcase
         size={20}
@@ -142,6 +158,7 @@ export const hrMenus = [
   {
     text: "Bảng công tháng",
     path: "/attendance-monthly",
+    apiPath: "/api/attendances/view-by-month",
     icon: (isActive) => (
       <LayoutDashboard
         size={20}
@@ -152,6 +169,7 @@ export const hrMenus = [
   {
     text: "Bảng lương tháng",
     path: "/salary-monthly",
+    apiPath: "/api/salaries",
     icon: (isActive) => (
       <Wallet
         size={20}
@@ -162,6 +180,8 @@ export const hrMenus = [
   {
     text: "Lịch sản xuất",
     path: "/work-schedule-view-hr",
+    apiPath: "/api/work-schedule-details/view-by-month",
+
     icon: (isActive) => (
       <CalendarCheck
         size={20}
@@ -172,6 +192,7 @@ export const hrMenus = [
   {
     text: "Duyệt đơn",
     path: "/applications/approvals/hr",
+    apiPath: "/api/applications/step-2",
     icon: (isActive) => (
       <Briefcase
         size={20}
@@ -184,6 +205,7 @@ export const pmcMenus = [
   {
     text: "Lịch sản xuất",
     path: "/work-schedule-management",
+    apiPath: "/api/work-schedule-details/view-by-month",
     icon: (isActive) => (
       <CalendarCheck
         size={20}
@@ -194,6 +216,7 @@ export const pmcMenus = [
   {
     text: "Danh sách line",
     path: "/line-management",
+    apiPath: "/api/lines",
     icon: (isActive) => (
       <Rows4
         size={20}
@@ -207,6 +230,7 @@ export const productionManagerMenus = [
   {
     text: "Lịch làm việc",
     path: "/work-schedule-production",
+    apiPath: "/api/work-schedule-details/view-by-month",
     icon: (isActive) => (
       <CalendarCheck
         size={20}
@@ -217,6 +241,7 @@ export const productionManagerMenus = [
   {
     text: "Bảng công tháng",
     path: "/attendance-monthly-view",
+    apiPath: "/api/attendances/view-by-month",
     icon: (isActive) => (
       <LayoutDashboard
         size={20}
@@ -227,6 +252,7 @@ export const productionManagerMenus = [
   {
     text: "Duyệt đơn",
     path: "/applications/approvals/manager",
+    apiPath: "/api/applications/step-1",
     icon: (isActive) => (
       <Briefcase
         size={20}
@@ -240,6 +266,7 @@ export const employeeMenus = [
   {
     text: "Lịch làm việc của tôi",
     path: "/my-work-schedule",
+    apiPath: "/api/work-schedules/employee-view",
     icon: (isActive) => (
       <CalendarCheck
         size={20}
@@ -260,6 +287,7 @@ export const employeeMenus = [
   {
     text: "Bảng lương tháng",
     path: "/my-salary-monthly",
+    apiPath: "/api/salaries/employee-months",
     icon: (isActive) => (
       <Wallet
         size={20}
@@ -270,6 +298,7 @@ export const employeeMenus = [
   {
     text: "Đơn từ của tôi",
     path: "/my-applications",
+    apiPath: "/api/applications/me",
     icon: (isActive) => (
       <Briefcase
         size={20}
