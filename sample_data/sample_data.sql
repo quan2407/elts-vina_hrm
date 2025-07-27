@@ -69,25 +69,25 @@ INSERT INTO role (role_id, role_name) VALUES
 (8, 'ROLE_HR_MANAGER');
 -- Insert quyền cho module Role Management
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
-(1, 'PUT', '/api/roles/**', 'Cập nhật phân quyền', 'Role Management'),
-(2, 'POST', '/api/permissions', 'Tạo mới quyền', 'Role Management'),
-(3, 'GET', '/api/permissions', 'Xem danh sách quyền', 'Role Management');
+(1, 'PUT', '/api/roles/**', 'Cập nhật phân quyền', 'Role'),
+(2, 'POST', '/api/permissions', 'Tạo mới quyền', 'Role'),
+(3, 'GET', '/api/permissions', 'Xem danh sách quyền', 'Role');
 
--- Insert quyền cho module Account Management
+-- Insert quyền cho module Account
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
-(4, 'GET', '/api/accounts', 'Xem danh sách tài khoản', 'Account Management'),
-(5, 'PUT', '/api/accounts/*/toggle-status', 'Kích hoạt/Vô hiệu hóa tài khoản', 'Account Management');
+(4, 'GET', '/api/accounts', 'Xem danh sách tài khoản', 'Account'),
+(5, 'PUT', '/api/accounts/*/toggle-status', 'Kích hoạt/Vô hiệu hóa tài khoản', 'Account');
 
 -- Gán các permission mới vào role admin
 INSERT INTO role_permission (role_id, permission_id) VALUES 
 (1, 4), 
 (1, 5);
 
--- Insert quyền cho module Account Request Management
+-- Insert quyền cho module Account Request
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
-(6, 'GET', '/api/account-requests/*', 'Xem danh sách yêu cầu tạo tài khoản', 'Account Request Management'),
-(7, 'POST', '/api/account-requests/*/approve', 'Duyệt yêu cầu tạo tài khoản', 'Account Request Management'),
-(8, 'POST', '/api/account-requests/*/reject', 'Từ chối yêu cầu tạo tài khoản', 'Account Request Management');
+(6, 'GET', '/api/account-requests/*', 'Xem danh sách yêu cầu tạo tài khoản', 'Account Request'),
+(7, 'POST', '/api/account-requests/*/approve', 'Duyệt yêu cầu tạo tài khoản', 'Account Request'),
+(8, 'POST', '/api/account-requests/*/reject', 'Từ chối yêu cầu tạo tài khoản', 'Account Request');
 
 -- Gán các permission mới vào role admin
 INSERT INTO role_permission (role_id, permission_id) VALUES 
@@ -99,18 +99,18 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 INSERT INTO role_permission (role_id, permission_id) VALUES 
 (1, 2), (1, 3), (1, 1);
 
--- Module: Application Management
+-- Module: Application
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
-(9, 'POST', '/api/applications', 'Tạo mới đơn từ', 'Application Management'),
-(10, 'GET', '/api/applications/me', 'Xem danh sách đơn từ của bản thân', 'Application Management'),
-(11, 'GET', '/api/applications/*', 'Xem chi tiết đơn từ', 'Application Management'),
-(12, 'PUT', '/api/applications/*', 'Cập nhật đơn từ', 'Application Management'),
+(9, 'POST', '/api/applications', 'Tạo mới đơn từ', 'Application'),
+(10, 'GET', '/api/applications/me', 'Xem danh sách đơn từ của bản thân', 'Application'),
+(11, 'GET', '/api/applications/*', 'Xem chi tiết đơn từ', 'Application'),
+(12, 'PUT', '/api/applications/*', 'Cập nhật đơn từ', 'Application'),
 
-(13, 'GET', '/api/applications/step-1', 'Xem danh sách đơn chờ duyệt bước 1', 'Application Management'),
-(14, 'PUT', '/api/applications/*/approve-step-1', 'Duyệt/từ chối đơn bước 1', 'Application Management'),
+(13, 'GET', '/api/applications/step-1', 'Xem danh sách đơn chờ duyệt bước 1', 'Application'),
+(14, 'PUT', '/api/applications/*/approve-step-1', 'Duyệt/từ chối đơn bước 1', 'Application'),
 
-(15, 'GET', '/api/applications/step-2', 'Xem danh sách đơn chờ duyệt bước 2', 'Application Management'),
-(16, 'PUT', '/api/applications/*/approve-step-2', 'Duyệt/từ chối đơn bước 2', 'Application Management');
+(15, 'GET', '/api/applications/step-2', 'Xem danh sách đơn chờ duyệt bước 2', 'Application'),
+(16, 'PUT', '/api/applications/*/approve-step-2', 'Duyệt/từ chối đơn bước 2', 'Application');
 
 -- Phân quyền cho các role tương ứng
 -- ADMIN: tất cả các quyền
@@ -130,15 +130,15 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 INSERT INTO role_permission (role_id, permission_id) VALUES 
 (2, 11), (2, 15), (2, 16), -- HR
 (8, 11), (8, 15), (8, 16); -- HR_MANAGER
--- Module: Attendance Management
+-- Module: Attendance 
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
-(17, 'GET', '/api/attendances/view-by-month', 'Xem bảng công theo tháng', 'Attendance Management'),
-(18, 'GET', '/api/attendances/employee', 'Xem bảng công cá nhân theo tháng', 'Attendance Management'),
-(19, 'GET', '/api/attendances/available-months', 'Xem danh sách tháng có dữ liệu bảng công', 'Attendance Management'),
-(20, 'PUT', '/api/attendances/*', 'Cập nhật giờ vào – giờ ra', 'Attendance Management'),
-(21, 'PUT', '/api/attendances/*/leave-code', 'Cập nhật mã nghỉ phép', 'Attendance Management');
+(17, 'GET', '/api/attendances/view-by-month', 'Xem bảng công theo tháng', 'Attendance '),
+(18, 'GET', '/api/attendances/employee', 'Xem bảng công cá nhân theo tháng', 'Attendance '),
+(19, 'GET', '/api/attendances/available-months', 'Xem danh sách tháng có dữ liệu bảng công', 'Attendance '),
+(20, 'PUT', '/api/attendances/*', 'Cập nhật giờ vào – giờ ra', 'Attendance '),
+(21, 'PUT', '/api/attendances/*/leave-code', 'Cập nhật mã nghỉ phép', 'Attendance ');
 
--- Gán quyền Attendance Management cho các role tương ứng:
+-- Gán quyền Attendance  cho các role tương ứng:
 -- ADMIN, HR, HR_MANAGER, PRODUCTION_MANAGER được quyền xem bảng công tháng, cập nhật giờ vào ra và mã nghỉ phép:
 INSERT INTO role_permission (role_id, permission_id) VALUES 
 (1,17),(1,18),(1,19),(1,20),(1,21),   -- ADMIN
@@ -350,16 +350,16 @@ INSERT INTO role_permission (role_id, permission_id) VALUES (2, 72), (2, 73);
 INSERT INTO role_permission (role_id, permission_id) VALUES (8, 72), (8, 73);
 -- Permission ID 74: Cập nhật quyền
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
-(74, 'PUT', '/api/permissions/*', 'Cập nhật quyền', 'Role Management');
+(74, 'PUT', '/api/permissions/*', 'Cập nhật quyền', 'Role');
 
 -- Permission ID 75: Xóa quyền
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
-(75, 'DELETE', '/api/permissions/*', 'Xóa quyền', 'Role Management');
+(75, 'DELETE', '/api/permissions/*', 'Xóa quyền', 'Role');
 INSERT INTO role_permission (role_id, permission_id) VALUES
 (1, 74), (1, 75);
 -- ID tiếp theo: 76
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
-(76, 'GET', '/api/roles/**', 'Xem quyền theo vai trò', 'Role Management');
+(76, 'GET', '/api/roles/**', 'Xem quyền theo vai trò', 'Role');
 
 -- Gán cho ADMIN (role_id = 1)
 INSERT INTO role_permission (role_id, permission_id) VALUES
