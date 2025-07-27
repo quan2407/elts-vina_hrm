@@ -17,7 +17,6 @@ import sep490.com.example.hrms_backend.repository.DepartmentRepository;
 import sep490.com.example.hrms_backend.repository.RecruitmentRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -123,8 +122,8 @@ public class RecruitmentService {
         }
     }
 
-    public List<RecruitmentGraphResponse> getGraphData(LocalDateTime fromDate, LocalDateTime toDate) {
-        return recruitmentRepository.getRecruitmentGraphData(fromDate, toDate);
+    public List<RecruitmentGraphResponse> getGraphData() {
+        return recruitmentRepository.getRecruitmentGraphData();
     }
 }
 

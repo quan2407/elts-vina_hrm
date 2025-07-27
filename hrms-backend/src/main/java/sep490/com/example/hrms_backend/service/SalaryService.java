@@ -12,4 +12,6 @@ public interface SalaryService {
     List<LocalDate> getAvailableSalaryMonths();
 
     List<SalaryDTO> getEmpSalariesByMonth(Long employeeId, int month, int year);
+
+    void lockSalariesByMonth(int month, int year, boolean locked);
 }

@@ -24,21 +24,24 @@ const RecruitmentChart = ({ data = [] }) => {
         label: 'Cần tuyển',
         data: data.map(item => item.canTuyen ?? 0),
         backgroundColor: 'rgba(255, 0, 0, 0.6)',
-        barThickness: 38 // ~1cm
+        barThickness: 'flex',       
+        maxBarThickness: 50,          
 
       },
       {
         label: 'Ứng tuyển',
         data: data.map(item => item.ungTuyen ?? 0),
         backgroundColor: 'rgba(12, 55, 248, 0.6)',
-        barThickness: 38 // ~1cm
+        barThickness: 'flex',       
+        maxBarThickness: 50,          
 
       },
       {
         label: 'Đã tuyển',
         data: data.map(item => item.daTuyen ?? 0),
         backgroundColor: 'rgba(9, 252, 49, 0.6)',
-        barThickness: 38 // ~1cm
+        barThickness: 'flex',        
+        maxBarThickness: 50,          
 
       }
     ]
@@ -49,10 +52,8 @@ const RecruitmentChart = ({ data = [] }) => {
     responsive: true,
     scales: {
       x: {
-        barPercentage: 1,
-        categoryPercentage: 1,
         ticks: {
-          color: '#333',
+          color: '#333', // màu chữ trục X
           font: {
             size: 16,
             weight: '500',
@@ -64,7 +65,7 @@ const RecruitmentChart = ({ data = [] }) => {
         beginAtZero: true,
         ticks: {
           stepSize: 1,
-          color: '#333',
+          color: '#333', // màu chữ trục Y
           font: {
             size: 16,
             weight: '500',
@@ -76,7 +77,7 @@ const RecruitmentChart = ({ data = [] }) => {
     plugins: {
       legend: {
         labels: {
-          color: '#000',
+          color: '#000', // màu chữ legend
           font: {
             size: 16,
             weight: '600',
@@ -103,6 +104,7 @@ const RecruitmentChart = ({ data = [] }) => {
       }
     }
   };
+
 
   return (
     <div className="recruitment-chart" style={{ height: "400px" }}>

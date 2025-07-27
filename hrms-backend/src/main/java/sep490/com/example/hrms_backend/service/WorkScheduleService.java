@@ -16,4 +16,6 @@ public interface WorkScheduleService {
     void rejectSubmittedSchedule(int month, int year, String reason);
     public void createCustomWorkSchedules(WorkScheduleRangeDTO dto);
 
+    void requestRevision(int month, int year, String reason);
+
 }
