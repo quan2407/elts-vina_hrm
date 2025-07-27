@@ -40,7 +40,7 @@ public class JwtTokenProvider {
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-        Object principal = authentication.getPrincipal();
+
         // Tạo claims để nhúng roles vào payload
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", roles);

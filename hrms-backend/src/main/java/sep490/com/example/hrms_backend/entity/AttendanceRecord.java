@@ -54,8 +54,5 @@ public class AttendanceRecord {
     @Column(name = "check_out_time")
     private LocalTime checkOutTime;
 
-    @Column(name = "leave_days_remaining")
-    private Float leaveDaysRemaining = 1.0f;
-
 }
 

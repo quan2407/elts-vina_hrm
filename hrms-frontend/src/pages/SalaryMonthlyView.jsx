@@ -8,13 +8,11 @@ const SalaryMonthlyView = () => {
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
   const [availableMonths, setAvailableMonths] = useState([]);
-  const [isLocked, setIsLocked] = useState(false);
 
   const fetchSalaries = async () => {
     try {
       const res = await salaryService.getMonthlySalaries(month, year);
       setSalaries(res.data);
-      setIsLocked(res.data.length > 0 && res.data[0].locked);
     } catch (err) {
       console.error("Lỗi khi tải dữ liệu lương:", err);
     }
@@ -51,89 +49,58 @@ const SalaryMonthlyView = () => {
     <MainLayout>
       <div className="attendance-container">
         <div className="attendance-controls">
-          <div className="attendance-filters">
-            <select
-              value={month}
-              onChange={(e) => setMonth(Number(e.target.value))}
-            >
-              {Array.from(
-                new Set(availableMonths.map((m) => m.split("-")[0]))
-              ).map((m) => (
-                <option
-                  key={m}
-                  value={Number(m)}
-                >
-                  Tháng {m}
-                </option>
-              ))}
-            </select>
+          <select
+            value={month}
+            onChange={(e) => setMonth(Number(e.target.value))}
+          >
+            {Array.from(
+              new Set(availableMonths.map((m) => m.split("-")[0]))
+            ).map((m) => (
+              <option
+                key={m}
+                value={Number(m)}
+              >
+                Tháng {m}
+              </option>
+            ))}
+          </select>
+          <select
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+          >
+            {Array.from(
+              new Set(availableMonths.map((m) => m.split("-")[1]))
+            ).map((y) => (
+              <option
+                key={y}
+                value={Number(y)}
+              >
+                Năm {y}
+              </option>
+            ))}
+          </select>
 
-            <select
-              value={year}
-              onChange={(e) => setYear(Number(e.target.value))}
-            >
-              {Array.from(
-                new Set(availableMonths.map((m) => m.split("-")[1]))
-              ).map((y) => (
-                <option
-                  key={y}
-                  value={Number(y)}
-                >
-                  Năm {y}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="salary-actions">
-            <button
-              className="btn-update"
-              disabled={isLocked}
-              onClick={async () => {
-                if (
-                  window.confirm(
-                    "Bạn có chắc muốn cập nhật lại bảng lương không?"
-                  )
-                ) {
-                  try {
-                    await salaryService.regenerateMonthlySalaries(month, year);
-                    await fetchSalaries();
-                    alert("Đã cập nhật bảng lương thành công!");
-                  } catch (err) {
-                    console.error("Lỗi khi cập nhật bảng lương:", err);
-                    alert("Cập nhật bảng lương thất bại!");
-                  }
+          <button
+            className="btn-update"
+            onClick={async () => {
+              if (
+                window.confirm(
+                  "Bạn có chắc muốn cập nhật lại bảng lương không?"
+                )
+              ) {
+                try {
+                  await salaryService.regenerateMonthlySalaries(month, year);
+                  await fetchSalaries(); // tải lại lương sau khi cập nhật
+                  alert("Đã cập nhật bảng lương thành công!");
+                } catch (err) {
+                  console.error("Lỗi khi cập nhật bảng lương:", err);
+                  alert("Cập nhật bảng lương thất bại!");
                 }
-              }}
-            >
-              Cập nhật bảng lương
-            </button>
-
-            <button
-              className="btn-lock"
-              onClick={async () => {
-                const confirmMsg = isLocked
-                  ? "Bạn có chắc muốn mở khóa bảng lương này?"
-                  : "Bạn có chắc muốn chốt bảng lương này?";
-                if (window.confirm(confirmMsg)) {
-                  try {
-                    await salaryService.lockSalaryMonth(month, year, !isLocked);
-                    await fetchSalaries();
-                    alert(
-                      isLocked
-                        ? "Đã mở khóa bảng lương."
-                        : "Đã chốt bảng lương."
-                    );
-                  } catch (err) {
-                    alert("Lỗi khi cập nhật trạng thái chốt lương!");
-                  }
-                }
-              }}
-              disabled={salaries.length === 0}
-            >
-              {isLocked ? "Đã chốt (mở khóa)" : "Chốt bảng lương"}
-            </button>
-          </div>
+              }
+            }}
+          >
+            Cập nhật bảng lương
+          </button>
         </div>
 
         <div className="attendance-table-wrapper">

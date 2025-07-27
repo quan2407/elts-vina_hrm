@@ -43,6 +43,4 @@ public interface WorkScheduleRepository extends JpaRepository<WorkSchedule, Long
     List<WorkSchedule> findByMonthAndYearAndIsSubmittedTrueAndIsAcceptedFalse(int month, int year);
 
     List<WorkSchedule> findByMonthAndYearAndIsAcceptedTrue(int month, int year);
-
-    List<WorkSchedule> findByMonthAndYearAndIsSubmittedTrueAndIsAcceptedTrue(int month, int year);
 }

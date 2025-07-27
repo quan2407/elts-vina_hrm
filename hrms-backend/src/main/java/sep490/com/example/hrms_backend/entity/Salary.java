@@ -108,9 +108,6 @@ public class Salary {
     @OneToOne
     @JoinColumn(name = "attendance_record_id")
     private AttendanceRecord attendanceRecord;
-    @Column(name = "locked")
-    private boolean locked = false;
-
 }
 
 
