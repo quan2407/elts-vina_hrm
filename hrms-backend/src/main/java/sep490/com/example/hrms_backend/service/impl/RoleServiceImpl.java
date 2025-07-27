@@ -1,17 +1,20 @@
 package sep490.com.example.hrms_backend.service.impl;
 
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sep490.com.example.hrms_backend.dto.PermissionDTO;
+import sep490.com.example.hrms_backend.dto.RoleDTO;
 import sep490.com.example.hrms_backend.entity.Permission;
 import sep490.com.example.hrms_backend.entity.Role;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.mapper.PermissionMapper;
+import sep490.com.example.hrms_backend.mapper.RoleMapper;
 import sep490.com.example.hrms_backend.repository.PermissionRepository;
 import sep490.com.example.hrms_backend.repository.RoleRepository;
 import sep490.com.example.hrms_backend.service.RoleService;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,13 +41,17 @@ public class RoleServiceImpl implements RoleService {
     public Set<PermissionDTO> getPermissionsByRole(Long roleId) {
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role", "id", roleId));
-
-        // ép fetch để tránh lỗi lazy
-        role.getPermissions().size(); // force load
+        role.getPermissions().size();
 
         return role.getPermissions().stream()
                 .map(PermissionMapper::toDTO)
                 .collect(Collectors.toSet());
+    }
+    @Override
+    public List<RoleDTO> getAllRoles() {
+        return roleRepository.findAll().stream()
+                .map(RoleMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
 }

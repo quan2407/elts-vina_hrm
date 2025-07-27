@@ -14,5 +14,4 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     @EntityGraph(attributePaths = "permissions")
     Optional<Role> findWithPermissionsById(@Param("roleId") Long roleId);
 
-    Optional<Role> findByName(String roleAdmin);
 }
