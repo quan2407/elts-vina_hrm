@@ -50,7 +50,7 @@ import ApplicationListPage from "./pages/ApplicationListPage.jsx";
 import ApplicationApprovalListPage from "./pages/ApplicationApprovalListPage";
 import DynamicAttendanceWrapper from "./pages/DynamicAttendanceWrapper.jsx";
 import DynamicWorkScheduleWrapper from "./pages/DynamicWorkScheduleWrapper";
-
+import RoleListPage from "./pages/RoleListPage.jsx";
 function App() {
   return (
     <ConfigProvider>
@@ -418,6 +418,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
                   <HumanReport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/roles"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
+                  <RoleListPage />
                 </ProtectedRoute>
               }
             />

@@ -55,6 +55,16 @@ export const systemMenus = [
       />
     ),
   },
+  {
+    text: "Danh sách vai trò",
+    path: "/admin/roles",
+    icon: (isActive) => (
+      <Users
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
 ];
 
 export const hrMenus = [
