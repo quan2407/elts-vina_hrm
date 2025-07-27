@@ -123,9 +123,6 @@ public class Employee {
     @Column(name = "allowance_transport")
     private BigDecimal allowanceTransport;
 
-    @Column(name = "union_fee")
-    private BigDecimal unionFee = BigDecimal.valueOf(50000);
-
 
     @ManyToOne
     @JoinColumn(name = "line_id")
@@ -165,6 +162,9 @@ public class Employee {
 
     @Column(name = "is_account_requested")
     private Boolean isAccountRequested;
+
+
+
 
 
     public String getCitizenIssuePlaceSafe() {

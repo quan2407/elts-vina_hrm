@@ -46,5 +46,4 @@ public class SalaryDTO {
 
     // ✔️ Phần G: Mốc thời gian
     private LocalDate salaryMonth;
-    private boolean locked;
 }

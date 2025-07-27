@@ -10,7 +10,6 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 public class AttendanceMonthlyViewDTO {
-    private Long employeeId;
     private String employeeCode;
     private String employeeName;
     private String departmentName;

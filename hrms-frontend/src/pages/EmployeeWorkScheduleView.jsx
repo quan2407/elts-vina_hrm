@@ -10,6 +10,7 @@ const EmployeeWorkScheduleView = () => {
   const [year, setYear] = useState(today.year());
   const [workSchedule, setWorkSchedule] = useState([]);
 
+
   useEffect(() => {
     const fetchSchedule = async () => {
       try {
@@ -63,6 +64,7 @@ const EmployeeWorkScheduleView = () => {
           <select
             value={year}
             style={{ fontSize: "16px" }}
+
             onChange={(e) => setYear(Number(e.target.value))}
           >
             {[2024, 2025, 2026].map((y) => (
@@ -97,9 +99,8 @@ const EmployeeWorkScheduleView = () => {
             return (
               <div
                 key={idx}
-                className={`workcal-cell ${schedule ? "has-shift" : "empty"} ${
-                  isToday ? "is-today" : ""
-                } ${isOvertime ? "is-overtime" : ""}`}
+                className={`workcal-cell ${schedule ? "has-shift" : "empty"} ${isToday ? "is-today" : ""
+                  } ${isOvertime ? "is-overtime" : ""}`}
               >
                 {day && (
                   <>
@@ -118,15 +119,6 @@ const EmployeeWorkScheduleView = () => {
                         <div>
                           <strong>Tổ:</strong> {schedule.lineName}
                         </div>
-
-                        <button
-                          className="workcal-leave-btn"
-                          onClick={() =>
-                            (window.location.href = `/create-application?type=leave&date=${dateStr}`)
-                          }
-                        >
-                          Xin nghỉ
-                        </button>
                       </div>
                     ) : (
                       <div className="workcal-noshift">--</div>

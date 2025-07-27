@@ -96,16 +96,3 @@ body {
   color: #2e7d32;
   font-weight: 500;
 }
-.workcal-leave-btn {
-  margin-top: 4px;
-  background-color: #e53935;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 12px;
-  cursor: pointer;
-}
-.workcal-leave-btn:hover {
-  background-color: #c62828;
-}
