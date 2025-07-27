@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { usePermissions } from "../contexts/PermissionContext";
@@ -22,6 +22,16 @@ function Sidebar() {
   const { hasPermission, loading } = usePermissions();
 
   const token = localStorage.getItem("accessToken");
+  const [delayPassed, setDelayPassed] = useState(false);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDelayPassed(true);
+    }, 300); // ⏱️ delay 300ms (có thể chỉnh 500-1000ms nếu cần)
+
+    return () => clearTimeout(timeout);
+  }, []);
+
   let username = "Mock User";
   let roles = [];
 
@@ -77,76 +87,78 @@ function Sidebar() {
       <div className="section-title">Menu</div>
 
       <div className="features-section">
-        {menus.map((item, index) => {
-          // Nếu chưa load xong permission thì tạm chưa render
-          if (loading) return null;
+        {!delayPassed || loading ? (
+          <div className="loading-message">Đang tải menu...</div>
+        ) : (
+          menus.map((item, index) => {
+            const allowed =
+              !item.apiPath ||
+              hasPermission(item.apiPath, item.method || "GET");
+            if (!allowed) return null;
 
-          // Nếu không có apiPath thì không cần kiểm tra quyền
-          const allowed =
-            !item.apiPath || hasPermission(item.apiPath, item.method || "GET");
-          if (!allowed) return null;
-          const isActive =
-            location.pathname === item.path ||
-            (item.children &&
-              item.children.some((c) => location.pathname === c.path));
-          const isSubOpen = openMenu === item.text;
+            const isActive =
+              location.pathname === item.path ||
+              (item.children &&
+                item.children.some((c) => location.pathname === c.path));
+            const isSubOpen = openMenu === item.text;
 
-          return (
-            <div key={index}>
-              <div
-                className={`nav-item ${isActive ? "active" : ""}`}
-                onClick={() => handleMenuClick(item)}
-              >
-                <div className="nav-icon">{item.icon(isActive)}</div>
+            return (
+              <div key={index}>
                 <div
-                  className="nav-text"
-                  style={{ color: isActive ? "#4f46e5" : "white" }}
+                  className={`nav-item ${isActive ? "active" : ""}`}
+                  onClick={() => handleMenuClick(item)}
                 >
-                  {item.text}
-                </div>
-                {item.children && (
-                  <div className="nav-icon">
-                    {isSubOpen ? (
-                      <ChevronUp
-                        size={16}
-                        stroke="white"
-                      />
-                    ) : (
-                      <ChevronDown
-                        size={16}
-                        stroke="white"
-                      />
-                    )}
+                  <div className="nav-icon">{item.icon(isActive)}</div>
+                  <div
+                    className="nav-text"
+                    style={{ color: isActive ? "#4f46e5" : "white" }}
+                  >
+                    {item.text}
                   </div>
-                )}
-                {item.badge && (
-                  <div className="notification-badge">
-                    <div className="notification-count">{item.badge}</div>
-                  </div>
-                )}
-              </div>
-
-              {item.children &&
-                item.children
-                  .filter(
-                    (child) =>
-                      !child.apiPath ||
-                      hasPermission(child.apiPath, child.method || "GET")
-                  )
-                  .map((child, cIdx) => (
-                    <div
-                      key={cIdx}
-                      className={`nav-item ${
-                        location.pathname === child.path ? "active" : ""
-                      }`}
-                      onClick={() => navigate(child.path)}
-                    >
-                      <div className="nav-text">{child.text}</div>
+                  {item.children && (
+                    <div className="nav-icon">
+                      {isSubOpen ? (
+                        <ChevronUp
+                          size={16}
+                          stroke="white"
+                        />
+                      ) : (
+                        <ChevronDown
+                          size={16}
+                          stroke="white"
+                        />
+                      )}
                     </div>
-                  ))}
-            </div>
-          );
-        })}
+                  )}
+                  {item.badge && (
+                    <div className="notification-badge">
+                      <div className="notification-count">{item.badge}</div>
+                    </div>
+                  )}
+                </div>
+
+                {item.children &&
+                  item.children
+                    .filter(
+                      (child) =>
+                        !child.apiPath ||
+                        hasPermission(child.apiPath, child.method || "GET")
+                    )
+                    .map((child, cIdx) => (
+                      <div
+                        key={cIdx}
+                        className={`nav-item ${
+                          location.pathname === child.path ? "active" : ""
+                        }`}
+                        onClick={() => navigate(child.path)}
+                      >
+                        <div className="nav-text">{child.text}</div>
+                      </div>
+                    ))}
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

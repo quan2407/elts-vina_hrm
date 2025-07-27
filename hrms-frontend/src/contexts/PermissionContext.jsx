@@ -7,19 +7,19 @@ export const PermissionProvider = ({ children }) => {
   const [permissions, setPermissions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchPermissions = async () => {
-      try {
-        const res = await permissionService.getMyPermissions();
-        setPermissions(res.data || []);
-      } catch (err) {
-        console.error("Lỗi khi lấy permissions:", err);
-        setPermissions([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchPermissions = async () => {
+    try {
+      const res = await permissionService.getMyPermissions();
+      setPermissions(res.data || []);
+    } catch (err) {
+      console.error("Lỗi khi lấy permissions:", err);
+      setPermissions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchPermissions();
   }, []);
 
@@ -31,8 +31,16 @@ export const PermissionProvider = ({ children }) => {
     );
   };
 
+  // ✅ expose thêm hàm refresh để gọi lại bên ngoài
   return (
-    <PermissionContext.Provider value={{ permissions, hasPermission, loading }}>
+    <PermissionContext.Provider
+      value={{
+        permissions,
+        hasPermission,
+        loading,
+        refreshPermissions: fetchPermissions,
+      }}
+    >
       {children}
     </PermissionContext.Provider>
   );
