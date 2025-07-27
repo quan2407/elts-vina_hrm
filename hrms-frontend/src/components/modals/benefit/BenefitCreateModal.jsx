@@ -19,9 +19,11 @@ const BenefitCreateModal = ({onCreated}) => {
     const [open, setOpen] = useState(false);
     const [form] = Form.useForm();
 
+
+
     const benefitType = Form.useWatch('benefitType', form);
     const formulaType = Form.useWatch('formulaType', form);
-
+    console.log("Obj trong BenefitCreateModal: ", {onCreated})
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
@@ -192,6 +194,16 @@ const BenefitCreateModal = ({onCreated}) => {
                                             style={{ width: '50%', textAlign: 'right' }}
                                             placeholder={formulaType === 'AMOUNT' ? 'Nhập số tiền' : 'Nhập phần trăm'}
                                             addonAfter={formulaType === 'AMOUNT' ? 'VND' : '%'}
+                                            formatter={(value) =>
+                                                formulaType === 'AMOUNT'
+                                                    ? `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') // thêm dấu phẩy
+                                                    : value
+                                            }
+                                            parser={(value) =>
+                                                value?.replace(/[^\d.]/g, '') // loại bỏ ký tự không phải số hoặc dấu .
+                                            }
+
+                                            stringMode
                                         />
                                     </Form.Item>
                                 )}

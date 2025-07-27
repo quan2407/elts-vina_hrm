@@ -20,6 +20,7 @@ import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.mapper.BenefitMapper;
 import sep490.com.example.hrms_backend.repository.BenefitRepository;
+import sep490.com.example.hrms_backend.repository.EmployeeRepository;
 import sep490.com.example.hrms_backend.service.BenefitService;
 
 import java.time.LocalDate;
@@ -37,6 +38,8 @@ public class BenefitServiceImpl implements BenefitService {
     private ModelMapper modelMapper;
 
     private final BenefitMapper benefitMapper;
+
+    private final EmployeeRepository employeeRepository;
 
     @Transactional
     @Override
@@ -146,10 +149,18 @@ public class BenefitServiceImpl implements BenefitService {
         //Step1: DTO -> Entiry
         Benefit benefit = modelMapper.map(benefitDTO, Benefit.class);
 
+        List<Employee> employees = employeeRepository.findAllActive();
+
+        int employeeSize = employees.size();
+
         //Step2: check existed in DB
         Benefit benefitFromDb = benefitRepository.findByTitle(benefit.getTitle());
         if (benefitFromDb != null) {
             throw new HRMSAPIException("Benefit with title " + benefit.getTitle() + " is already existed.");
+        }
+
+        if(employeeSize < benefit.getMaxParticipants()){
+            throw new HRMSAPIException("Number of participants is greater than number of employees.");
         }
 
         //Step3: if not existed => save benefit
