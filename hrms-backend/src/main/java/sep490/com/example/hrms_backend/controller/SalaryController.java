@@ -68,16 +68,5 @@ public class SalaryController {
         List<SalaryDTO> salaries = salaryService.getEmpSalariesByMonth(employeeId, month, year);
         return ResponseEntity.ok(salaries);
     }
-    @PutMapping("/lock")
-    @PreAuthorize("hasRole('HR')")
-    public ResponseEntity<String> lockSalaries(
-            @RequestParam int month,
-            @RequestParam int year,
-            @RequestParam boolean locked
-    ) {
-        salaryService.lockSalariesByMonth(month, year, locked);
-        String msg = locked ? "đã chốt lương" : "đã bỏ chốt lương";
-        return ResponseEntity.ok("Tháng " + month + "/" + year + " " + msg);
-    }
 
 }

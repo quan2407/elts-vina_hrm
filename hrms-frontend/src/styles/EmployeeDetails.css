@@ -249,39 +249,3 @@
   color: #888; /* Chữ xám nhạt */
   cursor: not-allowed; /* Con trỏ thành dấu cấm */
 }
-/* Tăng chiều cao khung nhập */
-.react-quill {
-  height: 200px;
-  margin-bottom: 16px;
-  font-size: 16px;
-}
-
-/* Tăng kích thước chữ bên trong editor */
-.react-quill .ql-editor {
-  font-size: 24px;
-  line-height: 1.6;
-}
-
-/* Tăng kích thước nút toolbar nếu cần */
-.react-quill .ql-toolbar button {
-  font-size: 16px;
-}
-.custom-upload-container {
-  margin-top: 8px;
-}
-
-.custom-upload-label {
-  display: block;
-  border: 1px dashed orange;
-  padding: 16px;
-  text-align: center;
-  border-radius: 6px;
-  color: #ff6600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.custom-upload-label:hover {
-  background-color: #fff7ec;
-}

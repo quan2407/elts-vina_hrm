@@ -141,8 +141,6 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                                     .isDeleted(false)
                                     .isAccepted(false)
                                     .isSubmitted(false)
-                                    .isAccepted(false)
-                                    .needRevision(false)
                                     .build()
                     ));
 
@@ -169,8 +167,6 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                                     .isDeleted(false)
                                     .isAccepted(false)
                                     .isSubmitted(false)
-                                    .isAccepted(false)
-                                    .needRevision(false)
                                     .build()
                     ));
 
@@ -320,7 +316,6 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                         .otShift(otShiftStr)
                         .weekendShift(weekendStr)
                         .holidayShift(holidayStr)
-                        .leaveDaysRemaining(1.0f)
                         .build();
 
                 records.add(record);
@@ -363,8 +358,6 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
 
         for (WorkSchedule schedule : schedules) {
             schedule.setSubmitted(true);
-            schedule.setAccepted(false);
-            schedule.setNeedRevision(false);
         }
 
         workScheduleRepository.saveAll(schedules);
@@ -378,9 +371,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
 
         for (WorkSchedule schedule : schedules) {
             System.out.println("✅ Accepting schedule ID: " + schedule.getId());
-            schedule.setSubmitted(false);
             schedule.setAccepted(true);
-            schedule.setNeedRevision(false);
             schedule.setRejectReason(null);
             System.out.println("Schedule is accept: " + schedule.isAccepted());
             workScheduleRepository.save(schedule);
@@ -426,27 +417,10 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
 
         for (WorkSchedule schedule : schedules) {
             schedule.setSubmitted(false);
-            schedule.setAccepted(false);
-            schedule.setNeedRevision(false);
             schedule.setRejectReason(reason);
         }
 
         workScheduleRepository.saveAll(schedules);
     }
-    @Override
-    public void requestRevision(int month, int year, String reason) {
-        List<WorkSchedule> approvedSchedules = workScheduleRepository
-                .findByMonthAndYearAndIsSubmittedTrueAndIsAcceptedTrue(month, year);
-
-        for (WorkSchedule schedule : approvedSchedules) {
-            schedule.setAccepted(false);
-            schedule.setSubmitted(false);
-            schedule.setNeedRevision(true);
-            schedule.setRejectReason(reason);
-        }
-
-        workScheduleRepository.saveAll(approvedSchedules);
-    }
-
 
 }

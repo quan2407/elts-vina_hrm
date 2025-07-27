@@ -5,9 +5,6 @@ SET SQL_SAFE_UPDATES = 0;
 UPDATE employee SET line_id = NULL;
 UPDATE `lines` SET leader_id = NULL;
 ALTER TABLE employee MODIFY COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0;
-
-DELETE FROM application_approval_step;
-DELETE FROM application;
 DELETE FROM account_request;
 DELETE FROM salary;
 ALTER TABLE salary AUTO_INCREMENT = 1;
@@ -31,8 +28,6 @@ DELETE FROM role;
 
 
 -- Reset AUTO_INCREMENT cho các bảng
-ALTER TABLE application_approval_step AUTO_INCREMENT = 1;
-ALTER TABLE application AUTO_INCREMENT = 1;
 ALTER TABLE account_request AUTO_INCREMENT = 1;
 ALTER TABLE attendance_record AUTO_INCREMENT = 1;
 ALTER TABLE benefit AUTO_INCREMENT = 1;
@@ -50,8 +45,6 @@ ALTER TABLE position AUTO_INCREMENT = 1;
 ALTER TABLE department AUTO_INCREMENT = 1;
 ALTER TABLE role AUTO_INCREMENT = 1;
 ALTER TABLE holidays AUTO_INCREMENT = 1;
-ALTER TABLE employee
-MODIFY COLUMN union_fee DECIMAL(10,2) DEFAULT 50000;
 
 
 INSERT INTO role (role_id, role_name) VALUES
@@ -391,37 +384,25 @@ INSERT INTO employee (
  5050000, 94000, 208000, 450000, 33000);
 
 -- Phòng ban Bán Tự Động
-INSERT INTO employee (
-    employee_id, employee_code, employee_name, gender, dob,
-    department_id, position_id, basic_salary, phone_number, email,
-    allowance_phone, allowance_meal, allowance_attendance, allowance_transport
-)
+INSERT INTO employee (employee_id, employee_code, employee_name, gender, dob, department_id, position_id, basic_salary, phone_number, email)
 VALUES
-(41, 'ELTSSX0041', 'Nguyễn Văn B1', 'NAM', '1985-02-20', 1, 15, 5000000, '0901000001', 'user41@example.com', 94000, 208000, 450000, 33000),
-(42, 'ELTSSX0042', 'Trần Thị B2', 'NỮ', '1990-04-25', 1, 1, 4800000, '0901000002', 'user42@example.com', 94000, 208000, 450000, 33000),
-(43, 'ELTSSX0043', 'Lê Văn B3', 'NAM', '1992-07-15', 1, 1, 5000000, '0901000003', 'user43@example.com', 94000, 208000, 450000, 33000);
+(41, 'ELTSSX0041', 'Nguyễn Văn B1', 'NAM', '1985-02-20', 1, 15, 5000000, '0901000001', 'user41@example.com'),  -- Tổ Trưởng
+(42, 'ELTSSX0042', 'Trần Thị B2', 'NỮ', '1990-04-25', 1, 1, 4800000, '0901000002', 'user42@example.com'),
+(43, 'ELTSSX0043', 'Lê Văn B3', 'NAM', '1992-07-15', 1, 1, 5000000, '0901000003', 'user43@example.com');
 
 -- Phòng ban QC
-INSERT INTO employee (
-    employee_id, employee_code, employee_name, gender, dob,
-    department_id, position_id, basic_salary, phone_number, email,
-    allowance_phone, allowance_meal, allowance_attendance, allowance_transport
-)
+INSERT INTO employee (employee_id, employee_code, employee_name, gender, dob, department_id, position_id, basic_salary, phone_number, email)
 VALUES
-(44, 'ELTSSX0044', 'Nguyễn Thị C1', 'NỮ', '1990-05-22', 4, 15, 5200000, '0902000001', 'user44@example.com', 94000, 208000, 450000, 33000),
-(45, 'ELTSSX0045', 'Vũ Thị C2', 'NỮ', '1993-10-18', 4, 2, 5100000, '0902000002', 'user45@example.com', 94000, 208000, 450000, 33000),
-(46, 'ELTSSX0046', 'Trần Văn C3', 'NAM', '1988-03-30', 4, 2, 5300000, '0902000003', 'user46@example.com', 94000, 208000, 450000, 33000);
+(44, 'ELTSSX0044', 'Nguyễn Thị C1', 'NỮ', '1990-05-22', 4, 15, 5200000, '0902000001', 'user44@example.com'),  -- Tổ Trưởng
+(45, 'ELTSSX0045', 'Vũ Thị C2', 'NỮ', '1993-10-18', 4, 2, 5100000, '0902000002', 'user45@example.com'),
+(46, 'ELTSSX0046', 'Trần Văn C3', 'NAM', '1988-03-30', 4, 2, 5300000, '0902000003', 'user46@example.com');
 
 -- Phòng ban Tự Động
-INSERT INTO employee (
-    employee_id, employee_code, employee_name, gender, dob,
-    department_id, position_id, basic_salary, phone_number, email,
-    allowance_phone, allowance_meal, allowance_attendance, allowance_transport
-)
+INSERT INTO employee (employee_id, employee_code, employee_name, gender, dob, department_id, position_id, basic_salary, phone_number, email)
 VALUES
-(47, 'ELTSSX0047', 'Phạm Thị D1', 'NỮ', '1991-09-05', 6, 15, 5200000, '0903000001', 'user47@example.com', 94000, 208000, 450000, 33000),
-(48, 'ELTSSX0048', 'Bùi Văn D2', 'NAM', '1994-01-12', 6, 1, 5100000, '0903000002', 'user48@example.com', 94000, 208000, 450000, 33000),
-(49, 'ELTSSX0049', 'Nguyễn Thị D3', 'NỮ', '1992-11-05', 6, 1, 5300000, '0903000003', 'user49@example.com', 94000, 208000, 450000, 33000);
+(47, 'ELTSSX0047', 'Phạm Thị D1', 'NỮ', '1991-09-05', 6, 15, 5200000, '0903000001', 'user47@example.com'),  -- Tổ Trưởng
+(48, 'ELTSSX0048', 'Bùi Văn D2', 'NAM', '1994-01-12', 6, 1, 5100000, '0903000002', 'user48@example.com'),
+(49, 'ELTSSX0049', 'Nguyễn Thị D3', 'NỮ', '1992-11-05', 6, 1, 5300000, '0903000003', 'user49@example.com');
 
 
 INSERT INTO account (account_id, username, password_hash, email, is_active, created_at, updated_at, last_login_at, login_attempts, must_change_password, employee_id, role_id) VALUES
@@ -536,11 +517,6 @@ UPDATE employee SET line_id = 7 WHERE employee_id = 37;
 UPDATE employee SET line_id = 7 WHERE employee_id = 38; 
 UPDATE employee SET line_id = 7 WHERE employee_id = 39; 
 UPDATE employee SET line_id = 7 WHERE employee_id = 40; 
-
-INSERT INTO application_type (application_type_name, description)
-VALUES 
-  ('Nghỉ phép', 'Đơn xin nghỉ phép có lương hoặc không lương'),
-  ('Bù công', 'Đơn đề nghị bù công do thiếu chấm công hoặc lý do khác');
 
 INSERT INTO recruitment (
     recruitment_id, title, employment_type, job_description,

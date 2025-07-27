@@ -1,9 +1,8 @@
 package sep490.com.example.hrms_backend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.*;
 import lombok.*;
-import sep490.com.example.hrms_backend.enums.ApprovalStepStatus;
 
 import java.time.LocalDateTime;
 
@@ -26,10 +25,9 @@ public class ApplicationApprovalStep {
     @Column(name = "step")
     private int step;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private ApprovalStepStatus status;
-
+    @NotBlank
+    @Column(name = "status")
+    private String status;
 
     @Column(name = "note")
     private String note;

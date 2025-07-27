@@ -159,26 +159,6 @@ export const hrMenus = [
       />
     ),
   },
-  {
-    text: "Lịch sản xuất",
-    path: "/work-schedule-view-hr",
-    icon: (isActive) => (
-      <CalendarCheck
-        size={20}
-        stroke={isActive ? "#4f46e5" : "white"}
-      />
-    ),
-  },
-  {
-    text: "Duyệt đơn",
-    path: "/applications/approvals/hr",
-    icon: (isActive) => (
-      <Briefcase
-        size={20}
-        stroke={isActive ? "#4f46e5" : "white"}
-      />
-    ),
-  },
 ];
 export const pmcMenus = [
   {
@@ -200,7 +180,7 @@ export const pmcMenus = [
         stroke={isActive ? "#4f46e5" : "white"}
       />
     ),
-  },
+  }
 ];
 export const lineLeaderMenus = [];
 export const productionManagerMenus = [
@@ -213,27 +193,7 @@ export const productionManagerMenus = [
         stroke={isActive ? "#4f46e5" : "white"}
       />
     ),
-  },
-  {
-    text: "Bảng công tháng",
-    path: "/attendance-monthly-view",
-    icon: (isActive) => (
-      <LayoutDashboard
-        size={20}
-        stroke={isActive ? "#4f46e5" : "white"}
-      />
-    ),
-  },
-  {
-    text: "Duyệt đơn",
-    path: "/applications/approvals/manager",
-    icon: (isActive) => (
-      <Briefcase
-        size={20}
-        stroke={isActive ? "#4f46e5" : "white"}
-      />
-    ),
-  },
+  }
 ];
 export const canteenMenus = [];
 export const employeeMenus = [
@@ -256,7 +216,8 @@ export const employeeMenus = [
         stroke={isActive ? "#4f46e5" : "white"}
       />
     ),
-  },
+  }
+  ,
   {
     text: "Bảng lương tháng",
     path: "/my-salary-monthly",
@@ -266,15 +227,5 @@ export const employeeMenus = [
         stroke={isActive ? "#4f46e5" : "white"}
       />
     ),
-  },
-  {
-    text: "Đơn từ của tôi",
-    path: "/my-applications",
-    icon: (isActive) => (
-      <Briefcase
-        size={20}
-        stroke={isActive ? "#4f46e5" : "white"}
-      />
-    ),
-  },
+  }
 ];
