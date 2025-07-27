@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { usePermissions } from "../contexts/PermissionContext";
 import { LogOut, ChevronDown, ChevronUp } from "lucide-react";
 import {
   systemMenus,
@@ -18,6 +19,7 @@ function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [openMenu, setOpenMenu] = useState(""); // Track open submenu
+  const { hasPermission, loading } = usePermissions();
 
   const token = localStorage.getItem("accessToken");
   let username = "Mock User";
@@ -76,6 +78,13 @@ function Sidebar() {
 
       <div className="features-section">
         {menus.map((item, index) => {
+          // Nếu chưa load xong permission thì tạm chưa render
+          if (loading) return null;
+
+          // Nếu không có apiPath thì không cần kiểm tra quyền
+          const allowed =
+            !item.apiPath || hasPermission(item.apiPath, item.method || "GET");
+          if (!allowed) return null;
           const isActive =
             location.pathname === item.path ||
             (item.children &&
@@ -117,9 +126,14 @@ function Sidebar() {
                 )}
               </div>
 
-              {item.children && (
-                <div className={`submenu ${isSubOpen ? "open" : "closed"}`}>
-                  {item.children.map((child, cIdx) => (
+              {item.children &&
+                item.children
+                  .filter(
+                    (child) =>
+                      !child.apiPath ||
+                      hasPermission(child.apiPath, child.method || "GET")
+                  )
+                  .map((child, cIdx) => (
                     <div
                       key={cIdx}
                       className={`nav-item ${
@@ -130,8 +144,6 @@ function Sidebar() {
                       <div className="nav-text">{child.text}</div>
                     </div>
                   ))}
-                </div>
-              )}
             </div>
           );
         })}
