@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import "../styles/PermissionModal.css";
+import roleService from "../services/roleService";
 
 function PermissionModal({
   groupedPermissions,
   selectedPermissions,
   onClose,
   roleName,
+  roleId, // ✅ sử dụng prop truyền vào
 }) {
   const [expandedModules, setExpandedModules] = useState({});
+  const [permissionList, setPermissionList] = useState(selectedPermissions); // local copy
 
   const toggleModule = (module) => {
     setExpandedModules((prev) => ({
@@ -16,16 +19,44 @@ function PermissionModal({
     }));
   };
 
+  const handleTogglePermission = async (permId) => {
+    const isSelected = permissionList.some((p) => p.id === permId);
+    let newList;
+
+    if (isSelected) {
+      newList = permissionList.filter((p) => p.id !== permId);
+    } else {
+      const allPerms = Object.values(groupedPermissions).flat();
+      const permObj = allPerms.find((p) => p.id === permId);
+      if (!permObj) return;
+      newList = [...permissionList, permObj];
+    }
+
+    setPermissionList(newList);
+
+    try {
+      await roleService.updatePermissions(
+        roleId,
+        newList.map((p) => p.id)
+      );
+    } catch (err) {
+      alert("Lỗi khi cập nhật quyền.");
+      console.error("Update permission error:", err);
+    }
+  };
+
   return (
     <div className="permission-modal-backdrop">
       <div className="permission-modal">
-        <h2 className="permission-title">Quyền của vai trò: {roleName}</h2>
-        <button
-          className="permission-close-x"
-          onClick={onClose}
-        >
-          ×
-        </button>
+        <div className="permission-header">
+          <h2 className="permission-title">Quyền của vai trò: {roleName}</h2>
+          <button
+            className="permission-close-x"
+            onClick={onClose}
+          >
+            ×
+          </button>
+        </div>
 
         <div className="permission-modal-content">
           {Object.entries(groupedPermissions).map(([module, perms]) => {
@@ -51,10 +82,8 @@ function PermissionModal({
                       >
                         <input
                           type="checkbox"
-                          checked={selectedPermissions.some(
-                            (p) => p.id === perm.id
-                          )}
-                          readOnly
+                          checked={permissionList.some((p) => p.id === perm.id)}
+                          onChange={() => handleTogglePermission(perm.id)}
                         />
                         <div className="permission-info">
                           <span
@@ -73,6 +102,7 @@ function PermissionModal({
             );
           })}
         </div>
+
         <div className="permission-footer">
           <button
             className="permission-close-button"

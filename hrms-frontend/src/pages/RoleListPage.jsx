@@ -103,6 +103,7 @@ function RoleListPage() {
           <PermissionModal
             groupedPermissions={groupedPermissions}
             selectedPermissions={selectedPermissions.list}
+            roleId={selectedPermissions.roleId}
             roleName={selectedPermissions.roleName}
             onClose={() => setShowModal(false)}
           />
