@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import roleService from "../services/roleService";
+import permissionService from "../services/permissionService";
 import MainLayout from "../components/MainLayout";
+import PermissionModal from "../components/PermissionModal";
 import "../styles/RoleListPage.css";
 import { getRoleDisplayName } from "../utils/roleUtils";
 
@@ -8,6 +10,8 @@ function RoleListPage() {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedPermissions, setSelectedPermissions] = useState(null);
+  const [groupedPermissions, setGroupedPermissions] = useState({});
+  const [showModal, setShowModal] = useState(false);
 
   const fetchRoles = async () => {
     setLoading(true);
@@ -24,11 +28,20 @@ function RoleListPage() {
 
   const handleViewPermissions = async (roleId) => {
     try {
-      const res = await roleService.getPermissionsByRole(roleId);
+      const [resGrouped, resSelected] = await Promise.all([
+        permissionService.getGroupedPermissions(),
+        roleService.getPermissionsByRole(roleId),
+      ]);
+      setGroupedPermissions(resGrouped.data);
       setSelectedPermissions({
         roleId,
-        list: res.data,
+        list: resSelected.data,
+        roleName: getRoleDisplayName(
+          roles.find((r) => r.id === roleId)?.name || "Không rõ"
+        ),
       });
+
+      setShowModal(true);
     } catch (err) {
       console.error("Lỗi khi lấy quyền:", err);
       alert("Không thể tải quyền của vai trò.");
@@ -72,7 +85,6 @@ function RoleListPage() {
                 <div className="role-table-cell">
                   {getRoleDisplayName(role.name)}
                 </div>
-
                 <div className="role-table-cell">{role.description || "—"}</div>
                 <div className="role-table-cell">
                   <button
@@ -87,22 +99,13 @@ function RoleListPage() {
           )}
         </div>
 
-        {selectedPermissions && (
-          <div style={{ marginTop: 30 }}>
-            <h2 style={{ fontSize: "20px" }}>
-              Danh sách quyền của vai trò:{" "}
-              {getRoleDisplayName(
-                roles.find((r) => r.id === selectedPermissions.roleId)?.name
-              )}
-            </h2>
-            <ul>
-              {selectedPermissions.list.map((perm) => (
-                <li key={perm.id}>
-                  <strong>{perm.method}</strong> – {perm.endpoint}
-                </li>
-              ))}
-            </ul>
-          </div>
+        {showModal && selectedPermissions && (
+          <PermissionModal
+            groupedPermissions={groupedPermissions}
+            selectedPermissions={selectedPermissions.list}
+            roleName={selectedPermissions.roleName}
+            onClose={() => setShowModal(false)}
+          />
         )}
       </div>
     </MainLayout>
