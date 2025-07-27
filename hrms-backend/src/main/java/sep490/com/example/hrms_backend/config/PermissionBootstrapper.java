@@ -33,6 +33,12 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Permission",
                 allRoles
         );
+        permissionRegistrationService.registerPermission(
+                "/api/permissions/grouped",
+                "GET",
+                "Permission",
+                List.of("ROLE_ADMIN")
+        );
 
         permissionRegistrationService.registerPermission(
                 "/api/roles",

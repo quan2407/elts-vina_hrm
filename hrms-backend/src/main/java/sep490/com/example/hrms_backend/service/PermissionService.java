@@ -3,9 +3,10 @@ package sep490.com.example.hrms_backend.service;
 import sep490.com.example.hrms_backend.dto.PermissionDTO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface PermissionService {
-    List<PermissionDTO> getAll();
+    Map<String, List<PermissionDTO>> getGroupedByModule();
     PermissionDTO create(PermissionDTO dto);
     PermissionDTO update(Long id, PermissionDTO dto);
     void delete(Long id);

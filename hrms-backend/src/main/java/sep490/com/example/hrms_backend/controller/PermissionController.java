@@ -7,6 +7,7 @@ import sep490.com.example.hrms_backend.dto.PermissionDTO;
 import sep490.com.example.hrms_backend.service.PermissionService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/permissions")
@@ -15,10 +16,11 @@ public class PermissionController {
 
     private final PermissionService permissionService;
 
-    @GetMapping
-    public ResponseEntity<List<PermissionDTO>> getAllPermissions() {
-        return ResponseEntity.ok(permissionService.getAll());
+    @GetMapping("/grouped")
+    public ResponseEntity<Map<String, List<PermissionDTO>>> getPermissionsGroupedByModule() {
+        return ResponseEntity.ok(permissionService.getGroupedByModule());
     }
+
 
     @PostMapping
     public ResponseEntity<PermissionDTO> createPermission(@RequestBody PermissionDTO dto) {

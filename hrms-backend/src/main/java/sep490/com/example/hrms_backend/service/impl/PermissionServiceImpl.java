@@ -13,6 +13,7 @@ import sep490.com.example.hrms_backend.service.PermissionService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,12 +23,13 @@ public class PermissionServiceImpl implements PermissionService {
     private final PermissionRepository permissionRepository;
 
     @Override
-    public List<PermissionDTO> getAll() {
+    public Map<String, List<PermissionDTO>> getGroupedByModule() {
         return permissionRepository.findAll()
                 .stream()
                 .map(PermissionMapper::toDTO)
-                .collect(Collectors.toList());
+                .collect(Collectors.groupingBy(PermissionDTO::getModule));
     }
+
 
     @Override
     @Transactional
