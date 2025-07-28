@@ -16,6 +16,7 @@ import sep490.com.example.hrms_backend.service.AccountService;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -305,4 +306,21 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
             throw new HRMSAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi xuất file Excel");
         }
     }
+    @Override
+    public List<GenderDistributionDTO> getGenderDistribution(LocalDate startDate, LocalDate endDate) {
+        List<Object[]> result = employeeRepository.findGenderDistributionByDateRange(startDate, endDate);
+        return result.stream()
+                .map(r -> new GenderDistributionDTO((String) r[0], (Long) r[1]))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DepartmentDistributionDTO> getDepartmentDistribution(LocalDate startDate, LocalDate endDate) {
+        List<Object[]> result = employeeRepository.findDepartmentDistributionByDateRange(startDate, endDate);
+        return result.stream()
+                .map(r -> new DepartmentDistributionDTO((String) r[0], (Long) r[1]))
+                .collect(Collectors.toList());
+    }
+
+
 }

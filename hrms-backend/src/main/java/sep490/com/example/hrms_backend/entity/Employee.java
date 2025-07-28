@@ -94,9 +94,11 @@ public class Employee {
     @Column(name = "cccd_back_image")
     private String cccdBackImage;
 
-    @PastOrPresent
     @Column(name = "start_work_at")
     private LocalDate startWorkAt;
+
+    @Column(name = "end_work_at")
+    private LocalDate endWorkAt;
 
     @Pattern(regexp = "^[0-9\\-\\+]{9,15}$", message = "Invalid phone number format")
     @Column(name = "phone_number")

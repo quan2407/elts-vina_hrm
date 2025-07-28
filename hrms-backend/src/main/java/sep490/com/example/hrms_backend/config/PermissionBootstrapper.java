@@ -52,7 +52,26 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Attendance",
                 List.of("ROLE_HR", "ROLE_HR_MANAGER")
         );
+        permissionRegistrationService.registerPermission(
+                "/api/attendances/export",
+                "POST",
+                "Attendance",
+                List.of("ROLE_HR", "ROLE_HR_MANAGER")
+        );
+        permissionRegistrationService.registerPermission(
+                "/api/dashboard/employee-gender-distribution",
+                "GET",
+                "Employee",
+                List.of("ROLE_HR_MANAGER", "ROLE_HR")
+        );
 
-        // Đăng ký thêm các API quan trọng khác tại đây nếu cần
+        permissionRegistrationService.registerPermission(
+                "/api/dashboard/employee-department-distribution",
+                "GET",
+                "Employee",
+                List.of("ROLE_HR_MANAGER", "ROLE_HR")
+        );
+
+
     }
 }
