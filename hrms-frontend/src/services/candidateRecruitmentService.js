@@ -29,3 +29,5 @@ export const updateCandidateStatus = async (id, status) => {
     throw error;
   }
 }
+
+
