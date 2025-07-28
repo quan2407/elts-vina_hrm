@@ -59,15 +59,19 @@ public class BenefitServiceImpl implements BenefitService {
         Page<Benefit> benefitPage = benefitRepository.findAll((root, query, cb ) -> {
                 List<Predicate> predicates = new ArrayList<>();
 
-        //3.1 lOC Theo title
-            if(title != null && !title.isEmpty()){
-                predicates.add(cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
-            }
+                //Lọc title và description theo or
+            if ((title != null && !title.isEmpty()) || (description != null && !description.isEmpty())) {
+                List<Predicate> orPredicates = new ArrayList<>();
 
+                if (title != null && !title.isEmpty()) {
+                    orPredicates.add(cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
+                }
 
-        //3.2. Loc theo description
-            if(description != null && !description.isEmpty()){
-                predicates.add(cb.like(cb.lower(root.get("description")), "%" + description.toLowerCase() + "%"));
+                if (description != null && !description.isEmpty()) {
+                    orPredicates.add(cb.like(cb.lower(root.get("description")), "%" + description.toLowerCase() + "%"));
+                }
+
+                predicates.add(cb.or(orPredicates.toArray(new Predicate[0])));
             }
 
             //3.3. Loc theo trang thai (isActive)
