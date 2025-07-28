@@ -46,6 +46,12 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Role",
                 List.of("ROLE_ADMIN")
         );
+        permissionRegistrationService.registerPermission(
+                "/api/attendances/import",
+                "POST",
+                "Attendance",
+                List.of("ROLE_HR", "ROLE_HR_MANAGER")
+        );
 
         // Đăng ký thêm các API quan trọng khác tại đây nếu cần
     }

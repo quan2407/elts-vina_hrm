@@ -65,4 +65,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     long countByPosition_PositionNameNotIgnoreCase(@Param("positionName") String positionName);
 
     List<Employee> findByPosition_PositionName(String positionName);
+
+    Optional<Employee> findByEmployeeCode(String employeeCode);
+
 }
