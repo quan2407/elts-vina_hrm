@@ -1,16 +1,21 @@
 import MainLayout from "../components/MainLayout";
 import RecruitmentChart from "../components/charts/Recruitment";
-import RecruitmentDashboardTable from "../components/charts/RecruitmentTable";
-import { getRecruitmentGraphChart } from "../services/dashboardService";
+// import RecruitmentDashboardTable from "../components/charts/RecruitmentTable";
+import {
+  getRecruitmentGraphChart,
+  getEmployeeGenderDistribution, // Đảm bảo hàm này được import
+  getEmployeeDepartmentDistribution,
+} from "../services/dashboardService";
+
+import GenderDistributionChart from "../components/charts/GenderDistributionChart";
+import DepartmentDistributionChart from "../components/charts/DepartmentDistributionChart";
 import "../styles/Dashboard.css";
 
 import React, { useState, useEffect, useRef } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import "../styles/EmployeeDetails.css";
 
-
 function Dashboard() {
-
   const [activeSection, setActiveSection] = useState("basic-info");
   const [selectedFromDate, setSelectedFromDate] = useState(() => {
     const today = new Date();
@@ -25,28 +30,45 @@ function Dashboard() {
   });
 
   const [data, setData] = useState([]);
+  const [genderData, setGenderData] = useState([]);
+  const [departmentData, setDepartmentData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-
+  // Fetch data for recruitment, gender and department distributions
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getRecruitmentGraphChart(selectedFromDate, ToDate);
-        if (Array.isArray(response)) {
-          setData(response);
-        } else {
-          console.warn("Dữ liệu không phải mảng:", response);
-          setData([]);
-        }
+        // Fetch recruitment data
+        const recruitmentResponse = await getRecruitmentGraphChart(
+          selectedFromDate,
+          ToDate
+        );
+        console.log("Recruitment Data:", recruitmentResponse); // Kiểm tra dữ liệu tuyển dụng
+        setData(recruitmentResponse);
+
+        // Fetch gender distribution
+        const genderResponse = await getEmployeeGenderDistribution(
+          selectedFromDate,
+          ToDate
+        );
+        console.log("Gender Data:", genderResponse); // Kiểm tra dữ liệu giới tính
+        setGenderData(genderResponse);
+
+        // Fetch department distribution
+        const departmentResponse = await getEmployeeDepartmentDistribution(
+          selectedFromDate,
+          ToDate
+        );
+        console.log("Department Data:", departmentResponse); // Kiểm tra dữ liệu phòng ban
+        setDepartmentData(departmentResponse);
       } catch (error) {
-        console.error("Lỗi khi lấy dữ liệu tuyển dụng:", error);
+        console.error("Lỗi khi lấy dữ liệu:", error);
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
   }, [selectedFromDate, ToDate]);
-
 
   useEffect(() => {
     const contentEl = document.querySelector(".employeedetail-form-content");
@@ -70,7 +92,6 @@ function Dashboard() {
     }
   }, []);
 
-
   const isClickScrolling = useRef(false);
 
   const scrollToSection = (id) => {
@@ -84,19 +105,6 @@ function Dashboard() {
       }, 500);
     }
   };
-
-  const CustomInput = React.forwardRef(
-    ({ value, onClick, placeholder }, ref) => (
-      <input
-        className="employeedetail-input-field"
-        onClick={onClick}
-        value={value || ""}
-        placeholder={placeholder}
-        readOnly
-        ref={ref}
-      />
-    )
-  );
 
   return (
     <MainLayout>
@@ -113,7 +121,6 @@ function Dashboard() {
             name="selectedFromDate"
             onChange={(e) => setSelectedFromDate(e.target.value)}
             style={{ width: "240px" }}
-
             className="form-control"
           />
           <label className="date-label">đến:</label>
@@ -123,7 +130,6 @@ function Dashboard() {
             name="toDate"
             onChange={(e) => setToDate(e.target.value)}
             style={{ width: "240px" }}
-
             className="form-control"
           />
         </div>
@@ -131,25 +137,28 @@ function Dashboard() {
         <div className="employeedetail-form-container">
           <div className="employeedetail-form-navigation">
             <div
-              className={`employeedetail-nav-item ${activeSection === "basic-info" ? "employeedetail-active" : ""
-                }`}
+              className={`employeedetail-nav-item ${
+                activeSection === "basic-info" ? "employeedetail-active" : ""
+              }`}
               onClick={() => scrollToSection("basic-info")}
             >
               Thống kê tuyển dụng
             </div>
             <div
-              className={`employeedetail-nav-item ${activeSection === "contact-info" ? "employeedetail-active" : ""
-                }`}
+              className={`employeedetail-nav-item ${
+                activeSection === "contact-info" ? "employeedetail-active" : ""
+              }`}
               onClick={() => scrollToSection("contact-info")}
             >
-              Thông tin tuyển dụng
+              Phân bổ theo phòng ban
             </div>
             <div
-              className={`employeedetail-nav-item ${activeSection === "job-info" ? "employeedetail-active" : ""
-                }`}
+              className={`employeedetail-nav-item ${
+                activeSection === "job-info" ? "employeedetail-active" : ""
+              }`}
               onClick={() => scrollToSection("job-info")}
             >
-              Lịch phỏng vấn
+              Phân bổ nhân viên theo giới tính
             </div>
           </div>
 
@@ -158,7 +167,8 @@ function Dashboard() {
               id="basic-info"
               className="employeedetail-basic-information"
             >
-              <div className="employeedetail-form-title">              Thống kê tuyển dụng
+              <div className="employeedetail-form-title">
+                Thống kê tuyển dụng
               </div>
               <div className="dashboard-content-card">
                 {isLoading ? (
@@ -169,7 +179,7 @@ function Dashboard() {
                       <RecruitmentChart data={data} />
                     </div>
                     <div className="dashboard-table-wrapper">
-                      <RecruitmentDashboardTable data={data} />
+                      {/* <RecruitmentDashboardTable data={data} /> */}
                     </div>
                   </>
                 )}
@@ -180,8 +190,20 @@ function Dashboard() {
               id="contact-info"
               className="employeedetail-contact-information"
             >
-              <div className="employeedetail-form-title">Thông tin tuyển dụng</div>
-
+              <div className="employeedetail-form-title">
+                Phân bổ theo phòng ban
+              </div>
+              <div className="dashboard-content-card">
+                {isLoading ? (
+                  <p style={{ textAlign: "center" }}>Đang tải dữ liệu...</p>
+                ) : (
+                  <>
+                    <div className="dashboard-chart-wrapper">
+                      <DepartmentDistributionChart data={departmentData} />
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
 
             <div
@@ -189,13 +211,21 @@ function Dashboard() {
               className="employeedetail-job-information"
             >
               <div className="employeedetail-form-title">
-                Lịch phỏng vấn
+                Phân bổ nhân viên theo giới tính
               </div>
-
-
-
+              {/* Add interview schedule information here */}
+              <div className="dashboard-content-card">
+                {isLoading ? (
+                  <p style={{ textAlign: "center" }}>Đang tải dữ liệu...</p>
+                ) : (
+                  <>
+                    <div className="dashboard-chart-wrapper">
+                      <GenderDistributionChart data={genderData} />
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-
           </div>
         </div>
       </div>
