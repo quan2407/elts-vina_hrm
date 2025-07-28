@@ -18,7 +18,7 @@ const BenefitCreateModal = ({onCreated}) => {
 
     const [open, setOpen] = useState(false);
     const [form] = Form.useForm();
-
+    const [error, setError] = useState(null);
 
 
     const benefitType = Form.useWatch('benefitType', form);
@@ -59,8 +59,24 @@ const BenefitCreateModal = ({onCreated}) => {
             onCreated?.();
 
         } catch (err) {
+            console.log('Full error object:', err);
+            console.log('Response data:', err.response?.data);
             console.error(err);
-            message.error('Tạo thất bại!');
+
+            let errorMsg = 'Đã có lỗi xảy ra.';
+
+            if (err.response?.data) {
+                const data = err.response.data;
+                errorMsg = data.message || 'Lỗi không xác định từ server.';
+            } else if (err.request) {
+                errorMsg = 'Không nhận được phản hồi từ máy chủ.';
+            } else {
+                errorMsg = err.message || 'Lỗi không xác định.';
+            }
+
+
+            setError(errorMsg);          // nếu bạn muốn hiển thị ở UI
+            message.error(errorMsg);     // thông báo popup
         }
 
 

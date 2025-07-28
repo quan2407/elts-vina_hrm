@@ -41,13 +41,12 @@ public class BenefitDTO {
     @NotNull(message = "Active status is required")
     private Boolean isActive;
 
+    private Integer numberOfEmployee;
 
     private BenefitType benefitType;
 
-    @NotNull(message = "defaultFormulaValue is required")
     private BigDecimal defaultFormulaValue;
 
-    @NotNull(message = "defaultFormulaType is required")
     private FormulaType defaultFormulaType;
 
 

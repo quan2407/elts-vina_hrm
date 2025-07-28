@@ -146,12 +146,15 @@ public class BenefitServiceImpl implements BenefitService {
     @Transactional
     @Override
     public BenefitDTO addBenefit(BenefitDTO benefitDTO) {
+        List<Employee> employees = employeeRepository.findAllActive();
+        int employeeSize = employees.size();
+
         //Step1: DTO -> Entiry
+
         Benefit benefit = modelMapper.map(benefitDTO, Benefit.class);
 
-        List<Employee> employees = employeeRepository.findAllActive();
 
-        int employeeSize = employees.size();
+
 
         //Step2: check existed in DB
         Benefit benefitFromDb = benefitRepository.findByTitle(benefit.getTitle());
@@ -160,14 +163,20 @@ public class BenefitServiceImpl implements BenefitService {
         }
 
         if(employeeSize < benefit.getMaxParticipants()){
-            throw new HRMSAPIException("Number of participants is greater than number of employees.");
+            throw new HRMSAPIException("Số người tham gia không thể lớn hơn số nhân viên công ty đang làm việc");
         }
+
 
         //Step3: if not existed => save benefit
         Benefit savedCategory = benefitRepository.save(benefit);
 
+
         //Step 4: return DTO
-        return modelMapper.map(savedCategory, BenefitDTO.class);
+
+        BenefitDTO updatedBenefitDTO = modelMapper.map(savedCategory, BenefitDTO.class);
+       updatedBenefitDTO.setNumberOfEmployee(employees.size());
+
+        return updatedBenefitDTO;
     }
 
     @Transactional
