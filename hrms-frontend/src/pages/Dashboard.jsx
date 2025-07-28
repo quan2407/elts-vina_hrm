@@ -1,9 +1,9 @@
 import MainLayout from "../components/MainLayout";
 import RecruitmentChart from "../components/charts/Recruitment";
-// import RecruitmentDashboardTable from "../components/charts/RecruitmentTable";
+import RecruitmentDashboardTable from "../components/charts/RecruitmentTable";
 import {
   getRecruitmentGraphChart,
-  getEmployeeGenderDistribution, // Đảm bảo hàm này được import
+  getEmployeeGenderDistribution,
   getEmployeeDepartmentDistribution,
 } from "../services/dashboardService";
 
@@ -179,7 +179,7 @@ function Dashboard() {
                       <RecruitmentChart data={data} />
                     </div>
                     <div className="dashboard-table-wrapper">
-                      {/* <RecruitmentDashboardTable data={data} /> */}
+                      <RecruitmentDashboardTable data={data} />
                     </div>
                   </>
                 )}
