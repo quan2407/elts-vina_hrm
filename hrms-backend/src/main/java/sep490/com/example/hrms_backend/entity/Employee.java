@@ -26,6 +26,9 @@ public class Employee {
     @Column(name = "employee_code", nullable = false, unique = true)
     private String employeeCode;
 
+    @Column(name = "image")
+    private String image;
+
     @NotBlank
     @Column(name = "employee_name", nullable = false)
     private String employeeName;

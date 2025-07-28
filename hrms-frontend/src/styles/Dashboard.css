@@ -40,3 +40,22 @@
 .dashboard-table-wrapper {
   width: 100%;
 }
+.date-range-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.date-label {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+}
+
+.date-range-container .form-control {
+  width: 240px;
+  height: 40px;
+  padding: 4px 8px;
+  font-size: 16px;
+}
