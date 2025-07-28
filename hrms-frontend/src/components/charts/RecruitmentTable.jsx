@@ -16,10 +16,10 @@ const RecruitmentDashboardTable = ({ data = [] }) => {
 
         {data.map((job) => (
           <div
-            key={job.recruitmentId} // Sử dụng recruitmentId làm key
+            key={job.recruitmentId}
             className="jobdash-table-row"
           >
-            <div className="jobdash-table-cell">{job.recruitmentId}</div>
+            <div className="jobdash-table-cell">{job.recuitmentId}</div>
             <div className="jobdash-table-cell">{job.recruitmentTitle}</div>
             <div className="jobdash-table-cell">{job.canTuyen}</div>
             <div className="jobdash-table-cell">{job.ungTuyen}</div>
