@@ -20,6 +20,16 @@ function ApplicationApprovalListPage({ step = 1 }) {
     { label: "HR từ chối", value: "HR_REJECTED" },
     { label: "Nhân viên hủy", value: "CANCELLED_BY_EMPLOYEE" },
   ];
+  const roles = JSON.parse(localStorage.getItem("role") || "[]");
+
+  const canCreateApplication = roles.some((r) =>
+    [
+      "ROLE_EMPLOYEE",
+      "ROLE_HR",
+      "ROLE_HR_MANAGER",
+      "ROLE_PRODUCTION_MANAGER",
+    ].includes(r)
+  );
 
   const STATUS_FILTERS =
     step === 1
@@ -69,6 +79,17 @@ function ApplicationApprovalListPage({ step = 1 }) {
   return (
     <MainLayout>
       <div className="approval-list-container">
+        {canCreateApplication && (
+          <div style={{ marginBottom: "16px", textAlign: "right" }}>
+            <button
+              className="approval-list-action-btn"
+              onClick={() => navigate("/create-application?type=leave")}
+            >
+              ➕ Tạo đơn mới
+            </button>
+          </div>
+        )}
+
         <div className="approval-list-sidebar">
           {STATUS_FILTERS.map((item) => (
             <button

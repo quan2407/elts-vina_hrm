@@ -27,6 +27,13 @@ const applicationService = {
       },
     });
   },
+  createApplicationAsAdmin: (formData) => {
+    return axiosClient.post("/applications/admin", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  },
 };
 
 export default applicationService;

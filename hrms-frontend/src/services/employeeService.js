@@ -53,6 +53,9 @@ const employeeService = {
   getNextEmployeeCodeByPosition: (positionId) => {
     return axiosClient.get(`/employees/next-code/${positionId}`);
   },
+  getSimpleEmployees: () => {
+    return axiosClient.get("/employees/simple");
+  },
 };
 
 export default employeeService;

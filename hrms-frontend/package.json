@@ -32,6 +32,7 @@
     "react-dom": "^18.3.1",
     "react-quill": "^2.0.0",
     "react-router-dom": "^7.6.2",
+    "react-select": "^5.10.2",
     "react-time-picker": "^7.0.0",
     "recharts": "^3.1.0",
     "sweetalert2": "^11.6.13",
