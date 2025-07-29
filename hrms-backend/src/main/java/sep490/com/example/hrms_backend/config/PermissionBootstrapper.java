@@ -71,7 +71,20 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Employee",
                 List.of("ROLE_HR_MANAGER", "ROLE_HR")
         );
+        permissionRegistrationService.registerPermission(// ← đây là method
+                "/api/applications/admin",
+                "POST",// ← đây là apiPath
+                "Application",
+                List.of("ROLE_HR_MANAGER", "ROLE_HR", "ROLE_PRODUCTION_MANAGER")
+        );
 
+
+        permissionRegistrationService.registerPermission(
+                "/api/employees/simple",
+                "GET",
+                "Employee",
+                List.of("ROLE_HR_MANAGER", "ROLE_HR", "ROLE_PRODUCTION_MANAGER")
+        );
 
     }
 }

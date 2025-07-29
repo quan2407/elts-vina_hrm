@@ -45,6 +45,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         ApplicationType type = applicationTypeRepository.findById(dto.getApplicationTypeId())
                 .orElseThrow(() -> new RuntimeException("Application type not found"));
+
         applicationValidator.validate(dto, type.getName());
 
         Application application = Application.builder()
@@ -60,16 +61,79 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .attachmentPath(dto.getAttachmentPath())
                 .checkIn(dto.getCheckIn())
                 .checkOut(dto.getCheckOut())
-                .status(ApplicationStatus.PENDING_MANAGER_APPROVAL)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        applicationRepository.save(application);
-        ApplicationApprovalStep step1 = createInitialApprovalStep(application);
-        approvalStepRepository.save(step1);
+        // Xác định người tạo đơn
+        Long creatorId = currentUserUtils.getCurrentEmployeeId();
+        Employee creator = employeeRepository.findById(creatorId)
+                .orElseThrow(() -> new RuntimeException("Người tạo không tồn tại"));
 
+        String position = creator.getPosition() != null
+                ? creator.getPosition().getPositionName().toLowerCase()
+                : "";
+
+        if (position.contains("hr")) {
+            application.setStatus(ApplicationStatus.HR_APPROVED);
+
+            ApplicationApprovalStep step2 = ApplicationApprovalStep.builder()
+                    .application(application)
+                    .step(2)
+                    .status(ApprovalStepStatus.APPROVED)
+                    .approver(creator)
+                    .approvedAt(LocalDateTime.now())
+                    .note("HR tạo và duyệt đơn")
+                    .build();
+
+            applicationRepository.save(application); // ✅ Sau khi set status
+            approvalStepRepository.save(step2);
+            if (application.getCheckIn() != null && application.getCheckOut() != null) {
+                attendanceRecordRepository.findByEmployee_EmployeeIdAndDate(
+                        application.getEmployee().getEmployeeId(),
+                        application.getStartDate()
+                ).ifPresent(record -> {
+                    AttendanceCheckInOutDTO updateDto = new AttendanceCheckInOutDTO();
+                    updateDto.setCheckIn(String.valueOf(application.getCheckIn()));
+                    updateDto.setCheckOut(String.valueOf(application.getCheckOut()));
+                    attendanceRecordService.updateCheckInOut(record.getId(), updateDto);
+                });
+            }
+        } else if (position.contains("quản lý sản xuất") || position.contains("production manager")) {
+            application.setStatus(ApplicationStatus.MANAGER_APPROVED);
+
+            ApplicationApprovalStep step1 = ApplicationApprovalStep.builder()
+                    .application(application)
+                    .step(1)
+                    .status(ApprovalStepStatus.APPROVED)
+                    .approver(creator)
+                    .approvedAt(LocalDateTime.now())
+                    .note("QLSX tạo và duyệt đơn")
+                    .build();
+
+            ApplicationApprovalStep step2 = ApplicationApprovalStep.builder()
+                    .application(application)
+                    .step(2)
+                    .status(ApprovalStepStatus.PENDING)
+                    .build();
+
+            applicationRepository.save(application); // ✅ Sau khi set status
+            approvalStepRepository.save(step1);
+            approvalStepRepository.save(step2);
+
+        } else {
+            application.setStatus(ApplicationStatus.PENDING_MANAGER_APPROVAL);
+
+            applicationRepository.save(application); // ✅ Sau khi set status
+            ApplicationApprovalStep step1 = createInitialApprovalStep(application);
+            approvalStepRepository.save(step1);
+        }
+
+        application.setUpdatedAt(LocalDateTime.now());
+        applicationRepository.save(application); // cập nhật lại nếu cần
     }
+
+
 
     private ApplicationApprovalStep createInitialApprovalStep(Application application) {
         return ApplicationApprovalStep.builder()

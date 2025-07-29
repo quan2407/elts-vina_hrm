@@ -65,6 +65,7 @@ function Sidebar() {
     menus = systemMenus;
   }
   const handleMenuClick = (item) => {
+    console.log("Clicked:", item.text);
     if (item.children) {
       setOpenMenu(openMenu === item.text ? "" : item.text);
     } else {
