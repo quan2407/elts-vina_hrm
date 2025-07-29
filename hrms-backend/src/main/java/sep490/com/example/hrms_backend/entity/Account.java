@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "account")
@@ -60,8 +61,8 @@ public class Account {
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @OneToMany(mappedBy = "account")
-    private List<Notification> notifications;
+    @ManyToMany(mappedBy = "account")
+    private Set<Notification> notifications;
 
     @OneToMany(mappedBy = "account")
     private List<SystemLog> systemLogs;
