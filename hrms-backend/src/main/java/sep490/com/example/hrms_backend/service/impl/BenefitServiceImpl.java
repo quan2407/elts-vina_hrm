@@ -193,6 +193,8 @@ public class BenefitServiceImpl implements BenefitService {
         Benefit benefitFromDb = benefitRepository.findById(benefitId)
                 .orElseThrow(() -> new HRMSAPIException("Benefit with id " + benefitId + " is not existed."));
 
+        List<Employee> employees = employeeRepository.findAllActive();
+        int employeeSize = employees.size();
 
 
 
@@ -212,6 +214,9 @@ public class BenefitServiceImpl implements BenefitService {
         }
 
         if(benefit.getMaxParticipants() != null){
+            if(benefit.getMaxParticipants() > employeeSize || benefit.getMaxParticipants() < 0){
+                throw new HRMSAPIException("Số người tham gia không thể lớn hơn số nhân viên công ty đang làm việc");
+            }
             benefitFromDb.setMaxParticipants(benefit.getMaxParticipants());
         }
 

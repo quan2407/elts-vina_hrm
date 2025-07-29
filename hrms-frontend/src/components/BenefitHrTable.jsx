@@ -29,6 +29,7 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
     const formatDate = (date) => new Date(date).toLocaleDateString("en-GB");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
+    const [error, setError] = useState(null);
 
 
 
@@ -43,8 +44,26 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
             setIsModalOpen(false);
             onUpdateSuccess?.(); // để reload bảng sau khi cập nhật
         } catch (err) {
-            console.error("Update failed", err);
-            message.error("Cập nhật thất bại");
+            // console.log('Full error object:', err);
+            // console.log('Response data:', err.response?.data);
+            console.error(err);
+
+            let errorMsg = 'Đã có lỗi xảy ra.';
+
+            if (err.response?.data) {
+                const data = err.response.data;
+                errorMsg = data.message || 'Lỗi không xác định từ server.';
+            } else if (err.request) {
+                errorMsg = 'Không nhận được phản hồi từ máy chủ.';
+            } else {
+                errorMsg = err.message || 'Cập nhật thất bại';
+            }
+
+
+            setError(errorMsg);          // nếu bạn muốn hiển thị ở UI
+            message.error(errorMsg);     // thông báo popup
+            // console.error("Update failed", err);
+            // message.error("Cập nhật thất bại");
         }
     };
 

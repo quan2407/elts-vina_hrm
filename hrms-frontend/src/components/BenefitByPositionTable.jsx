@@ -159,12 +159,12 @@ function BenefitByPositionTable({ benefitId }) {
     return (
         <div className="employee-table-wrapper">
 
-            <BenefitSearchForm
-                onSearch={(newFilters) => {
-                    setFilters(newFilters);
-                    setPageNumber(1); // reset về page đầu khi search
-                }}
-            />
+            {/*<BenefitSearchForm*/}
+            {/*    onSearch={(newFilters) => {*/}
+            {/*        setFilters(newFilters);*/}
+            {/*        setPageNumber(1); // reset về page đầu khi search*/}
+            {/*    }}*/}
+            {/*/>*/}
             <BenefitByPositionHeader />
 
             <div className="employee-table">
