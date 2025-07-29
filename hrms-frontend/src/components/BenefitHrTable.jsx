@@ -5,7 +5,7 @@ import Paging from "./common/Paging.jsx";
 import BenefitSearchForm from "./common/search/BenefitSearchForm.jsx";
 import ActionDropdown from "./common/ActionDropdown.jsx";
 import BenefitUpdateModal from "./modals/benefit/BenefitUpdateModal.jsx";
-import { Modal, message } from "antd";
+import { Modal, message,  } from "antd";
 import getBenefitTypeDisplay from '../utils/DisplayBenefitType.js'
 import { useNavigate } from 'react-router-dom';
 
@@ -131,7 +131,7 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
     );
 };
 
-function BenefitHrTable() {
+function BenefitHrTable({ reloadKey, onForceReload }) {
     const [benefits, setBenefit] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -161,10 +161,13 @@ function BenefitHrTable() {
                 setError("Không thể lấy dữ liệu phúc lợi tương ứng");
             })
             .finally(() => setLoading(false));
-    }, [pageNumber, pageSize, filters]);
+    }, [pageNumber, pageSize, filters, reloadKey]);
 
     return (
+
         <div className="employee-table-wrapper">
+
+
 
             <BenefitSearchForm
                 onSearch={(newFilters) => {
@@ -184,8 +187,7 @@ function BenefitHrTable() {
                     <BenefitHRTableRow
                         key={benefit.id}
                         benefit={benefit}
-
-                        onUpdateSuccess={() => setPageNumber((prev) => prev)}
+                        onUpdateSuccess={onForceReload}
                     />
                 ))}
             </div>

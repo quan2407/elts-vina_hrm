@@ -60,7 +60,7 @@ public class BenefitServiceImpl implements BenefitService {
                 List<Predicate> predicates = new ArrayList<>();
 
                 //Lọc title và description theo or
-            if ((title != null && !title.isEmpty()) || (description != null && !description.isEmpty())) {
+            if ((title != null && !title.isEmpty()) || (description != null && !description.isEmpty()) ) {
                 List<Predicate> orPredicates = new ArrayList<>();
 
                 if (title != null && !title.isEmpty()) {
@@ -121,10 +121,13 @@ public class BenefitServiceImpl implements BenefitService {
 
 
 
+
         //Kiem tra xem danh sach co benefit khong
         if (benefits.isEmpty()) {
             throw new HRMSAPIException("No Benefit is Exist. Please Add Benefit First.");
         }
+
+
 
         //Neu oke thi chuyen ve DTO
         //List<BenefitDTO> benefitDTOList = modelMapper.map(benefits, List.class); //ko nen dung
@@ -196,14 +199,15 @@ public class BenefitServiceImpl implements BenefitService {
         //DTO--> model
         Benefit benefit = modelMapper.map(benefitDTO, Benefit.class);
 
-        if (benefit.getEndDate().isBefore(benefit.getStartDate())) {
-            throw new HRMSAPIException("Ngày kết thúc phải lớn hơn ngày bắt đầu");
-        }
+
 
         if(benefit.getIsActive() != null){
             benefitFromDb.setIsActive(benefit.getIsActive());
         }
         if(benefit.getEndDate() != null ){
+            if (benefit.getEndDate().isBefore(benefit.getStartDate())) {
+                throw new HRMSAPIException("Ngày kết thúc phải lớn hơn ngày bắt đầu");
+            }
             benefitFromDb.setEndDate(benefit.getEndDate());
         }
 
@@ -221,6 +225,10 @@ public class BenefitServiceImpl implements BenefitService {
 
         if(benefit.getTitle() != null){
             benefitFromDb.setTitle(benefit.getTitle());
+        }
+
+        if(benefit.getDetail() != null){
+            benefitFromDb.setDetail(benefit.getDetail());
         }
 
 

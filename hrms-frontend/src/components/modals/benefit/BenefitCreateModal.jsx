@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, } from 'react';
 import {
     Button,
     Modal,
@@ -71,7 +71,7 @@ const BenefitCreateModal = ({onCreated}) => {
             } else if (err.request) {
                 errorMsg = 'Không nhận được phản hồi từ máy chủ.';
             } else {
-                errorMsg = err.message || 'Lỗi không xác định.';
+                errorMsg = err.message || 'Tạo phúc lợi thất bại.';
             }
 
 
@@ -131,60 +131,7 @@ const BenefitCreateModal = ({onCreated}) => {
                             <Select.Option value={"KHAU_TRU"}>Khấu trừ</Select.Option>
                         </Select>
                     </Form.Item>
-                    {/*{(benefitType === "PHU_CAP" || benefitType === "KHAU_TRU") && (*/}
-                    {/*    <>*/}
-                    {/*        <Form.Item*/}
-                    {/*            label="Cách tính (Formula Type)"*/}
-                    {/*            name="formulaType"*/}
-                    {/*            rules={[{ required: true, message: 'Vui lòng chọn cách tính' }]}*/}
-                    {/*        >*/}
-                    {/*            <Select placeholder="Chọn cách tính">*/}
-                    {/*                <Select.Option value="AMOUNT">Số tiền cố định</Select.Option>*/}
-                    {/*                <Select.Option value="PERCENTAGE">Theo phần trăm</Select.Option>*/}
-                    {/*            </Select>*/}
-                    {/*        </Form.Item>*/}
 
-                    {/*        <Form.Item*/}
-                    {/*            label="Giá trị"*/}
-                    {/*            name="formulaValue"*/}
-                    {/*            rules={[{ required: true, message: 'Vui lòng nhập giá trị' }]}*/}
-                    {/*        >*/}
-                    {/*            <InputNumber min={0} style={{ width: "100%" }} placeholder="Nhập số tiền hoặc %" />*/}
-                    {/*        </Form.Item>*/}
-                    {/*    </>*/}
-                    {/*)}*/}
-                    {/*<Form.Item label="Cách tính">*/}
-                    {/*    <Input.Group compact>*/}
-                    {/*        <Form.Item*/}
-                    {/*            name="formulaType"*/}
-                    {/*            noStyle*/}
-                    {/*            rules={[{ required: true, message: 'Chọn cách tính' }]}*/}
-                    {/*        >*/}
-                    {/*            <Select placeholder="Chọn cách tính" style={{ width: '50%' }}>*/}
-                    {/*                <Select.Option value="AMOUNT">Số tiền cố định</Select.Option>*/}
-                    {/*                <Select.Option value="PERCENTAGE">Theo phần trăm</Select.Option>*/}
-                    {/*            </Select>*/}
-                    {/*        </Form.Item>*/}
-
-                    {/*        {formulaType && (*/}
-                    {/*            <Form.Item*/}
-                    {/*                name="formulaValue"*/}
-                    {/*                noStyle*/}
-                    {/*                rules={[{ required: true, message: 'Nhập giá trị' }]}*/}
-                    {/*            >*/}
-                    {/*                <InputNumber*/}
-                    {/*                    min={0}*/}
-                    {/*                    style={{ width: '50%', textAlign: 'right' }}*/}
-                    {/*                    placeholder={*/}
-                    {/*                        formulaType === 'AMOUNT' ? 'Nhập số tiền' : 'Nhập phần trăm'*/}
-                    {/*                    }*/}
-                    {/*                    addonAfter={formulaType === 'AMOUNT' ? 'VND' : '%'}*/}
-                    {/*                />*/}
-                    {/*            </Form.Item>*/}
-                    {/*        )}*/}
-                    {/*    </Input.Group>*/}
-                    {/*</Form.Item>*/}
-                    {/* Chỉ hiển thị nếu là phụ cấp hoặc khấu trừ */}
                     {['PHU_CAP', 'KHAU_TRU'].includes(benefitType) && (
                         <Form.Item label="Cách tính">
                             <Input.Group compact>

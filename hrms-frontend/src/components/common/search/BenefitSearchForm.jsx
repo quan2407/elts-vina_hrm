@@ -6,10 +6,39 @@ import {
     ProFormSelect,
     ProFormDigitRange,
 } from '@ant-design/pro-components';
-import { Button, Divider } from 'antd';
+import { Button, Divider, Select, Space } from 'antd';
 import { ConfigProvider } from 'antd';
 import viVN from 'antd/locale/vi_VN';
 import dayjs from 'dayjs';
+
+const QuickFilters = ({ onQuickFilter }) => {
+    return (
+        <Space style={{ marginBottom: 16 }}>
+            <Select
+                placeholder="Trạng thái"
+                onChange={(value) => onQuickFilter({ isActive: value })}
+                allowClear
+                options={[
+                    { label: 'Đang hoạt động', value: true },
+                    { label: 'Ngừng hoạt động', value: false },
+                ]}
+                style={{ width: 160 }}
+            />
+            <Select
+                placeholder="Loại phúc lợi"
+                onChange={(value) => onQuickFilter({ benefitType: value })}
+                allowClear
+                options={[
+                    { label: 'Sự kiện', value: 'SU_KIEN' },
+                    { label: 'Phụ cấp', value: 'PHU_CAP' },
+                    { label: 'Khấu trừ', value: 'KHAU_TRU' },
+                ]}
+                style={{ width: 160 }}
+            />
+            <Button onClick={() => onQuickFilter({})}>Xóa bộ lọc</Button>
+        </Space>
+    );
+};
 
 const BenefitSearchForm = ({ onSearch }) => {
     const formRef = useRef();
@@ -28,7 +57,13 @@ const BenefitSearchForm = ({ onSearch }) => {
     };
 
     return (
+
         <ConfigProvider locale={viVN}>
+            {/*<QuickFilters*/}
+            {/*    onQuickFilter={(quickFilter) => {*/}
+            {/*        onSearch(quickFilter);*/}
+            {/*    }}*/}
+            {/*/>*/}
             <ProForm
                 formRef={formRef}
                 submitter={{

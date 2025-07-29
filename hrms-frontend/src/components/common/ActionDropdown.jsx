@@ -1,5 +1,5 @@
 import { Dropdown, Button } from 'antd';
-import { EditOutlined, EyeOutlined, DeleteOutlined, DownOutlined } from '@ant-design/icons';
+import { EditOutlined, EyeOutlined, DeleteOutlined, DownOutlined, UnorderedListOutlined} from '@ant-design/icons';
 
 const ActionDropdown = ({ onView, onEdit, onDelete, onDetails }) => {
     const handleMenuClick = (e) => {
@@ -12,14 +12,14 @@ const ActionDropdown = ({ onView, onEdit, onDelete, onDetails }) => {
     const items = [
         {
             key: 'details',  // Mới thêm mục Details
-            icon: <EyeOutlined />,
-            label: 'Xem chi tiết',
+            icon: <UnorderedListOutlined />,
+            label: 'Xem phòng ban áp dụng',
         },
 
         {
             key: 'view',
             icon: <EyeOutlined />,
-            label: 'Xem',
+            label: 'Xem thông tin thêm',
         },
         {
             key: 'edit',

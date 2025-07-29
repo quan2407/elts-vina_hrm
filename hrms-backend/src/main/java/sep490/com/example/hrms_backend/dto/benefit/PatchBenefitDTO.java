@@ -22,6 +22,7 @@ public class PatchBenefitDTO {
 
     private LocalDate endDate;
 
+    private String detail;
 
     private Integer maxParticipants;
 
