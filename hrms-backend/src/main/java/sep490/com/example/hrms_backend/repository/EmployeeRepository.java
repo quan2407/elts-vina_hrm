@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import sep490.com.example.hrms_backend.entity.Employee;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,4 +66,19 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     long countByPosition_PositionNameNotIgnoreCase(@Param("positionName") String positionName);
 
     List<Employee> findByPosition_PositionName(String positionName);
+
+    Optional<Employee> findByEmployeeCode(String employeeCode);
+
+    @Query("SELECT e.gender AS gender, COUNT(e) AS count " +
+            "FROM Employee e WHERE e.isDeleted = false AND " +
+            "(e.startWorkAt <= :endDate AND e.endWorkAt >= :startDate) " +
+            "GROUP BY e.gender")
+    List<Object[]> findGenderDistributionByDateRange(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT e.department.departmentName AS departmentName, COUNT(e) AS count " +
+            "FROM Employee e WHERE e.isDeleted = false AND " +
+            "(e.startWorkAt <= :endDate AND e.endWorkAt >= :startDate) " +
+            "GROUP BY e.department")
+    List<Object[]> findDepartmentDistributionByDateRange(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
 }

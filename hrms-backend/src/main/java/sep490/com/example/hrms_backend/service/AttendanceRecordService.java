@@ -1,6 +1,7 @@
 package sep490.com.example.hrms_backend.service;
 
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 import sep490.com.example.hrms_backend.dto.AttendanceCheckInOutDTO;
 import sep490.com.example.hrms_backend.dto.AttendanceMonthlyViewDTO;
 import sep490.com.example.hrms_backend.dto.LeaveCodeUpdateDTO;
@@ -22,4 +23,5 @@ public interface AttendanceRecordService {
     List<AttendanceMonthlyViewDTO> getEmpMonthlyAttendanceById(Long employeeId, int month, int year);
     void updateDailyAttendanceForDate(LocalDate date);
 
+    void importAttendanceFromExcel(MultipartFile file, LocalDate date);
 }

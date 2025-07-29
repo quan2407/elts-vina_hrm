@@ -90,5 +90,6 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
     Optional<AttendanceRecord> findByEmployee_EmployeeIdAndDate(Long employeeId, LocalDate date);
 
 
+    Optional<AttendanceRecord> findByEmployeeAndDate(Employee emp, LocalDate date);
 }
 

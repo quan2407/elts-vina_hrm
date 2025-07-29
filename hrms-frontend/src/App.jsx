@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -52,7 +52,24 @@ import DynamicAttendanceWrapper from "./pages/DynamicAttendanceWrapper.jsx";
 import DynamicWorkScheduleWrapper from "./pages/DynamicWorkScheduleWrapper";
 import RoleListPage from "./pages/RoleListPage.jsx";
 import { PermissionProvider } from "./contexts/PermissionContext";
+import { usePermissions } from "./contexts/PermissionContext";
+import Sidebar from "./components/Sidebar";
+
 function App() {
+  const { refreshPermissions, loading } = usePermissions();
+  const [appReady, setAppReady] = useState(false);
+
+  useEffect(() => {
+    const init = async () => {
+      await refreshPermissions();
+      setAppReady(true);
+    };
+    init();
+  }, []);
+
+  if (!appReady || loading) {
+    return <div>Đang tải quyền...</div>;
+  }
   return (
     <ConfigProvider>
       <AntdApp>

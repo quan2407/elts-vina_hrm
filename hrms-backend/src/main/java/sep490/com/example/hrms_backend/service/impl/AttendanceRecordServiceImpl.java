@@ -1,11 +1,17 @@
 package sep490.com.example.hrms_backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.entity.AttendanceRecord;
 import sep490.com.example.hrms_backend.entity.Employee;
@@ -15,8 +21,10 @@ import sep490.com.example.hrms_backend.enums.LeaveCode;
 import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.AttendanceRecordService;
 
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -351,6 +359,128 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                 if (overtimeHours > 0) record.setOtShift(String.format("%.2f", overtimeHours));
             }
         }
+    }
+    @Override
+    public void importAttendanceFromExcel(MultipartFile file, LocalDate targetDate) {
+        try (InputStream is = file.getInputStream();
+             Workbook workbook = new XSSFWorkbook(is)) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+            DataFormatter formatter = new DataFormatter();
+
+            Map<String, List<LocalTime>> timeMap = new HashMap<>();
+            Map<String, Employee> employeeMap = new HashMap<>();
+            Map<String, LocalDate> dateMap = new HashMap<>();
+
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) continue;
+
+                String employeeCode = formatter.formatCellValue(row.getCell(3)).trim();
+                Date timeValue = row.getCell(1).getDateCellValue();
+                LocalDate date = timeValue.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                LocalTime time = timeValue.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+
+                // ❌ Skip nếu không đúng ngày
+                if (!date.equals(targetDate)) continue;
+
+                String key = employeeCode + "_" + date;
+
+                timeMap.computeIfAbsent(key, k -> new ArrayList<>()).add(time);
+                employeeMap.putIfAbsent(key, employeeRepository.findByEmployeeCode(employeeCode)
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên: " + employeeCode)));
+                dateMap.putIfAbsent(key, date);
+            }
+
+            // ✅ Gán giờ vào – ra theo log
+            for (String key : timeMap.keySet()) {
+                Employee emp = employeeMap.get(key);
+                LocalDate date = dateMap.get(key);
+                List<LocalTime> times = timeMap.get(key);
+
+                if (times.isEmpty()) continue;
+
+                AttendanceRecord record = attendanceRecordRepository.findByEmployeeAndDate(emp, date).orElse(null);
+                if (record == null) {
+                    System.err.println("⚠ Không có bảng công cho ngày " + date + ", nhân viên " + emp.getEmployeeCode());
+                    continue;
+                }
+
+                if (times.size() == 1) {
+                    record.setCheckInTime(times.get(0));
+                    record.setCheckOutTime(null);
+                    updateLeaveCode(record.getId(), new LeaveCodeUpdateDTO("KL", "dayShift"));
+                    attendanceRecordRepository.save(record);
+                    System.out.println("❗ 1 log: Gán KL cho " + emp.getEmployeeCode());
+                    continue;
+                }
+
+                LocalTime checkIn = Collections.min(times);
+                LocalTime checkOut = Collections.max(times);
+                record.setCheckInTime(checkIn);
+                record.setCheckOutTime(checkOut);
+
+                WorkSchedule schedule = getScheduleForEmployeeOnDate(emp, date);
+                if (schedule != null) {
+                    record.setWorkSchedule(schedule);
+                }
+
+                if (record.getWorkSchedule() != null
+                        && record.getWorkSchedule().getWorkScheduleDetails() != null
+                        && record.getCheckInTime() != null
+                        && record.getCheckOutTime() != null) {
+                    calculateShift(record);
+                } else {
+                    record.setDayShift(null);
+                    record.setOtShift(null);
+                    record.setWeekendShift(null);
+                    record.setHolidayShift(null);
+                }
+
+                attendanceRecordRepository.save(record);
+                System.out.println("✔ Đã cập nhật cho: " + emp.getEmployeeCode() + " ngày " + date);
+            }
+
+            // 🔍 Gán KL cho các nhân viên không có log nào
+            List<AttendanceRecord> allRecords = attendanceRecordRepository.findByDate(targetDate);
+            for (AttendanceRecord record : allRecords) {
+                String key = record.getEmployee().getEmployeeCode() + "_" + targetDate;
+                if (!timeMap.containsKey(key)) {
+                    record.setCheckInTime(null);
+                    record.setCheckOutTime(null);
+                    updateLeaveCode(record.getId(), new LeaveCodeUpdateDTO("KL", "dayShift"));
+                    attendanceRecordRepository.save(record);
+                    System.out.println("⚠ Không có log: Gán KL cho " + record.getEmployee().getEmployeeCode());
+                }
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Import thất bại: " + e.getMessage(), e);
+        }
+    }
+
+
+
+
+    private WorkSchedule getScheduleForEmployeeOnDate(Employee employee, LocalDate date) {
+        Long lineId = employee.getLine() != null ? employee.getLine().getLineId() : null;
+        Long departmentId = employee.getDepartment().getDepartmentId();
+
+        Optional<WorkSchedule> scheduleOpt = (lineId != null)
+                ? workScheduleRepository.findByDepartment_DepartmentIdAndLine_LineIdAndMonthAndYear(
+                departmentId, lineId, date.getMonthValue(), date.getYear())
+                : workScheduleRepository.findByDepartment_DepartmentIdAndLineIsNullAndMonthAndYear(
+                departmentId, date.getMonthValue(), date.getYear());
+
+        if (scheduleOpt.isEmpty()) return null;
+
+        WorkSchedule schedule = scheduleOpt.get();
+
+        // Kiểm tra xem có chi tiết cho ngày đó không
+        boolean hasDetail = schedule.getWorkScheduleDetails().stream()
+                .anyMatch(d -> d.getDateWork().isEqual(date));
+
+        return hasDetail ? schedule : null;
     }
 
 
