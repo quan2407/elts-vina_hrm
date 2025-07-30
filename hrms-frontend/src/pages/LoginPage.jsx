@@ -44,7 +44,10 @@ function LoginPage() {
         navigate("/work-schedule-management");
       } else if (roles.includes("ROLE_PRODUCTION_MANAGER")) {
         navigate("/work-schedule-production");
-      } else if (roles.includes("ROLE_EMPLOYEE")) {
+      } else if (
+        roles.includes("ROLE_EMPLOYEE") ||
+        roles.includes("ROLE_LINE_LEADER")
+      ) {
         navigate("/my-work-schedule");
       } else {
         navigate("/unauthorized");

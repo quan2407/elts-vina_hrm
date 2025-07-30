@@ -9,6 +9,8 @@ const SalaryMonthlyView = () => {
   const [year, setYear] = useState(new Date().getFullYear());
   const [availableMonths, setAvailableMonths] = useState([]);
   const [isLocked, setIsLocked] = useState(false);
+  const roles = JSON.parse(localStorage.getItem("role") || "[]");
+  const isHrManager = roles.includes("ROLE_HR_MANAGER");
 
   const fetchSalaries = async () => {
     try {
@@ -109,30 +111,36 @@ const SalaryMonthlyView = () => {
               Cập nhật bảng lương
             </button>
 
-            <button
-              className="btn-lock"
-              onClick={async () => {
-                const confirmMsg = isLocked
-                  ? "Bạn có chắc muốn mở khóa bảng lương này?"
-                  : "Bạn có chắc muốn chốt bảng lương này?";
-                if (window.confirm(confirmMsg)) {
-                  try {
-                    await salaryService.lockSalaryMonth(month, year, !isLocked);
-                    await fetchSalaries();
-                    alert(
-                      isLocked
-                        ? "Đã mở khóa bảng lương."
-                        : "Đã chốt bảng lương."
-                    );
-                  } catch (err) {
-                    alert("Lỗi khi cập nhật trạng thái chốt lương!");
+            {isHrManager && (
+              <button
+                className="btn-lock"
+                onClick={async () => {
+                  const confirmMsg = isLocked
+                    ? "Bạn có chắc muốn mở khóa bảng lương này?"
+                    : "Bạn có chắc muốn chốt bảng lương này?";
+                  if (window.confirm(confirmMsg)) {
+                    try {
+                      await salaryService.lockSalaryMonth(
+                        month,
+                        year,
+                        !isLocked
+                      );
+                      await fetchSalaries();
+                      alert(
+                        isLocked
+                          ? "Đã mở khóa bảng lương."
+                          : "Đã chốt bảng lương."
+                      );
+                    } catch (err) {
+                      alert("Lỗi khi cập nhật trạng thái chốt lương!");
+                    }
                   }
-                }
-              }}
-              disabled={salaries.length === 0}
-            >
-              {isLocked ? "Đã chốt (mở khóa)" : "Chốt bảng lương"}
-            </button>
+                }}
+                disabled={salaries.length === 0}
+              >
+                {isLocked ? "Đã chốt (mở khóa)" : "Chốt bảng lương"}
+              </button>
+            )}
           </div>
         </div>
 

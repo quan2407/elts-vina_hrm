@@ -254,14 +254,16 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         List<Employee> employees = (lineId != null)
                 ? employeeRepository.findByDepartment_DepartmentIdAndLine_LineIdAndIsDeletedFalse(departmentId, lineId)
                 : employeeRepository.findByDepartment_DepartmentIdAndIsDeletedFalse(departmentId);
-
+        System.out.println("Get in create attedance");
         List<WorkScheduleDetail> scheduleDetails = workSchedule.getWorkScheduleDetails();
 
         if (scheduleDetails == null || scheduleDetails.isEmpty()) return;
 
         LocalDate today = LocalDate.now();
         List<AttendanceRecord> records = new ArrayList<>();
-
+        System.out.println("📌 Employee size: " + employees.size());
+        System.out.println("📌 ScheduleDetail size: " + (scheduleDetails == null ? 0 : scheduleDetails.size()));
+        System.out.println("📌 Today: " + today);
         for (Employee employee : employees) {
             for (WorkScheduleDetail detail : scheduleDetails) {
                 LocalDate workDate = detail.getDateWork();

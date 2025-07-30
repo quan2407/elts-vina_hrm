@@ -124,6 +124,7 @@ function App() {
                       "ROLE_EMPLOYEE",
                       "ROLE_PRODUCTION_MANAGER",
                       "ROLE_HR",
+                      "ROLE_LINE_LEADER",
                     ]}
                   >
                     <ApplicationDetail />
@@ -181,7 +182,9 @@ function App() {
               <Route
                 path="/my-work-schedule"
                 element={
-                  <ProtectedRoute allowedRoles={["ROLE_EMPLOYEE"]}>
+                  <ProtectedRoute
+                    allowedRoles={["ROLE_EMPLOYEE", "ROLE_LINE_LEADER"]}
+                  >
                     <EmployeeWorkScheduleView />
                   </ProtectedRoute>
                 }
@@ -480,7 +483,9 @@ function App() {
               <Route
                 path="/my-attendance-monthly"
                 element={
-                  <ProtectedRoute allowedRoles={["ROLE_EMPLOYEE"]}>
+                  <ProtectedRoute
+                    allowedRoles={["ROLE_EMPLOYEE", "ROLE_LINE_LEADER"]}
+                  >
                     <EmployeeAttendanceMonthlyView />
                   </ProtectedRoute>
                 }
@@ -489,7 +494,9 @@ function App() {
               <Route
                 path="/my-salary-monthly"
                 element={
-                  <ProtectedRoute allowedRoles={["ROLE_EMPLOYEE"]}>
+                  <ProtectedRoute
+                    allowedRoles={["ROLE_EMPLOYEE", "ROLE_LINE_LEADER"]}
+                  >
                     <EmpSalaryView />
                   </ProtectedRoute>
                 }

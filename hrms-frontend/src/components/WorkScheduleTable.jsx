@@ -43,7 +43,7 @@ function WorkScheduleTable({
   const [canEditModal, setCanEditModal] = useState(true);
   const pad = (n) => n.toString().padStart(2, "0");
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // normalize
+  today.setHours(0, 0, 0, 0);
   const todayIso = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(
     today.getDate()
   )}`;
