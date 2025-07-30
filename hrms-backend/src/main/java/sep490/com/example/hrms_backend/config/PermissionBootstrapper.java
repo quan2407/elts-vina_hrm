@@ -92,6 +92,5 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Role",
                 List.of("ROLE_HR","ROLE_PRODUCTION_MANAGER", "ROLE_HR_MANAGER")
         );
-
     }
 }

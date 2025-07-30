@@ -41,6 +41,14 @@ function WorkScheduleTable({
   const [holidays, setHolidays] = useState([]);
   const [selectedDetailId, setSelectedDetailId] = useState(null);
   const [canEditModal, setCanEditModal] = useState(true);
+  const pad = (n) => n.toString().padStart(2, "0");
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // normalize
+  const todayIso = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(
+    today.getDate()
+  )}`;
+
+  console.log("📆 FIXED todayIso:", todayIso);
 
   const getTotalMonthValue = (m, y) => y * 12 + m;
   const handleDelete = (id) => {
@@ -103,14 +111,23 @@ function WorkScheduleTable({
 
   const isMonthSelectable = (m, y) => {
     if (availableMonths.length === 0) return false;
+
+    const totalMonth = getTotalMonthValue(m, y);
+    const todayMonth = getTotalMonthValue(
+      today.getMonth() + 1,
+      today.getFullYear()
+    );
+
     return (
-      getTotalMonthValue(m, y) <=
-      Math.max(
-        ...availableMonths.map((d) => getTotalMonthValue(d.month, d.year))
-      ) +
-        1
+      totalMonth >= todayMonth && // ✅ chặn tháng/năm quá khứ
+      totalMonth <=
+        Math.max(
+          ...availableMonths.map((d) => getTotalMonthValue(d.month, d.year))
+        ) +
+          1
     );
   };
+
   const fetchDataAndStatus = (m, y) => {
     workScheduleService
       .getWorkScheduleByMonth(m, y)
@@ -572,7 +589,8 @@ function WorkScheduleTable({
                             {detail.endTime?.slice(0, 5)}
                           </span>
                         ) : (
-                          canEdit && (
+                          canEdit &&
+                          dates[i]?.iso >= todayIso && (
                             <button
                               className="work-schedule-add-btn"
                               onClick={() => {
