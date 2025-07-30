@@ -16,24 +16,13 @@ import {
 export const systemMenus = [
   {
     text: "Danh sách tài khoản",
-    path: "/",
+    path: "/accounts",
     icon: (isActive) => (
       <Users
         size={20}
         stroke={isActive ? "#4f46e5" : "white"}
       />
     ),
-  },
-  {
-    text: "Tin nhắn",
-    path: "/messages",
-    icon: (isActive) => (
-      <MessageSquare
-        size={20}
-        stroke={isActive ? "#4f46e5" : "white"}
-      />
-    ),
-    badge: 13,
   },
   {
     text: "Duyệt reset mật khẩu",
