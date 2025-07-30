@@ -15,24 +15,34 @@ function AccountRequestPage() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [processingId, setProcessingId] = useState(null);
+  const [page, setPage] = useState(0);
+  const [size] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
 
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const res = await accountRequestService.getRequestsByStatus(activeTab);
+      const res = await accountRequestService.getRequestsByStatus(
+        activeTab,
+        page,
+        size
+      );
       const data = res.data;
-
       if (Array.isArray(data)) {
         setRequests(data);
+        setTotalPages(1);
       } else if (Array.isArray(data?.content)) {
         setRequests(data.content);
+        setTotalPages(data.totalPages);
       } else {
         setRequests([]);
+        setTotalPages(0);
       }
     } catch (err) {
       console.error("Lỗi tải yêu cầu:", err);
       alert("Không thể tải yêu cầu.");
       setRequests([]);
+      setTotalPages(0);
     } finally {
       setLoading(false);
     }
@@ -68,7 +78,7 @@ function AccountRequestPage() {
 
   useEffect(() => {
     fetchRequests();
-  }, [activeTab]);
+  }, [activeTab, page]);
 
   return (
     <MainLayout>
@@ -84,7 +94,10 @@ function AccountRequestPage() {
               className={`account-request-tab ${
                 activeTab === tab.key ? "active" : ""
               }`}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => {
+                setActiveTab(tab.key);
+                setPage(0);
+              }}
               style={{ color: activeTab === tab.key ? "#4f46e5" : "black" }}
             >
               {tab.label}
@@ -143,6 +156,27 @@ function AccountRequestPage() {
                 </div>
               </div>
             ))
+          )}
+          {totalPages > 1 && (
+            <div className="account-request-pagination">
+              <button
+                onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+                disabled={page === 0}
+              >
+                ← Trước
+              </button>
+              <span style={{ margin: "0 12px" }}>
+                Trang {page + 1} / {totalPages}
+              </span>
+              <button
+                onClick={() =>
+                  setPage((prev) => Math.min(prev + 1, totalPages - 1))
+                }
+                disabled={page === totalPages - 1}
+              >
+                Sau →
+              </button>
+            </div>
           )}
         </div>
       </div>

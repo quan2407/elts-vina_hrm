@@ -26,8 +26,10 @@ const authService = {
     axiosClient.post("/auth/request-reset-password", data),
   changePassword: (data) => axiosClient.put("/auth/change-password", data),
 
-  getPendingResetRequests: () =>
-    axiosClient.get("/auth/admin/pending-reset-requests"),
+  getPendingResetRequests: (page = 0, size = 10) =>
+    axiosClient.get("/auth/admin/pending-reset-requests", {
+      params: { page, size },
+    }),
 
   approveResetPassword: (data) =>
     axiosClient.post("/auth/admin/approve-reset-password", data),
