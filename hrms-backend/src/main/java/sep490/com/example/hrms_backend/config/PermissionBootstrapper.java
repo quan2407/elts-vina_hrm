@@ -46,6 +46,45 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Role",
                 List.of("ROLE_ADMIN")
         );
+        permissionRegistrationService.registerPermission(
+                "/api/attendances/import",
+                "POST",
+                "Attendance",
+                List.of("ROLE_HR", "ROLE_HR_MANAGER")
+        );
+        permissionRegistrationService.registerPermission(
+                "/api/attendances/export",
+                "POST",
+                "Attendance",
+                List.of("ROLE_HR", "ROLE_HR_MANAGER")
+        );
+        permissionRegistrationService.registerPermission(
+                "/api/dashboard/employee-gender-distribution",
+                "GET",
+                "Employee",
+                List.of("ROLE_HR_MANAGER", "ROLE_HR")
+        );
+
+        permissionRegistrationService.registerPermission(
+                "/api/dashboard/employee-department-distribution",
+                "GET",
+                "Employee",
+                List.of("ROLE_HR_MANAGER", "ROLE_HR")
+        );
+        permissionRegistrationService.registerPermission(// ← đây là method
+                "/api/applications/admin",
+                "POST",// ← đây là apiPath
+                "Application",
+                List.of("ROLE_HR_MANAGER", "ROLE_HR", "ROLE_PRODUCTION_MANAGER")
+        );
+
+
+        permissionRegistrationService.registerPermission(
+                "/api/employees/simple",
+                "GET",
+                "Employee",
+                List.of("ROLE_HR_MANAGER", "ROLE_HR", "ROLE_PRODUCTION_MANAGER")
+        );
 
         permissionRegistrationService.registerPermission(
                 "/api/candidate/*",
@@ -53,6 +92,6 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Role",
                 List.of("ROLE_HR","ROLE_PRODUCTION_MANAGER", "ROLE_HR_MANAGER")
         );
-        // Đăng ký thêm các API quan trọng khác tại đây nếu cần
+
     }
 }

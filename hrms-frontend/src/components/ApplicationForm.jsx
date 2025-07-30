@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import { vi } from "date-fns/locale";
 import applicationApprovalService from "../services/applicationApprovalService";
+import employeeService from "../services/employeeService";
 import TimePicker from "react-time-picker";
 import "react-time-picker/dist/TimePicker.css";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +11,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import "react-quill/dist/quill.snow.css";
 import "../styles/ApplicationForm.css";
 import { Save } from "lucide-react";
+import Select from "react-select";
 
 function ApplicationForm({
   mode = "create",
@@ -32,6 +34,9 @@ function ApplicationForm({
     const minute = String(m || "00").padStart(2, "0");
     return `${hour}:${minute}`;
   }
+  const [employees, setEmployees] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [applicationType, setApplicationType] = useState(type || "leave");
 
   const [errors, setErrors] = useState({});
   const [title, setTitle] = useState("");
@@ -48,40 +53,62 @@ function ApplicationForm({
   const [checkOut, setCheckOut] = useState("");
   const navigate = useNavigate();
 
-  const [isReadOnly, setIsReadOnly] = useState(true);
-
   const roles = JSON.parse(localStorage.getItem("role") || "[]");
   const currentUserId = localStorage.getItem("userId") || "";
   const isManager = roles.includes("ROLE_PRODUCTION_MANAGER");
   const isCreator = data?.creator;
-  console.log("🆔 Người tạo đơn:", data?.employeeId);
-  console.log("🧑‍💼 Người đang đăng nhập:", currentUserId);
-  console.log("✅ isCreator:", isCreator);
 
-  const isManagerApprover =
-    isManager &&
-    data?.status === "PENDING_MANAGER_APPROVAL" &&
-    data?.approvalSteps?.[0]?.status === "PENDING";
-  const isHrApprover =
-    roles.includes("ROLE_HR") &&
-    data?.status === "MANAGER_APPROVED" &&
-    data?.approvalSteps?.[1]?.approverName === null &&
-    data?.approvalSteps?.[1]?.status === "PENDING";
+  useEffect(() => {
+    if (data) {
+      console.log("🆔 Người tạo đơn:", data?.employeeId);
+      console.log("🧑‍💼 Người đang đăng nhập:", currentUserId);
+      console.log("✅ isCreator:", data?.creator); // hoặc là isCreator cũng được
+    }
+  }, [data, currentUserId]);
 
-  const isStillEditableByCreator =
-    isCreator &&
-    data?.status === "PENDING_MANAGER_APPROVAL" &&
-    data?.approvalSteps?.every((step) => step.status === "PENDING");
+  const currentType = mode === "create" ? applicationType : type;
 
-  const isEditable =
-    mode === "create" ||
-    (isCreator && (isStillEditableByCreator || isManagerApprover));
+  const isManagerApprover = React.useMemo(() => {
+    return (
+      isManager &&
+      data?.status === "PENDING_MANAGER_APPROVAL" &&
+      data?.approvalSteps?.[0]?.status === "PENDING"
+    );
+  }, [isManager, data]);
+
+  const isHrApprover = React.useMemo(() => {
+    return (
+      roles.includes("ROLE_HR") &&
+      data?.status === "MANAGER_APPROVED" &&
+      data?.approvalSteps?.[1]?.approverName === null &&
+      data?.approvalSteps?.[1]?.status === "PENDING"
+    );
+  }, [roles, data]);
+
+  const isStillEditableByCreator = React.useMemo(() => {
+    return (
+      isCreator &&
+      data?.status === "PENDING_MANAGER_APPROVAL" &&
+      data?.approvalSteps?.every((step) => step.status === "PENDING")
+    );
+  }, [isCreator, data]);
+
+  const isEditable = React.useMemo(() => {
+    return (
+      mode === "create" ||
+      (isCreator && (isStillEditableByCreator || isManagerApprover))
+    );
+  }, [mode, isCreator, isStillEditableByCreator, isManagerApprover]);
 
   const CustomInput = React.forwardRef(function CustomInput(
     { value, onClick, placeholder },
     ref
   ) {
-    const isMakeupReadOnly = mode === "create" && type === "makeup";
+    const isMakeupReadOnly =
+      mode === "create" &&
+      type === "makeup" &&
+      !(roles.includes("ROLE_HR") || roles.includes("ROLE_PRODUCTION_MANAGER"));
+
     return (
       <input
         className="application-form-input-field"
@@ -93,14 +120,30 @@ function ApplicationForm({
       />
     );
   });
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const res = await employeeService.getSimpleEmployees();
+        setEmployees(res.data);
+      } catch (err) {
+        console.error("Lỗi khi tải danh sách nhân viên:", err);
+      }
+    };
+
+    if (
+      mode === "create" &&
+      (roles.includes("ROLE_HR") || roles.includes("ROLE_PRODUCTION_MANAGER"))
+    ) {
+      fetchEmployees();
+    }
+  }, []);
 
   useEffect(() => {
-    console.log("🧾 FULL DATA:", data);
-  }, [data]);
-  useEffect(() => {
-    if (externalErrors) {
-      setErrors(externalErrors);
-    }
+    setErrors((prev) => {
+      const isSame =
+        JSON.stringify(prev || {}) === JSON.stringify(externalErrors || {});
+      return isSame ? prev : externalErrors;
+    });
   }, [externalErrors]);
 
   // ✅ Khởi tạo giá trị nếu tạo đơn mới
@@ -115,24 +158,75 @@ function ApplicationForm({
     }
   }, [mode, initialDate, type]);
 
-  // ✅ Gán readonly đúng theo logic đã tính
-  useEffect(() => {
-    setIsReadOnly(!isEditable);
+  const isReadOnly =
+    mode !== "create" &&
+    !(isCreator && (isStillEditableByCreator || isManagerApprover));
 
-    if (mode === "detail") {
-      setTitle(data.title || "");
-      setContent(data.content || "");
-      setStartDate(data.startDate ? new Date(data.startDate) : null);
-      setEndDate(data.endDate ? new Date(data.endDate) : null);
-      setLeaveCode(data.leaveCode || "");
-      setIsHalfDay(data.isHalfDay || false);
-      setHalfDayType(data.halfDayType || "MORNING");
-      setCheckIn(formatToHHmm(data.checkIn || "08:00"));
-      setCheckOut(formatToHHmm(data.checkOut || "17:00"));
-      setAttachmentPath(data.attachmentPath || null);
-      setAttachmentPreview(null);
+  useEffect(() => {
+    if (mode === "detail" && data) {
+      if (title !== (data.title || "")) setTitle(data.title || "");
+      if (content !== (data.content || "")) setContent(data.content || "");
+
+      const newStart = data.startDate ? new Date(data.startDate) : null;
+      if (
+        (startDate && newStart && startDate.getTime() !== newStart.getTime()) ||
+        (!startDate && newStart) ||
+        (startDate && !newStart)
+      ) {
+        setStartDate(newStart);
+      }
+
+      const newEnd = data.endDate ? new Date(data.endDate) : null;
+      if (
+        (endDate && newEnd && endDate.getTime() !== newEnd.getTime()) ||
+        (!endDate && newEnd) ||
+        (endDate && !newEnd)
+      ) {
+        setEndDate(newEnd);
+      }
+
+      if (leaveCode !== (data.leaveCode || ""))
+        setLeaveCode(data.leaveCode || "");
+      if (isHalfDay !== (data.isHalfDay || false))
+        setIsHalfDay(data.isHalfDay || false);
+      if (halfDayType !== (data.halfDayType || ""))
+        setHalfDayType(data.halfDayType || "");
     }
-  }, [mode, data, isEditable]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, data]);
+
+  const customStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      backgroundColor: "#e3edf9",
+      border: "none",
+      borderRadius: "15px",
+      padding: "0 16px",
+      height: "68px",
+      boxShadow: "none",
+      fontSize: "18px",
+      fontWeight: 400,
+      color: "rgba(0, 0, 0, 0.7)",
+    }),
+    valueContainer: (provided) => ({
+      ...provided,
+      padding: 0,
+    }),
+    input: (provided) => ({
+      ...provided,
+      margin: 0,
+      padding: 0,
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: "rgba(0, 0, 0, 0.7)",
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: "rgba(0, 0, 0, 0.5)",
+    }),
+    indicatorSeparator: () => ({ display: "none" }),
+  };
 
   const apiBase = import.meta.env.VITE_API_URL || "";
   const handleSubmit = async () => {
@@ -149,6 +243,8 @@ function ApplicationForm({
         attachment,
         checkIn,
         checkOut,
+        type: currentType,
+        selectedEmployee,
       });
     } catch (err) {
       console.error("❌ Lỗi gửi đơn:", err);
@@ -186,6 +282,67 @@ function ApplicationForm({
             )}
           </div>
         </div>
+        {mode === "create" &&
+          (roles.includes("ROLE_HR") ||
+            roles.includes("ROLE_PRODUCTION_MANAGER")) && (
+            <div className="application-form-row">
+              <div className="application-form-input-group">
+                <div className="application-form-input-label">
+                  Người nộp đơn
+                </div>
+                <Select
+                  classNamePrefix="react-select"
+                  styles={customStyles}
+                  options={employees.map((emp) => ({
+                    value: emp.id,
+                    label: `${emp.code} - ${emp.name}`,
+                    ...emp,
+                  }))}
+                  value={
+                    selectedEmployee
+                      ? {
+                          value: selectedEmployee.id,
+                          label: `${selectedEmployee.code} - ${selectedEmployee.name}`,
+                          ...selectedEmployee,
+                        }
+                      : null
+                  }
+                  onChange={(selected) => setSelectedEmployee(selected)}
+                  placeholder="-- Chọn nhân viên --"
+                  isClearable
+                />
+              </div>
+            </div>
+          )}
+
+        {selectedEmployee && (
+          <div className="application-form-row">
+            <div className="application-form-input-group">
+              <div className="application-form-input-label">Phòng ban</div>
+              <input
+                className="application-form-input-field"
+                value={selectedEmployee.department}
+                readOnly
+              />
+            </div>
+            <div className="application-form-input-group">
+              <div className="application-form-input-label">Chức vụ</div>
+              <input
+                className="application-form-input-field"
+                value={selectedEmployee.position}
+                readOnly
+              />
+            </div>
+            <div className="application-form-input-group">
+              <div className="application-form-input-label">Line</div>
+              <input
+                className="application-form-input-field"
+                value={selectedEmployee.line}
+                readOnly
+              />
+            </div>
+          </div>
+        )}
 
         {mode === "detail" && (
           <>
@@ -243,6 +400,23 @@ function ApplicationForm({
             </div>
           </>
         )}
+        {mode === "create" &&
+          (roles.includes("ROLE_HR") ||
+            roles.includes("ROLE_PRODUCTION_MANAGER")) && (
+            <div className="application-form-row">
+              <div className="application-form-input-group">
+                <div className="application-form-input-label">Loại đơn</div>
+                <select
+                  className="application-form-input-field"
+                  value={applicationType}
+                  onChange={(e) => setApplicationType(e.target.value)}
+                >
+                  <option value="leave">Nghỉ phép</option>
+                  <option value="makeup">Bù công</option>
+                </select>
+              </div>
+            </div>
+          )}
 
         <div className="application-form-row">
           <div className="application-form-input-group">
@@ -252,7 +426,7 @@ function ApplicationForm({
               onChange={setContent}
               modules={quillModules}
               placeholder={
-                type === "leave"
+                currentType === "leave"
                   ? "Lý do xin nghỉ phép..."
                   : "Lý do xin bù công..."
               }
@@ -271,12 +445,18 @@ function ApplicationForm({
               className="application-form-input-label"
               style={type === "makeup" ? { flex: "0 0 50%" } : {}}
             >
-              {type === "makeup" ? "Ngày bù công" : "Từ ngày"}
+              {currentType === "makeup" ? "Ngày bù công" : "Từ ngày"}
             </div>
             <DatePicker
               selected={startDate}
               onChange={(date) => {
-                if (!(mode === "create" && type === "makeup")) {
+                if (
+                  !(
+                    mode === "create" &&
+                    currentType === "makeup" &&
+                    roles.includes("ROLE_EMPLOYEE")
+                  )
+                ) {
                   setStartDate(date);
                 }
               }}
@@ -290,7 +470,7 @@ function ApplicationForm({
               <div className="error-message">{errors.startDate.join(", ")}</div>
             )}
             {mode === "detail" &&
-              type === "makeup" &&
+              currentType === "makeup" &&
               data?.employeeId &&
               data?.startDate && (
                 <div style={{ margin: "16px 0" }}>
@@ -311,7 +491,7 @@ function ApplicationForm({
                 </div>
               )}
             {mode === "detail" &&
-              type === "leave" &&
+              currentType === "leave" &&
               data?.startDate &&
               data?.departmentName && (
                 <div style={{ marginTop: "8px" }}>
@@ -340,7 +520,7 @@ function ApplicationForm({
               )}
           </div>
 
-          {type === "leave" && (
+          {currentType === "leave" && (
             <div className="application-form-input-group">
               <div className="application-form-input-label">Đến ngày</div>
               <DatePicker
@@ -357,7 +537,7 @@ function ApplicationForm({
             </div>
           )}
         </div>
-        {type === "makeup" && (
+        {currentType === "makeup" && (
           <div className="application-form-row">
             <div className="application-form-input-group">
               <div className="application-form-input-label">
@@ -398,7 +578,7 @@ function ApplicationForm({
           </div>
         )}
 
-        {type === "leave" && (
+        {currentType === "leave" && (
           <div className="application-form-row">
             <div className="application-form-input-group">
               <div className="application-form-input-label">Mã nghỉ phép</div>
@@ -581,7 +761,7 @@ function ApplicationForm({
                       .approveStep1(data.id, { approved: true, note })
                       .then(() => {
                         alert("✅ Đã duyệt đơn");
-                        window.location.reload();
+                        navigate("/applications/approvals/manager");
                       })
                       .catch(() => alert("❌ Lỗi khi duyệt đơn"));
                   }
@@ -601,7 +781,7 @@ function ApplicationForm({
                       .approveStep1(data.id, { approved: false, note })
                       .then(() => {
                         alert("🚫 Đã từ chối đơn");
-                        window.location.reload();
+                        navigate("/applications/approvals/manager");
                       })
                       .catch(() => alert("❌ Lỗi khi từ chối đơn"));
                   }
@@ -625,7 +805,7 @@ function ApplicationForm({
                     .approveStep2(data.id, { approved: true, note })
                     .then(() => {
                       alert("✅ Đã duyệt đơn");
-                      window.location.reload();
+                      navigate("/applications/approvals/hr");
                     })
                     .catch(() => alert("❌ Lỗi khi duyệt đơn"));
                 }
@@ -645,7 +825,7 @@ function ApplicationForm({
                     .approveStep2(data.id, { approved: false, note })
                     .then(() => {
                       alert("🚫 Đã từ chối đơn");
-                      window.location.reload();
+                      navigate("/applications/approvals/hr");
                     })
                     .catch(() => alert("❌ Lỗi khi từ chối đơn"));
                 }

@@ -14,11 +14,11 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Builder
 public class ApplicationCreateDTO {
+    private Long employeeId;
     private String title;
     private String content;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
-
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
     private LeaveCode leaveCode;

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sep490.com.example.hrms_backend.dto.*;
+import sep490.com.example.hrms_backend.repository.EmployeeRepository;
 import sep490.com.example.hrms_backend.service.EmployeeService;
 
 import java.io.ByteArrayInputStream;
@@ -168,5 +169,23 @@ public class EmployeeController {
             @RequestBody List<Long> employeeIds) {
         employeeService.addEmployeesToLine(lineId, employeeIds);
         return ResponseEntity.ok("Thêm thành công");
+    }
+
+    private final EmployeeRepository employeeRepository;
+
+    @GetMapping("/simple")
+    public ResponseEntity<List<SimpleEmployeeDTO>> getSimpleEmployees() {
+        List<SimpleEmployeeDTO> dtos = employeeRepository.findAll().stream().map(e ->
+                new SimpleEmployeeDTO(
+                        e.getEmployeeId(),
+                        e.getEmployeeCode(),
+                        e.getEmployeeName(),
+                        e.getPosition() != null ? e.getPosition().getPositionName() : "",
+                        e.getDepartment() != null ? e.getDepartment().getDepartmentName() : "",
+                        e.getLine() != null ? e.getLine().getLineName() : ""
+                )
+        ).toList();
+
+        return ResponseEntity.ok(dtos);
     }
 }

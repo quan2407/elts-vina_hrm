@@ -143,5 +143,26 @@ public class ApplicationController {
         applicationService.approveStep2(id, approverId, request);
         return ResponseEntity.ok("Đã xử lý đơn ở bước 2");
     }
+    @PostMapping(value = "/admin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> createApplicationAsAdmin(
+            @ModelAttribute ApplicationCreateDTO dto,
+            @RequestParam(value = "attachment", required = false) MultipartFile attachment
+    ) {
+        if (attachment != null && !attachment.isEmpty()) {
+            try {
+                String filePath = saveFile(attachment);
+                dto.setAttachmentPath(filePath);
+            } catch (IOException e) {
+                return ResponseEntity.internalServerError().body("Lỗi khi lưu file");
+            }
+        }
+
+        if (dto.getEmployeeId() == null) {
+            return ResponseEntity.badRequest().body("Phải cung cấp employeeId khi tạo đơn hộ");
+        }
+
+        applicationService.createApplication(dto, dto.getEmployeeId());
+        return ResponseEntity.ok("Tạo đơn hộ thành công");
+    }
 
 }
