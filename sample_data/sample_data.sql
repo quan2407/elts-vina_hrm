@@ -85,7 +85,7 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 
 -- Insert quyền cho module Account Request
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
-(6, 'GET', '/api/account-requests/*', 'Xem danh sách yêu cầu tạo tài khoản', 'Account Request'),
+(6, 'GET', '/api/account-requests', 'Xem danh sách yêu cầu tạo tài khoản', 'Account Request'),
 (7, 'POST', '/api/account-requests/*/approve', 'Duyệt yêu cầu tạo tài khoản', 'Account Request'),
 (8, 'POST', '/api/account-requests/*/reject', 'Từ chối yêu cầu tạo tài khoản', 'Account Request');
 
