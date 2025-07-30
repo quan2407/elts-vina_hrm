@@ -141,6 +141,47 @@ const SalaryMonthlyView = () => {
                 {isLocked ? "Đã chốt (mở khóa)" : "Chốt bảng lương"}
               </button>
             )}
+            <button
+              className="btn-export"
+              style={{
+                marginLeft: "8px",
+                backgroundColor: "#2563eb",
+                color: "white",
+              }}
+              onClick={async () => {
+                if (!month || !year) {
+                  alert("Vui lòng chọn tháng và năm.");
+                  return;
+                }
+                try {
+                  const response = await salaryService.exportMonthlySalaries(
+                    month,
+                    year
+                  );
+                  const blob = new Blob([response.data], {
+                    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                  });
+
+                  const url = window.URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.href = url;
+                  link.setAttribute(
+                    "download",
+                    `bao_cao_luong_${month
+                      .toString()
+                      .padStart(2, "0")}_${year}.xlsx`
+                  );
+                  document.body.appendChild(link);
+                  link.click();
+                  link.remove();
+                } catch (err) {
+                  console.error("Export lương thất bại:", err);
+                  alert("Không thể xuất báo cáo lương.");
+                }
+              }}
+            >
+              Xuất Excel
+            </button>
           </div>
         </div>
 
