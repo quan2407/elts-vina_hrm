@@ -212,7 +212,15 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
 
         List<WorkScheduleDetail> details = new ArrayList<>();
 
-        for (int day = 1; day <= daysInMonth; day++) {
+
+        LocalDate today = LocalDate.now();
+        int startDay = 1;
+
+        if (today.getYear() == year && today.getMonthValue() == month) {
+            startDay = today.getDayOfMonth();
+        }
+
+        for (int day = startDay; day <= daysInMonth; day++) {
             LocalDate date = LocalDate.of(year, month, day);
 
             // Skip Sunday
@@ -235,6 +243,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
 
         workScheduleDetailRepository.saveAll(details);
     }
+
 
     public void generateAttendanceRecords(WorkSchedule workSchedule) {
         int year = workSchedule.getYear();
