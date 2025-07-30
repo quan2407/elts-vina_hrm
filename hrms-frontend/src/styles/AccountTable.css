@@ -12,7 +12,7 @@
 .account-table-header,
 .account-table-row {
   display: grid;
-  grid-template-columns: 1fr 2fr 2fr 1fr 2fr 1fr;
+  grid-template-columns: 1.5fr 2.5fr 2fr 1fr 2fr 3fr;
   gap: 10px;
   width: 100%;
   padding: 18px 30px;
@@ -105,7 +105,7 @@
 @media (max-width: 991px) {
   .account-table-header,
   .account-table-row {
-    grid-template-columns: 1.5fr 2.5fr 2fr 1fr 1.5fr 1.2fr;
+    grid-template-columns: 1.5fr 2.5fr 2fr 1fr 1.5fr 1.8fr;
     font-size: 16px;
   }
 }
@@ -113,7 +113,8 @@
 @media (max-width: 640px) {
   .account-table-header,
   .account-table-row {
-    grid-template-columns: 1.2fr 2fr 2fr 1fr 1.5fr 1fr;
+    grid-template-columns: 1.5fr 2.5fr 2fr 1fr 1.5fr 1.8fr;
+
     font-size: 14px;
   }
 
@@ -130,6 +131,7 @@
   font-weight: 600;
   cursor: pointer;
   color: white;
+  min-width: 200px;
   transition: background-color 0.2s ease;
 }
 
@@ -185,4 +187,10 @@
   color: white;
   font-weight: bold;
   border-color: #3b82f6;
+}
+.account-action-buttons-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px; /* khoảng cách giữa 2 nút */
 }

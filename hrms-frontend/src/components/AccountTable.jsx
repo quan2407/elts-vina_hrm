@@ -91,20 +91,22 @@ function AccountTable() {
             {acc.lastLoginAt || "-"}
           </div>
           <div className="account-table-cell actions-column">
-            <button
-              className="account-table-action-btn account-table-active-btn"
-              onClick={() => handleToggleStatus(acc.id)}
-              disabled={acc.isActive}
-            >
-              Kích hoạt
-            </button>
-            <button
-              className="account-table-action-btn account-table-deactive-btn"
-              onClick={() => handleToggleStatus(acc.id)}
-              disabled={!acc.isActive}
-            >
-              Vô hiệu hóa
-            </button>
+            <div className="account-action-buttons-wrapper">
+              <button
+                className="account-table-action-btn account-table-active-btn"
+                onClick={() => handleToggleStatus(acc.id)}
+                disabled={acc.isActive}
+              >
+                Kích hoạt
+              </button>
+              <button
+                className="account-table-action-btn account-table-deactive-btn"
+                onClick={() => handleToggleStatus(acc.id)}
+                disabled={!acc.isActive}
+              >
+                Vô hiệu hóa
+              </button>
+            </div>
           </div>
         </div>
       ))}
