@@ -18,6 +18,19 @@ function AccountRequestPage() {
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
+  const getPageNumbers = () => {
+    const range = [];
+    const maxPagesToShow = 5;
+    let start = Math.max(0, page - Math.floor(maxPagesToShow / 2));
+    let end = Math.min(totalPages, start + maxPagesToShow);
+    if (end - start < maxPagesToShow) {
+      start = Math.max(0, end - maxPagesToShow);
+    }
+    for (let i = start; i < end; i++) {
+      range.push(i);
+    }
+    return range;
+  };
 
   const fetchRequests = async () => {
     try {
@@ -158,23 +171,47 @@ function AccountRequestPage() {
             ))
           )}
           {totalPages > 1 && (
-            <div className="account-request-pagination">
+            <div className="account-request-pagination-container">
               <button
-                onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+                className="account-request-pagination-btn"
+                onClick={() => setPage(0)}
                 disabled={page === 0}
               >
-                ← Trước
+                «
               </button>
-              <span style={{ margin: "0 12px" }}>
-                Trang {page + 1} / {totalPages}
-              </span>
               <button
-                onClick={() =>
-                  setPage((prev) => Math.min(prev + 1, totalPages - 1))
-                }
+                className="account-request-pagination-btn"
+                onClick={() => setPage(page - 1)}
+                disabled={page === 0}
+              >
+                ‹
+              </button>
+
+              {getPageNumbers().map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`account-request-pagination-btn ${
+                    p === page ? "account-request-pagination-active" : ""
+                  }`}
+                >
+                  {p + 1}
+                </button>
+              ))}
+
+              <button
+                className="account-request-pagination-btn"
+                onClick={() => setPage(page + 1)}
                 disabled={page === totalPages - 1}
               >
-                Sau →
+                ›
+              </button>
+              <button
+                className="account-request-pagination-btn"
+                onClick={() => setPage(totalPages - 1)}
+                disabled={page === totalPages - 1}
+              >
+                »
               </button>
             </div>
           )}

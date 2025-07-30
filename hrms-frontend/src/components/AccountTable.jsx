@@ -4,13 +4,16 @@ import "../styles/AccountTable.css";
 
 function AccountTable() {
   const [accounts, setAccounts] = useState([]);
+  const [page, setPage] = useState(0);
+  const [size] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
 
   const fetchAccounts = async () => {
     try {
-      const response = await accountService.getAllAccounts();
+      const response = await accountService.getAllAccounts(page, size);
       const data = response.data;
 
-      const formattedData = data.map((acc) => ({
+      const formattedData = data.content.map((acc) => ({
         id: acc.accountId,
         username: acc.username,
         email: acc.email,
@@ -20,19 +23,29 @@ function AccountTable() {
       }));
 
       setAccounts(formattedData);
+      setTotalPages(data.totalPages);
     } catch (err) {
       console.error("Error fetching accounts:", err);
-      if (err.response?.status === 403) {
-        alert("You are not authorized to view this page.");
-      } else {
-        alert("Failed to load accounts.");
-      }
+      alert("Failed to load accounts.");
     }
+  };
+  const getPageNumbers = () => {
+    const range = [];
+    const maxPagesToShow = 5;
+    let start = Math.max(0, page - Math.floor(maxPagesToShow / 2));
+    let end = Math.min(totalPages, start + maxPagesToShow);
+    if (end - start < maxPagesToShow) {
+      start = Math.max(0, end - maxPagesToShow);
+    }
+    for (let i = start; i < end; i++) {
+      range.push(i);
+    }
+    return range;
   };
 
   useEffect(() => {
     fetchAccounts();
-  }, []);
+  }, [page]);
 
   const handleToggleStatus = async (id) => {
     try {
@@ -95,6 +108,49 @@ function AccountTable() {
           </div>
         </div>
       ))}
+      <div className="account-pagination-container">
+        <button
+          className="account-pagination-btn"
+          onClick={() => setPage(0)}
+          disabled={page === 0}
+        >
+          «
+        </button>
+        <button
+          className="account-pagination-btn"
+          onClick={() => setPage(page - 1)}
+          disabled={page === 0}
+        >
+          ‹
+        </button>
+
+        {getPageNumbers().map((p) => (
+          <button
+            key={p}
+            onClick={() => setPage(p)}
+            className={`account-pagination-btn ${
+              p === page ? "account-pagination-active" : ""
+            }`}
+          >
+            {p + 1}
+          </button>
+        ))}
+
+        <button
+          className="account-pagination-btn"
+          onClick={() => setPage(page + 1)}
+          disabled={page === totalPages - 1}
+        >
+          ›
+        </button>
+        <button
+          className="account-pagination-btn"
+          onClick={() => setPage(totalPages - 1)}
+          disabled={page === totalPages - 1}
+        >
+          »
+        </button>
+      </div>
     </div>
   );
 }
