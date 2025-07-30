@@ -92,5 +92,12 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Role",
                 List.of("ROLE_HR","ROLE_PRODUCTION_MANAGER", "ROLE_HR_MANAGER")
         );
+        permissionRegistrationService.registerPermission(
+                "/api/work-schedule-details/export-work-schedule",
+                "POST",
+                "Work Schedule",
+                List.of("ROLE_HR", "ROLE_HR_MANAGER", "ROLE_PRODUCTION_MANAGER")
+        );
+
     }
 }
