@@ -56,6 +56,15 @@ const workScheduleService = {
       headers: { "Content-Type": "application/json" },
     });
   },
+  exportWorkSchedule: (month, year) => {
+    return axiosClient.post(
+      "/work-schedule-details/export-work-schedule",
+      { month, year },
+      {
+        responseType: "blob",
+      }
+    );
+  },
 };
 
 export default workScheduleService;

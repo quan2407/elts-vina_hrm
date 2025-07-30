@@ -194,6 +194,48 @@ function WorkScheduleProductionView({ canApprove = true }) {
                     </div>
                   </div>
                 )}
+                <button
+                  className="work-schedule-add-button"
+                  onClick={async () => {
+                    try {
+                      const response =
+                        await workScheduleService.exportWorkSchedule(
+                          month,
+                          year
+                        );
+                      const blob = new Blob([response.data], {
+                        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                      });
+
+                      const url = window.URL.createObjectURL(blob);
+                      const link = document.createElement("a");
+                      link.href = url;
+                      link.setAttribute(
+                        "download",
+                        `kehoach_lichsanxuat_thang_${month
+                          .toString()
+                          .padStart(2, "0")}_${year}.xlsx`
+                      );
+                      document.body.appendChild(link);
+                      link.click();
+                      link.remove();
+                    } catch (err) {
+                      console.error("Export lỗi:", err);
+                      alert("Không thể xuất file Excel.");
+                    }
+                  }}
+                  style={{
+                    backgroundColor: "#2563eb",
+                    color: "white",
+                    marginRight: "8px",
+                  }}
+                >
+                  <Download
+                    size={16}
+                    style={{ marginRight: "6px" }}
+                  />
+                  Xuất Excel
+                </button>
               </>
             )}
           </div>
