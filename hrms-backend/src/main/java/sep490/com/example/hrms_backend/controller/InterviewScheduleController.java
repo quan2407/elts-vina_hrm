@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.InterviewScheduleDTO;
 import sep490.com.example.hrms_backend.service.InterviewScheduleService;
+import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ public class InterviewScheduleController {
 
     @Autowired
     InterviewScheduleService interviewScheduleService;
+    private final CurrentUserUtils currentUserUtils;
 
     @GetMapping("/candidate-recruitment/{candidateRecruitmentId}")
     public ResponseEntity<?> getInterviewInitData(@Valid @PathVariable Long candidateRecruitmentId) {
@@ -44,7 +46,8 @@ public class InterviewScheduleController {
 
     @PostMapping
     public ResponseEntity<?> createInterviewSchedule(@Valid @RequestBody InterviewScheduleDTO dto) {
-        InterviewScheduleDTO created = interviewScheduleService.createInterviewSchedule(dto);
+        Long employeeId = currentUserUtils.getCurrentEmployeeId();
+        InterviewScheduleDTO created = interviewScheduleService.createInterviewSchedule(dto, employeeId);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
