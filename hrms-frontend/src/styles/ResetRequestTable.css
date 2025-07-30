@@ -64,3 +64,26 @@
     font-size: 14px;
   }
 }
+.reset-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.reset-pagination button {
+  padding: 6px 12px;
+  background-color: #253d90;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.reset-pagination button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
