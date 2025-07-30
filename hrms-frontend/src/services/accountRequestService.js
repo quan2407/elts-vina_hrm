@@ -1,8 +1,10 @@
 import axiosClient from "./axiosClient";
 
 const accountRequestService = {
-  getRequestsByStatus: (status) => {
-    return axiosClient.get(`/account-requests?status=${status}`);
+  getRequestsByStatus: (status, page = 0, size = 10) => {
+    return axiosClient.get(`/account-requests`, {
+      params: { status, page, size },
+    });
   },
 
   approveRequest: (id) => {

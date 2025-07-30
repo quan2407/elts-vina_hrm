@@ -321,7 +321,46 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
               className="generate-salary-btn"
               onClick={handleGenerateSalary}
             >
-              🧾 Tạo bảng lương
+              Tạo bảng lương
+            </button>
+            <button
+              className="generate-salary-btn"
+              style={{ backgroundColor: "#2563eb", marginLeft: "8px" }}
+              onClick={async () => {
+                if (!month || !year) {
+                  alert("Vui lòng chọn tháng và năm trước khi xuất báo cáo.");
+                  return;
+                }
+
+                try {
+                  const response =
+                    await attendanceService.exportAttendanceToExcel(
+                      month,
+                      year
+                    );
+                  const blob = new Blob([response.data], {
+                    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                  });
+
+                  const url = window.URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.href = url;
+                  link.setAttribute(
+                    "download",
+                    `baocao_chamcong_thang_${month
+                      .toString()
+                      .padStart(2, "0")}_${year}.xlsx`
+                  );
+                  document.body.appendChild(link);
+                  link.click();
+                  link.remove();
+                } catch (error) {
+                  console.error("Xuất Excel thất bại:", error);
+                  alert("Không thể xuất báo cáo chấm công.");
+                }
+              }}
+            >
+              Xuất Excel
             </button>
           </div>
         </div>

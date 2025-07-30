@@ -12,7 +12,7 @@
 .account-table-header,
 .account-table-row {
   display: grid;
-  grid-template-columns: 1fr 2fr 2fr 1fr 2fr 1fr;
+  grid-template-columns: 1.5fr 2.5fr 2fr 1fr 2fr 3fr;
   gap: 10px;
   width: 100%;
   padding: 18px 30px;
@@ -105,7 +105,7 @@
 @media (max-width: 991px) {
   .account-table-header,
   .account-table-row {
-    grid-template-columns: 1.5fr 2.5fr 2fr 1fr 1.5fr 1.2fr;
+    grid-template-columns: 1.5fr 2.5fr 2fr 1fr 1.5fr 1.8fr;
     font-size: 16px;
   }
 }
@@ -113,7 +113,8 @@
 @media (max-width: 640px) {
   .account-table-header,
   .account-table-row {
-    grid-template-columns: 1.2fr 2fr 2fr 1fr 1.5fr 1fr;
+    grid-template-columns: 1.5fr 2.5fr 2fr 1fr 1.5fr 1.8fr;
+
     font-size: 14px;
   }
 
@@ -130,6 +131,7 @@
   font-weight: 600;
   cursor: pointer;
   color: white;
+  min-width: 200px;
   transition: background-color 0.2s ease;
 }
 
@@ -152,4 +154,43 @@
 .account-table-action-btn:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+.account-pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1.5rem;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.account-pagination-btn {
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  background-color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  min-width: 36px;
+  line-height: 1.2;
+  color: #111;
+  font-weight: 500;
+}
+
+.account-pagination-btn:disabled {
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+.account-pagination-active {
+  background-color: #3b82f6;
+  color: white;
+  font-weight: bold;
+  border-color: #3b82f6;
+}
+.account-action-buttons-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px; /* khoảng cách giữa 2 nút */
 }

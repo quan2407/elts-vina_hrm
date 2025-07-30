@@ -28,13 +28,11 @@ public class InterviewSchedule {
     private LocalDateTime scheduledAt;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
     private InterviewScheduleStatus status;
 
     private String feedback;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
     private InterviewResult result;
 
     @ManyToOne

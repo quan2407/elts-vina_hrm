@@ -25,6 +25,12 @@ const salaryService = {
       params: { month, year, locked },
     });
   },
+  exportMonthlySalaries: (month, year) => {
+    return axiosClient.get("/salaries/export", {
+      params: { month, year },
+      responseType: "blob",
+    });
+  },
 };
 
 export default salaryService;

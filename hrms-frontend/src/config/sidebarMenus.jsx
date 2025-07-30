@@ -16,24 +16,13 @@ import {
 export const systemMenus = [
   {
     text: "Danh sách tài khoản",
-    path: "/",
+    path: "/accounts",
     icon: (isActive) => (
       <Users
         size={20}
         stroke={isActive ? "#4f46e5" : "white"}
       />
     ),
-  },
-  {
-    text: "Tin nhắn",
-    path: "/messages",
-    icon: (isActive) => (
-      <MessageSquare
-        size={20}
-        stroke={isActive ? "#4f46e5" : "white"}
-      />
-    ),
-    badge: 13,
   },
   {
     text: "Duyệt reset mật khẩu",
@@ -225,7 +214,51 @@ export const pmcMenus = [
     ),
   },
 ];
-export const lineLeaderMenus = [];
+export const lineLeaderMenus = [
+  {
+    text: "Lịch làm việc của tôi",
+    path: "/my-work-schedule",
+    apiPath: "/api/work-schedules/employee-view",
+    icon: (isActive) => (
+      <CalendarCheck
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+  {
+    text: "Bảng công tháng",
+    path: "/my-attendance-monthly",
+    icon: (isActive) => (
+      <LayoutDashboard
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+  {
+    text: "Bảng lương tháng",
+    path: "/my-salary-monthly",
+    apiPath: "/api/salaries/employee-months",
+    icon: (isActive) => (
+      <Wallet
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+  {
+    text: "Đơn từ của tôi",
+    path: "/my-applications",
+    apiPath: "/api/applications/me",
+    icon: (isActive) => (
+      <Briefcase
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+];
 export const productionManagerMenus = [
   {
     text: "Lịch làm việc",

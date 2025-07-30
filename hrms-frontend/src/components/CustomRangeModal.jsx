@@ -22,9 +22,22 @@ function CustomRangeModal({
   const [workType, setWorkType] = useState("normal");
   const [endTime, setEndTime] = useState("17:00");
 
-  // Tính min/max cho input date
-  const minDate = `${year}-${String(month).padStart(2, "0")}-01`;
-  const maxDate = new Date(year, month, 0).toISOString().split("T")[0];
+  // Trả về Date object thay vì string
+  const rawToday = new Date();
+  const today = new Date(
+    rawToday.getFullYear(),
+    rawToday.getMonth(),
+    rawToday.getDate()
+  );
+  const selectedMonthStart = new Date(year, month - 1, 1);
+  const selectedMonthEnd = new Date(year, month, 0); // ví dụ: 31/7/2025
+
+  const minDate =
+    today.getFullYear() === year && today.getMonth() + 1 === month
+      ? today
+      : selectedMonthStart;
+
+  const maxDate = selectedMonthEnd;
 
   const generateEndTimes = () => {
     const times = [];

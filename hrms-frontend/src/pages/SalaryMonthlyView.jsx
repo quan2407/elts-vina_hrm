@@ -9,6 +9,8 @@ const SalaryMonthlyView = () => {
   const [year, setYear] = useState(new Date().getFullYear());
   const [availableMonths, setAvailableMonths] = useState([]);
   const [isLocked, setIsLocked] = useState(false);
+  const roles = JSON.parse(localStorage.getItem("role") || "[]");
+  const isHrManager = roles.includes("ROLE_HR_MANAGER");
 
   const fetchSalaries = async () => {
     try {
@@ -109,29 +111,76 @@ const SalaryMonthlyView = () => {
               Cập nhật bảng lương
             </button>
 
-            <button
-              className="btn-lock"
-              onClick={async () => {
-                const confirmMsg = isLocked
-                  ? "Bạn có chắc muốn mở khóa bảng lương này?"
-                  : "Bạn có chắc muốn chốt bảng lương này?";
-                if (window.confirm(confirmMsg)) {
-                  try {
-                    await salaryService.lockSalaryMonth(month, year, !isLocked);
-                    await fetchSalaries();
-                    alert(
-                      isLocked
-                        ? "Đã mở khóa bảng lương."
-                        : "Đã chốt bảng lương."
-                    );
-                  } catch (err) {
-                    alert("Lỗi khi cập nhật trạng thái chốt lương!");
+            {isHrManager && (
+              <button
+                className="btn-lock"
+                onClick={async () => {
+                  const confirmMsg = isLocked
+                    ? "Bạn có chắc muốn mở khóa bảng lương này?"
+                    : "Bạn có chắc muốn chốt bảng lương này?";
+                  if (window.confirm(confirmMsg)) {
+                    try {
+                      await salaryService.lockSalaryMonth(
+                        month,
+                        year,
+                        !isLocked
+                      );
+                      await fetchSalaries();
+                      alert(
+                        isLocked
+                          ? "Đã mở khóa bảng lương."
+                          : "Đã chốt bảng lương."
+                      );
+                    } catch (err) {
+                      alert("Lỗi khi cập nhật trạng thái chốt lương!");
+                    }
                   }
+                }}
+                disabled={salaries.length === 0}
+              >
+                {isLocked ? "Đã chốt (mở khóa)" : "Chốt bảng lương"}
+              </button>
+            )}
+            <button
+              className="btn-export"
+              style={{
+                marginLeft: "8px",
+                backgroundColor: "#2563eb",
+                color: "white",
+              }}
+              onClick={async () => {
+                if (!month || !year) {
+                  alert("Vui lòng chọn tháng và năm.");
+                  return;
+                }
+                try {
+                  const response = await salaryService.exportMonthlySalaries(
+                    month,
+                    year
+                  );
+                  const blob = new Blob([response.data], {
+                    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                  });
+
+                  const url = window.URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.href = url;
+                  link.setAttribute(
+                    "download",
+                    `bao_cao_luong_${month
+                      .toString()
+                      .padStart(2, "0")}_${year}.xlsx`
+                  );
+                  document.body.appendChild(link);
+                  link.click();
+                  link.remove();
+                } catch (err) {
+                  console.error("Export lương thất bại:", err);
+                  alert("Không thể xuất báo cáo lương.");
                 }
               }}
-              disabled={salaries.length === 0}
             >
-              {isLocked ? "Đã chốt (mở khóa)" : "Chốt bảng lương"}
+              Xuất Excel
             </button>
           </div>
         </div>

@@ -21,6 +21,15 @@ const attendanceService = {
   updateLeaveCode: (id, payload) => {
     return axiosClient.put(`/attendances/${id}/leave-code`, payload);
   },
+  exportAttendanceToExcel: (month, year) => {
+    return axiosClient.post(
+      "/attendances/export",
+      { month, year },
+      {
+        responseType: "blob",
+      }
+    );
+  },
 };
 
 export default attendanceService;

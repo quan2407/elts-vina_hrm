@@ -24,4 +24,6 @@ public interface AttendanceRecordService {
     void updateDailyAttendanceForDate(LocalDate date);
 
     void importAttendanceFromExcel(MultipartFile file, LocalDate date);
+
+    List<AttendanceMonthlyViewDTO> getAttendanceForExport(int month, int year);
 }

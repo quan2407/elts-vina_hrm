@@ -3,8 +3,11 @@ package sep490.com.example.hrms_backend.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,8 +16,10 @@ import sep490.com.example.hrms_backend.dto.AttendanceMonthlyViewDTO;
 import sep490.com.example.hrms_backend.dto.LeaveCodeUpdateDTO;
 import sep490.com.example.hrms_backend.dto.MonthYearDTO;
 import sep490.com.example.hrms_backend.service.AttendanceRecordService;
+import sep490.com.example.hrms_backend.utils.AttendanceExcelExport;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
+import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -73,6 +78,28 @@ public class AttendanceRecordController {
         attendanceRecordService.importAttendanceFromExcel(file, date);
         return ResponseEntity.ok("Import thành công");
     }
+    @PostMapping("/export")
+    public ResponseEntity<ByteArrayResource> exportAttendanceToExcel(@RequestBody MonthYearDTO monthYearDTO) {
+        int month = monthYearDTO.getMonth();
+        int year = monthYearDTO.getYear();
+
+        List<AttendanceMonthlyViewDTO> attendanceData =
+                attendanceRecordService.getAttendanceForExport(month, year);
+
+        ByteArrayInputStream excelFile = AttendanceExcelExport.exportAttendanceToExcel(
+                attendanceData, month, year
+        );
+
+        ByteArrayResource resource = new ByteArrayResource(excelFile.readAllBytes());
+
+        String fileName = String.format("baocao_chamcong_thang_%02d_%d.xlsx", month, year);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+    }
+
 
 
 }

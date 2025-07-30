@@ -1,15 +1,14 @@
 package sep490.com.example.hrms_backend.service;
 
+import org.springframework.data.domain.Page;
 import sep490.com.example.hrms_backend.dto.AccountResponseDTO;
 import sep490.com.example.hrms_backend.dto.ChangePasswordRequest;
 import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.entity.PasswordResetRequest;
 
-import java.util.List;
-
 public interface AccountService {
 
-    List<AccountResponseDTO> getAllAccounts();
+    Page<AccountResponseDTO> getAllAccounts(int page, int size);
     void createAutoAccountForEmployee(Employee employee);
     void resetPasswordByEmail(String email);
     void changePassword(ChangePasswordRequest dto);
@@ -17,7 +16,7 @@ public interface AccountService {
     void approveResetPassword(String email);
 
 
-    List<PasswordResetRequest> getPendingResetRequests();
+    Page<PasswordResetRequest> getPendingResetRequests(int page, int size);
 
     void toggleAccountStatus(Long id);
 }

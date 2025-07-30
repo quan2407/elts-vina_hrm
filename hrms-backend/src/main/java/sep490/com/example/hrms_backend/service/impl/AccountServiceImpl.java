@@ -2,6 +2,10 @@ package sep490.com.example.hrms_backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -41,21 +45,30 @@ public class AccountServiceImpl implements AccountService {
     private final PasswordResetRequestRepository passwordResetRequestRepository;
 
     @Override
-    public List<PasswordResetRequest> getPendingResetRequests() {
-        return passwordResetRequestRepository.findAll()
-                .stream()
+    public Page<PasswordResetRequest> getPendingResetRequests(int page, int size) {
+        List<PasswordResetRequest> allPending = passwordResetRequestRepository.findAll().stream()
                 .filter(r -> !r.isApproved())
                 .sorted(Comparator.comparing(PasswordResetRequest::getRequestedAt).reversed())
                 .collect(Collectors.toList());
+
+        int start = Math.min(page * size, allPending.size());
+        int end = Math.min(start + size, allPending.size());
+        List<PasswordResetRequest> pageContent = allPending.subList(start, end);
+
+        return new PageImpl<>(pageContent, PageRequest.of(page, size), allPending.size());
     }
 
+
     @Override
-    public List<AccountResponseDTO> getAllAccounts() {
-        List<Account> accounts = accountRepository.findAll();
-        return accounts.stream()
-                .map(account -> AccountMapper.mapToAccountResponseDTO(account, new AccountResponseDTO()))
-                .collect(Collectors.toList());
+    public Page<AccountResponseDTO> getAllAccounts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Account> accountPage = accountRepository.findAll(pageable);
+
+        return accountPage.map(account ->
+                AccountMapper.mapToAccountResponseDTO(account, new AccountResponseDTO())
+        );
     }
+
 
     @Override
     @Transactional

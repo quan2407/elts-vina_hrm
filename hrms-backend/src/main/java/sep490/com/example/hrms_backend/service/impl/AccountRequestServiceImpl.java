@@ -2,6 +2,9 @@ package sep490.com.example.hrms_backend.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.AccountRequestDTO;
@@ -56,7 +59,7 @@ public class AccountRequestServiceImpl implements AccountRequestService {
         requestRepository.save(request);
     }
     @Override
-    public List<AccountRequestDTO> getRequestsByStatus(String status) {
+    public Page<AccountRequestDTO> getRequestsByStatus(String status, int page, int size) {
         List<AccountRequest> requests;
 
         if ("approved".equalsIgnoreCase(status)) {
@@ -67,7 +70,7 @@ public class AccountRequestServiceImpl implements AccountRequestService {
             requests = requestRepository.findByApprovedIsNull();
         }
 
-        return requests.stream()
+        List<AccountRequestDTO> dtoList = requests.stream()
                 .map(req -> new AccountRequestDTO(
                         req.getId(),
                         req.getEmployee().getEmployeeName(),
@@ -75,7 +78,15 @@ public class AccountRequestServiceImpl implements AccountRequestService {
                         req.getApproved()
                 ))
                 .toList();
+
+        // Phân trang thủ công từ danh sách
+        int start = Math.min(page * size, dtoList.size());
+        int end = Math.min(start + size, dtoList.size());
+        List<AccountRequestDTO> pageContent = dtoList.subList(start, end);
+
+        return new PageImpl<>(pageContent, PageRequest.of(page, size), dtoList.size());
     }
+
 
 
 }

@@ -212,7 +212,15 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
 
         List<WorkScheduleDetail> details = new ArrayList<>();
 
-        for (int day = 1; day <= daysInMonth; day++) {
+
+        LocalDate today = LocalDate.now();
+        int startDay = 1;
+
+        if (today.getYear() == year && today.getMonthValue() == month) {
+            startDay = today.getDayOfMonth();
+        }
+
+        for (int day = startDay; day <= daysInMonth; day++) {
             LocalDate date = LocalDate.of(year, month, day);
 
             // Skip Sunday
@@ -236,6 +244,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         workScheduleDetailRepository.saveAll(details);
     }
 
+
     public void generateAttendanceRecords(WorkSchedule workSchedule) {
         int year = workSchedule.getYear();
         int month = workSchedule.getMonth();
@@ -245,14 +254,16 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         List<Employee> employees = (lineId != null)
                 ? employeeRepository.findByDepartment_DepartmentIdAndLine_LineIdAndIsDeletedFalse(departmentId, lineId)
                 : employeeRepository.findByDepartment_DepartmentIdAndIsDeletedFalse(departmentId);
-
+        System.out.println("Get in create attedance");
         List<WorkScheduleDetail> scheduleDetails = workSchedule.getWorkScheduleDetails();
 
         if (scheduleDetails == null || scheduleDetails.isEmpty()) return;
 
         LocalDate today = LocalDate.now();
         List<AttendanceRecord> records = new ArrayList<>();
-
+        System.out.println("📌 Employee size: " + employees.size());
+        System.out.println("📌 ScheduleDetail size: " + (scheduleDetails == null ? 0 : scheduleDetails.size()));
+        System.out.println("📌 Today: " + today);
         for (Employee employee : employees) {
             for (WorkScheduleDetail detail : scheduleDetails) {
                 LocalDate workDate = detail.getDateWork();

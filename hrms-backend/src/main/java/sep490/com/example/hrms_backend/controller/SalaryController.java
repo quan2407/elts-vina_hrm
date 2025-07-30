@@ -1,12 +1,17 @@
 package sep490.com.example.hrms_backend.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.SalaryDTO;
 import sep490.com.example.hrms_backend.service.SalaryService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
+import sep490.com.example.hrms_backend.utils.SalaryExcelExport;
 
+import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -71,6 +76,22 @@ public class SalaryController {
         salaryService.lockSalariesByMonth(month, year, locked);
         String msg = locked ? "đã chốt lương" : "đã bỏ chốt lương";
         return ResponseEntity.ok("Tháng " + month + "/" + year + " " + msg);
+    }
+    @GetMapping("/export")
+    public ResponseEntity<ByteArrayResource> exportSalaryToExcel(
+            @RequestParam int month,
+            @RequestParam int year
+    ) {
+        List<SalaryDTO> salaries = salaryService.getSalariesByMonth(month, year);
+        ByteArrayInputStream excelFile = SalaryExcelExport.exportSalariesToExcel(salaries, month, year);
+
+        ByteArrayResource resource = new ByteArrayResource(excelFile.readAllBytes());
+
+        String filename = String.format("bao_cao_luong_%02d_%d.xlsx", month, year);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
     }
 
 }

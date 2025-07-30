@@ -73,443 +73,448 @@ function App() {
   return (
     <ConfigProvider>
       <AntdApp>
-        <PermissionProvider>
-          <Router>
-            <Routes>
-              {/* Public routes */}
-              <Route
-                path="/"
-                element={<LoginPage />}
-              />
-              <Route
-                path="/reset-password"
-                element={<ResetPasswordPage />}
-              />
+        <Router>
+          <Routes>
+            {/* Public routes */}
+            <Route
+              path="/"
+              element={<LoginPage />}
+            />
+            <Route
+              path="/reset-password"
+              element={<ResetPasswordPage />}
+            />
 
-              <Route
-                path="/about-us"
-                element={<AboutUs />}
-              />
+            <Route
+              path="/about-us"
+              element={<AboutUs />}
+            />
 
-              <Route
-                path="/jobs"
-                element={<JobsPage />}
-              />
-              <Route
-                path="/jobs/:id"
-                element={<JobDetail />}
-              />
-              <Route
-                path="/my-applications"
-                element={<ApplicationListPage />}
-              />
+            <Route
+              path="/jobs"
+              element={<JobsPage />}
+            />
+            <Route
+              path="/jobs/:id"
+              element={<JobDetail />}
+            />
+            <Route
+              path="/my-applications"
+              element={<ApplicationListPage />}
+            />
 
-              <Route
-                path="/applyjob/:id"
-                element={<ApplyJob />}
-              />
-              <Route
-                path="/admin/account-requests"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
-                    <AccountRequestPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/applications/:id"
-                element={
-                  <ProtectedRoute
-                    allowedRoles={[
-                      "ROLE_EMPLOYEE",
-                      "ROLE_PRODUCTION_MANAGER",
-                      "ROLE_HR",
-                    ]}
-                  >
-                    <ApplicationDetail />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/work-schedule-view-hr"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                    <WorkScheduleProductionView canApprove={false} />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/attendance-monthly-view"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_PRODUCTION_MANAGER"]}>
-                    <AttendanceMonthlyView readOnly={true} />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/attendance"
-                element={
-                  <ProtectedRoute
-                    allowedRoles={[
-                      "ROLE_HR",
-                      "ROLE_HR_MANAGER",
-                      "ROLE_PRODUCTION_MANAGER",
-                    ]}
-                  >
-                    <DynamicAttendanceWrapper />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/applyjob/:id"
+              element={<ApplyJob />}
+            />
+            <Route
+              path="/admin/account-requests"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
+                  <AccountRequestPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/applications/:id"
+              element={
+                <ProtectedRoute
+                  allowedRoles={[
+                    "ROLE_EMPLOYEE",
+                    "ROLE_PRODUCTION_MANAGER",
+                    "ROLE_HR",
+                    "ROLE_LINE_LEADER",
+                  ]}
+                >
+                  <ApplicationDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/work-schedule-view-hr"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                  <WorkScheduleProductionView canApprove={false} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/attendance-monthly-view"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_PRODUCTION_MANAGER"]}>
+                  <AttendanceMonthlyView readOnly={true} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/attendance"
+              element={
+                <ProtectedRoute
+                  allowedRoles={[
+                    "ROLE_HR",
+                    "ROLE_HR_MANAGER",
+                    "ROLE_PRODUCTION_MANAGER",
+                  ]}
+                >
+                  <DynamicAttendanceWrapper />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/holiday-management"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                    <HolidayManagement />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/holiday-management"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                  <HolidayManagement />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/my-work-schedule"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_EMPLOYEE"]}>
-                    <EmployeeWorkScheduleView />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/jobs-management"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                    <JobsManagement />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/recruitment-create"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                    <RecruitmentCreate />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/reset-password-requests"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
-                    <ResetPasswordRequestsPage />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-work-schedule"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["ROLE_EMPLOYEE", "ROLE_LINE_LEADER"]}
+                >
+                  <EmployeeWorkScheduleView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/jobs-management"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                  <JobsManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/recruitment-create"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                  <RecruitmentCreate />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/reset-password-requests"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
+                  <ResetPasswordRequestsPage />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/attendance-monthly"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                    <AttendanceMonthlyView />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/attendance-monthly"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                  <AttendanceMonthlyView />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/jobsdetail-management/:jobId"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                    <RecruitmentDetailManagement />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/applications/approvals/manager"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_PRODUCTION_MANAGER"]}>
-                    <ApplicationApprovalListPage step={1} />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/applications/approvals/hr"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                    <ApplicationApprovalListPage step={2} />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/jobsdetail-management/:jobId"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                  <RecruitmentDetailManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/applications/approvals/manager"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_PRODUCTION_MANAGER"]}>
+                  <ApplicationApprovalListPage step={1} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/applications/approvals/hr"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                  <ApplicationApprovalListPage step={2} />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="candidates-management/:jobId"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                    <CandidateManagement />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="candidates-management/:jobId"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                  <CandidateManagement />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/add-interview/:id"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                    <InterviewCreate />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/add-interview/:id"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                  <InterviewCreate />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/interviews-management"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                    <InterviewManagement />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/interviews-management"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                  <InterviewManagement />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/interviews-management/:id"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                    <InterviewDetail />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/salary-monthly"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                    <SalaryMonthlyView />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/interviews-management/:id"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                  <InterviewDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/salary-monthly"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                  <SalaryMonthlyView />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/unauthorized"
-                element={<UnauthorizedPage />}
-              />
-              <Route
-                path="/profile"
-                element={<ProfilePage />}
-              />
+            <Route
+              path="/unauthorized"
+              element={<UnauthorizedPage />}
+            />
+            <Route
+              path="/profile"
+              element={<ProfilePage />}
+            />
 
-              {/* Protected routes */}
-              <Route
-                path="/employees/:id"
-                element={
-                  <ProtectedRoute
-                    allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_ADMIN"]}
-                  >
-                    <EmployeeDetails />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/work-schedule-management"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_PMC"]}>
-                    <WorkScheduleManagement />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/work-schedule-production"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_PRODUCTION_MANAGER"]}>
-                    <WorkScheduleProductionView />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/work-schedule"
-                element={
-                  <ProtectedRoute
-                    allowedRoles={[
-                      "ROLE_HR",
-                      "ROLE_HR_MANAGER",
-                      "ROLE_PRODUCTION_MANAGER",
-                    ]}
-                  >
-                    <DynamicWorkScheduleWrapper />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/work-schedule-management"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_PMC"]}>
-                    <WorkScheduleManagement />
-                  </ProtectedRoute>
-                }
-              />
+            {/* Protected routes */}
+            <Route
+              path="/employees/:id"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_ADMIN"]}
+                >
+                  <EmployeeDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/work-schedule-management"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_PMC"]}>
+                  <WorkScheduleManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/work-schedule-production"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_PRODUCTION_MANAGER"]}>
+                  <WorkScheduleProductionView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/work-schedule"
+              element={
+                <ProtectedRoute
+                  allowedRoles={[
+                    "ROLE_HR",
+                    "ROLE_HR_MANAGER",
+                    "ROLE_PRODUCTION_MANAGER",
+                  ]}
+                >
+                  <DynamicWorkScheduleWrapper />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/work-schedule-management"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_PMC"]}>
+                  <WorkScheduleManagement />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/change-password"
-                element={
-                  <ProtectedRoute
-                    allowedRoles={[
-                      "ROLE_ADMIN",
-                      "ROLE_HR",
-                      "ROLE_EMPLOYEE",
-                      "ROLE_LINE_LEADER",
-                      "ROLE_PMC",
-                      "ROLE_CANTEEN",
-                      "ROLE_PRODUCTION_MANAGER",
-                    ]}
-                  >
-                    <ChangePasswordPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/accounts"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
-                    <AccountManagement />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/employee-management"
-                element={
-                  <ProtectedRoute
-                    allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_ADMIN"]}
-                  >
-                    <EmployeeManagement />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/employee-create"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                    <EmployeeCreate />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/change-password"
+              element={
+                <ProtectedRoute
+                  allowedRoles={[
+                    "ROLE_ADMIN",
+                    "ROLE_HR",
+                    "ROLE_EMPLOYEE",
+                    "ROLE_LINE_LEADER",
+                    "ROLE_PMC",
+                    "ROLE_CANTEEN",
+                    "ROLE_PRODUCTION_MANAGER",
+                  ]}
+                >
+                  <ChangePasswordPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/accounts"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
+                  <AccountManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/employee-management"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_ADMIN"]}
+                >
+                  <EmployeeManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/employee-create"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                  <EmployeeCreate />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/change-password"
-                element={
-                  <ProtectedRoute
-                    allowedRoles={[
-                      "ROLE_ADMIN",
-                      "ROLE_HR",
-                      "ROLE_EMPLOYEE",
-                      "ROLE_LINE_LEADER",
-                      "ROLE_PMC",
-                      "ROLE_CANTEEN",
-                      "ROLE_PRODUCTION_MANAGER",
-                    ]}
-                  >
-                    <ChangePasswordPage />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/change-password"
+              element={
+                <ProtectedRoute
+                  allowedRoles={[
+                    "ROLE_ADMIN",
+                    "ROLE_HR",
+                    "ROLE_EMPLOYEE",
+                    "ROLE_LINE_LEADER",
+                    "ROLE_PMC",
+                    "ROLE_CANTEEN",
+                    "ROLE_PRODUCTION_MANAGER",
+                  ]}
+                >
+                  <ChangePasswordPage />
+                </ProtectedRoute>
+              }
+            />
 
-              {/* Module's Benefit */}
-              <Route
-                path="/benefit"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_USER"]}>
-                    <BenefitManagement />
-                  </ProtectedRoute>
-                }
-              />
+            {/* Module's Benefit */}
+            <Route
+              path="/benefit"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_USER"]}>
+                  <BenefitManagement />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="*"
-                element={
-                  <Navigate
-                    to="/"
-                    replace
-                  />
-                }
-              />
+            <Route
+              path="*"
+              element={
+                <Navigate
+                  to="/"
+                  replace
+                />
+              }
+            />
 
-              <Route
-                path="/human-report"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                    <HumanReport />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/roles"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
-                    <RoleListPage />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/human-report"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                  <HumanReport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/roles"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
+                  <RoleListPage />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/line-management"
-                element={
-                  <ProtectedRoute
-                    allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_PMC"]}
-                  >
-                    <LineManagement />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/employee/line/:id"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_PMC"]}>
-                    <EmployeeInLineManagement />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/line-management"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_PMC"]}
+                >
+                  <LineManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/employee/line/:id"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_PMC"]}>
+                  <EmployeeInLineManagement />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/employee/line-hr/:id"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                    <EmployeeInLineHr />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/employee/line-hr/:id"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                  <EmployeeInLineHr />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/my-attendance-monthly"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_EMPLOYEE"]}>
-                    <EmployeeAttendanceMonthlyView />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/my-attendance-monthly"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["ROLE_EMPLOYEE", "ROLE_LINE_LEADER"]}
+                >
+                  <EmployeeAttendanceMonthlyView />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/my-salary-monthly"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_EMPLOYEE"]}>
-                    <EmpSalaryView />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/my-salary-monthly"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["ROLE_EMPLOYEE", "ROLE_LINE_LEADER"]}
+                >
+                  <EmpSalaryView />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/line-management-pm"
-                element={
-                  <ProtectedRoute allowedRoles={["ROLE_PRODUCTION_MANAGER"]}>
-                    <LineManagement />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/create-application"
-                element={<ApplicationCreate />}
-              />
-            </Routes>
-          </Router>
-        </PermissionProvider>
+            <Route
+              path="/line-management-pm"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_PRODUCTION_MANAGER"]}>
+                  <LineManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/create-application"
+              element={<ApplicationCreate />}
+            />
+          </Routes>
+        </Router>
       </AntdApp>
     </ConfigProvider>
   );
