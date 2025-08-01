@@ -6,24 +6,28 @@ import "../styles/EmployeeTable.css";
 function EmployeeTable() {
   const [employees, setEmployees] = useState([]);
   const navigate = useNavigate();
+  const [page, setPage] = useState(0);
+  const [size] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     employeeService
-      .getAllEmployees()
+      .getAllEmployees(page, size)
       .then((response) => {
-        setEmployees(response.data);
+        setEmployees(response.data.content);
+        setTotalPages(response.data.totalPages);
       })
       .catch((error) => {
         console.error("Failed to fetch employees", error);
       });
-  }, []);
+  }, [page]);
 
   const handleRowClick = (id) => {
     navigate(`/employees/${id}`);
   };
 
   return (
-    <div className="employee-table-wrapper" >
+    <div className="employee-table-wrapper">
       <div className="employee-table">
         <div className="employee-table-header">
           <div className="employee-header-cell">Mã nhân viên</div>
@@ -57,6 +61,49 @@ function EmployeeTable() {
             <div className="employee-table-cell">{emp.positionName}</div>
           </div>
         ))}
+      </div>
+      <div className="employee-pagination-container">
+        <button
+          className="employee-pagination-btn"
+          onClick={() => setPage(0)}
+          disabled={page === 0}
+        >
+          «
+        </button>
+        <button
+          className="employee-pagination-btn"
+          onClick={() => setPage(page - 1)}
+          disabled={page === 0}
+        >
+          ‹
+        </button>
+
+        {Array.from({ length: totalPages }).map((_, p) => (
+          <button
+            key={p}
+            onClick={() => setPage(p)}
+            className={`employee-pagination-btn ${
+              p === page ? "employee-pagination-active" : ""
+            }`}
+          >
+            {p + 1}
+          </button>
+        ))}
+
+        <button
+          className="employee-pagination-btn"
+          onClick={() => setPage(page + 1)}
+          disabled={page === totalPages - 1}
+        >
+          ›
+        </button>
+        <button
+          className="employee-pagination-btn"
+          onClick={() => setPage(totalPages - 1)}
+          disabled={page === totalPages - 1}
+        >
+          »
+        </button>
       </div>
     </div>
   );

@@ -10,8 +10,10 @@ const employeeService = {
   getEmployeeByLineId: (id) => {
     return axiosClient.get(`/employees/line/${id}`);
   },
-  getAllEmployees: () => {
-    return axiosClient.get("/employees");
+  getAllEmployees: (page = 0, size = 10) => {
+    return axiosClient.get("/employees", {
+      params: { page, size },
+    });
   },
   getEmployeesByDepartmentId: (id) => {
     return axiosClient.get(`/employees/department/${id}`);
