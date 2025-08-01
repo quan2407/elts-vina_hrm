@@ -2,32 +2,51 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import employeeService from "../services/employeeService";
 import "../styles/EmployeeTable.css";
-
+let debounceTimeout;
 function EmployeeTable() {
   const [employees, setEmployees] = useState([]);
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
-
+  const [searchTerm, setSearchTerm] = useState("");
   useEffect(() => {
-    employeeService
-      .getAllEmployees(page, size)
-      .then((response) => {
-        setEmployees(response.data.content);
-        setTotalPages(response.data.totalPages);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch employees", error);
-      });
-  }, [page]);
+    const fetchData = () => {
+      employeeService
+        .getAllEmployees(page, size, searchTerm)
+        .then((response) => {
+          setEmployees(response.data.content);
+          setTotalPages(response.data.totalPages);
+        })
+        .catch((error) => {
+          console.error("Failed to fetch employees", error);
+        });
+    };
 
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(fetchData, 100);
+
+    return () => clearTimeout(debounceTimeout);
+  }, [page, searchTerm]);
   const handleRowClick = (id) => {
     navigate(`/employees/${id}`);
   };
 
   return (
     <div className="employee-table-wrapper">
+      <div className="employee-search-wrapper">
+        <input
+          type="text"
+          className="employee-search-input"
+          placeholder="Tìm theo mã hoặc tên nhân viên..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setPage(0);
+          }}
+        />
+      </div>
+
       <div className="employee-table">
         <div className="employee-table-header">
           <div className="employee-header-cell">Mã nhân viên</div>
