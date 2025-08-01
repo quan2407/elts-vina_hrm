@@ -23,9 +23,10 @@ import sep490.com.example.hrms_backend.service.AttendanceRecordService;
 
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -204,7 +205,11 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
             dtoList.add(dto);
         }
 
-        return new PageImpl<>(dtoList, pageable, search != null ? filteredEmployees.size() : employeeRepository.findAllActive().size());
+        return new PageImpl<>(dtoList, pageable,
+                (search != null && !search.trim().isEmpty())
+                        ? filteredEmployees.size()
+                        : employeeRepository.findAllActive().size());
+
     }
 
 
@@ -392,14 +397,27 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
             Map<String, Employee> employeeMap = new HashMap<>();
             Map<String, LocalDate> dateMap = new HashMap<>();
 
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
 
                 String employeeCode = formatter.formatCellValue(row.getCell(3)).trim();
-                Date timeValue = row.getCell(1).getDateCellValue();
-                LocalDate date = timeValue.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                LocalTime time = timeValue.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+                String timeStr = formatter.formatCellValue(row.getCell(1)).trim();
+
+                if (employeeCode.isEmpty() || timeStr.isEmpty()) continue;
+
+                LocalDateTime dateTime;
+                try {
+                    dateTime = LocalDateTime.parse(timeStr, dateTimeFormatter);
+                } catch (DateTimeParseException e) {
+                    System.err.println("⚠ Không thể parse thời gian ở dòng " + (i + 1) + ": \"" + timeStr + "\"");
+                    continue;
+                }
+
+                LocalDate date = dateTime.toLocalDate();
+                LocalTime time = dateTime.toLocalTime();
 
                 // ❌ Skip nếu không đúng ngày
                 if (!date.equals(targetDate)) continue;
@@ -478,6 +496,8 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
             throw new RuntimeException("Import thất bại: " + e.getMessage(), e);
         }
     }
+
+
 
 
 
