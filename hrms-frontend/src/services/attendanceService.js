@@ -1,11 +1,12 @@
 import axiosClient from "./axiosClient";
 
 const attendanceService = {
-  getMonthlyAttendance: (month, year, page = 0, size = 10) => {
+  getMonthlyAttendance: (month, year, page = 0, size = 10, search = "") => {
     return axiosClient.get("/attendances/view-by-month", {
-      params: { month, year, page, size },
+      params: { month, year, page, size, search },
     });
   },
+
   getEmployeeMonthlyAttendanceById: (month, year) => {
     return axiosClient.get(`/attendances/employee`, {
       params: { month, year },

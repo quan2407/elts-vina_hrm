@@ -29,6 +29,8 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+
   const today = new Date();
   const params = new URLSearchParams(location.search);
   const empId = params.get("focusEmployee");
@@ -134,7 +136,8 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
         month,
         year,
         page,
-        size
+        size,
+        searchTerm
       );
       setData(response.data.content);
       console.log(
@@ -146,6 +149,15 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
       console.error("Fetch attendance failed:", error);
     }
   };
+  useEffect(() => {
+    const debounceTimeout = setTimeout(() => {
+      if (month && year) {
+        fetchAttendance();
+      }
+    }, 100);
+
+    return () => clearTimeout(debounceTimeout);
+  }, [searchTerm]);
 
   const daysInMonth = month && year ? new Date(year, month, 0).getDate() : 0;
 
@@ -366,6 +378,19 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
         </div>
 
         <div className="attendance-table-wrapper">
+          <div className="attendance-search-wrapper">
+            <input
+              type="text"
+              className="attendance-search-input"
+              placeholder="Tìm mã hoặc tên nhân viên..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(0);
+              }}
+            />
+          </div>
+
           <table className="attendance-table">
             <thead>
               <tr>
