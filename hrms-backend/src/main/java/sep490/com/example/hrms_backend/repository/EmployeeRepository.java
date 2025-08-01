@@ -82,4 +82,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     List<Object[]> findDepartmentDistributionByDateRange(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
     Page<Employee> findByIsDeletedFalse(Pageable pageable);
 
+    Page<Employee> findByIsDeletedFalseAndEmployeeCodeContainingIgnoreCaseOrEmployeeNameContainingIgnoreCase(String search, String search1, Pageable pageable);
 }

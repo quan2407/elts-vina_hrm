@@ -38,9 +38,17 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     private final AccountRequestRepository accountRequestRepository;
 
     @Override
-    public Page<EmployeeResponseDTO> getAllEmployees(int page, int size) {
+    public Page<EmployeeResponseDTO> getAllEmployees(int page, int size, String search) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Employee> employeePage = employeeRepository.findByIsDeletedFalse(pageable);
+        Page<Employee> employeePage;
+
+        if (search != null && !search.trim().isEmpty()) {
+            employeePage = employeeRepository
+                    .findByIsDeletedFalseAndEmployeeCodeContainingIgnoreCaseOrEmployeeNameContainingIgnoreCase(
+                            search, search, pageable);
+        } else {
+            employeePage = employeeRepository.findByIsDeletedFalse(pageable);
+        }
 
         List<EmployeeResponseDTO> dtos = employeePage.getContent().stream()
                 .map(EmployeeMapper::mapToEmployeeResponseDTO)
@@ -48,6 +56,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
 
         return new PageImpl<>(dtos, pageable, employeePage.getTotalElements());
     }
+
     @Override
     public String getNextEmployeeCode() {
         long count = employeeRepository.countByPosition_PositionNameNotIgnoreCase("HR");

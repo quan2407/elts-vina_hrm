@@ -30,10 +30,13 @@ public class EmployeeController {
     @GetMapping
     public ResponseEntity<Page<EmployeeResponseDTO>> getAllEmployees(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search
     ) {
-        return ResponseEntity.ok(employeeService.getAllEmployees(page, size));
+        Page<EmployeeResponseDTO> employees = employeeService.getAllEmployees(page, size, search);
+        return ResponseEntity.ok(employees);
     }
+
 
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

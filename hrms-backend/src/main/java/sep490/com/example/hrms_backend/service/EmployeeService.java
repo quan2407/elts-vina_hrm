@@ -29,5 +29,5 @@ public interface EmployeeService {
     public List<GenderDistributionDTO> getGenderDistribution(LocalDate startDate, LocalDate endDate);
     public List<DepartmentDistributionDTO> getDepartmentDistribution(LocalDate startDate, LocalDate endDate);
 
-    Page<EmployeeResponseDTO> getAllEmployees(int page, int size);
+    Page<EmployeeResponseDTO> getAllEmployees(int page, int size, String search);
 }
