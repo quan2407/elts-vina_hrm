@@ -31,6 +31,14 @@ const attendanceService = {
       }
     );
   },
+  importAttendanceFromExcel: (file, date) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("date", date);
+    return axiosClient.post("/attendances/import", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
 };
 
 export default attendanceService;
