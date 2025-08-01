@@ -2,6 +2,10 @@ package sep490.com.example.hrms_backend.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -34,12 +38,16 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     private final AccountRequestRepository accountRequestRepository;
 
     @Override
-    public List<EmployeeResponseDTO> getAllEmployees() {
-        return employeeRepository.findByIsDeletedFalse().stream()
-                .map(EmployeeMapper::mapToEmployeeResponseDTO)
-                .collect(Collectors.toList());
-    }
+    public Page<EmployeeResponseDTO> getAllEmployees(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Employee> employeePage = employeeRepository.findByIsDeletedFalse(pageable);
 
+        List<EmployeeResponseDTO> dtos = employeePage.getContent().stream()
+                .map(EmployeeMapper::mapToEmployeeResponseDTO)
+                .toList();
+
+        return new PageImpl<>(dtos, pageable, employeePage.getTotalElements());
+    }
     @Override
     public String getNextEmployeeCode() {
         long count = employeeRepository.countByPosition_PositionNameNotIgnoreCase("HR");

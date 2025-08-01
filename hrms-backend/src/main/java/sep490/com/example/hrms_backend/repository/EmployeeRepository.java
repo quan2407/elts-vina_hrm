@@ -80,5 +80,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
             "(e.startWorkAt <= :endDate AND e.endWorkAt >= :startDate) " +
             "GROUP BY e.department")
     List<Object[]> findDepartmentDistributionByDateRange(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    Page<Employee> findByIsDeletedFalse(Pageable pageable);
 
 }

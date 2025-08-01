@@ -3,6 +3,7 @@ package sep490.com.example.hrms_backend.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +28,13 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
     @GetMapping
-    public ResponseEntity<List<EmployeeResponseDTO>> getAllEmployees() {
-        List<EmployeeResponseDTO> employeeList = employeeService.getAllEmployees();
-        return ResponseEntity.ok(employeeList);
+    public ResponseEntity<Page<EmployeeResponseDTO>> getAllEmployees(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(employeeService.getAllEmployees(page, size));
     }
+
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<EmployeeResponseDTO> createEmployee(
