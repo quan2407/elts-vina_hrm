@@ -14,6 +14,8 @@ const SalaryMonthlyView = () => {
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  let debounceTimeout;
 
   const fetchSalaries = async () => {
     try {
@@ -21,7 +23,8 @@ const SalaryMonthlyView = () => {
         month,
         year,
         page,
-        size
+        size,
+        searchTerm
       );
       setSalaries(res.data.content);
       setTotalPages(res.data.totalPages);
@@ -30,6 +33,13 @@ const SalaryMonthlyView = () => {
       console.error("Lỗi khi tải dữ liệu lương:", err);
     }
   };
+  useEffect(() => {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+      fetchSalaries();
+    }, 100);
+    return () => clearTimeout(debounceTimeout);
+  }, [searchTerm]);
 
   useEffect(() => {
     if (month && year) fetchSalaries();
@@ -199,6 +209,19 @@ const SalaryMonthlyView = () => {
         </div>
 
         <div className="attendance-table-wrapper">
+          <div className="attendance-search-wrapper">
+            <input
+              type="text"
+              className="attendance-search-input"
+              placeholder="Tìm mã hoặc tên nhân viên..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(0);
+              }}
+            />
+          </div>
+
           <table className="attendance-table">
             <thead>
               <tr>

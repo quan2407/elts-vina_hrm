@@ -307,3 +307,14 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+.attendance-search-wrapper {
+  margin-bottom: 12px;
+  text-align: right;
+}
+.attendance-search-input {
+  padding: 8px;
+  font-size: 14px;
+  width: 260px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
