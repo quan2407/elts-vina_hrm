@@ -3,7 +3,7 @@ import "../styles/EmployeeTable.css";
 import benefitService from "../services/benefitService.js";
 import Paging from "./common/Paging.jsx";
 import BenefitSearchForm from "./common/search/BenefitSearchForm.jsx";
-import ActionDropdown from "./common/ActionDropdown.jsx";
+import BenefitDetailActionDropdown from "./common/BenefitDetailActionDropdown.jsx";
 import BenefitUpdateModal from "./modals/benefit/BenefitUpdateModal.jsx";
 import { Modal, message,  } from "antd";
 import getBenefitTypeDisplay from '../utils/DisplayBenefitType.js'
@@ -85,7 +85,7 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
         //     ),
         // });
 
-        navigate(`/benefit/${benefit.id}`);
+        navigate(`/benefits-management/benefit/${benefit.id}`);
     };
 
     return (
@@ -100,7 +100,7 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
             <div className="employee-table-cell">{benefit.isActive ? 'Đang hoạt động' : 'Ngừng hoạt động'}</div>
             <div className="employee-table-cell">{formatDate(benefit.createdAt)}</div>
             <div className="employee-table-cell">
-                <ActionDropdown
+                <BenefitDetailActionDropdown
                     onEdit={handleEdit}
                     // onView={() => Modal.info({ title: 'Chi tiết', content: benefit.detail })}
                     onView={() => {

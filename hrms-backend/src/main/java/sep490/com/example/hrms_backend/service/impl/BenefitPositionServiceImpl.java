@@ -28,7 +28,7 @@ public class BenefitPositionServiceImpl implements BenefitPositionService {
     @Override
     public void assignPositionsToBenefit(BenefitPositionDTO request) {
         Benefit benefit = benefitRepository.findById(request.getBenefitId())
-                .orElseThrow(() -> new RuntimeException("Benefit not found"));
+                .orElseThrow(() -> new RuntimeException("Phúc lợi không tồn tại"));
 
         List<Position> positions = positionRepository.findAllById(request.getPositionIds());
 
@@ -55,13 +55,13 @@ public class BenefitPositionServiceImpl implements BenefitPositionService {
     @Override
     public void unassignPositionFromBenefit(Long benefitId, Long positionId) {
         Benefit benefit = benefitRepository.findById(benefitId)
-                .orElseThrow(() -> new RuntimeException("Benefit not found"));
+                .orElseThrow(() -> new RuntimeException("Phúc lợi không tồn tại"));
 
         Position position = positionRepository.findById(positionId)
-                .orElseThrow(() -> new RuntimeException("Position not found"));
+                .orElseThrow(() -> new RuntimeException("Vị trí không tồn tại"));
 
         if (!benefitPositionRepository.existsByBenefitAndPosition(benefit, position)) {
-            throw new RuntimeException("This position is not assigned to the benefit.");
+            throw new RuntimeException("Vị trí này chưa được gán cho phúc lợi này.");
         }
 
         benefitPositionRepository.deleteByBenefitAndPosition(benefit, position);
@@ -72,7 +72,7 @@ public class BenefitPositionServiceImpl implements BenefitPositionService {
         System.out.println("Update formula" + request.getBenefitId()+ "," +request.getPositionId());
         BenefitPosition bp = benefitPositionRepository
                 .findByBenefit_IdAndPosition_PositionId(request.getBenefitId(), request.getPositionId())
-                .orElseThrow(() -> new RuntimeException("Benefit-Position not found"));
+                .orElseThrow(() -> new RuntimeException("Phúc lợi này không có vị trí nào được gán."));
 
         bp.setFormulaType(request.getFormulaType());
         bp.setFormulaValue(request.getFormulaValue());

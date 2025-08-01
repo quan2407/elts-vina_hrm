@@ -3,10 +3,11 @@ import "../styles/EmployeeTable.css";
 import benefitService from "../services/benefitService.js";
 import Paging from "./common/Paging.jsx";
 import BenefitSearchForm from "./common/search/BenefitSearchForm.jsx";
-import ActionDropdown from "./common/ActionDropdown.jsx";
+import BenefitDetailActionDropdown from "./common/BenefitDetailActionDropdown.jsx";
 import BenefitPositionUpdateModal from "./modals/benefit/BenefitPositionUpdateModal.jsx";
 import { Modal, message } from "antd";
 import { useNavigate } from 'react-router-dom';
+import BenefitForPositionActionDropDown from "./common/BenefitForPositionActionDropDown.jsx";
 
 const BenefitByPositionHeader = () => {
     const headers = [
@@ -66,7 +67,7 @@ const BenefitByPositionTableRow = ({ benefit, onUpdateSuccess }) => {
         //     ),
         // });
 
-        navigate(`/benefit/${benefit.id}`);
+        navigate(`/benefits-management/benefit/${benefit.id}/position/${benefit.positions.positionId}`);
     };
 
     return (
@@ -83,21 +84,26 @@ const BenefitByPositionTableRow = ({ benefit, onUpdateSuccess }) => {
             {/*<div className="employee-table-cell">{benefit.isActive ? 'Đang hoạt động' : 'Ngừng hoạt động'}</div>*/}
             {/*<div className="employee-table-cell">{formatDate(benefit.createdAt)}</div>*/}
             <div className="employee-table-cell">
-                <ActionDropdown
+                <BenefitForPositionActionDropDown
                     onEdit={handleEdit}
                     onView={() => Modal.info({ title: 'Chi tiết', content: benefit.detail })}
-                    onDelete={() => Modal.confirm({
-                        title: "Bạn có chắc chắn muốn xóa?",
-                        onOk: async () => {
-                            try {
-                                await benefitService.unassignPositionsFromBenefit(benefit.id,benefit.positions.positionId);
-                                message.success("Đã xóa thành công!");
-                                onUpdateSuccess();
-                            } catch {
-                                message.error("Xóa thất bại");
-                            }
-                        }
-                    })}
+                    onDelete={() =>
+                        Modal.confirm({
+                            title: "Bạn có chắc chắn muốn xóa?",
+                            onOk: async () => {
+                                try {
+                                    await benefitService.unassignPositionsFromBenefit(
+                                        benefit.id,
+                                        benefit.positions.positionId
+                                    );
+                                    message.success("Đã xóa thành công!");
+                                    onUpdateSuccess();
+                                } catch {
+                                    message.error("Xóa thất bại");
+                                }
+                            },
+                        })
+                    }
                     onDetails={handleDetails}
                 />
             </div>
@@ -111,7 +117,7 @@ const BenefitByPositionTableRow = ({ benefit, onUpdateSuccess }) => {
     );
 };
 
-function BenefitByPositionTable({ benefitId }) {
+function BenefitForPositionTable({ benefitId }) {
     const [benefits, setBenefit] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -202,4 +208,4 @@ function BenefitByPositionTable({ benefitId }) {
     );
 }
 
-export default BenefitByPositionTable;
+export default BenefitForPositionTable;

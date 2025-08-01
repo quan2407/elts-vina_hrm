@@ -81,6 +81,18 @@ public class BenefitController {
         return new ResponseEntity<>(benefitResponse, HttpStatus.OK );
     }
 
+    //Get Employee By Position And Benefit
+    @PreAuthorize("hasAnyRole( 'HR')")
+    @GetMapping("/hr/benefits/{benefitId}/{positionId}")
+    public ResponseEntity<BenefitResponse> getEmployeeByPositionAndBenefit(@PathVariable Long benefitId, @PathVariable Long positionId,
+                                                                           @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false)Integer pageNumber,
+                                                                           @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+                                                                           @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
+                                                                           @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIRECTION, required = false) String sortOrder){
+        BenefitResponse benefitResponse = positionService.getEmployeeByPositionAndBenefit(benefitId,positionId,pageNumber,pageSize,sortBy,sortOrder);
+        return new ResponseEntity<>(benefitResponse, HttpStatus.OK);
+    }
+
     @GetMapping("/hr/benefit/{id}")
     public ResponseEntity<BenefitDTO> getBenefit(@PathVariable Long id) {
         BenefitDTO benefitDTO = benefitService.getBenefitById(id);

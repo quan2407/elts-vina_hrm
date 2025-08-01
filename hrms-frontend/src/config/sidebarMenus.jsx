@@ -78,7 +78,7 @@ export const hrMenus = [
   },
   {
     text: "Quản lý phúc lợi ",
-    path: "/benefit",
+    path: "/benefits-management",
     icon: (isActive) => (
       <Gift
         size={20}

@@ -31,11 +31,11 @@ import java.util.List;
 @Service
 public class BenefitServiceImpl implements BenefitService {
 
-    @Autowired
-    private BenefitRepository benefitRepository;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final BenefitRepository benefitRepository;
+
+
+    private final ModelMapper modelMapper;
 
     private final BenefitMapper benefitMapper;
 
@@ -46,6 +46,13 @@ public class BenefitServiceImpl implements BenefitService {
     public BenefitResponse getAllBenefitsForHr(String username, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder,
                                                String title, String description, Boolean isActive, LocalDate startDate, LocalDate endDate, Integer minParticipants, Integer maxParticipants, BenefitType benefitType) {
 
+        if (minParticipants != null && maxParticipants != null && minParticipants > maxParticipants) {
+            throw new HRMSAPIException("Số người tham gia tối thiểu không được lớn hơn số người tham gia tối đa.");
+        }
+
+        if (endDate != null && endDate.isBefore(startDate)) {
+            throw new HRMSAPIException("Ngày kết thúc phải lớn hơn ngày bắt đầu");
+        }
 
         // 1. Tao đoi tuong sap xep (theo field va huong sap xep: asc/desc)
         Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
@@ -54,6 +61,7 @@ public class BenefitServiceImpl implements BenefitService {
 
         // 2. Tao doi tuong phan trang (Pageable) dua tren so trang, kich thuoc trang va sap xep
         Pageable pageable = PageRequest.of(pageNumber  - 1 , pageSize, sortByAndOrder);
+
 
         //3. Goi repository voi dieu kien loc dong (specification)
         Page<Benefit> benefitPage = benefitRepository.findAll((root, query, cb ) -> {
@@ -124,7 +132,7 @@ public class BenefitServiceImpl implements BenefitService {
 
         //Kiem tra xem danh sach co benefit khong
         if (benefits.isEmpty()) {
-            throw new HRMSAPIException("No Benefit is Exist. Please Add Benefit First.");
+            throw new HRMSAPIException("Không có phúc lợi nào tương ứng");
         }
 
 
@@ -160,6 +168,10 @@ public class BenefitServiceImpl implements BenefitService {
 
         Benefit benefit = modelMapper.map(benefitDTO, Benefit.class);
 
+
+        if (benefit.getEndDate() != null && benefit.getEndDate().isBefore(benefit.getStartDate())) {
+            throw new HRMSAPIException("Ngày kết thúc phải lớn hơn ngày bắt đầu");
+        }
 
 
 
@@ -247,6 +259,7 @@ public class BenefitServiceImpl implements BenefitService {
 
 
     }
+
 
     @Transactional
     @Override
@@ -355,6 +368,8 @@ public class BenefitServiceImpl implements BenefitService {
     public BenefitDTO getBenefitById(Long id) {
         return modelMapper.map(benefitRepository.findById(id), BenefitDTO.class);
     }
+
+
 
 
 }

@@ -38,7 +38,8 @@ import SalaryMonthlyView from "./pages/SalaryMonthlyView";
 import LineManagement from "./pages/LineManagementPMC.jsx";
 import EmployeeInLineManagement from "./pages/EmployeeInLineManagement.jsx";
 import EmployeeWorkScheduleView from "./pages/EmployeeWorkScheduleView";
-import BenefitDetail from "./pages/BenefitDetail.jsx";
+import BenefitForPosition from "./pages/BenefitForPosition.jsx";
+import BenefitForPositionForEmployee from "./pages/BenefitForPositionForEmployee.jsx";
 
 function App() {
   return (
@@ -284,7 +285,7 @@ function App() {
 
             {/* Module's Benefit */}
             <Route
-              path="/benefit"
+              path="/benefits-management"
               element={
                 <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_USER"]}>
                   <BenefitManagement />
@@ -293,10 +294,19 @@ function App() {
             />
 
               <Route
-                  path="/benefit/:benefitId"
+                  path="/benefits-management/benefit/:benefitId"
                   element={
                       <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_USER"]}>
-                          <BenefitDetail />
+                          <BenefitForPosition />
+                      </ProtectedRoute>
+                  }
+              />
+
+              <Route
+                  path="/benefits-management/benefit/:benefitId/position/:positionId"
+                  element={
+                      <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_USER"]}>
+                          <BenefitForPositionForEmployee />
                       </ProtectedRoute>
                   }
               />

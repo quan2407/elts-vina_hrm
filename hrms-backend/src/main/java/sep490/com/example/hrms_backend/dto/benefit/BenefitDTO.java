@@ -23,22 +23,22 @@ import java.util.List;
 public class BenefitDTO {
     private Long id;
 
-    @NotBlank(message = "Title must not be blank")
+    @NotBlank(message = "Tiêu đề không được để trống")
     private String title;
 
     private String description;
 
-    @NotNull(message = "Start date is required")
+    @NotNull(message = "Không được để trống ngày bắt đầu")
     private LocalDate startDate;
 
-    @NotNull(message = "End date is required")
+    @NotNull(message = "Không được để trống ngày kết thúc")
     private LocalDate endDate;
 
-    @NotNull(message = "Max participants is required")
-    @Min(value = 1, message = "Max participants must be at least 1")
+    @NotNull(message = "Không được để trống số lượng đăng kí tối đa")
+    @Min(value = 1, message = "Số lượng đăng kí tối thiểu phải là 1")
     private Integer maxParticipants;
 
-    @NotNull(message = "Active status is required")
+    @NotNull(message = "Không được để trống trạng thái hoạt động")
     private Boolean isActive;
 
     private Integer numberOfEmployee;

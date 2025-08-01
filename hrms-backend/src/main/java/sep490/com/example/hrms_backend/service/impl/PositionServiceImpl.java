@@ -4,11 +4,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.PositionDTO;
-import sep490.com.example.hrms_backend.dto.benefit.BenefitDTO;
-import sep490.com.example.hrms_backend.entity.BenefitPosition;
+import sep490.com.example.hrms_backend.dto.benefit.BenefitResponse;
 import sep490.com.example.hrms_backend.entity.Position;
 import sep490.com.example.hrms_backend.repository.BenefitPositionRepository;
-import sep490.com.example.hrms_backend.repository.BenefitRepository;
 import sep490.com.example.hrms_backend.repository.PositionRepository;
 import sep490.com.example.hrms_backend.service.PositionService;
 
@@ -47,4 +45,13 @@ public class PositionServiceImpl implements PositionService {
         return positionDTOList;
 
     }
+
+    @Override
+    public BenefitResponse getEmployeeByPositionAndBenefit(Long benefitId, Long positionId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+
+
+        return null;
+    }
+
+
 }

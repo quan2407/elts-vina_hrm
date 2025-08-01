@@ -9,13 +9,13 @@ import BenefitCreateModal from "../components/modals/benefit/BenefitCreateModal.
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import benefitService from "../services/benefitService.js";
-import BenefitByPositionTable from "../components/BenefitByPositionTable.jsx";
+import BenefitForPositionTable from "../components/BenefitForPositionTable.jsx";
 import AssignBenefitToPositions from "../components/modals/benefit/AssignBenefitToPositionsModal.jsx";
 import AssignBenefitToPositionsModal from "../components/modals/benefit/AssignBenefitToPositionsModal.jsx";
 import Breadcrumb from "../components/Breadcrumb";
 
 
-function BenefitDetail() {
+function BenefitForPosition() {
     /**
      * Represents the benefits associated with a specific entity or process.
      * This variable is intended to hold information detailing the advantages,
@@ -98,10 +98,10 @@ function BenefitDetail() {
                     </div>
                 </div>
                 <Breadcrumb paths={breadcrumbPaths} />
-                <BenefitByPositionTable benefitId={benefitId} />
+                <BenefitForPositionTable benefitId={benefitId} />
             </div>
         </MainLayout>
     );
 }
 
-export default BenefitDetail;
+export default BenefitForPosition;

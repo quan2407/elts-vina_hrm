@@ -26,4 +26,5 @@ public interface BenefitService {
     BenefitResponse getEmployeeAndPositionRegistrationByBenefitId(Long benefitId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
     BenefitDTO getBenefitById(Long id);
+
 }

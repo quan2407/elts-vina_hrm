@@ -1,7 +1,7 @@
 import { Dropdown, Button } from 'antd';
 import { EditOutlined, EyeOutlined, DeleteOutlined, DownOutlined, UnorderedListOutlined} from '@ant-design/icons';
 
-const ActionDropdown = ({ onView, onEdit, onDelete, onDetails }) => {
+const BenefitDetailActionDropdown = ({ onView, onEdit, onDelete, onDetails }) => {
     const handleMenuClick = (e) => {
         if (e.key === 'view') onView?.();
         else if (e.key === 'edit') onEdit?.();
@@ -49,4 +49,4 @@ const ActionDropdown = ({ onView, onEdit, onDelete, onDetails }) => {
     );
 };
 
-export default ActionDropdown;
+export default BenefitDetailActionDropdown;
