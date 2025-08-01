@@ -40,14 +40,13 @@ function EmployeeTable() {
           <div className="employee-header-cell">Phòng ban</div>
           <div className="employee-header-cell">Chuyền sản xuất</div>
           <div className="employee-header-cell">Vị trí</div>
+          <div className="employee-header-cell">Hành động</div>
         </div>
 
         {employees.map((emp) => (
           <div
             key={emp.employeeId}
             className="employee-table-row"
-            onClick={() => handleRowClick(emp.employeeId)}
-            style={{ cursor: "pointer" }}
           >
             <div className="employee-table-cell">{emp.employeeCode}</div>
             <div className="employee-table-cell">{emp.accountUsername}</div>
@@ -59,9 +58,18 @@ function EmployeeTable() {
             <div className="employee-table-cell">{emp.departmentName}</div>
             <div className="employee-table-cell">{emp.lineName}</div>
             <div className="employee-table-cell">{emp.positionName}</div>
+            <div className="employee-table-cell">
+              <button
+                className="employee-detail-btn"
+                onClick={() => handleRowClick(emp.employeeId)}
+              >
+                Xem chi tiết
+              </button>
+            </div>
           </div>
         ))}
       </div>
+
       <div className="employee-pagination-container">
         <button
           className="employee-pagination-btn"
