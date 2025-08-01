@@ -111,9 +111,28 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     }
 
     @Override
-    public Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year, int page, int size) {
+    public Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year, int page, int size, String search) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Employee> employeePage = employeeRepository.findAllActive(pageable);
+
+        List<Employee> filteredEmployees;
+        if (search != null && !search.trim().isEmpty()) {
+            String keyword = search.trim().toLowerCase();
+            filteredEmployees = employeeRepository.findAllActive().stream()
+                    .filter(e -> e.getEmployeeCode().toLowerCase().contains(keyword)
+                            || e.getEmployeeName().toLowerCase().contains(keyword))
+                    .collect(Collectors.toList());
+        } else {
+            // Dùng phân trang mặc định nếu không có search
+            Page<Employee> employeePage = employeeRepository.findAllActive(pageable);
+            filteredEmployees = employeePage.getContent();
+        }
+
+        // Nếu có search, xử lý phân trang thủ công
+        int start = page * size;
+        int end = Math.min(start + size, filteredEmployees.size());
+        List<Employee> pagedEmployees = start >= filteredEmployees.size()
+                ? List.of()
+                : filteredEmployees.subList(start, end);
 
         List<AttendanceRecord> records = attendanceRecordRepository.findByMonthAndYear(month, year);
         Map<Long, List<AttendanceRecord>> recordsByEmployee = records.stream()
@@ -121,7 +140,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
         List<AttendanceMonthlyViewDTO> dtoList = new ArrayList<>();
 
-        for (Employee emp : employeePage.getContent()) {
+        for (Employee emp : pagedEmployees) {
             AttendanceMonthlyViewDTO dto = AttendanceMonthlyViewDTO.builder()
                     .employeeId(emp.getEmployeeId())
                     .employeeCode(emp.getEmployeeCode())
@@ -185,8 +204,9 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
             dtoList.add(dto);
         }
 
-        return new PageImpl<>(dtoList, pageable, employeePage.getTotalElements());
+        return new PageImpl<>(dtoList, pageable, search != null ? filteredEmployees.size() : employeeRepository.findAllActive().size());
     }
+
 
 
     private float parseHour(String value) {

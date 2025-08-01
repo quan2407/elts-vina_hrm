@@ -11,7 +11,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface AttendanceRecordService {
-    Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year, int page, int size);
+    Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year, int page, int size, String search);
+
 
 
     List<MonthYearDTO> getAvailableMonths();

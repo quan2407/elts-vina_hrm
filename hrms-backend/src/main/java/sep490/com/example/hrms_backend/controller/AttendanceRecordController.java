@@ -36,10 +36,12 @@ public class AttendanceRecordController {
             @RequestParam int month,
             @RequestParam int year,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search // <--- thêm dòng này
     ) {
-        return ResponseEntity.ok(attendanceRecordService.getMonthlyAttendance(month, year, page, size));
+        return ResponseEntity.ok(attendanceRecordService.getMonthlyAttendance(month, year, page, size, search));
     }
+
 
     @GetMapping("/employee")
     public ResponseEntity<List<AttendanceMonthlyViewDTO>> viewEmpAttendanceByMonthById(
