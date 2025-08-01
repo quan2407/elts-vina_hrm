@@ -11,16 +11,29 @@ const SalaryMonthlyView = () => {
   const [isLocked, setIsLocked] = useState(false);
   const roles = JSON.parse(localStorage.getItem("role") || "[]");
   const isHrManager = roles.includes("ROLE_HR_MANAGER");
+  const [page, setPage] = useState(0);
+  const [size] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
 
   const fetchSalaries = async () => {
     try {
-      const res = await salaryService.getMonthlySalaries(month, year);
-      setSalaries(res.data);
-      setIsLocked(res.data.length > 0 && res.data[0].locked);
+      const res = await salaryService.getMonthlySalaries(
+        month,
+        year,
+        page,
+        size
+      );
+      setSalaries(res.data.content);
+      setTotalPages(res.data.totalPages);
+      setIsLocked(res.data.content.length > 0 && res.data.content[0].locked);
     } catch (err) {
       console.error("Lỗi khi tải dữ liệu lương:", err);
     }
   };
+
+  useEffect(() => {
+    if (month && year) fetchSalaries();
+  }, [month, year, page]);
 
   useEffect(() => {
     const fetchAvailableMonths = async () => {
@@ -244,6 +257,49 @@ const SalaryMonthlyView = () => {
               ))}
             </tbody>
           </table>
+          <div className="attendance-pagination-container">
+            <button
+              className="attendance-pagination-btn"
+              onClick={() => setPage(0)}
+              disabled={page === 0}
+            >
+              «
+            </button>
+            <button
+              className="attendance-pagination-btn"
+              onClick={() => setPage(page - 1)}
+              disabled={page === 0}
+            >
+              ‹
+            </button>
+
+            {Array.from({ length: totalPages }).map((_, p) => (
+              <button
+                key={p}
+                onClick={() => setPage(p)}
+                className={`attendance-pagination-btn ${
+                  p === page ? "attendance-pagination-active" : ""
+                }`}
+              >
+                {p + 1}
+              </button>
+            ))}
+
+            <button
+              className="attendance-pagination-btn"
+              onClick={() => setPage(page + 1)}
+              disabled={page === totalPages - 1}
+            >
+              ›
+            </button>
+            <button
+              className="attendance-pagination-btn"
+              onClick={() => setPage(totalPages - 1)}
+              disabled={page === totalPages - 1}
+            >
+              »
+            </button>
+          </div>
         </div>
       </div>
     </MainLayout>

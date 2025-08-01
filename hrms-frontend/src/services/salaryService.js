@@ -1,11 +1,11 @@
 import axiosClient from "./axiosClient";
 
 const salaryService = {
-  getMonthlySalaries: (month, year) => {
-    return axiosClient.get("/salaries", {
-      params: { month, year },
-    });
-  },
+  getMonthlySalaries: (month, year, page = 0, size = 10) =>
+    axios.get(`/api/salaries`, {
+      params: { month, year, page, size },
+    }),
+
   regenerateMonthlySalaries: (month, year) => {
     return axiosClient.put("/salaries/regenerate", null, {
       params: { month, year },
