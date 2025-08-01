@@ -216,20 +216,30 @@ public class SalaryServiceImpl implements SalaryService {
         salaryRepository.saveAll(salaries);
     }
     @Override
-    public Page<SalaryDTO> getSalariesByMonth(int month, int year, int page, int size) {
+    public Page<SalaryDTO> getSalariesByMonth(int month, int year, int page, int size, String search) {
         LocalDate firstDay = LocalDate.of(year, month, 1);
         Pageable pageable = PageRequest.of(page, size);
 
         List<Salary> all = salaryRepository.findBySalaryMonth(firstDay);
+
+        // Lọc theo mã hoặc tên nhân viên nếu có search
+        if (search != null && !search.trim().isEmpty()) {
+            String lower = search.trim().toLowerCase();
+            all = all.stream()
+                    .filter(s -> s.getEmployee().getEmployeeCode().toLowerCase().contains(lower)
+                            || s.getEmployee().getEmployeeName().toLowerCase().contains(lower))
+                    .toList();
+        }
+
         List<SalaryDTO> allDTOs = all.stream()
                 .map(SalaryMapper::mapToSalaryDTO)
-                .collect(Collectors.toList());
+                .toList();
 
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), allDTOs.size());
 
         List<SalaryDTO> pagedContent = start >= allDTOs.size() ? List.of() : allDTOs.subList(start, end);
-
         return new PageImpl<>(pagedContent, pageable, allDTOs.size());
     }
+
 }

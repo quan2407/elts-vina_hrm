@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface SalaryService {
     List<SalaryDTO> getSalariesByMonth(int month, int year);
-    Page<SalaryDTO> getSalariesByMonth(int month, int year, int page, int size);
+    Page<SalaryDTO> getSalariesByMonth(int month, int year, int page, int size, String search);
 
     void generateMonthlySalaries(int month, int year);
     void regenerateMonthlySalaries(int month, int year);
