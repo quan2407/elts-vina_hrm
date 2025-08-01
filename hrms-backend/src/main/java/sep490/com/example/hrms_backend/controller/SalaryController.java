@@ -2,6 +2,7 @@ package sep490.com.example.hrms_backend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,13 +34,16 @@ public class SalaryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SalaryDTO>> getSalaries(
+    public ResponseEntity<Page<SalaryDTO>> getSalaries(
             @RequestParam int month,
-            @RequestParam int year
+            @RequestParam int year,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        List<SalaryDTO> salaries = salaryService.getSalariesByMonth(month, year);
+        Page<SalaryDTO> salaries = salaryService.getSalariesByMonth(month, year, page, size);
         return ResponseEntity.ok(salaries);
     }
+
     @PutMapping("/regenerate")
     public ResponseEntity<String> regenerateSalary(
             @RequestParam int month,
