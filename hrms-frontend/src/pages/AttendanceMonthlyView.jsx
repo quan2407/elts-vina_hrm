@@ -5,9 +5,12 @@ import AttendanceModal from "../components/AttendanceModal";
 import LeaveCodeModal from "../components/LeaveCodeModal";
 import { useLocation } from "react-router-dom";
 import salaryService from "../services/salaryService";
-
 import "../styles/AttendanceMonthlyView.css";
 import { Pencil } from "lucide-react";
+import DatePicker from "react-datepicker";
+import { parse } from "date-fns";
+
+import "react-datepicker/dist/react-datepicker.css";
 
 const AttendanceMonthlyView = ({ readOnly = false }) => {
   const location = useLocation();
@@ -29,6 +32,10 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [file, setFile] = useState(null);
+
   const today = new Date();
   const params = new URLSearchParams(location.search);
   const empId = params.get("focusEmployee");
@@ -45,6 +52,17 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
     } catch (error) {
       console.error("Tạo bảng lương thất bại:", error);
       alert("Tạo bảng lương thất bại!");
+    }
+  };
+  const handleImportAttendance = async (file, date) => {
+    try {
+      await attendanceService.importAttendanceFromExcel(file, date);
+      alert("Import thành công.");
+      setImportModalOpen(false);
+      fetchAttendance();
+    } catch (error) {
+      console.error("Import lỗi:", error);
+      alert("Import thất bại!");
     }
   };
 
@@ -130,22 +148,41 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
 
   const fetchAttendance = async () => {
     try {
+      console.log("🎯 Calling API with:", {
+        month,
+        year,
+        page,
+        size,
+        searchTerm,
+      });
       const response = await attendanceService.getMonthlyAttendance(
         month,
         year,
         page,
-        size
+        size,
+        searchTerm
       );
+      console.log("✅ RESPONSE DATA:", response.data);
       setData(response.data.content);
       console.log(
         "👤 Employees:",
         response.data.content.map((e) => e.employeeId)
       );
       setTotalPages(response.data.totalPages);
+      console.log("📦 response.data =", response.data);
     } catch (error) {
       console.error("Fetch attendance failed:", error);
     }
   };
+  useEffect(() => {
+    const debounceTimeout = setTimeout(() => {
+      if (month && year) {
+        fetchAttendance();
+      }
+    }, 100);
+
+    return () => clearTimeout(debounceTimeout);
+  }, [searchTerm]);
 
   const daysInMonth = month && year ? new Date(year, month, 0).getDate() : 0;
 
@@ -362,10 +399,116 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
             >
               Xuất Excel
             </button>
+            <button
+              className="generate-salary-btn"
+              style={{ backgroundColor: "#22c55e", marginLeft: "8px" }}
+              onClick={() => setImportModalOpen(true)}
+            >
+              Import Excel
+            </button>
+
+            {importModalOpen && (
+              <div className="import-popup-overlay">
+                <div className="import-popup-content">
+                  <h3>Nhập file chấm công Excel</h3>
+
+                  <div style={{ marginBottom: "12px" }}>
+                    <label style={{ marginRight: "8px" }}>
+                      Chọn ngày áp dụng:
+                    </label>
+                    <DatePicker
+                      selected={
+                        selectedDate
+                          ? parse(selectedDate, "dd-MM-yyyy", new Date())
+                          : null
+                      }
+                      onChange={(date) => {
+                        const day = String(date.getDate()).padStart(2, "0");
+                        const month = String(date.getMonth() + 1).padStart(
+                          2,
+                          "0"
+                        );
+                        const year = date.getFullYear();
+                        const formatted = `${day}-${month}-${year}`;
+                        setSelectedDate(formatted);
+                        console.log("Ngày được chọn:", formatted);
+                      }}
+                      dateFormat="dd-MM-yyyy"
+                      placeholderText="Chọn ngày áp dụng"
+                      minDate={new Date(year, month - 1, 1)}
+                      maxDate={
+                        new Date(new Date().setDate(new Date().getDate() - 1))
+                      }
+                      className="attendance-search-input"
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: "12px" }}>
+                    <label>Chọn file Excel (.xlsx): </label>
+                    <input
+                      type="file"
+                      accept=".xlsx"
+                      onChange={(e) => setFile(e.target.files[0])}
+                    />
+                  </div>
+
+                  <div className="import-popup-actions">
+                    <button
+                      onClick={() => {
+                        if (!selectedDate || !file) {
+                          alert("Vui lòng chọn ngày và file Excel.");
+                          return;
+                        }
+
+                        // ✅ Chuyển từ dd-MM-yyyy => yyyy-MM-dd
+                        const [day, month, year] = selectedDate.split("-");
+                        const apiFormattedDate = `${year}-${month}-${day}`;
+                        console.log("📤 Gửi API với ngày:", apiFormattedDate);
+
+                        handleImportAttendance(file, apiFormattedDate);
+                      }}
+                      style={{
+                        padding: "8px 14px",
+                        backgroundColor: "#22c55e",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      Import
+                    </button>
+                    <button
+                      onClick={() => setImportModalOpen(false)}
+                      style={{
+                        padding: "8px 14px",
+                        backgroundColor: "#ccc",
+                        border: "none",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      Hủy
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         <div className="attendance-table-wrapper">
+          <div className="attendance-search-wrapper">
+            <input
+              type="text"
+              className="attendance-search-input"
+              placeholder="Tìm mã hoặc tên nhân viên..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(0);
+              }}
+            />
+          </div>
+
           <table className="attendance-table">
             <thead>
               <tr>

@@ -23,9 +23,10 @@ import sep490.com.example.hrms_backend.service.AttendanceRecordService;
 
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -111,9 +112,28 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     }
 
     @Override
-    public Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year, int page, int size) {
+    public Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year, int page, int size, String search) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Employee> employeePage = employeeRepository.findAllActive(pageable);
+
+        List<Employee> filteredEmployees;
+        if (search != null && !search.trim().isEmpty()) {
+            String keyword = search.trim().toLowerCase();
+            filteredEmployees = employeeRepository.findAllActive().stream()
+                    .filter(e -> e.getEmployeeCode().toLowerCase().contains(keyword)
+                            || e.getEmployeeName().toLowerCase().contains(keyword))
+                    .collect(Collectors.toList());
+        } else {
+            // Dùng phân trang mặc định nếu không có search
+            Page<Employee> employeePage = employeeRepository.findAllActive(pageable);
+            filteredEmployees = employeePage.getContent();
+        }
+
+        // Nếu có search, xử lý phân trang thủ công
+        int start = page * size;
+        int end = Math.min(start + size, filteredEmployees.size());
+        List<Employee> pagedEmployees = start >= filteredEmployees.size()
+                ? List.of()
+                : filteredEmployees.subList(start, end);
 
         List<AttendanceRecord> records = attendanceRecordRepository.findByMonthAndYear(month, year);
         Map<Long, List<AttendanceRecord>> recordsByEmployee = records.stream()
@@ -121,7 +141,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
         List<AttendanceMonthlyViewDTO> dtoList = new ArrayList<>();
 
-        for (Employee emp : employeePage.getContent()) {
+        for (Employee emp : pagedEmployees) {
             AttendanceMonthlyViewDTO dto = AttendanceMonthlyViewDTO.builder()
                     .employeeId(emp.getEmployeeId())
                     .employeeCode(emp.getEmployeeCode())
@@ -185,8 +205,13 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
             dtoList.add(dto);
         }
 
-        return new PageImpl<>(dtoList, pageable, employeePage.getTotalElements());
+        return new PageImpl<>(dtoList, pageable,
+                (search != null && !search.trim().isEmpty())
+                        ? filteredEmployees.size()
+                        : employeeRepository.findAllActive().size());
+
     }
+
 
 
     private float parseHour(String value) {
@@ -372,14 +397,27 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
             Map<String, Employee> employeeMap = new HashMap<>();
             Map<String, LocalDate> dateMap = new HashMap<>();
 
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
 
                 String employeeCode = formatter.formatCellValue(row.getCell(3)).trim();
-                Date timeValue = row.getCell(1).getDateCellValue();
-                LocalDate date = timeValue.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                LocalTime time = timeValue.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+                String timeStr = formatter.formatCellValue(row.getCell(1)).trim();
+
+                if (employeeCode.isEmpty() || timeStr.isEmpty()) continue;
+
+                LocalDateTime dateTime;
+                try {
+                    dateTime = LocalDateTime.parse(timeStr, dateTimeFormatter);
+                } catch (DateTimeParseException e) {
+                    System.err.println("⚠ Không thể parse thời gian ở dòng " + (i + 1) + ": \"" + timeStr + "\"");
+                    continue;
+                }
+
+                LocalDate date = dateTime.toLocalDate();
+                LocalTime time = dateTime.toLocalTime();
 
                 // ❌ Skip nếu không đúng ngày
                 if (!date.equals(targetDate)) continue;
@@ -458,6 +496,8 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
             throw new RuntimeException("Import thất bại: " + e.getMessage(), e);
         }
     }
+
+
 
 
 

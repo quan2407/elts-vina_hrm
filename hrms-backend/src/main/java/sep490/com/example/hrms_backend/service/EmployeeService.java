@@ -1,5 +1,6 @@
 package sep490.com.example.hrms_backend.service;
 
+import org.springframework.data.domain.Page;
 import sep490.com.example.hrms_backend.dto.*;
 
 import java.io.ByteArrayInputStream;
@@ -7,7 +8,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface EmployeeService {
-    List<EmployeeResponseDTO> getAllEmployees();
     EmployeeResponseDTO createEmployee(EmployeeRequestDTO dto);
     EmployeeResponseDTO updateEmployee(Long id, EmployeeUpdateDTO dto);
     EmployeeDetailDTO getEmployeeDetailById(Long id);
@@ -28,4 +28,6 @@ public interface EmployeeService {
     String getNextEmployeeCode();
     public List<GenderDistributionDTO> getGenderDistribution(LocalDate startDate, LocalDate endDate);
     public List<DepartmentDistributionDTO> getDepartmentDistribution(LocalDate startDate, LocalDate endDate);
+
+    Page<EmployeeResponseDTO> getAllEmployees(int page, int size, String search);
 }
