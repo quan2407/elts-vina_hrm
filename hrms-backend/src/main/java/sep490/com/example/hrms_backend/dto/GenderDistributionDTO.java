@@ -5,7 +5,8 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class LeaveCodeUpdateDTO {
-    private String leaveCode;
-    private String targetField;
+public class GenderDistributionDTO {
+    private String gender;
+    private long count;
+
 }

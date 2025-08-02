@@ -4,8 +4,10 @@ package sep490.com.example.hrms_backend.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import sep490.com.example.hrms_backend.dto.AttendanceCheckInOutDTO;
 import sep490.com.example.hrms_backend.dto.AttendanceMonthlyViewDTO;
 import sep490.com.example.hrms_backend.dto.LeaveCodeUpdateDTO;
@@ -13,6 +15,7 @@ import sep490.com.example.hrms_backend.dto.MonthYearDTO;
 import sep490.com.example.hrms_backend.service.AttendanceRecordService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -64,4 +67,12 @@ public class AttendanceRecordController {
         attendanceRecordService.updateLeaveCode(id, dto);
         return ResponseEntity.ok("Cập nhật mã nghỉ thành công");
     }
+    @PostMapping("/import")
+    public ResponseEntity<String> importAttendance(@RequestParam("file") MultipartFile file,
+                                                   @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        attendanceRecordService.importAttendanceFromExcel(file, date);
+        return ResponseEntity.ok("Import thành công");
+    }
+
+
 }

@@ -45,6 +45,5 @@ public class CurrentUserUtils {
                 .map(employee -> employee.getEmployeeName())
                 .orElseThrow(() -> new HRMSAPIException("Không tìm thấy thông tin nhân viên hiện tại!"));
     }
-
 }
 
