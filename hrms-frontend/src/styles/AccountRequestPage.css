@@ -64,3 +64,37 @@
   background-color: #a5b4fc;
   cursor: not-allowed;
 }
+.account-request-pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1.5rem;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.account-request-pagination-btn {
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  background-color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  min-width: 36px;
+  line-height: 1.2;
+  color: #111;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.account-request-pagination-btn:disabled {
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+.account-request-pagination-active {
+  background-color: #4f46e5;
+  color: white;
+  font-weight: bold;
+  border-color: #4f46e5;
+}

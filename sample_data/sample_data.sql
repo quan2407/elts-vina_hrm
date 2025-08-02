@@ -85,7 +85,7 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 
 -- Insert quyền cho module Account Request
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
-(6, 'GET', '/api/account-requests/*', 'Xem danh sách yêu cầu tạo tài khoản', 'Account Request'),
+(6, 'GET', '/api/account-requests', 'Xem danh sách yêu cầu tạo tài khoản', 'Account Request'),
 (7, 'POST', '/api/account-requests/*/approve', 'Duyệt yêu cầu tạo tài khoản', 'Account Request'),
 (8, 'POST', '/api/account-requests/*/reject', 'Từ chối yêu cầu tạo tài khoản', 'Account Request');
 
@@ -120,6 +120,7 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 -- PMC, EMPLOYEE: chỉ được tạo, xem danh sách của bản thân, chi tiết, sửa đơn
 INSERT INTO role_permission (role_id, permission_id) VALUES 
 (7, 9), (7, 10), (7, 11), (7, 12), -- PMC
+(3, 9), (3, 10), (3, 11), (3, 12), 
 (6, 9), (6, 10), (6, 11), (6, 12); -- EMPLOYEE
 
 -- PRODUCTION_MANAGER: tạo, xem, sửa đơn và duyệt bước 1
@@ -379,7 +380,7 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 
 -- EMPLOYEE được xem lương của mình và danh sách tháng
 INSERT INTO role_permission (role_id, permission_id) VALUES
-(6, 80), (6, 81);
+(6, 80), (6, 81),(3,80),(3,81);
 -- Module: WorkSchedule
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 (83, 'POST', '/api/work-schedules', 'Tạo lịch làm việc cho toàn bộ', 'WorkSchedule'),
@@ -405,11 +406,12 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 
 -- EMPLOYEE (6): chỉ xem lịch của mình
 INSERT INTO role_permission (role_id, permission_id) VALUES
-(6, 88);
+(6, 88),(3,88);
 -- Gán quyền permission_id = 84 cho các role còn thiếu
 INSERT INTO role_permission (role_id, permission_id) VALUES
 (4, 84),  -- PRODUCTION_MANAGER
 (6, 84),  -- EMPLOYEE
+(3,84),
 (2, 84),  -- HR
 (8, 84);  -- HR_MANAGER
 -- Module: WorkScheduleDetail

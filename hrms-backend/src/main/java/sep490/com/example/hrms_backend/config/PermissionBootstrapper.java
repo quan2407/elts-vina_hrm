@@ -106,6 +106,17 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Notification",
                 allRoles
         );
-
+        permissionRegistrationService.registerPermission(
+                "/api/work-schedule-details/export-work-schedule",
+                "POST",
+                "Work Schedule",
+                List.of("ROLE_HR", "ROLE_HR_MANAGER", "ROLE_PRODUCTION_MANAGER")
+        );
+        permissionRegistrationService.registerPermission(
+                "/api/salaries/export",
+                "GET",
+                "Salary",
+                List.of("ROLE_HR", "ROLE_HR_MANAGER")
+        );
     }
 }

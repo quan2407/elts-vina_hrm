@@ -1,11 +1,11 @@
 import axiosClient from "./axiosClient";
 
 const salaryService = {
-  getMonthlySalaries: (month, year) => {
-    return axiosClient.get("/salaries", {
-      params: { month, year },
-    });
-  },
+  getMonthlySalaries: (month, year, page = 0, size = 10, search = "") =>
+    axiosClient.get("/salaries", {
+      params: { month, year, page, size, search },
+    }),
+
   regenerateMonthlySalaries: (month, year) => {
     return axiosClient.put("/salaries/regenerate", null, {
       params: { month, year },
@@ -23,6 +23,12 @@ const salaryService = {
   lockSalaryMonth: (month, year, locked) => {
     return axiosClient.put("/salaries/lock", null, {
       params: { month, year, locked },
+    });
+  },
+  exportMonthlySalaries: (month, year) => {
+    return axiosClient.get("/salaries/export", {
+      params: { month, year },
+      responseType: "blob",
     });
   },
 };

@@ -23,9 +23,10 @@ import sep490.com.example.hrms_backend.service.AttendanceRecordService;
 
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -111,9 +112,28 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     }
 
     @Override
-    public Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year, int page, int size) {
+    public Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year, int page, int size, String search) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Employee> employeePage = employeeRepository.findAllActive(pageable);
+
+        List<Employee> filteredEmployees;
+        if (search != null && !search.trim().isEmpty()) {
+            String keyword = search.trim().toLowerCase();
+            filteredEmployees = employeeRepository.findAllActive().stream()
+                    .filter(e -> e.getEmployeeCode().toLowerCase().contains(keyword)
+                            || e.getEmployeeName().toLowerCase().contains(keyword))
+                    .collect(Collectors.toList());
+        } else {
+            // Dùng phân trang mặc định nếu không có search
+            Page<Employee> employeePage = employeeRepository.findAllActive(pageable);
+            filteredEmployees = employeePage.getContent();
+        }
+
+        // Nếu có search, xử lý phân trang thủ công
+        int start = page * size;
+        int end = Math.min(start + size, filteredEmployees.size());
+        List<Employee> pagedEmployees = start >= filteredEmployees.size()
+                ? List.of()
+                : filteredEmployees.subList(start, end);
 
         List<AttendanceRecord> records = attendanceRecordRepository.findByMonthAndYear(month, year);
         Map<Long, List<AttendanceRecord>> recordsByEmployee = records.stream()
@@ -121,7 +141,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
         List<AttendanceMonthlyViewDTO> dtoList = new ArrayList<>();
 
-        for (Employee emp : employeePage.getContent()) {
+        for (Employee emp : pagedEmployees) {
             AttendanceMonthlyViewDTO dto = AttendanceMonthlyViewDTO.builder()
                     .employeeId(emp.getEmployeeId())
                     .employeeCode(emp.getEmployeeCode())
@@ -185,8 +205,13 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
             dtoList.add(dto);
         }
 
-        return new PageImpl<>(dtoList, pageable, employeePage.getTotalElements());
+        return new PageImpl<>(dtoList, pageable,
+                (search != null && !search.trim().isEmpty())
+                        ? filteredEmployees.size()
+                        : employeeRepository.findAllActive().size());
+
     }
+
 
 
     private float parseHour(String value) {
@@ -372,14 +397,27 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
             Map<String, Employee> employeeMap = new HashMap<>();
             Map<String, LocalDate> dateMap = new HashMap<>();
 
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
 
                 String employeeCode = formatter.formatCellValue(row.getCell(3)).trim();
-                Date timeValue = row.getCell(1).getDateCellValue();
-                LocalDate date = timeValue.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                LocalTime time = timeValue.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+                String timeStr = formatter.formatCellValue(row.getCell(1)).trim();
+
+                if (employeeCode.isEmpty() || timeStr.isEmpty()) continue;
+
+                LocalDateTime dateTime;
+                try {
+                    dateTime = LocalDateTime.parse(timeStr, dateTimeFormatter);
+                } catch (DateTimeParseException e) {
+                    System.err.println("⚠ Không thể parse thời gian ở dòng " + (i + 1) + ": \"" + timeStr + "\"");
+                    continue;
+                }
+
+                LocalDate date = dateTime.toLocalDate();
+                LocalTime time = dateTime.toLocalTime();
 
                 // ❌ Skip nếu không đúng ngày
                 if (!date.equals(targetDate)) continue;
@@ -462,6 +500,8 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
 
 
+
+
     private WorkSchedule getScheduleForEmployeeOnDate(Employee employee, LocalDate date) {
         Long lineId = employee.getLine() != null ? employee.getLine().getLineId() : null;
         Long departmentId = employee.getDepartment().getDepartmentId();
@@ -483,5 +523,96 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         return hasDetail ? schedule : null;
     }
 
+    @Override
+    public List<AttendanceMonthlyViewDTO> getAttendanceForExport(int month, int year) {
+        // Lấy tất cả các nhân viên
+        List<Employee> employees = employeeRepository.findAllActive();
+
+        // Lấy tất cả các bản ghi chấm công trong tháng và năm cho tất cả nhân viên
+        List<AttendanceRecord> records = attendanceRecordRepository.findByMonthAndYear(month, year);
+
+        // Nhóm các bản ghi chấm công theo từng nhân viên
+        Map<Long, List<AttendanceRecord>> recordsByEmployee = records.stream()
+                .collect(Collectors.groupingBy(r -> r.getEmployee().getEmployeeId()));
+
+        List<AttendanceMonthlyViewDTO> dtoList = new ArrayList<>();
+
+        // Xử lý cho từng nhân viên
+        for (Employee emp : employees) {
+            AttendanceMonthlyViewDTO dto = AttendanceMonthlyViewDTO.builder()
+                    .employeeId(emp.getEmployeeId())
+                    .employeeCode(emp.getEmployeeCode())
+                    .employeeName(emp.getEmployeeName())
+                    .departmentName(emp.getDepartment() != null ? emp.getDepartment().getDepartmentName() : null)
+                    .positionName(emp.getPosition() != null ? emp.getPosition().getPositionName() : null)
+                    .lineName(emp.getLine() != null ? emp.getLine().getLineName() : null)
+                    .attendanceByDate(new LinkedHashMap<>()) // Khởi tạo bản đồ ngày tháng
+                    .totalDayShiftHours(0f)
+                    .totalOvertimeHours(0f)
+                    .totalWeekendHours(0f)
+                    .totalHolidayHours(0f)
+                    .totalHours(0f)
+                    .build();
+
+            // Lấy tất cả bản ghi chấm công của nhân viên này
+            List<AttendanceRecord> empRecords = recordsByEmployee.getOrDefault(emp.getEmployeeId(), Collections.emptyList());
+
+            // Duyệt qua từng bản ghi chấm công và cập nhật thông tin vào DTO
+            for (AttendanceRecord record : empRecords) {
+                String dateKey = String.valueOf(record.getDate().getDayOfMonth());
+
+                boolean hasSchedule = false;
+                boolean isWeekend = false;
+
+                // Kiểm tra xem bản ghi này có lịch làm việc hay không và có phải cuối tuần không
+                if (record.getWorkSchedule() != null && record.getWorkSchedule().getWorkScheduleDetails() != null) {
+                    Optional<WorkScheduleDetail> detailOpt = record.getWorkSchedule().getWorkScheduleDetails().stream()
+                            .filter(detail -> detail.getDateWork().equals(record.getDate()))
+                            .findFirst();
+                    if (detailOpt.isPresent()) {
+                        hasSchedule = true;
+                        isWeekend = detailOpt.get().getDateWork().getDayOfWeek().getValue() == 7; // Chủ nhật
+                    }
+                }
+
+                boolean isHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(record.getDate());
+
+                // Tạo đối tượng AttendanceCellDTO để lưu thông tin của một ngày
+                AttendanceCellDTO cell = AttendanceCellDTO.builder()
+                        .attendanceRecordId(record.getId())
+                        .shift(record.getDayShift())
+                        .overtime(record.getOtShift())
+                        .weekend(record.getWeekendShift())
+                        .holiday(record.getHolidayShift())
+                        .hasScheduleDetail(hasSchedule)
+                        .checkIn(record.getCheckInTime() != null ? record.getCheckInTime().toString() : null)
+                        .checkOut(record.getCheckOutTime() != null ? record.getCheckOutTime().toString() : null)
+                        .holidayFlag(isHoliday)
+                        .weekendFlag(isWeekend)
+                        .build();
+
+                // Thêm thông tin chấm công vào bản đồ theo ngày
+                dto.getAttendanceByDate().put(dateKey, cell);
+
+                // Cộng dồn tổng số giờ cho từng loại công
+                dto.setTotalDayShiftHours(dto.getTotalDayShiftHours() + parseHour(record.getDayShift()));
+                dto.setTotalOvertimeHours(dto.getTotalOvertimeHours() + parseHour(record.getOtShift()));
+                dto.setTotalWeekendHours(dto.getTotalWeekendHours() + parseHour(record.getWeekendShift()));
+                dto.setTotalHolidayHours(dto.getTotalHolidayHours() + parseHour(record.getHolidayShift()));
+            }
+
+            // Tính tổng số giờ làm việc của nhân viên trong tháng
+            dto.setTotalHours(dto.getTotalDayShiftHours()
+                    + dto.getTotalOvertimeHours()
+                    + dto.getTotalWeekendHours()
+                    + dto.getTotalHolidayHours());
+
+            // Thêm vào danh sách kết quả
+            dtoList.add(dto);
+        }
+
+        // Trả về danh sách DTO chứa tất cả thông tin chấm công của nhân viên
+        return dtoList;
+    }
 
 }
