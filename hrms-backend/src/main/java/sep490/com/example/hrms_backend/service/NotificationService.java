@@ -13,4 +13,8 @@ public interface NotificationService {
     Notification addNotification(NotificationType type, Account sender, Set<Account> recipients);
 
     List<NotificationDto> getNotification(Long employeeId);
+
+    List<NotificationDto> getTodayNotification(Long empId);
+
+    void markAsRead(Long id, Long employeeId);
 }

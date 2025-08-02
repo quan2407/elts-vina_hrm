@@ -50,8 +50,22 @@ public class PermissionBootstrapper implements ApplicationRunner {
         permissionRegistrationService.registerPermission(
                 "/api/candidate/*",
                 "GET",
-                "Role",
-                List.of("ROLE_HR","ROLE_PRODUCTION_MANAGER", "ROLE_HR_MANAGER")
+                "Recruitment",
+                List.of("ROLE_HR", "ROLE_PRODUCTION_MANAGER", "ROLE_HR_MANAGER")
+        );
+
+        permissionRegistrationService.registerPermission(
+                "/api/notification",
+                "GET",
+                "Notification",
+                allRoles
+        );
+
+        permissionRegistrationService.registerPermission(
+                "/api/notification/*/read",
+                "PATCH",
+                "Notification",
+                allRoles
         );
         // Đăng ký thêm các API quan trọng khác tại đây nếu cần
     }
