@@ -34,5 +34,4 @@ public class BenefitPosition {
     @JoinColumn(name = "benefit_id", nullable = false)
     private Benefit benefit;
 
-
 }

@@ -1,22 +1,19 @@
 import React, { useEffect, useState, useRef } from "react";
 import { jwtDecode } from "jwt-decode";
-import {
-  Bell,
-  ChevronDown,
-  User,
-  Key,
-  HelpCircle,
-  LogOut,
-} from "lucide-react";
+import { Bell, ChevronDown, User, Key, HelpCircle, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Header.css";
-import { getNotifications, markNotificationAsRead } from "../services/notificationService";
+import {
+  getNotifications,
+  markNotificationAsRead,
+} from "../services/notificationService";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 
 function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
+  const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] =
+    useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notificationFilter, setNotificationFilter] = useState("all");
   const stompClient = useRef(null);
@@ -93,11 +90,14 @@ function Header() {
       reconnectDelay: 5000,
       onConnect: () => {
         console.log("✅ Connected to WebSocket");
-        stompClient.current.subscribe("/user/queue/notifications", (message) => {
-          console.log("📨 Received notification:", message.body);
-          const newNoti = JSON.parse(message.body);
-          setNotifications((prev) => [newNoti, ...prev]);
-        });
+        stompClient.current.subscribe(
+          "/user/queue/notifications",
+          (message) => {
+            console.log("📨 Received notification:", message.body);
+            const newNoti = JSON.parse(message.body);
+            setNotifications((prev) => [newNoti, ...prev]);
+          }
+        );
       },
       onStompError: (frame) => {
         console.error("❌ STOMP Error:", frame);
@@ -134,7 +134,10 @@ function Header() {
           className="action-button"
           onClick={() => setIsNotificationDropdownOpen((prev) => !prev)}
         >
-          <Bell size={20} stroke="#000" />
+          <Bell
+            size={20}
+            stroke="#000"
+          />
           {notifications.some((n) => !n.isRead) && (
             <div className="notification-badge">
               {notifications.filter((n) => !n.isRead).length}
@@ -165,7 +168,9 @@ function Header() {
               ) : (
                 filteredNotifications.map((noti) => (
                   <div
-                    className={`notification-item ${!noti.isRead ? "unread" : ""}`}
+                    className={`notification-item ${
+                      !noti.isRead ? "unread" : ""
+                    }`}
                     key={noti.id}
                     onClick={() => handleNotificationClick(noti.id)}
                     style={{ cursor: "pointer" }}
@@ -200,7 +205,10 @@ function Header() {
             alt="User"
           />
           <span className="header-username">{username}</span>
-          <ChevronDown size={16} stroke="#000" />
+          <ChevronDown
+            size={16}
+            stroke="#000"
+          />
         </div>
 
         {isDropdownOpen && (
@@ -208,17 +216,26 @@ function Header() {
             <div className="profile-info">
               <div className="profile-name">{username}</div>
             </div>
-            <div className="profile-item" onClick={handleGoToProfile}>
+            <div
+              className="profile-item"
+              onClick={handleGoToProfile}
+            >
               <User size={16} /> <span>Hồ sơ cá nhân</span>
             </div>
-            <div className="profile-item" onClick={handleChangePassword}>
+            <div
+              className="profile-item"
+              onClick={handleChangePassword}
+            >
               <Key size={16} /> <span>Đổi mật khẩu</span>
             </div>
             <div className="profile-item">
               <HelpCircle size={16} /> <span>Hỗ trợ</span>
             </div>
             <div className="profile-divider"></div>
-            <div className="profile-item profile-logout" onClick={handleSignOut}>
+            <div
+              className="profile-item profile-logout"
+              onClick={handleSignOut}
+            >
               <LogOut size={16} /> <span>Đăng xuất</span>
             </div>
           </div>
