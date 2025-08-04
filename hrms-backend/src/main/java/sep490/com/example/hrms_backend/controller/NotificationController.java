@@ -2,10 +2,7 @@ package sep490.com.example.hrms_backend.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.NotificationDto;
 import sep490.com.example.hrms_backend.service.NotificationService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
@@ -13,7 +10,7 @@ import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 import java.util.List;
 
 @RestController
-@RequestMapping("/notification")
+@RequestMapping("/api/notification")
 @AllArgsConstructor
 public class NotificationController {
 
@@ -21,7 +18,7 @@ public class NotificationController {
     private final CurrentUserUtils currentUserUtils;
 
     @GetMapping
-    public ResponseEntity<?> getNotificvationList() {
+    public ResponseEntity<?> getNotificationList() {
 
         Long employeeId = currentUserUtils.getCurrentEmployeeId();
 
@@ -29,6 +26,16 @@ public class NotificationController {
 
         return ResponseEntity.ok(notificationList);
 
+    }
+
+
+    @PatchMapping("/{id}/read")
+    public ResponseEntity<?> markAsRead(
+            @PathVariable Long id
+    ) {
+        Long employeeId = currentUserUtils.getCurrentEmployeeId();
+        notificationService.markAsRead(id, employeeId);
+        return ResponseEntity.ok().build();
     }
 
 }

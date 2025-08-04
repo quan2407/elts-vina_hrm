@@ -36,7 +36,7 @@ public class RecruitmentDto {
     @Min(value = 1, message = "Số lượng tuyển dụng phải lớn hơn 0")
     private Long maxSalary;
 
-    @NotNull(message = "Số lượng tuyển dụng không được trống")
+    @NotNull(message = "Số lượng tuyển dụng phải là số nguyên dương")
     @Min(value = 1, message = "Số lượng tuyển dụng phải lớn hơn 0")
     private Integer quantity; // số lượng cần tuyển
     @NotNull(message = "Hạn tuyển dụng không được trống")
