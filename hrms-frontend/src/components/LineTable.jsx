@@ -72,9 +72,9 @@ const LineTable = forwardRef(({ searchTerm }) => {
             <div className="line-table">
                 <div className="line-table-header">
                     <div className="line-header-cell">Id</div>
-                    <div className="line-header-cell">tên line</div>
+                    <div className="line-header-cell">Tên line</div>
                     <div className="line-header-cell">Số lượng nhân viên</div>
-                    <div className="line-header-cell">tổ trưởng</div>
+                    <div className="line-header-cell">Tổ trưởng</div>
                     <div className="line-header-cell">Hành động</div>
                 </div>
                 {line.length === 0 && (

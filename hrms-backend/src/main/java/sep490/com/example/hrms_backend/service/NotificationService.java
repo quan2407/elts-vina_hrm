@@ -10,7 +10,7 @@ import java.util.Set;
 
 public interface NotificationService {
 
-    Notification addNotification(NotificationType type, Account sender, Set<Account> recipients);
+    Notification addNotification(NotificationType type, Account sender, Account recipients);
 
     List<NotificationDto> getNotification(Long employeeId);
 

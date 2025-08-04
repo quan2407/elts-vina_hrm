@@ -61,8 +61,9 @@ public class Account {
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @ManyToMany(mappedBy = "account")
-    private Set<Notification> notifications;
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications;
+
 
     @OneToMany(mappedBy = "account")
     private List<SystemLog> systemLogs;
