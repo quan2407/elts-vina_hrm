@@ -36,6 +36,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     private final AccountRepository accountRepository;
     private final AccountService accountService;
     private final AccountRequestRepository accountRequestRepository;
+    private final RoleRepository roleRepository;
 
     @Override
     public Page<EmployeeResponseDTO> getAllEmployees(int page, int size, String search) {
@@ -98,7 +99,6 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     }
 
 
-
     @Override
     public List<EmployeeResponseDTO> getEmployeeByLineId(Long id) {
 
@@ -119,7 +119,6 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
                 .collect(Collectors.toList());
 
 
-
         return employees;
     }
 
@@ -128,9 +127,24 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     public void addEmployeesToLine(Long lineId, List<Long> employeeIds) {
         Line line = lineRepository.findById(lineId).orElseThrow(() -> new ResourceNotFoundException("Line", "id", lineId));
 
+        Position p = positionRepository.findByPositionName("Công Nhân");
+
+        Role r = roleRepository.findByRoleName("ROLE_EMPLOYEE")
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy quyền ROLE_EMPLOYEE"));
+
+
         for (Long employeeId : employeeIds) {
             Employee e = employeeRepository.findById(employeeId).orElseThrow(() -> new ResourceNotFoundException("Employee", "id", employeeId));
 
+            if (!e.getPosition().getPositionName().equalsIgnoreCase("Công Nhân")) {
+                e.setPosition(p);
+            }
+
+            if (!e.getAccount().getRole().getRoleName().equalsIgnoreCase("ROLE_EMPLOYEE")) {
+                Account a = e.getAccount();
+                a.setRole(r);
+                accountRepository.save(a);
+            }
             Line oldLine = e.getLine();
             if (oldLine != null) {
                 Employee currentLeader = oldLine.getLeader();
@@ -210,7 +224,6 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
         return EmployeeMapper.mapToEmployeeDetailDTO(employee);
     }
-
 
 
     private void checkDuplicateFieldsForCreate(EmployeeRequestDTO dto) {
@@ -323,6 +336,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
             throw new HRMSAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi xuất file Excel");
         }
     }
+
     @Override
     public List<GenderDistributionDTO> getGenderDistribution(LocalDate startDate, LocalDate endDate) {
         List<Object[]> result = employeeRepository.findGenderDistributionByDateRange(startDate, endDate);

@@ -13,6 +13,7 @@ import sep490.com.example.hrms_backend.repository.AccountRepository;
 import sep490.com.example.hrms_backend.repository.EmployeeRepository;
 import sep490.com.example.hrms_backend.repository.NotificationRepository;
 import sep490.com.example.hrms_backend.service.NotificationService;
+import sep490.com.example.hrms_backend.websocket.NotificationWebSocketSender;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,6 +26,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final AccountRepository accountRepository;
     private final EmployeeRepository employeeRepository;
+    private final NotificationWebSocketSender notificationWebSocketSender;
 
     @Override
     public Notification addNotification(NotificationType type, Account sender, Set<Account> recipients) {
@@ -64,8 +66,12 @@ public class NotificationServiceImpl implements NotificationService {
                 .account(recipients)
                 .build();
 
-        return notificationRepository.save(notification);
-    }
+        Notification saved = notificationRepository.save(notification);
+
+        NotificationDto dto = NotificationMapper.toDto(saved);
+        notificationWebSocketSender.sendToAccounts(recipients, dto); // 🔥 Gửi WebSocket
+
+        return saved;    }
 
     @Override
     public List<NotificationDto> getNotification(Long employeeId) {
@@ -82,17 +88,6 @@ public class NotificationServiceImpl implements NotificationService {
                 .toList();
     }
 
-    @Override
-    public List<NotificationDto> getTodayNotification(Long empId) {
-        Account account = accountRepository.findByEmployee_EmployeeId(empId).orElseThrow(() -> new RuntimeException("Không tìm thấy taì khoản cho nhân viên"));
-
-        Set<Notification> notifications = account.getNotifications();
-        return notifications.stream()
-                .filter(n -> n.getCreatedAt().toLocalDate().isEqual(LocalDateTime.now().toLocalDate()))
-                .sorted((n1, n2) -> n2.getCreatedAt().compareTo(n1.getCreatedAt()))
-                .map(NotificationMapper::toDto)
-                .toList();
-    }
 
     @Transactional
     public void markAsRead(Long notificationId, Long employeeId) {

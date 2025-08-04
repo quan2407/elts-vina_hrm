@@ -14,7 +14,7 @@ public interface NotificationService {
 
     List<NotificationDto> getNotification(Long employeeId);
 
-    List<NotificationDto> getTodayNotification(Long empId);
+//    List<NotificationDto> getTodayNotification(Long empId);
 
     void markAsRead(Long id, Long employeeId);
 }
