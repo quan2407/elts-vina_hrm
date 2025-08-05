@@ -7,6 +7,8 @@ import { Save } from "lucide-react";
 import "../styles/EmployeeDetails.css";
 import { CreateRecruitment } from "../services/recruitmentService";
 import departmentService from "../services/departmentService";
+import SuccessModal from "../components/popup/SuccessModal.jsx";
+import { useNavigate } from "react-router-dom";
 
 function RecruitmentCreate() {
     const [title, setTitle] = useState("");
@@ -21,6 +23,12 @@ function RecruitmentCreate() {
     const [expiredAt, setExpiredAt] = useState("");
     const [departments, setDepartments] = useState([]);
     const [departmentId, setDepartmentId] = useState("");
+    const navigate = useNavigate();
+
+    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+    const [isFailModalOpen, setIsFailModalOpen] = useState(false);
+
+
 
     const resetForm = () => {
         setTitle("");
@@ -35,7 +43,9 @@ function RecruitmentCreate() {
         setDepartmentId("");
 
     };
-
+    const handleBack = () => {
+        navigate(-1);
+    }
     const handleSubmit = async () => {
 
         const payload = {
@@ -55,9 +65,9 @@ function RecruitmentCreate() {
 
         try {
             await CreateRecruitment(payload);
-            alert("Tạo tin tuyển dụng thành công!");
             setErrors({});
             resetForm();
+            setIsSuccessModalOpen(true);
         } catch (err) {
             console.error(" Lỗi tạo tin tuyển dụng:", err);
             if (err.response && err.response.data) {
@@ -72,7 +82,7 @@ function RecruitmentCreate() {
 
                 setErrors(normalizedErrors);
             } else {
-                alert("Có lỗi xảy ra khi tạo tin tuyển dụng!");
+                setIsFailModalOpen(true);
             }
         }
     };
@@ -136,7 +146,7 @@ function RecruitmentCreate() {
                         </div>
 
                         <div className="employeedetail-form-row">
-                            
+
                             <div className="employeedetail-input-group">
                                 <div className="employeedetail-input-label">
                                     Loại hình công việc
@@ -247,7 +257,7 @@ function RecruitmentCreate() {
                                         {errors.maxSalary.join(", ")}
                                     </div>
                                 )}
- 
+
                             </div>
                         </div>
 
@@ -320,22 +330,54 @@ function RecruitmentCreate() {
                             </div>
                         </div>
 
+                        <div className="employeedetail-form-row">
+                            <div className="employeedetail-input-group">
 
+                                <div className="employeedetail-form-actions">
+                                    <button
+                                        className="submit-button"
+                                        onClick={handleBack}
+                                        style={{ width: "200px", alignItems: "center", justifyContent: "center", backgroundColor: "#909090" }}
+                                    >
+                                        Quay lại
+                                    </button>
+                                </div>
 
-                        <div className="employeedetail-form-actions">
-                            <button
-                                className="submit-button"
-                                onClick={handleSubmit}
-                            >
-                                <Save
-                                    size={16}
-                                    style={{ marginRight: "8px" }}
-                                />
-                                Lưu tin tuyển dụng
-                            </button>
+                            </div>
+                            <div className="employeedetail-form-actions">
+                                <button
+                                    className="submit-button"
+                                    onClick={handleSubmit}
+                                >
+                                    <Save
+                                        size={16}
+                                        style={{ marginRight: "8px" }}
+                                    />
+                                    Lưu tin tuyển dụng
+                                </button>
+                            </div>
                         </div>
+
+
                     </div>
                 </div>
+                {isSuccessModalOpen && (
+                    <SuccessModal
+                        title="Tạo tin tuyển dụng"
+                        message="Tin tuyển dụng đã được tạo thành công!"
+                        onClose={() => navigate(-1)}
+                    />
+                )}
+
+                {isFailModalOpen && (
+                    <SuccessModal
+                        title="Tạo tin tuyển dụng"
+                        message="Tin tuyển dụng tạo thất bại!"
+                        onClose={() => setIsFailModalOpen(false)}
+                        type="fail"
+                    />
+                )}
+
             </div>
         </MainLayout>
     );

@@ -479,7 +479,7 @@ function InterviewDetail() {
                                         className="submit-button"
                                         onClick={handleSubmit}
                                         style={{ width: "200px", alignItems: "center" }}
-                                    >
+                                    >   
                                         <Save
                                             size={16}
                                             style={{ marginRight: "8px" }}

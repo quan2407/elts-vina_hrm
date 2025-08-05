@@ -54,6 +54,16 @@
   cursor: pointer;
 }
 
+.btn-danger {
+  background-color: #e53935; /* Đỏ */
+  color: white;
+  font-weight: bold;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
 .btn-cancel {
   background-color: #e70c0c;
   color: #ffffff;
