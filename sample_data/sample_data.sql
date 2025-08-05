@@ -160,6 +160,9 @@ INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 (25, 'POST', '/api/auth/request-reset-password', 'Yêu cầu reset mật khẩu', 'Auth'),
 (26, 'GET', '/api/auth/admin/pending-reset-requests', 'Xem yêu cầu reset đang chờ duyệt', 'Auth'),
 (27, 'POST', '/api/auth/admin/approve-reset-password', 'Phê duyệt reset mật khẩu', 'Auth');
+UPDATE permission
+SET method = 'PUT'
+WHERE permission_id = 24;
 
 -- Gán permission:
 INSERT INTO role_permission (role_id, permission_id) VALUES 
