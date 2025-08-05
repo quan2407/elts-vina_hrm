@@ -118,5 +118,12 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Salary",
                 List.of("ROLE_HR", "ROLE_HR_MANAGER")
         );
+        permissionRegistrationService.registerPermission(
+               "/api/username/me/name",
+                "GET",
+                "Profile",
+                allRoles
+);
+
     }
 }

@@ -78,18 +78,18 @@ function ApplicationApprovalListPage({ step = 1 }) {
 
   return (
     <MainLayout>
-      <div className="approval-list-container">
+      <div className="approval-list-page-header">
         {canCreateApplication && (
-          <div style={{ marginBottom: "16px", textAlign: "right" }}>
-            <button
-              className="approval-list-action-btn"
-              onClick={() => navigate("/create-application?type=leave")}
-            >
-              ➕ Tạo đơn mới
-            </button>
-          </div>
+          <button
+            className="approval-list-action-btn create-button-right"
+            onClick={() => navigate("/create-application?type=leave")}
+          >
+            ➕ Tạo đơn mới
+          </button>
         )}
+      </div>
 
+      <div className="approval-list-container">
         <div className="approval-list-sidebar">
           {STATUS_FILTERS.map((item) => (
             <button

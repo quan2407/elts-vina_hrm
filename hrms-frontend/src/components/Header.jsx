@@ -228,9 +228,7 @@ function Header() {
             >
               <Key size={16} /> <span>Đổi mật khẩu</span>
             </div>
-            <div className="profile-item">
-              <HelpCircle size={16} /> <span>Hỗ trợ</span>
-            </div>
+
             <div className="profile-divider"></div>
             <div
               className="profile-item profile-logout"
