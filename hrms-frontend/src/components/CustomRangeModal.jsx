@@ -54,28 +54,51 @@ function CustomRangeModal({
 
   const validEndTimes = generateEndTimes();
 
+  const [errors, setErrors] = useState({});
+
   const handleSubmit = () => {
-    if (!departmentId || !startDate || !endDate) {
-      alert("Vui lòng nhập đầy đủ thông tin");
+    const newErrors = {};
+
+    if (!departmentId) {
+      newErrors.departmentId = "Vui lòng chọn phòng ban";
+    }
+    if (!startDate) {
+      newErrors.startDate = "Vui lòng chọn ngày bắt đầu";
+    }
+    if (!endDate) {
+      newErrors.endDate = "Vui lòng chọn ngày kết thúc";
+    }
+
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      if (end < start) {
+        newErrors.endDate = "Ngày kết thúc không được trước ngày bắt đầu";
+      }
+
+      if (
+        start.getMonth() + 1 !== month ||
+        end.getMonth() + 1 !== month ||
+        start.getFullYear() !== year ||
+        end.getFullYear() !== year
+      ) {
+        newErrors.startDate = "Ngày phải nằm trong tháng đã chọn";
+        newErrors.endDate = "Ngày phải nằm trong tháng đã chọn";
+      }
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    if (
-      start.getMonth() + 1 !== month ||
-      end.getMonth() + 1 !== month ||
-      start.getFullYear() !== year ||
-      end.getFullYear() !== year
-    ) {
-      alert("Ngày bắt đầu và kết thúc phải nằm trong tháng đã chọn.");
-      return;
-    }
-
+    // Nếu không có lỗi thì gọi submit
     let finalEndTime = endTime;
     if (workType === "normal") finalEndTime = "17:00";
     else if (workType === "overtime") finalEndTime = "20:00";
+
+    setErrors({}); // Clear lỗi cũ
 
     onSubmit({
       departmentId: parseInt(departmentId),
@@ -118,6 +141,9 @@ function CustomRangeModal({
               </option>
             ))}
           </select>
+          {errors.departmentId && (
+            <div className="error-message">{errors.departmentId}</div>
+          )}
         </div>
 
         <div className="work-schedule-modal-field">
@@ -150,6 +176,9 @@ function CustomRangeModal({
               maxDate={new Date(maxDate)}
               placeholderText="dd/mm/yyyy"
             />
+            {errors.startDate && (
+              <div className="error-message">{errors.startDate}</div>
+            )}
           </div>
 
           <div className="range-schedule-half-field">
@@ -163,6 +192,9 @@ function CustomRangeModal({
               maxDate={new Date(maxDate)}
               placeholderText="dd/mm/yyyy"
             />
+            {errors.endDate && (
+              <div className="error-message">{errors.endDate}</div>
+            )}
           </div>
         </div>
 

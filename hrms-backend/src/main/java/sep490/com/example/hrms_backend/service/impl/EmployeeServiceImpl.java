@@ -36,6 +36,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     private final AccountRepository accountRepository;
     private final AccountService accountService;
     private final AccountRequestRepository accountRequestRepository;
+    private final RoleRepository roleRepository;
 
     @Override
     public Page<EmployeeResponseDTO> getAllEmployees(int page, int size, String search) {
@@ -59,7 +60,11 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
 
     @Override
     public String getNextEmployeeCode() {
-        long count = employeeRepository.countByPosition_PositionNameNotIgnoreCase("HR");
+        long total = employeeRepository.count();
+        long hrCount = employeeRepository.countByPosition_PositionNameIgnoreCase("HR");
+        long hrManagerCount = employeeRepository.countByPosition_PositionNameIgnoreCase("Trưởng Phòng Nhân Sự");
+        System.out.println(hrManagerCount);
+       long count = total - hrCount - hrManagerCount;
         long next = count + 1;
         return "ELTSSX" + String.format("%04d", next);
     }
@@ -69,13 +74,24 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         Position position = positionRepository.findById(positionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Position", "id", positionId));
 
-        String prefix = position.getPositionName().equalsIgnoreCase("HR") ? "ELTSHC" : "ELTSSX";
+        String positionName = position.getPositionName().toUpperCase();
 
+        String prefix;
         long count;
-        if (prefix.equals("ELTSHC")) {
-            count = employeeRepository.countByPosition_PositionNameIgnoreCase("HR");
+
+        if (positionName.equals("HR") || positionName.equals("HR_MANAGER")) {
+            prefix = "ELTSHC";
+            count = employeeRepository.countByPosition_PositionNameIgnoreCase("HR")
+                    + employeeRepository.countByPosition_PositionNameIgnoreCase("Trưởng Phòng Nhân Sự");
+            System.out.println("Count for HR and Manager " + count);
         } else {
-            count = employeeRepository.countByPosition_PositionNameNotIgnoreCase("HR");
+            // Count all except HR and HR_MANAGER
+            long total = employeeRepository.count();
+            long hrCount = employeeRepository.countByPosition_PositionNameIgnoreCase("HR");
+            long hrManagerCount = employeeRepository.countByPosition_PositionNameIgnoreCase("HR_MANAGER");
+
+            prefix = "ELTSSX";
+            count = total - hrCount - hrManagerCount;
         }
 
         return prefix + String.format("%04d", count + 1);
@@ -98,7 +114,6 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     }
 
 
-
     @Override
     public List<EmployeeResponseDTO> getEmployeeByLineId(Long id) {
 
@@ -119,7 +134,6 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
                 .collect(Collectors.toList());
 
 
-
         return employees;
     }
 
@@ -128,9 +142,24 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     public void addEmployeesToLine(Long lineId, List<Long> employeeIds) {
         Line line = lineRepository.findById(lineId).orElseThrow(() -> new ResourceNotFoundException("Line", "id", lineId));
 
+        Position p = positionRepository.findByPositionName("Công Nhân");
+
+        Role r = roleRepository.findByRoleName("ROLE_EMPLOYEE")
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy quyền ROLE_EMPLOYEE"));
+
+
         for (Long employeeId : employeeIds) {
             Employee e = employeeRepository.findById(employeeId).orElseThrow(() -> new ResourceNotFoundException("Employee", "id", employeeId));
 
+            if (!e.getPosition().getPositionName().equalsIgnoreCase("Công Nhân")) {
+                e.setPosition(p);
+            }
+
+            if (!e.getAccount().getRole().getRoleName().equalsIgnoreCase("ROLE_EMPLOYEE")) {
+                Account a = e.getAccount();
+                a.setRole(r);
+                accountRepository.save(a);
+            }
             Line oldLine = e.getLine();
             if (oldLine != null) {
                 Employee currentLeader = oldLine.getLeader();
@@ -210,7 +239,6 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
         return EmployeeMapper.mapToEmployeeDetailDTO(employee);
     }
-
 
 
     private void checkDuplicateFieldsForCreate(EmployeeRequestDTO dto) {
@@ -323,6 +351,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
             throw new HRMSAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi xuất file Excel");
         }
     }
+
     @Override
     public List<GenderDistributionDTO> getGenderDistribution(LocalDate startDate, LocalDate endDate) {
         List<Object[]> result = employeeRepository.findGenderDistributionByDateRange(startDate, endDate);

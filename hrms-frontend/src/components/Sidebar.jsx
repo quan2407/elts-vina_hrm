@@ -14,6 +14,7 @@ import {
   hrManagerMenus,
 } from "../config/sidebarMenus";
 import "../styles/Sidebar.css";
+import employeeService from "../services/employeeService";
 
 function Sidebar() {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ function Sidebar() {
 
   const token = localStorage.getItem("accessToken");
   const [delayPassed, setDelayPassed] = useState(false);
+  const [employeeName, setEmployeeName] = useState("Loading...");
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -31,6 +33,21 @@ function Sidebar() {
 
     return () => clearTimeout(timeout);
   }, []);
+  useEffect(() => {
+    const fetchEmployeeName = async () => {
+      try {
+        const res = await employeeService.getCurrentEmployeeName();
+        setEmployeeName(res.data);
+      } catch (err) {
+        console.error("Không lấy được tên nhân viên", err);
+        setEmployeeName("Unknown");
+      }
+    };
+
+    if (token) {
+      fetchEmployeeName();
+    }
+  }, [token]);
 
   let username = "Mock User";
   let roles = [];
@@ -81,7 +98,7 @@ function Sidebar() {
           src="https://cdn.builder.io/api/v1/image/assets/TEMP/8020efea94b33e133d3f1c7ace70ab7dcdce7dee?placeholderIfAbsent=true"
           alt="Profile"
         />
-        <div className="user-name">{username}</div>
+        <div className="user-name">{employeeName}</div>
         <div className="user-role">{roles.join(", ") || "UNKNOWN"}</div>
       </div>
 

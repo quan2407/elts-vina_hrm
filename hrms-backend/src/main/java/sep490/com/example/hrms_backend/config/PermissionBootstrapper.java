@@ -89,8 +89,22 @@ public class PermissionBootstrapper implements ApplicationRunner {
         permissionRegistrationService.registerPermission(
                 "/api/candidate/*",
                 "GET",
-                "Role",
-                List.of("ROLE_HR","ROLE_PRODUCTION_MANAGER", "ROLE_HR_MANAGER")
+                "Recruitment",
+                List.of("ROLE_HR", "ROLE_PRODUCTION_MANAGER", "ROLE_HR_MANAGER")
+        );
+
+        permissionRegistrationService.registerPermission(
+                "/api/notification",
+                "GET",
+                "Notification",
+                allRoles
+        );
+
+        permissionRegistrationService.registerPermission(
+                "/api/notification/*/read",
+                "PATCH",
+                "Notification",
+                allRoles
         );
         permissionRegistrationService.registerPermission(
                 "/api/work-schedule-details/export-work-schedule",
@@ -104,5 +118,12 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Salary",
                 List.of("ROLE_HR", "ROLE_HR_MANAGER")
         );
+        permissionRegistrationService.registerPermission(
+               "/api/username/me/name",
+                "GET",
+                "Profile",
+                allRoles
+);
+
     }
 }

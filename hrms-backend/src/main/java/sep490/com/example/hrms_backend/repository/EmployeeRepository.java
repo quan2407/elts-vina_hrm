@@ -44,8 +44,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Page<Employee> findAllActive(Pageable pageable);
 
 
-
-    @Query("SELECT e FROM Employee e WHERE (e.line IS NULL OR e.line.lineId <> :lineId) AND e.department.departmentName = 'Sản Xuất'")
+    @Query("SELECT e FROM Employee e WHERE (e.line IS NULL OR e.line.lineId <> :lineId) AND e.department.departmentName = 'Sản Xuất' AND (e.position.positionName != 'TỔ TRƯỞNG')")
     List<Employee> findEmployeesNotInLine(@Param("lineId") Long lineId);
 
     @Query("""
@@ -56,9 +55,11 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
                       e.line IS NULL
                       OR (e.line IS NOT NULL AND e.line.lineId <> :lineId)
                   )
+                  AND (e.position.positionName != 'TỔ TRƯỞNG')
                   AND LOWER(e.employeeName) LIKE :search
-            """)
+                """)
     List<Employee> findEmployeesNotInLineWithSearch(@Param("lineId") Long lineId, @Param("search") String search);
+
     // Đã có trong repository rồi:
     long countByPosition_PositionNameIgnoreCase(String positionName);
 
@@ -80,6 +81,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
             "(e.startWorkAt <= :endDate AND e.endWorkAt >= :startDate) " +
             "GROUP BY e.department")
     List<Object[]> findDepartmentDistributionByDateRange(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
     Page<Employee> findByIsDeletedFalse(Pageable pageable);
 
     Page<Employee> findByIsDeletedFalseAndEmployeeCodeContainingIgnoreCaseOrEmployeeNameContainingIgnoreCase(String search, String search1, Pageable pageable);

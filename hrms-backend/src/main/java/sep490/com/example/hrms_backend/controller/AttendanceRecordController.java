@@ -37,7 +37,7 @@ public class AttendanceRecordController {
             @RequestParam int year,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String search // <--- thêm dòng này
+            @RequestParam(required = false) String search
     ) {
         return ResponseEntity.ok(attendanceRecordService.getMonthlyAttendance(month, year, page, size, search));
     }

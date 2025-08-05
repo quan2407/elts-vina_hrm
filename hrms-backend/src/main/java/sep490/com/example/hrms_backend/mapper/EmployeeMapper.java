@@ -21,6 +21,8 @@ public class EmployeeMapper {
                 .nationality(employee.getNationality())
                 .address(employee.getAddress())
                 .startWorkAt(employee.getStartWorkAt())
+                .endWorkAt(employee.getEndWorkAt())
+                .basicSalary(employee.getBasicSalary())
                 .phoneNumber(employee.getPhoneNumber())
                 .citizenId(employee.getCitizenId())
                 .departmentName(employee.getDepartment() != null ? employee.getDepartment().getDepartmentName() : null)
@@ -85,6 +87,8 @@ public class EmployeeMapper {
         employee.setStartWorkAt(dto.getStartWorkAt());
         employee.setPhoneNumber(dto.getPhoneNumber());
         employee.setEmail(dto.getEmail());
+        employee.setEndWorkAt(dto.getEndWorkAt());
+        employee.setBasicSalary(dto.getBasicSalary());
 
         // Gán phòng ban và vị trí nếu cần thiết
         if (employee.getDepartment() == null ||
@@ -131,6 +135,8 @@ public class EmployeeMapper {
                 .startWorkAt(employee.getStartWorkAt())
                 .phoneNumber(employee.getPhoneNumber())
                 .email(employee.getEmail())
+                .endWorkAt(employee.getEndWorkAt())
+                .basicSalary(employee.getBasicSalary())
                 .departmentId(employee.getDepartment() != null ? employee.getDepartment().getDepartmentId() : null)
                 .departmentName(employee.getDepartment() != null ? employee.getDepartment().getDepartmentName() : null)
                 .positionId(employee.getPosition() != null ? employee.getPosition().getPositionId() : null)

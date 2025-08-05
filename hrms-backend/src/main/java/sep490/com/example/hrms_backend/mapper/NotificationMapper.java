@@ -13,6 +13,7 @@ public class NotificationMapper {
     public static NotificationDto toDto(Notification entity) {
 
         return new NotificationDto(
+                entity.getId(),
                 entity.getType(),
                 entity.getContent(),
                 entity.getIsRead(),

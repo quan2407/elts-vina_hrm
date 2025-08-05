@@ -131,3 +131,8 @@
   justify-content: flex-end;
   gap: 8px;
 }
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #999;
+}

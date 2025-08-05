@@ -515,8 +515,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         if (scheduleOpt.isEmpty()) return null;
 
         WorkSchedule schedule = scheduleOpt.get();
-
-        // Kiểm tra xem có chi tiết cho ngày đó không
         boolean hasDetail = schedule.getWorkScheduleDetails().stream()
                 .anyMatch(d -> d.getDateWork().isEqual(date));
 

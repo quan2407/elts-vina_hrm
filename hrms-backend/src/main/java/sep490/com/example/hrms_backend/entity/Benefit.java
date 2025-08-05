@@ -1,21 +1,21 @@
 package sep490.com.example.hrms_backend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import sep490.com.example.hrms_backend.enums.BenefitType;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "benefit")
@@ -48,9 +48,6 @@ public class Benefit {
     @Column(name = "benefit_type", nullable = false)
     private BenefitType benefitType;
 
-
-
-
     @NotNull
     @Column(name = "start_date")
     private LocalDate startDate; // ngày bắt đầu áp dụng
@@ -66,8 +63,6 @@ public class Benefit {
     @Column(name = "is_active")
     private Boolean isActive; // trạng thái hoạt động
 
-
-
     // ===Audit==
     @CreatedDate
     @PastOrPresent
@@ -82,10 +77,6 @@ public class Benefit {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt; // thời điểm cập nhật gần nhất
 
- 
-
-
-
 
 
     // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
@@ -96,7 +87,5 @@ public class Benefit {
 
     @OneToMany(mappedBy = "benefit",  cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BenefitPosition> benefitPositions;
-
-
 
 }
