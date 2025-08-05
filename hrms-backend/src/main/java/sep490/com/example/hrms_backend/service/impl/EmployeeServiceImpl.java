@@ -60,7 +60,11 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
 
     @Override
     public String getNextEmployeeCode() {
-        long count = employeeRepository.countByPosition_PositionNameNotIgnoreCase("HR");
+        long total = employeeRepository.count();
+        long hrCount = employeeRepository.countByPosition_PositionNameIgnoreCase("HR");
+        long hrManagerCount = employeeRepository.countByPosition_PositionNameIgnoreCase("Trưởng Phòng Nhân Sự");
+        System.out.println(hrManagerCount);
+       long count = total - hrCount - hrManagerCount;
         long next = count + 1;
         return "ELTSSX" + String.format("%04d", next);
     }
@@ -70,13 +74,24 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         Position position = positionRepository.findById(positionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Position", "id", positionId));
 
-        String prefix = position.getPositionName().equalsIgnoreCase("HR") ? "ELTSHC" : "ELTSSX";
+        String positionName = position.getPositionName().toUpperCase();
 
+        String prefix;
         long count;
-        if (prefix.equals("ELTSHC")) {
-            count = employeeRepository.countByPosition_PositionNameIgnoreCase("HR");
+
+        if (positionName.equals("HR") || positionName.equals("HR_MANAGER")) {
+            prefix = "ELTSHC";
+            count = employeeRepository.countByPosition_PositionNameIgnoreCase("HR")
+                    + employeeRepository.countByPosition_PositionNameIgnoreCase("Trưởng Phòng Nhân Sự");
+            System.out.println("Count for HR and Manager " + count);
         } else {
-            count = employeeRepository.countByPosition_PositionNameNotIgnoreCase("HR");
+            // Count all except HR and HR_MANAGER
+            long total = employeeRepository.count();
+            long hrCount = employeeRepository.countByPosition_PositionNameIgnoreCase("HR");
+            long hrManagerCount = employeeRepository.countByPosition_PositionNameIgnoreCase("HR_MANAGER");
+
+            prefix = "ELTSSX";
+            count = total - hrCount - hrManagerCount;
         }
 
         return prefix + String.format("%04d", count + 1);
