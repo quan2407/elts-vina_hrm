@@ -49,6 +49,8 @@ function EmployeeDetails() {
   const [frontPreview, setFrontPreview] = useState(null);
   const [backPreview, setBackPreview] = useState(null);
   const [ocrLoading, setOcrLoading] = useState(false);
+  const [endWorkAt, setEndWorkAt] = useState(null);
+  const [basicSalary, setBasicSalary] = useState("");
 
   const [departments, setDepartments] = useState([]);
   const [positions, setPositions] = useState([]);
@@ -86,6 +88,7 @@ function EmployeeDetails() {
         data.citizenExpiryDate ? new Date(data.citizenExpiryDate) : null
       );
       setAddress(data.address || "");
+      setCurrentAddress(data.address || "");
       setCccdFrontImage(data.cccdFrontImage || "");
       setCccdBackImage(data.cccdBackImage || "");
     } catch (err) {
@@ -129,6 +132,11 @@ function EmployeeDetails() {
     );
     formData.append("departmentId", departmentId);
     formData.append("positionId", positionId);
+    formData.append(
+      "endWorkAt",
+      endWorkAt ? format(endWorkAt, "yyyy-MM-dd") : ""
+    );
+    formData.append("basicSalary", basicSalary?.trim() || "");
 
     if (frontFile) {
       formData.append("frontImageFile", frontFile);
@@ -308,6 +316,9 @@ function EmployeeDetails() {
         setLineId(data.lineId || "");
         setCccdFrontImage(data.cccdFrontImage || "");
         setCccdBackImage(data.cccdBackImage || "");
+        setEndWorkAt(data.endWorkAt ? new Date(data.endWorkAt) : null);
+        setBasicSalary(data.basicSalary || "");
+
         const API_BASE_URL = "http://localhost:8080"; // KHÔNG có /api
 
         if (data.cccdFrontImage) {
@@ -753,23 +764,27 @@ function EmployeeDetails() {
                 </div>
               </div>
               <div className="employeedetail-form-row">
-                <div className="employeedetail-input-group">
+                <div
+                  className="employeedetail-input-group"
+                  style={{ width: "100%" }}
+                >
                   <div className="employeedetail-input-label">
-                    Nơi ở hiện tại<span className="required-star">*</span>
+                    Địa chỉ<span className="required-star">*</span>
                   </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
-                    value={currentAddress}
-                    placeholder="Nhập nơi ở hiện tại"
-                    onChange={(e) => setCurrentAddress(e.target.value)}
+                    value={address}
+                    placeholder="Nhập địa chỉ"
+                    onChange={(e) => setAddress(e.target.value)}
                   />
-                  {errors.currentAddress && (
+                  {errors.address && (
                     <div className="error-message">
-                      {errors.currentAddress.join(", ")}
+                      {errors.address.join(", ")}
                     </div>
                   )}
                 </div>
+
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
                     Trình độ văn hóa<span className="required-star">*</span>
@@ -943,23 +958,20 @@ function EmployeeDetails() {
               </div>
 
               <div className="employeedetail-form-row">
-                <div
-                  className="employeedetail-input-group"
-                  style={{ width: "100%" }}
-                >
+                <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Địa chỉ<span className="required-star">*</span>
+                    Nơi ở hiện tại<span className="required-star">*</span>
                   </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
-                    value={address}
-                    placeholder="Nhập địa chỉ"
-                    onChange={(e) => setAddress(e.target.value)}
+                    value={currentAddress}
+                    placeholder="Nhập nơi ở hiện tại"
+                    onChange={(e) => setCurrentAddress(e.target.value)}
                   />
-                  {errors.address && (
+                  {errors.currentAddress && (
                     <div className="error-message">
-                      {errors.address.join(", ")}
+                      {errors.currentAddress.join(", ")}
                     </div>
                   )}
                 </div>
@@ -996,6 +1008,31 @@ function EmployeeDetails() {
                     </div>
                   )}
                 </div>
+
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Ngày nghỉ<span className="required-star">*</span>
+                  </div>
+                  <DatePicker
+                    selected={endWorkAt}
+                    onChange={(date) => setEndWorkAt(date)}
+                    dateFormat="dd/MM/yyyy"
+                    locale={vi}
+                    customInput={<CustomInput />}
+                    placeholderText="Chọn ngày"
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                  />
+                  {errors.endWorkAt && (
+                    <div className="error-message">
+                      {errors.endWorkAt.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
                     Phòng ban<span className="required-star">*</span>
@@ -1015,16 +1052,12 @@ function EmployeeDetails() {
                       </option>
                     ))}
                   </select>
-
                   {errors.departmentId && (
                     <div className="error-message">
                       {errors.departmentId.join(", ")}
                     </div>
                   )}
                 </div>
-              </div>
-
-              <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
                     Vị trí<span className="required-star">*</span>
@@ -1044,14 +1077,34 @@ function EmployeeDetails() {
                       </option>
                     ))}
                   </select>
-
                   {errors.positionId && (
                     <div className="error-message">
                       {errors.positionId.join(", ")}
                     </div>
                   )}
                 </div>
-                <div className="employeedetail-input-group"></div>
+              </div>
+              <div className="employeedetail-form-row">
+                <div
+                  className="employeedetail-input-group"
+                  style={{ width: "100%" }}
+                >
+                  <div className="employeedetail-input-label">
+                    Lương cơ bản<span className="required-star">*</span>
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="number"
+                    value={basicSalary}
+                    placeholder="Nhập lương cơ bản"
+                    onChange={(e) => setBasicSalary(e.target.value)}
+                  />
+                  {errors.basicSalary && (
+                    <div className="error-message">
+                      {errors.basicSalary.join(", ")}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 

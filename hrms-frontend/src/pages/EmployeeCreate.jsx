@@ -50,7 +50,8 @@ function EmployeeCreate() {
   const [frontPreview, setFrontPreview] = useState(null);
   const [backPreview, setBackPreview] = useState(null);
   const [ocrLoading, setOcrLoading] = useState(false);
-
+  const [endWorkAt, setEndWorkAt] = useState(null);
+  const [basicSalary, setBasicSalary] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
@@ -111,6 +112,7 @@ function EmployeeCreate() {
         data.citizenExpiryDate ? new Date(data.citizenExpiryDate) : null
       );
       setAddress(data.address || "");
+      setCurrentAddress(data.address || "");
       setCccdFrontImage(data.cccdFrontImage || "");
       setCccdBackImage(data.cccdBackImage || "");
     } catch (err) {
@@ -154,6 +156,11 @@ function EmployeeCreate() {
       "startWorkAt",
       startWorkAt ? format(startWorkAt, "yyyy-MM-dd") : ""
     );
+    formData.append(
+      "endWorkAt",
+      endWorkAt ? format(endWorkAt, "yyyy-MM-dd") : ""
+    );
+    formData.append("basicSalary", basicSalary?.trim() || "");
     formData.append("departmentId", departmentId !== "" ? departmentId : "");
     formData.append("positionId", positionId !== "" ? positionId : "");
     formData.append("lineId", lineId !== "" ? lineId : "");
@@ -771,42 +778,37 @@ function EmployeeCreate() {
 
               {/* Nơi ở hiện nay & Trình độ văn hóa */}
               <div className="employeedetail-form-row">
-                <div className="employeedetail-input-group">
+                <div
+                  className="employeedetail-input-group"
+                  style={{ width: "100%" }}
+                >
                   <div className="employeedetail-input-label">
-                    Nơi ở hiện nay<span className="required-star">*</span>
+                    Địa chỉ<span className="required-star">*</span>
                   </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
-                    value={currentAddress}
-                    placeholder="Nhập nơi ở hiện nay"
-                    onChange={(e) => setCurrentAddress(e.target.value)}
+                    value={address}
+                    placeholder="Nhập địa chỉ"
+                    onChange={(e) => setAddress(e.target.value)}
                   />
-                  {errors.currentAddress && (
+                  {errors.address && (
                     <div className="error-message">
-                      {errors.currentAddress.join(", ")}
+                      {errors.address.join(", ")}
                     </div>
                   )}
                 </div>
-
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
                     Trình độ văn hóa<span className="required-star">*</span>
                   </div>
-                  <select
+                  <input
                     className="employeedetail-input-field"
+                    type="text"
                     value={educationLevel}
+                    placeholder="Nhập trình độ văn hóa"
                     onChange={(e) => setEducationLevel(e.target.value)}
-                  >
-                    <option value="">-- Chọn trình độ văn hóa --</option>
-                    <option value="5/12">5/12</option>
-                    <option value="9/12">9/12</option>
-                    <option value="12/12">12/12</option>
-                    <option value="Trung cấp">Trung cấp</option>
-                    <option value="Cao đẳng">Cao đẳng</option>
-                    <option value="Đại học">Đại học</option>
-                    <option value="Sau đại học">Sau đại học</option>
-                  </select>
+                  />
 
                   {errors.educationLevel && (
                     <div className="error-message">
@@ -822,19 +824,13 @@ function EmployeeCreate() {
                   <div className="employeedetail-input-label">
                     Trình độ chuyên môn<span className="required-star">*</span>
                   </div>
-                  <select
+                  <input
                     className="employeedetail-input-field"
+                    type="text"
                     value={specializedLevel}
+                    placeholder="Nhập trình độ chuyên môn"
                     onChange={(e) => setSpecializedLevel(e.target.value)}
-                  >
-                    <option value="">-- Chọn trình độ chuyên môn --</option>
-                    <option value="Sơ cấp">Sơ cấp</option>
-                    <option value="Trung cấp">Trung cấp</option>
-                    <option value="Cao đẳng">Cao đẳng</option>
-                    <option value="Đại học">Đại học</option>
-                    <option value="Thạc sĩ">Thạc sĩ</option>
-                    <option value="Tiến sĩ">Tiến sĩ</option>
-                  </select>
+                  />
 
                   {errors.specializedLevel && (
                     <div className="error-message">
@@ -845,18 +841,13 @@ function EmployeeCreate() {
 
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">Ngoại ngữ</div>
-                  <select
+                  <input
                     className="employeedetail-input-field"
+                    type="text"
                     value={foreignLanguages}
+                    placeholder="Nhập ngoại ngữ"
                     onChange={(e) => setForeignLanguages(e.target.value)}
-                  >
-                    <option value="">-- Chọn ngoại ngữ --</option>
-                    <option value="Tiếng Anh">Tiếng Anh</option>
-                    <option value="Tiếng Trung">Tiếng Trung</option>
-                    <option value="Tiếng Nhật">Tiếng Nhật</option>
-                    <option value="Tiếng Hàn">Tiếng Hàn</option>
-                    <option value="Khác">Khác</option>
-                  </select>
+                  />
 
                   {errors.foreignLanguages && (
                     <div className="error-message">
@@ -872,17 +863,13 @@ function EmployeeCreate() {
                   <div className="employeedetail-input-label">
                     Loại hình đào tạo
                   </div>
-                  <select
+                  <input
                     className="employeedetail-input-field"
+                    type="text"
                     value={trainingType}
+                    placeholder="Nhập loại hình đào tạo"
                     onChange={(e) => setTrainingType(e.target.value)}
-                  >
-                    <option value="">-- Chọn loại hình đào tạo --</option>
-                    <option value="Chính quy">Chính quy</option>
-                    <option value="Tại chức">Tại chức</option>
-                    <option value="Liên thông">Liên thông</option>
-                    <option value="Khác">Khác</option>
-                  </select>
+                  />
 
                   {errors.trainingType && (
                     <div className="error-message">
@@ -957,23 +944,20 @@ function EmployeeCreate() {
               </div>
 
               <div className="employeedetail-form-row">
-                <div
-                  className="employeedetail-input-group"
-                  style={{ width: "100%" }}
-                >
+                <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Địa chỉ<span className="required-star">*</span>
+                    Nơi ở hiện nay<span className="required-star">*</span>
                   </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
-                    value={address}
-                    placeholder="Nhập địa chỉ"
-                    onChange={(e) => setAddress(e.target.value)}
+                    value={currentAddress}
+                    placeholder="Nhập nơi ở hiện nay"
+                    onChange={(e) => setCurrentAddress(e.target.value)}
                   />
-                  {errors.address && (
+                  {errors.currentAddress && (
                     <div className="error-message">
-                      {errors.address.join(", ")}
+                      {errors.currentAddress.join(", ")}
                     </div>
                   )}
                 </div>
@@ -1010,6 +994,31 @@ function EmployeeCreate() {
                     </div>
                   )}
                 </div>
+
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Ngày nghỉ<span className="required-star">*</span>
+                  </div>
+                  <DatePicker
+                    selected={endWorkAt}
+                    onChange={(date) => setEndWorkAt(date)}
+                    dateFormat="dd/MM/yyyy"
+                    locale={vi}
+                    customInput={<CustomInput />}
+                    placeholderText="Chọn ngày"
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                  />
+                  {errors.endWorkAt && (
+                    <div className="error-message">
+                      {errors.endWorkAt.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
                     Phòng ban<span className="required-star">*</span>
@@ -1035,9 +1044,6 @@ function EmployeeCreate() {
                     </div>
                   )}
                 </div>
-              </div>
-
-              <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
                     Vị trí<span className="required-star">*</span>
@@ -1060,6 +1066,29 @@ function EmployeeCreate() {
                   {errors.positionId && (
                     <div className="error-message">
                       {errors.positionId.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="employeedetail-form-row">
+                <div
+                  className="employeedetail-input-group"
+                  style={{ width: "100%" }}
+                >
+                  <div className="employeedetail-input-label">
+                    Lương cơ bản<span className="required-star">*</span>
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="number"
+                    value={basicSalary}
+                    placeholder="Nhập lương cơ bản"
+                    onChange={(e) => setBasicSalary(e.target.value)}
+                  />
+                  {errors.basicSalary && (
+                    <div className="error-message">
+                      {errors.basicSalary.join(", ")}
                     </div>
                   )}
                 </div>

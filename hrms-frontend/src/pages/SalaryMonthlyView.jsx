@@ -59,9 +59,10 @@ const SalaryMonthlyView = () => {
           setMonth(newMonth);
           setYear(newYear);
           await salaryService
-            .getMonthlySalaries(newMonth, newYear)
+            .getMonthlySalaries(newMonth, newYear, page, size, searchTerm)
             .then((res) => {
-              setSalaries(res.data);
+              setSalaries(res.data.content); // ✅ sửa lại
+              setTotalPages(res.data.totalPages); // ✅ đảm bảo phân trang đúng
             });
         }
       } catch (err) {
