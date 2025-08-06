@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Modal, Select, Form, message } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import {PlusOutlined, SolutionOutlined} from '@ant-design/icons';
 import benefitService from "../../../services/benefitService.js"; // cập nhật đường dẫn đúng với dự án của bạn
 import { UserSwitchOutlined } from '@ant-design/icons';
 
@@ -67,7 +67,7 @@ const AssignBenefitToPositions = ({ benefitId, onSuccess }) => {
         <div>
             <Button
                 type="primary"
-                icon={<UserSwitchOutlined />}
+                icon={<SolutionOutlined />}
                 onClick={handleOpen}
                 style={{
                     backgroundColor: '#388e3c',
@@ -77,7 +77,7 @@ const AssignBenefitToPositions = ({ benefitId, onSuccess }) => {
                     boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
                 }}
             >
-                Gán phúc lợi cho vị trí
+                Gán vị trí cho phúc lợi
             </Button>
 
             <Modal

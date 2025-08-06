@@ -42,7 +42,7 @@ const BenefitByPositionTableRow = ({ benefit, onUpdateSuccess }) => {
             await benefitService.updateFormula(updatedData);
             message.success("Cập nhật thành công!");
             setIsModalOpen(false);
-            onUpdateSuccess?.(); // để reload bảng sau khi cập nhật
+            onUpdateSuccess();// để reload bảng sau khi cập nhật
         } catch (err) {
             console.error("Update failed", err);
             message.error("Cập nhật thất bại");
@@ -75,16 +75,17 @@ const BenefitByPositionTableRow = ({ benefit, onUpdateSuccess }) => {
             <div className="employee-table-cell">{benefit.positions.positionId}</div>
             <div className="employee-table-cell">{benefit.positions.positionName}</div>
             <div className="employee-table-cell">
+
                 {benefit.benefit.benefitType === "PHU_CAP" ? (
                     benefit.positions.formulaType === "AMOUNT" ?
-                        `Lương cơ bản + ${benefit.positions.formulaValue}` :
-                        `Lương cơ bản + ${benefit.positions.formulaValue}%.Lương cơ bản`
+                        `Lương cơ bản + ${Number(benefit.positions.formulaValue).toLocaleString('vi-VN')}đ` :
+                        `Lương cơ bản + ${Number(benefit.positions.formulaValue).toLocaleString('vi-VN')}%Lương cơ bản`
                 ) : benefit.benefit.benefitType === "KHAU_TRU" ? (
                     benefit.positions.formulaType === "AMOUNT" ?
-                        `Lương cơ bản - ${benefit.positions.formulaValue}` :
-                        `Lương cơ bản - ${benefit.positions.formulaValue}%.Lương cơ bản`
+                        `Lương cơ bản - ${Number(benefit.positions.formulaValue).toLocaleString('vi-VN')}đ` :
+                        `Lương cơ bản - ${Number(benefit.positions.formulaValue).toLocaleString('vi-VN')}%Lương cơ bản`
                 ) : (
-                    "-"
+                    "không ảnh hưởng vào lương cơ bản"
                 )}
             </div>
             {/*<div className="employee-table-cell">{getBenefitTypeDisplay(benefit.benefitType)}</div>*/}
@@ -96,6 +97,7 @@ const BenefitByPositionTableRow = ({ benefit, onUpdateSuccess }) => {
             <div className="employee-table-cell">
                 <BenefitForPositionActionDropDown
                     positionName={benefit.positions.positionName}
+                    benefitType={benefit.benefit.benefitType}
                     onEdit={handleEdit}
                     onView={() => Modal.info({ title: 'Chi tiết', content: benefit.detail })}
                     onDelete={() =>
@@ -128,7 +130,7 @@ const BenefitByPositionTableRow = ({ benefit, onUpdateSuccess }) => {
     );
 };
 
-function BenefitForPositionTable({ benefitId }) {
+function BenefitForPositionTable({ benefitId, reloadFlag }) {
     const [benefits, setBenefit] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -136,6 +138,9 @@ function BenefitForPositionTable({ benefitId }) {
     const [pageSize, setPageSize] = useState(10);
     const [totalElements, setTotalElements] = useState(0);
     const [filters, setFilters] = useState({});
+    const reloadData = () => {
+        setFilters((prev) => ({ ...prev })); // Trigger useEffect to refetch
+    };
     console.log("✅ benefitId từ URL:", benefitId);
     console.log(localStorage.getItem("accessToken"));
     useEffect(() => {
@@ -170,7 +175,7 @@ function BenefitForPositionTable({ benefitId }) {
                 setError("Không thể lấy dữ liệu phúc lợi tương ứng");
             })
             .finally(() => setLoading(false));
-    }, [benefitId,pageNumber, pageSize, filters]);
+    }, [benefitId,pageNumber, pageSize, filters,  reloadFlag]);
 
 
     return (
@@ -201,7 +206,8 @@ function BenefitForPositionTable({ benefitId }) {
                                     positions: position,
                                     benefit: benefit
                                 }}
-                                onUpdateSuccess={() => setPageNumber(prev => prev)}
+                                onUpdateSuccess={reloadData}
+
                             />
                         ))
                     )}

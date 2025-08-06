@@ -13,7 +13,7 @@ import {
     Row,
     Col
 } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import {IdcardOutlined, UserOutlined, UserSwitchOutlined} from '@ant-design/icons';
 import debounce from 'lodash.debounce';
 import benefitService from "../../../services/benefitService.js";
 
@@ -147,8 +147,17 @@ const AssignEmployeeToBenefit = ({ benefitId, positionId, reloadKey, onForceRelo
 
     return (
         <>
-            <Button type="primary" onClick={handleOpen}>
-                Gán nhân viên
+            <Button type="primary" onClick={handleOpen}
+                    style={{
+                        backgroundColor: '#388e3c',
+                        border: 'none',
+                        borderRadius: 20,
+                        fontWeight: 600,
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                    }}
+                    icon={<UserSwitchOutlined /> }
+            >
+                Gán nhân viên cho phúc lợi
             </Button>
 
             <Modal

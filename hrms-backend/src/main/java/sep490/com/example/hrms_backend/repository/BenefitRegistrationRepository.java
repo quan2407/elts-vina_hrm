@@ -3,8 +3,10 @@ package sep490.com.example.hrms_backend.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 import sep490.com.example.hrms_backend.entity.Benefit;
 import sep490.com.example.hrms_backend.entity.BenefitPosition;
 import sep490.com.example.hrms_backend.entity.BenefitRegistration;
@@ -38,5 +40,10 @@ public interface BenefitRegistrationRepository extends JpaRepository<BenefitRegi
     @Query("SELECT br.employee.employeeId FROM BenefitRegistration br " +
             "WHERE br.benefitPosition.id = :benefitPositionId AND br.isRegister = true")
     List<Long> findRegisteredEmployeeIdsByBenefitPositionId(@Param("benefitPositionId") Long benefitPositionId);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM BenefitRegistration br WHERE br.benefitPosition.id = :benefitPositionId AND br.employee.employeeId = :employeeId")
+    void deleteByBenefitPositionIdAndEmployeeId(Long benefitPositionId, Long employeeId);
 }
 

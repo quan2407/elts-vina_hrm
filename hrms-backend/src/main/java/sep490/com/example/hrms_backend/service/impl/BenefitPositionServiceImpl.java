@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitPositionDTO;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitPositionUpdateDTO;
 import sep490.com.example.hrms_backend.entity.*;
+import sep490.com.example.hrms_backend.enums.BenefitType;
 import sep490.com.example.hrms_backend.enums.FormulaType;
 import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.BenefitPositionService;
@@ -67,7 +68,16 @@ public class BenefitPositionServiceImpl implements BenefitPositionService {
     }
 
     public void updateFormula(BenefitPositionUpdateDTO request) {
-        System.out.println("Update formula" + request.getBenefitId()+ "," +request.getPositionId());
+
+        // Tìm Benefit từ benefitId
+        Benefit benefit = benefitRepository.findById(request.getBenefitId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy phúc lợi với ID: " + request.getBenefitId()));
+
+        // Nếu loại phúc lợi là SU_KIEN thì không cho phép cập nhật
+        if (BenefitType.SU_KIEN.equals(benefit.getBenefitType())) {
+            throw new RuntimeException("Không thể cập nhật công thức cho loại phúc lợi 'SU_KIEN'.");
+        }
+
         BenefitPosition bp = benefitPositionRepository
                 .findByBenefit_IdAndPosition_PositionId(request.getBenefitId(), request.getPositionId())
                 .orElseThrow(() -> new RuntimeException("Phúc lợi này không có vị trí nào được gán."));

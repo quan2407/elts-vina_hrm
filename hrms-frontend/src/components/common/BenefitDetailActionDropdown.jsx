@@ -13,7 +13,7 @@ const BenefitDetailActionDropdown = ({ onView, onEdit, onDelete, onDetails }) =>
         {
             key: 'details',  // Mới thêm mục Details
             icon: <UnorderedListOutlined />,
-            label: 'Xem vị trí áp dụng',
+            label: 'Xem vị trí được áp dụng ',
         },
 
         {
@@ -24,12 +24,12 @@ const BenefitDetailActionDropdown = ({ onView, onEdit, onDelete, onDetails }) =>
         {
             key: 'edit',
             icon: <EditOutlined />,
-            label: 'Cập nhật',
+            label: 'Cập nhật phúc lợi',
         },
         {
             key: 'delete',
             icon: <DeleteOutlined />,
-            label: 'Xóa',
+            label: 'Xóa phúc lợi',
             danger: true,
         },
 

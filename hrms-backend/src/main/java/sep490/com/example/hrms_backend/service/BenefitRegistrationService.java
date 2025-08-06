@@ -15,4 +15,6 @@ public interface BenefitRegistrationService {
     void quickRegister(BenefitManualRegistrationRequest request);
 
     List<EmployeeBasicDetailResponse> searchUnregisteredEmployees(Long benefitId, Long positionId, String keyword);
+
+    void unRegister(Long benefitId, Long positionId, Long employeeId);
 }

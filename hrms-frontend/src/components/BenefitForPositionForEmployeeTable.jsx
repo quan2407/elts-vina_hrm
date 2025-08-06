@@ -27,12 +27,12 @@ const BenefitForPositionForEmployeeTableHeader = () => {
     );
 };
 
-const BenefitForPositionForEmployeeTableRow = ({ benefit,positionId,registration, onUpdateSuccess, position }) => {
+const BenefitForPositionForEmployeeTableRow = ({ benefit,registration, onUpdateSuccess, position }) => {
     const formatDate = (date) => new Date(date).toLocaleDateString("en-GB");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
     const [error, setError] = useState(null);
-    const [isSalaryModalOpen, setIsSalaryModalOpen] = useState(false);
+    // const [isSalaryModalOpen, setIsSalaryModalOpen] = useState(false);
     const [employee, setEmployee] = useState(null);
 
     // const targetPosition = benefit.positions.find(pos => pos.positionId === positionId);
@@ -44,7 +44,6 @@ const BenefitForPositionForEmployeeTableRow = ({ benefit,positionId,registration
     // }).catch(err => {
     //
     // }).finally()
-
     const handleEdit = () => {
         setIsModalOpen(true);
     };
@@ -117,7 +116,7 @@ const BenefitForPositionForEmployeeTableRow = ({ benefit,positionId,registration
             <div className="employee-table-cell">
                 <BenefitForPositionForEmployeeActionDropdown
                     onEdit={handleEdit}
-                    onDetails={() => setIsSalaryModalOpen(true)}
+                    // onDetails={() => setIsSalaryModalOpen(true)}
                     // onView={() => Modal.info({ title: 'Chi tiết', content: benefit.detail })}
                     onView={() => {
                         if (benefit.detail) {
@@ -145,7 +144,8 @@ const BenefitForPositionForEmployeeTableRow = ({ benefit,positionId,registration
                         title: "Bạn có chắc chắn muốn xóa?",
                         onOk: async () => {
                             try {
-                                await benefitService.delete(benefit.id);
+
+                                await benefitService.unRegister(benefit.id, position.positionId,registration.employee.employeeId);
                                 message.success("Đã xóa thành công!");
                                 onUpdateSuccess();
                             } catch {
@@ -163,7 +163,7 @@ const BenefitForPositionForEmployeeTableRow = ({ benefit,positionId,registration
                 initialData={benefit}
             />
 
-           
+
 
         </div>
     );
@@ -234,7 +234,7 @@ function BenefitForPositionForEmployeeTable({ benefitId, positionId, reloadKey, 
                             key={`${benefit.id}-${reg.id}`}
                             benefit={benefit}
                             position={targetPosition}
-                            registration={reg} // 👈 truyền từng phần tử registration
+                            registration={reg}
                             onUpdateSuccess={onForceReload}
                         />
                     ));

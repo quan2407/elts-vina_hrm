@@ -70,8 +70,8 @@ function BenefitForPositionForEmployee() {
     useEffect(() => {
         const fetchPositionDetail = async () => {
             try {
-                const response = await benefitService.getEmployeeByPositionAndBenefit(benefitId, positionId);
-                setBenefit(response.data);
+                const response = await benefitService.getPositionById( positionId);
+                setPosition(response.data);
             } catch (err) {
                 console.error("Failed to fetch benefit detail", err);
             } finally {
@@ -80,27 +80,13 @@ function BenefitForPositionForEmployee() {
         };
 
         fetchPositionDetail(); // ⬅ GỌI HÀM ở đây
-    }, [benefitId]);useEffect(() => {
-        const fetchBenefitDetail = async () => {
-            try {
-                const response = await benefitService.getById(benefitId);
-                setBenefit(response.data);
-            } catch (err) {
-                console.error("Failed to fetch benefit detail", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchBenefitDetail(); // ⬅ GỌI HÀM ở đây
-    }, [benefitId]);
-
+    }, [positionId]);
 
 
     const breadcrumbPaths = [
         { name: "Quản lý phúc lợi",  url: "http://localhost:5173/benefits-management"},
         { name: benefit ? `${benefit.title} ` : "Đang tải..." , url: `http://localhost:5173/benefits-management/benefit/${benefitId}`},
-        // {name: employee}
+         {name: position ? `${position.name}`: "Đang tải..."}
 
     ];
     return (

@@ -228,4 +228,17 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
                 .collect(Collectors.toList());
 
     }
+
+    @Transactional
+    @Override
+    public void unRegister(Long benefitId, Long positionId, Long employeeId) {
+        BenefitPosition benefitPosition = benefitPositionRepository
+                .findByBenefit_IdAndPosition_PositionId(benefitId, positionId)
+                .orElseThrow(() -> new HRMSAPIException("Không tìm thấy benefitPosition"));
+
+        Long benefitPositionId = benefitPosition.getId();
+        benefitRegistrationRepository.deleteByBenefitPositionIdAndEmployeeId(benefitPositionId, employeeId);
+
+
+    }
 }

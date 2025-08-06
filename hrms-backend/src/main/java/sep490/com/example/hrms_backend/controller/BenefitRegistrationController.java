@@ -56,6 +56,13 @@ public class BenefitRegistrationController {
     }
 
     @PreAuthorize("hasAnyRole( 'HR')")
+    @DeleteMapping("/hr/benefits/un-register/benefit/{benefitId}/position/{positionId}/employee/{employeeId}")
+    public ResponseEntity<?> unRegister(@PathVariable Long benefitId, @PathVariable Long positionId,@PathVariable Long employeeId) {
+        benefitRegistrationService.unRegister(benefitId, positionId, employeeId);
+        return ResponseEntity.ok("Un-register successfully");
+    }
+
+    @PreAuthorize("hasAnyRole( 'HR')")
     @GetMapping("/hr/benefits/search-unregistered")
     public ResponseEntity<List<EmployeeBasicDetailResponse>> searchUnregisteredEmployees(
             @RequestParam Long benefitId,

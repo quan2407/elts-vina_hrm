@@ -45,9 +45,9 @@ const benefitService = {
     }),
     quickRegister: (registeredEmployee) => axiosClient.post("/hr/benefits/quick-register", registeredEmployee),
 
-    // updateOriginalSalary: (updatedSalary) => axiosClient.put("/employees/update-original-salary", updatedSalary),
+    getPositionById:(positionId) => axiosClient.get(`/hr/benefit/position/${positionId}`),
 
-
+    unRegister: (benefitId, positionId, employeeId) => axiosClient.delete(`/hr/benefits/un-register/benefit/${benefitId}/position/${positionId}/employee/${employeeId}`),
     changeStatus: (benefitId) => axiosClient.patch(`benefit/${benefitId}`),
     getByKeyword: (keyword) => axiosClient.get(`/benefit/keyword/${keyword}`)
 }

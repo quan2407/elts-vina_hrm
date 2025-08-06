@@ -21,6 +21,7 @@ function BenefitForPosition() {
      * This variable is intended to hold information detailing the advantages,
      * perks, or positive outcomes related to the context in which it is used.
      */
+
     // const [benefits, setBenefits] = useState([]);
     // const fetchBenefits = async () => {
     //     try {
@@ -39,6 +40,12 @@ function BenefitForPosition() {
     const [loading, setLoading] = useState(true);
 
     const [modalOpen, setModalOpen] = useState(false);
+    const [reloadFlag, setReloadFlag] = useState(false);
+
+
+    const handleReload = () => {
+        setReloadFlag((prev) => !prev); // thay đổi để trigger useEffect
+    };
 
 
     console.log("benefitId trog benefitPosition:" ,benefitId);
@@ -93,12 +100,15 @@ console.log("benefit trog benefitPosition:" ,benefit);
                 <div className="page-header">
                     <h1 className="page-title">Quản lý {benefit ? benefit.title: ""}  </h1>
                     <div className="page-actions">
-                        <AssignBenefitToPositionsModal benefitId={benefitId} />
+                        <AssignBenefitToPositionsModal
+                            benefitId={benefitId}
+                            onSuccess={handleReload}
+                        />
 
                     </div>
                 </div>
                 <Breadcrumb paths={breadcrumbPaths} />
-                <BenefitForPositionTable benefitId={benefitId} />
+                <BenefitForPositionTable benefitId={benefitId}  reloadFlag={reloadFlag}/>
             </div>
         </MainLayout>
     );
