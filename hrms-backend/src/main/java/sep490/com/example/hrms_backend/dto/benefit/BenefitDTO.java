@@ -1,14 +1,21 @@
 package sep490.com.example.hrms_backend.dto.benefit;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import sep490.com.example.hrms_backend.enums.BenefitType;
+import sep490.com.example.hrms_backend.enums.FormulaType;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -16,26 +23,38 @@ import java.time.LocalDateTime;
 public class BenefitDTO {
     private Long id;
 
-    @NotBlank(message = "Title must not be blank")
+    @NotBlank(message = "Tiêu đề không được để trống")
     private String title;
 
     private String description;
 
-    @NotNull(message = "Start date is required")
+    @NotNull(message = "Không được để trống ngày bắt đầu")
     private LocalDate startDate;
 
-    @NotNull(message = "End date is required")
+    @NotNull(message = "Không được để trống ngày kết thúc")
     private LocalDate endDate;
 
-    @NotNull(message = "Max participants is required")
-    @Min(value = 1, message = "Max participants must be at least 1")
+    @NotNull(message = "Không được để trống số lượng đăng kí tối đa")
+    @Min(value = 1, message = "Số lượng đăng kí tối thiểu phải là 1")
     private Integer maxParticipants;
 
-    @NotNull(message = "Active status is required")
+    @NotNull(message = "Không được để trống trạng thái hoạt động")
     private Boolean isActive;
+
+    private Integer numberOfEmployee;
+
+    private BenefitType benefitType;
+
+    private BigDecimal defaultFormulaValue;
+
+    private FormulaType defaultFormulaType;
+
+
+    private String detail;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private String numbe;
+    private List<PositionRegistrationDTO> positions;
+
 }

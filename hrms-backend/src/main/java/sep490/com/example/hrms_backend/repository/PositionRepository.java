@@ -15,5 +15,8 @@ public interface PositionRepository extends JpaRepository<Position, Long> {
 
     List<Position> findByDepartments_DepartmentId(Long departmentId);
 
+    List<Position> findByPositionIdNotIn(List<Long> ids);
+
     Position findByPositionName(String x);
+
 }

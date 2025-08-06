@@ -8,6 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.SalaryDTO;
+import sep490.com.example.hrms_backend.entity.Benefit;
+import sep490.com.example.hrms_backend.service.BenefitService;
 import sep490.com.example.hrms_backend.service.SalaryService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 import sep490.com.example.hrms_backend.utils.SalaryExcelExport;
@@ -23,6 +25,7 @@ public class SalaryController {
 
     private final SalaryService salaryService;
     private final CurrentUserUtils currentUserUtils;
+    private final BenefitService benefitService;
 
     @PostMapping
     public ResponseEntity<String> generateSalary(
@@ -88,8 +91,9 @@ public class SalaryController {
             @RequestParam int year
     ) {
         List<SalaryDTO> salaries = salaryService.getSalariesByMonth(month, year);
-        ByteArrayInputStream excelFile = SalaryExcelExport.exportSalariesToExcel(salaries, month, year);
+        List<Benefit> benefits = benefitService.getAllActive(); // bạn cần service này để lấy danh sách benefit
 
+        ByteArrayInputStream excelFile = SalaryExcelExport.exportSalariesToExcel(salaries, benefits, month, year);
         ByteArrayResource resource = new ByteArrayResource(excelFile.readAllBytes());
 
         String filename = String.format("bao_cao_luong_%02d_%d.xlsx", month, year);
@@ -98,5 +102,6 @@ public class SalaryController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
+
 
 }

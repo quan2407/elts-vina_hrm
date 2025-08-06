@@ -12,7 +12,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import sep490.com.example.hrms_backend.enums.BenefitType;
-
+import sep490.com.example.hrms_backend.enums.FormulaType;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -48,6 +49,15 @@ public class Benefit {
     @Column(name = "benefit_type", nullable = false)
     private BenefitType benefitType;
 
+
+    @Column(name = "default_formula_value")
+    private BigDecimal defaultFormulaValue;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "default_formula_type")
+    private FormulaType defaultFormulaType;
+
+
     @NotNull
     @Column(name = "start_date")
     private LocalDate startDate; // ngày bắt đầu áp dụng
@@ -82,8 +92,8 @@ public class Benefit {
     // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
     // Một phúc lợi có thể được nhiều nhân viên đăng ký
-    @OneToMany(mappedBy = "benefit", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BenefitRegistration> registrations;
+//    @OneToMany(mappedBy = "benefit", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<BenefitRegistration> registrations;
 
     @OneToMany(mappedBy = "benefit",  cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BenefitPosition> benefitPositions;

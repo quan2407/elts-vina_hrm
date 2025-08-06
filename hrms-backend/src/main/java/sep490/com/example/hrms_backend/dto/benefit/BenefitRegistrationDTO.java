@@ -1,8 +1,10 @@
 package sep490.com.example.hrms_backend.dto.benefit;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import sep490.com.example.hrms_backend.dto.EmployeeDetailDTO;
 
 import java.time.LocalDateTime;
 
@@ -12,6 +14,10 @@ import java.time.LocalDateTime;
 public class BenefitRegistrationDTO {
     private Long id;
     private LocalDateTime registeredAt;
-    private String status;
-    private String note;
+
+    @NotNull(message = "Register status is required")
+    private Boolean isRegister;
+
+    private EmployeeBasicDetailDTO employee;
+
 }

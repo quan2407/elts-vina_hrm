@@ -1,11 +1,20 @@
 package sep490.com.example.hrms_backend.mapper;
 
+import sep490.com.example.hrms_backend.dto.SalaryBenefitDTO;
 import sep490.com.example.hrms_backend.dto.SalaryDTO;
 import sep490.com.example.hrms_backend.entity.Salary;
+import sep490.com.example.hrms_backend.entity.SalaryBenefit;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class SalaryMapper {
 
     public static SalaryDTO mapToSalaryDTO(Salary salary) {
+        List<SalaryBenefitDTO> benefitDTOs = salary.getSalaryBenefits().stream()
+                .map(SalaryMapper::mapToBenefitDTO)
+                .collect(Collectors.toList());
+
         return SalaryDTO.builder()
                 .employeeCode(salary.getEmployee().getEmployeeCode())
                 .employeeName(salary.getEmployee().getEmployeeName())
@@ -13,36 +22,25 @@ public class SalaryMapper {
                         ? salary.getEmployee().getPosition().getPositionName()
                         : null)
 
-                // ✅ [A] Phần cố định
                 .basicSalary(salary.getBasicSalary())
-
-                // ✅ [B] Phụ cấp
-                .allowancePhone(salary.getAllowancePhone())
-                .allowanceMeal(salary.getAllowanceMeal())
-                .allowanceAttendance(salary.getAllowanceAttendance())
-                .allowanceTransport(salary.getAllowanceTransport())
-
-                // ✅ [C] Lương sản xuất
                 .workingDays(salary.getWorkingDays())
                 .productionSalary(salary.getProductionSalary())
-
-                // ✅ [D] Lương thêm giờ
                 .overtimeHours(salary.getOvertimeHours())
                 .overtimeSalary(salary.getOvertimeSalary())
-
-                // ✅ [E] Các khoản khấu trừ
-                .socialInsurance(salary.getSocialInsurance())
-                .healthInsurance(salary.getHealthInsurance())
-                .unemploymentInsurance(salary.getUnemploymentInsurance())
-                .unionFee(salary.getUnionFee())
                 .totalDeduction(salary.getTotalDeduction())
-
-                // ✅ [F] Tổng thu nhập
                 .totalIncome(salary.getTotalIncome())
-
-                // ✅ [G] Mốc thời gian
                 .salaryMonth(salary.getSalaryMonth())
                 .locked(salary.isLocked())
+
+                .appliedBenefits(benefitDTOs)
+                .build();
+    }
+
+    private static SalaryBenefitDTO mapToBenefitDTO(SalaryBenefit salaryBenefit) {
+        return SalaryBenefitDTO.builder()
+                .title(salaryBenefit.getBenefitTitle())
+                .type(salaryBenefit.getBenefitType())
+                .amount(salaryBenefit.getAmount())
                 .build();
     }
 }

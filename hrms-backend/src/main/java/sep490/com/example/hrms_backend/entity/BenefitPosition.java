@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import sep490.com.example.hrms_backend.enums.FormulaType;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -26,6 +27,7 @@ public class BenefitPosition {
     @Column(name = "formula_type")
     private FormulaType formulaType;
 
+    //##########################################
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "position_id", nullable = false)
     private Position position;
@@ -33,5 +35,10 @@ public class BenefitPosition {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "benefit_id", nullable = false)
     private Benefit benefit;
+
+    //  Một vị trí có thể có nhiều lượt đăng ký phúc lợi
+    @OneToMany(mappedBy = "benefitPosition", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BenefitRegistration> registrations;
+
 
 }
