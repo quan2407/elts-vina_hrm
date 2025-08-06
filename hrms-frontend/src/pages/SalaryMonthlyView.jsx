@@ -8,15 +8,42 @@ const SalaryMonthlyView = () => {
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
   const [availableMonths, setAvailableMonths] = useState([]);
+  const [isLocked, setIsLocked] = useState(false);
+  const roles = JSON.parse(localStorage.getItem("role") || "[]");
+  const isHrManager = roles.includes("ROLE_HR_MANAGER");
+  const [page, setPage] = useState(0);
+  const [size] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  let debounceTimeout;
 
   const fetchSalaries = async () => {
     try {
-      const res = await salaryService.getMonthlySalaries(month, year);
-      setSalaries(res.data);
+      const res = await salaryService.getMonthlySalaries(
+        month,
+        year,
+        page,
+        size,
+        searchTerm
+      );
+      setSalaries(res.data.content);
+      setTotalPages(res.data.totalPages);
+      setIsLocked(res.data.content.length > 0 && res.data.content[0].locked);
     } catch (err) {
       console.error("Lỗi khi tải dữ liệu lương:", err);
     }
   };
+  useEffect(() => {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+      fetchSalaries();
+    }, 100);
+    return () => clearTimeout(debounceTimeout);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    if (month && year) fetchSalaries();
+  }, [month, year, page]);
 
   useEffect(() => {
     const fetchAvailableMonths = async () => {
@@ -32,9 +59,10 @@ const SalaryMonthlyView = () => {
           setMonth(newMonth);
           setYear(newYear);
           await salaryService
-            .getMonthlySalaries(newMonth, newYear)
+            .getMonthlySalaries(newMonth, newYear, page, size, searchTerm)
             .then((res) => {
-              setSalaries(res.data);
+              setSalaries(res.data.content); // ✅ sửa lại
+              setTotalPages(res.data.totalPages); // ✅ đảm bảo phân trang đúng
             });
         }
       } catch (err) {
@@ -49,61 +77,152 @@ const SalaryMonthlyView = () => {
     <MainLayout>
       <div className="attendance-container">
         <div className="attendance-controls">
-          <select
-            value={month}
-            onChange={(e) => setMonth(Number(e.target.value))}
-          >
-            {Array.from(
-              new Set(availableMonths.map((m) => m.split("-")[0]))
-            ).map((m) => (
-              <option
-                key={m}
-                value={Number(m)}
-              >
-                Tháng {m}
-              </option>
-            ))}
-          </select>
-          <select
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
-          >
-            {Array.from(
-              new Set(availableMonths.map((m) => m.split("-")[1]))
-            ).map((y) => (
-              <option
-                key={y}
-                value={Number(y)}
-              >
-                Năm {y}
-              </option>
-            ))}
-          </select>
+          <div className="attendance-filters">
+            <select
+              value={month}
+              onChange={(e) => setMonth(Number(e.target.value))}
+            >
+              {Array.from(
+                new Set(availableMonths.map((m) => m.split("-")[0]))
+              ).map((m) => (
+                <option
+                  key={m}
+                  value={Number(m)}
+                >
+                  Tháng {m}
+                </option>
+              ))}
+            </select>
 
-          <button
-            className="btn-update"
-            onClick={async () => {
-              if (
-                window.confirm(
-                  "Bạn có chắc muốn cập nhật lại bảng lương không?"
-                )
-              ) {
-                try {
-                  await salaryService.regenerateMonthlySalaries(month, year);
-                  await fetchSalaries(); // tải lại lương sau khi cập nhật
-                  alert("Đã cập nhật bảng lương thành công!");
-                } catch (err) {
-                  console.error("Lỗi khi cập nhật bảng lương:", err);
-                  alert("Cập nhật bảng lương thất bại!");
+            <select
+              value={year}
+              onChange={(e) => setYear(Number(e.target.value))}
+            >
+              {Array.from(
+                new Set(availableMonths.map((m) => m.split("-")[1]))
+              ).map((y) => (
+                <option
+                  key={y}
+                  value={Number(y)}
+                >
+                  Năm {y}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="salary-actions">
+            <button
+              className="btn-update"
+              disabled={isLocked}
+              onClick={async () => {
+                if (
+                  window.confirm(
+                    "Bạn có chắc muốn cập nhật lại bảng lương không?"
+                  )
+                ) {
+                  try {
+                    await salaryService.regenerateMonthlySalaries(month, year);
+                    await fetchSalaries();
+                    alert("Đã cập nhật bảng lương thành công!");
+                  } catch (err) {
+                    console.error("Lỗi khi cập nhật bảng lương:", err);
+                    alert("Cập nhật bảng lương thất bại!");
+                  }
                 }
-              }
-            }}
-          >
-            Cập nhật bảng lương
-          </button>
+              }}
+            >
+              Cập nhật bảng lương
+            </button>
+
+            {isHrManager && (
+              <button
+                className="btn-lock"
+                onClick={async () => {
+                  const confirmMsg = isLocked
+                    ? "Bạn có chắc muốn mở khóa bảng lương này?"
+                    : "Bạn có chắc muốn chốt bảng lương này?";
+                  if (window.confirm(confirmMsg)) {
+                    try {
+                      await salaryService.lockSalaryMonth(
+                        month,
+                        year,
+                        !isLocked
+                      );
+                      await fetchSalaries();
+                      alert(
+                        isLocked
+                          ? "Đã mở khóa bảng lương."
+                          : "Đã chốt bảng lương."
+                      );
+                    } catch (err) {
+                      alert("Lỗi khi cập nhật trạng thái chốt lương!");
+                    }
+                  }
+                }}
+                disabled={salaries.length === 0}
+              >
+                {isLocked ? "Đã chốt (mở khóa)" : "Chốt bảng lương"}
+              </button>
+            )}
+            <button
+              className="btn-export"
+              style={{
+                marginLeft: "8px",
+                backgroundColor: "#2563eb",
+                color: "white",
+              }}
+              onClick={async () => {
+                if (!month || !year) {
+                  alert("Vui lòng chọn tháng và năm.");
+                  return;
+                }
+                try {
+                  const response = await salaryService.exportMonthlySalaries(
+                    month,
+                    year
+                  );
+                  const blob = new Blob([response.data], {
+                    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                  });
+
+                  const url = window.URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.href = url;
+                  link.setAttribute(
+                    "download",
+                    `bao_cao_luong_${month
+                      .toString()
+                      .padStart(2, "0")}_${year}.xlsx`
+                  );
+                  document.body.appendChild(link);
+                  link.click();
+                  link.remove();
+                } catch (err) {
+                  console.error("Export lương thất bại:", err);
+                  alert("Không thể xuất báo cáo lương.");
+                }
+              }}
+            >
+              Xuất Excel
+            </button>
+          </div>
         </div>
 
         <div className="attendance-table-wrapper">
+          <div className="attendance-search-wrapper">
+            <input
+              type="text"
+              className="attendance-search-input"
+              placeholder="Tìm mã hoặc tên nhân viên..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(0);
+              }}
+            />
+          </div>
+
           <table className="attendance-table">
             <thead>
               <tr>
@@ -162,6 +281,49 @@ const SalaryMonthlyView = () => {
               ))}
             </tbody>
           </table>
+          <div className="attendance-pagination-container">
+            <button
+              className="attendance-pagination-btn"
+              onClick={() => setPage(0)}
+              disabled={page === 0}
+            >
+              «
+            </button>
+            <button
+              className="attendance-pagination-btn"
+              onClick={() => setPage(page - 1)}
+              disabled={page === 0}
+            >
+              ‹
+            </button>
+
+            {Array.from({ length: totalPages }).map((_, p) => (
+              <button
+                key={p}
+                onClick={() => setPage(p)}
+                className={`attendance-pagination-btn ${
+                  p === page ? "attendance-pagination-active" : ""
+                }`}
+              >
+                {p + 1}
+              </button>
+            ))}
+
+            <button
+              className="attendance-pagination-btn"
+              onClick={() => setPage(page + 1)}
+              disabled={page === totalPages - 1}
+            >
+              ›
+            </button>
+            <button
+              className="attendance-pagination-btn"
+              onClick={() => setPage(totalPages - 1)}
+              disabled={page === totalPages - 1}
+            >
+              »
+            </button>
+          </div>
         </div>
       </div>
     </MainLayout>

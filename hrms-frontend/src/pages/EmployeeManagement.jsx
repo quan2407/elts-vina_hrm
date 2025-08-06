@@ -20,7 +20,7 @@ function EmployeeManagement() {
 
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", "danhsachtuyendung.xlsx");
+      link.setAttribute("download", "danhsachnhanvien.xlsx");
       document.body.appendChild(link);
       link.click();
 
@@ -44,19 +44,21 @@ function EmployeeManagement() {
 
             <button
               className="add-button"
+               style={{ height: "55px" }} 
               onClick={handleCreate}
             >
               <span className="export-text">Thêm nhân viên</span>
             </button>
             <button
               className="export-button"
+               style={{ height: "55px" }} 
               onClick={handleExport}
             >
-              <Download
+              {/* <Download
                 size={16}
                 style={{ marginRight: "6px" }}
-              />
-              <span className="employee-export-text">Export</span>
+              /> */}
+              <span className="export-text">Export</span>
             </button>
           </div>
         </div>

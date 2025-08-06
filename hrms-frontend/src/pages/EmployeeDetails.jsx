@@ -7,6 +7,7 @@ import { vi } from "date-fns/locale";
 import "../styles/EmployeeDetails.css";
 import employeeService from "../services/employeeService";
 import departmentService from "../services/departmentService";
+import axiosClient from "../services/axiosClient";
 import { Save } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -41,6 +42,15 @@ function EmployeeDetails() {
   const [departmentId, setDepartmentId] = useState("");
   const [positionId, setPositionId] = useState("");
   const [lineId, setLineId] = useState("");
+  const [cccdFrontImage, setCccdFrontImage] = useState("");
+  const [cccdBackImage, setCccdBackImage] = useState("");
+  const [frontFile, setFrontFile] = useState(null);
+  const [backFile, setBackFile] = useState(null);
+  const [frontPreview, setFrontPreview] = useState(null);
+  const [backPreview, setBackPreview] = useState(null);
+  const [ocrLoading, setOcrLoading] = useState(false);
+  const [endWorkAt, setEndWorkAt] = useState(null);
+  const [basicSalary, setBasicSalary] = useState("");
 
   const [departments, setDepartments] = useState([]);
   const [positions, setPositions] = useState([]);
@@ -49,39 +59,99 @@ function EmployeeDetails() {
   const [activeSection, setActiveSection] = useState("basic-info");
 
   const isClickScrolling = useRef(false);
-  const handleSubmit = async () => {
-    const payload = {
-      employeeCode: employeeCode?.trim() ? employeeCode : null,
-      employeeName: fullName?.trim() ? fullName : null,
-      gender: gender?.trim() ? gender : null,
-      dob: birthDate ? format(birthDate, "yyyy-MM-dd") : null,
-      placeOfBirth: birthPlace?.trim() ? birthPlace : null,
-      originPlace: originPlace?.trim() ? originPlace : null,
-      nationality: nationality?.trim() ? nationality : null,
-      citizenId: idNumber?.trim() ? idNumber : null,
-      citizenIssueDate: issueDate ? format(issueDate, "yyyy-MM-dd") : null,
-      citizenExpiryDate: expiryDate ? format(expiryDate, "yyyy-MM-dd") : null,
-      address: address?.trim() ? address : null,
-      currentAddress: currentAddress?.trim() || null,
-      ethnicity: ethnicity?.trim() || null,
-      religion: religion?.trim() || null,
-      educationLevel: educationLevel?.trim() || null,
-      specializedLevel: specializedLevel?.trim() || null,
-      foreignLanguages: foreignLanguages?.trim() || null,
-      trainingType: trainingType?.trim() || null,
-      trainingMajor: trainingMajor?.trim() || null,
-      phoneNumber: phone?.trim() ? phone : null,
-      email: email?.trim() ? email : null,
-      startWorkAt: startWorkAt ? format(startWorkAt, "yyyy-MM-dd") : null,
-      departmentId: departmentId !== "" ? Number(departmentId) : null,
-      positionId: positionId !== "" ? Number(positionId) : null,
-      lineId: lineId !== "" ? Number(lineId) : null,
-    };
+  const handleOcrExtract = async () => {
+    if (!frontFile && !backFile) {
+      alert("Vui lòng chọn ít nhất 1 ảnh CCCD");
+      return;
+    }
 
-    console.log(" Payload gửi đi:", payload);
+    const formData = new FormData();
+    if (frontFile) formData.append("front", frontFile);
+    if (backFile) formData.append("back", backFile);
 
     try {
-      await employeeService.updateEmployee(Number(id), payload);
+      setOcrLoading(true);
+      const res = await axiosClient.post("/ocr/scan-cccd", formData);
+
+      const data = res.data;
+      setFullName(data.employeeName || "");
+      setGender((data.gender || "").toUpperCase());
+      setBirthDate(data.dob ? new Date(data.dob) : null);
+      setBirthPlace(data.placeOfBirth || "");
+      setOriginPlace(data.originPlace || "");
+      setNationality(data.nationality || "");
+      setIdNumber(data.citizenId || "");
+      setIssueDate(
+        data.citizenIssueDate ? new Date(data.citizenIssueDate) : null
+      );
+      setExpiryDate(
+        data.citizenExpiryDate ? new Date(data.citizenExpiryDate) : null
+      );
+      setAddress(data.address || "");
+      setCurrentAddress(data.address || "");
+      setCccdFrontImage(data.cccdFrontImage || "");
+      setCccdBackImage(data.cccdBackImage || "");
+    } catch (err) {
+      alert(err?.response?.data?.message || "Lỗi OCR");
+    } finally {
+      setOcrLoading(false);
+    }
+  };
+  const handleSubmit = async () => {
+    const formData = new FormData();
+
+    formData.append("employeeName", fullName);
+    formData.append("gender", gender);
+    formData.append("dob", birthDate ? format(birthDate, "yyyy-MM-dd") : "");
+    formData.append("placeOfBirth", birthPlace);
+    formData.append("originPlace", originPlace);
+    formData.append("nationality", nationality);
+    formData.append("citizenId", idNumber);
+    formData.append(
+      "citizenIssueDate",
+      issueDate ? format(issueDate, "yyyy-MM-dd") : ""
+    );
+    formData.append(
+      "citizenExpiryDate",
+      expiryDate ? format(expiryDate, "yyyy-MM-dd") : ""
+    );
+    formData.append("address", address);
+    formData.append("currentAddress", currentAddress);
+    formData.append("ethnicity", ethnicity);
+    formData.append("religion", religion);
+    formData.append("educationLevel", educationLevel);
+    formData.append("specializedLevel", specializedLevel);
+    formData.append("foreignLanguages", foreignLanguages);
+    formData.append("trainingType", trainingType);
+    formData.append("trainingMajor", trainingMajor);
+    formData.append("phoneNumber", phone);
+    formData.append("email", email);
+    formData.append(
+      "startWorkAt",
+      startWorkAt ? format(startWorkAt, "yyyy-MM-dd") : ""
+    );
+    formData.append("departmentId", departmentId);
+    formData.append("positionId", positionId);
+    formData.append(
+      "endWorkAt",
+      endWorkAt ? format(endWorkAt, "yyyy-MM-dd") : ""
+    );
+    formData.append("basicSalary", basicSalary?.trim() || "");
+
+    if (frontFile) {
+      formData.append("frontImageFile", frontFile);
+    } else if (cccdFrontImage) {
+      formData.append("cccdFrontImage", cccdFrontImage);
+    }
+
+    if (backFile) {
+      formData.append("backImageFile", backFile);
+    } else if (cccdBackImage) {
+      formData.append("cccdBackImage", cccdBackImage);
+    }
+
+    try {
+      await employeeService.updateEmployee(Number(id), formData);
       setErrors({});
     } catch (err) {
       console.error("Lỗi tạo nhân viên:", err);
@@ -244,6 +314,24 @@ function EmployeeDetails() {
         setDepartmentId(data.departmentId || "");
         setPositionId(data.positionId || "");
         setLineId(data.lineId || "");
+        setCccdFrontImage(data.cccdFrontImage || "");
+        setCccdBackImage(data.cccdBackImage || "");
+        setEndWorkAt(data.endWorkAt ? new Date(data.endWorkAt) : null);
+        setBasicSalary(data.basicSalary || "");
+
+        const API_BASE_URL = "http://localhost:8080"; // KHÔNG có /api
+
+        if (data.cccdFrontImage) {
+          setFrontPreview(API_BASE_URL + data.cccdFrontImage);
+        }
+        if (data.cccdBackImage) {
+          setBackPreview(API_BASE_URL + data.cccdBackImage);
+        }
+        setTimeout(() => {
+          console.log("⏳ Test sau 200ms:");
+          console.log("Front image state:", cccdFrontImage);
+          console.log("Preview state:", frontPreview);
+        }, 200);
       } catch (err) {
         console.error("Lỗi load chi tiết nhân viên:", err);
       }
@@ -389,7 +477,133 @@ function EmployeeDetails() {
                   )}
                 </div>
               </div>
+              <div className="employeedetail-form-row">
+                {/* Mặt trước CCCD */}
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Ảnh mặt trước CCCD
+                  </div>
 
+                  <div className="ocr-frame">
+                    {frontPreview ? (
+                      <>
+                        <img
+                          src={
+                            frontPreview ||
+                            (cccdFrontImage
+                              ? import.meta.env.VITE_API_URL + cccdFrontImage
+                              : "")
+                          }
+                          alt="Ảnh mặt trước"
+                          className="ocr-preview-container"
+                        />
+                        <div className="ocr-overlay">
+                          <label className="ocr-reupload">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              hidden
+                              onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  setFrontFile(file);
+                                  setFrontPreview(URL.createObjectURL(file));
+                                }
+                              }}
+                            />
+                            Chọn lại ảnh
+                          </label>
+                        </div>
+                      </>
+                    ) : (
+                      <label className="ocr-upload-button">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          hidden
+                          onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              setFrontFile(file);
+                              setFrontPreview(URL.createObjectURL(file));
+                            }
+                          }}
+                        />
+                        <i className="fa fa-camera" /> Chọn ảnh mặt trước
+                      </label>
+                    )}
+                  </div>
+                </div>
+
+                {/* Mặt sau CCCD */}
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Ảnh mặt sau CCCD
+                  </div>
+                  <div className="ocr-frame">
+                    {backPreview ? (
+                      <>
+                        <img
+                          src={
+                            backPreview ||
+                            (cccdBackImage
+                              ? import.meta.env.VITE_API_URL + cccdBackImage
+                              : "")
+                          }
+                          alt="Ảnh mặt sau"
+                          className="ocr-preview-container"
+                        />
+                        <div className="ocr-overlay">
+                          <label className="ocr-reupload">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              hidden
+                              onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  setBackFile(file);
+                                  setBackPreview(URL.createObjectURL(file));
+                                }
+                              }}
+                            />
+                            Chọn lại ảnh
+                          </label>
+                        </div>
+                      </>
+                    ) : (
+                      <label className="ocr-upload-button">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          hidden
+                          onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              setBackFile(file);
+                              setBackPreview(URL.createObjectURL(file));
+                            }
+                          }}
+                        />
+                        <i className="fa fa-camera" /> Chọn ảnh mặt sau
+                      </label>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginTop: "10px" }}>
+                <button
+                  type="button"
+                  onClick={handleOcrExtract}
+                  disabled={ocrLoading}
+                  className="submit-button"
+                  style={{ padding: "6px 16px", fontSize: "14px" }}
+                >
+                  {ocrLoading
+                    ? "Đang trích xuất..."
+                    : "📷 Trích xuất từ ảnh CCCD"}
+                </button>
+              </div>
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
@@ -550,23 +764,27 @@ function EmployeeDetails() {
                 </div>
               </div>
               <div className="employeedetail-form-row">
-                <div className="employeedetail-input-group">
+                <div
+                  className="employeedetail-input-group"
+                  style={{ width: "100%" }}
+                >
                   <div className="employeedetail-input-label">
-                    Nơi ở hiện tại<span className="required-star">*</span>
+                    Địa chỉ<span className="required-star">*</span>
                   </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
-                    value={currentAddress}
-                    placeholder="Nhập nơi ở hiện tại"
-                    onChange={(e) => setCurrentAddress(e.target.value)}
+                    value={address}
+                    placeholder="Nhập địa chỉ"
+                    onChange={(e) => setAddress(e.target.value)}
                   />
-                  {errors.currentAddress && (
+                  {errors.address && (
                     <div className="error-message">
-                      {errors.currentAddress.join(", ")}
+                      {errors.address.join(", ")}
                     </div>
                   )}
                 </div>
+
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
                     Trình độ văn hóa<span className="required-star">*</span>
@@ -740,23 +958,20 @@ function EmployeeDetails() {
               </div>
 
               <div className="employeedetail-form-row">
-                <div
-                  className="employeedetail-input-group"
-                  style={{ width: "100%" }}
-                >
+                <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Địa chỉ<span className="required-star">*</span>
+                    Nơi ở hiện tại<span className="required-star">*</span>
                   </div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
-                    value={address}
-                    placeholder="Nhập địa chỉ"
-                    onChange={(e) => setAddress(e.target.value)}
+                    value={currentAddress}
+                    placeholder="Nhập nơi ở hiện tại"
+                    onChange={(e) => setCurrentAddress(e.target.value)}
                   />
-                  {errors.address && (
+                  {errors.currentAddress && (
                     <div className="error-message">
-                      {errors.address.join(", ")}
+                      {errors.currentAddress.join(", ")}
                     </div>
                   )}
                 </div>
@@ -793,6 +1008,31 @@ function EmployeeDetails() {
                     </div>
                   )}
                 </div>
+
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Ngày nghỉ<span className="required-star">*</span>
+                  </div>
+                  <DatePicker
+                    selected={endWorkAt}
+                    onChange={(date) => setEndWorkAt(date)}
+                    dateFormat="dd/MM/yyyy"
+                    locale={vi}
+                    customInput={<CustomInput />}
+                    placeholderText="Chọn ngày"
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                  />
+                  {errors.endWorkAt && (
+                    <div className="error-message">
+                      {errors.endWorkAt.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
                     Phòng ban<span className="required-star">*</span>
@@ -812,16 +1052,12 @@ function EmployeeDetails() {
                       </option>
                     ))}
                   </select>
-
                   {errors.departmentId && (
                     <div className="error-message">
                       {errors.departmentId.join(", ")}
                     </div>
                   )}
                 </div>
-              </div>
-
-              <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
                     Vị trí<span className="required-star">*</span>
@@ -841,14 +1077,34 @@ function EmployeeDetails() {
                       </option>
                     ))}
                   </select>
-
                   {errors.positionId && (
                     <div className="error-message">
                       {errors.positionId.join(", ")}
                     </div>
                   )}
                 </div>
-                <div className="employeedetail-input-group"></div>
+              </div>
+              <div className="employeedetail-form-row">
+                <div
+                  className="employeedetail-input-group"
+                  style={{ width: "100%" }}
+                >
+                  <div className="employeedetail-input-label">
+                    Lương cơ bản<span className="required-star">*</span>
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="number"
+                    value={basicSalary}
+                    placeholder="Nhập lương cơ bản"
+                    onChange={(e) => setBasicSalary(e.target.value)}
+                  />
+                  {errors.basicSalary && (
+                    <div className="error-message">
+                      {errors.basicSalary.join(", ")}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 

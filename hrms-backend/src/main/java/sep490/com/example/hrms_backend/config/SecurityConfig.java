@@ -20,6 +20,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import sep490.com.example.hrms_backend.security.JwtAuthenticationEntryPoint;
 import sep490.com.example.hrms_backend.security.JwtAuthenticationFilter;
+import sep490.com.example.hrms_backend.security.JwtTokenProvider;
+import sep490.com.example.hrms_backend.security.PermissionFilter;
 
 import java.util.List;
 
@@ -28,9 +30,15 @@ import java.util.List;
 @AllArgsConstructor
 public class SecurityConfig {
 
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
     private final UserDetailsService userDetailsService;
-    private JwtAuthenticationEntryPoint authenticationEntryPoint;
-    private JwtAuthenticationFilter authenticationFilter;
+    private final PermissionFilter permissionFilter;
+    private final JwtTokenProvider jwtTokenProvider;
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
+    }
 
     @Bean
     public static PasswordEncoder passwordEncoder() {
@@ -47,11 +55,17 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                        // Auth APIs
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/reset-password").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/request-reset-password").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/candidate/apply/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/recruitment").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/recruitment/{id:\\d+}").permitAll()
                         .anyRequest().authenticated()
                 )
+
                 .exceptionHandling(
                         exception -> exception.authenticationEntryPoint(authenticationEntryPoint)
                 )
@@ -59,7 +73,8 @@ public class SecurityConfig {
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
 
-        http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(permissionFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

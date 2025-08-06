@@ -86,3 +86,53 @@
     opacity: 0.8;
   }
 }
+.reject-reason {
+  color: #dc2626;
+  font-style: italic;
+  margin-top: 4px;
+}
+.work-schedule-reject-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.work-schedule-reject-modal {
+  background-color: #fff;
+  padding: 20px;
+  width: 400px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.work-schedule-reject-modal h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.work-schedule-reject-modal textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 8px;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.work-schedule-reject-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #999;
+}

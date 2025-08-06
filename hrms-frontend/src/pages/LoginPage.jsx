@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import authService from "../services/authService";
 import { jwtDecode } from "jwt-decode";
 import "../styles/LoginPage.css";
+import { usePermissions } from "../contexts/PermissionContext";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -10,7 +11,7 @@ function LoginPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [errorFields, setErrorFields] = useState({});
   const navigate = useNavigate();
-
+  const { refreshPermissions } = usePermissions();
   const handleLogin = async (e) => {
     e.preventDefault();
     setErrorMessage("");
@@ -33,19 +34,29 @@ function LoginPage() {
 
       const roles = decoded.roles || [];
       console.log("Roles:", roles);
-      if (roles.includes("ROLE_ADMIN")) {
-        navigate("/accounts");
-      } else if (roles.includes("ROLE_HR")) {
-        navigate("/employee-management");
-      } else if (roles.includes("ROLE_PMC")) {
-        navigate("/work-schedule-management");
-      } else if (roles.includes("ROLE_PRODUCTION_MANAGER")) {
-        navigate("/work-schedule-production");
-      } else if (roles.includes("ROLE_EMPLOYEE")) {
-        navigate("/my-work-schedule");
-      } else {
-        navigate("/unauthorized");
-      }
+      await refreshPermissions();
+
+      setTimeout(() => {
+        if (roles.includes("ROLE_ADMIN")) {
+          navigate("/accounts");
+        } else if (
+          roles.includes("ROLE_HR") ||
+          roles.includes("ROLE_HR_MANAGER")
+        ) {
+          navigate("/employee-management");
+        } else if (roles.includes("ROLE_PMC")) {
+          navigate("/work-schedule-management");
+        } else if (roles.includes("ROLE_PRODUCTION_MANAGER")) {
+          navigate("/work-schedule-production");
+        } else if (
+          roles.includes("ROLE_EMPLOYEE") ||
+          roles.includes("ROLE_LINE_LEADER")
+        ) {
+          navigate("/my-work-schedule");
+        } else {
+          navigate("/unauthorized");
+        }
+      }, 100); // đợi một chút để permission cập nhật
     } catch (err) {
       console.error("Login failed:", err.response || err);
       if (err.response && err.response.data) {

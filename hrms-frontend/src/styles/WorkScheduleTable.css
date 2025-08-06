@@ -1,10 +1,8 @@
-/* ===== Wrapper tổng ===== */
 .work-schedule-container {
   padding: 1rem;
   background-color: #e5f0fd;
 }
 
-/* ===== Toolbar cố định trên cùng ===== */
 .work-schedule-toolbar-wrapper {
   position: sticky;
   top: 0;
@@ -23,7 +21,7 @@
 .work-schedule-toolbar select,
 .work-schedule-nav-btn {
   padding: 4px 8px;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .work-schedule-nav-btn {
@@ -37,13 +35,11 @@
   background-color: #d1d5db;
 }
 
-/* ===== Layout chia trái – phải ===== */
 .work-schedule-layout {
   display: flex;
   align-items: flex-start;
 }
 
-/* ===== Cột trái cố định ===== */
 .work-schedule-left {
   display: grid;
   grid-template-columns: 200px 150px;
@@ -51,7 +47,6 @@
   flex-shrink: 0;
 }
 
-/* ===== Scroll ngang phần ngày ===== */
 .work-schedule-scroll {
   overflow-x: auto;
   max-width: calc(100vw - 380px);
@@ -62,7 +57,6 @@
   grid-auto-rows: 40px;
 }
 
-/* ===== Header ===== */
 .work-schedule-header {
   background-color: #dbeafe;
   font-weight: bold;
@@ -79,17 +73,16 @@
   grid-row: span 2;
 }
 
-/* ===== Header ngày / thứ ===== */
 .work-schedule-header-date {
   background-color: #d1fae5;
-  font-size: 13px;
+  font-size: 16px;
   padding: 4px;
   height: 100%;
 }
 
 .work-schedule-header-weekday {
   background-color: #f0f9ff;
-  font-size: 12px;
+  font-size: 16px;
   color: #444;
   padding: 4px;
   height: 100%;
@@ -100,7 +93,6 @@
   color: #dc2626;
 }
 
-/* ===== Cell ===== */
 .work-schedule-cell {
   border: 1px solid #ccc;
   padding: 6px 8px;
@@ -112,7 +104,6 @@
   background-color: #fff;
 }
 
-/* ===== Cell đặc biệt ===== */
 .work-schedule-dept-name {
   background-color: #f1f5f9;
   font-weight: bold;
@@ -131,7 +122,6 @@
   background-color: #fff;
 }
 
-/* ===== Nút thêm lịch ===== */
 .work-schedule-add-btn {
   background-color: #e0f2fe;
   border: none;
@@ -141,7 +131,6 @@
   border-radius: 4px;
 }
 
-/* ===== Modal ===== */
 .work-schedule-modal-overlay {
   position: fixed;
   top: 0;
@@ -188,7 +177,6 @@
   cursor: pointer;
 }
 
-/* ===== Trạng thái không có dữ liệu ===== */
 .work-schedule-empty {
   text-align: center;
   margin-top: 50px;
@@ -215,10 +203,15 @@
   background-color: #43a047;
 }
 .work-schedule-time-text {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.2;
 }
 .work-schedule-overtime {
   color: red;
   font-weight: bold;
+}
+.work-schedule-focus-cell {
+  background-color: #fff3e0 !important;
+  border: 2px solid #ff9800 !important;
+  box-shadow: inset 0 0 0 1px #ffa726;
 }

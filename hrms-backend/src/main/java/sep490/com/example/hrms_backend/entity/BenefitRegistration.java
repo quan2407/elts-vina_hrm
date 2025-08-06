@@ -1,10 +1,10 @@
 package sep490.com.example.hrms_backend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import sep490.com.example.hrms_backend.enums.BenefitType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -58,4 +58,8 @@ public class BenefitRegistration {
     @ManyToOne
     @JoinColumn(name = "employee_id", nullable = false, updatable = false)
     private Employee employee;
+    //  Đăng ký này thuộc về một BenefitPosition
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "benefit_position_id", nullable = false, updatable = false)
+    private BenefitPosition benefitPosition;
 }

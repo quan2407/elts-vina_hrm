@@ -26,6 +26,9 @@ public class Employee {
     @Column(name = "employee_code", nullable = false, unique = true)
     private String employeeCode;
 
+    @Column(name = "image")
+    private String image;
+
     @NotBlank
     @Column(name = "employee_name", nullable = false)
     private String employeeName;
@@ -86,12 +89,16 @@ public class Employee {
     private String trainingMajor;
 
 
-    @Column(name = "image")
-    private String image;
+    @Column(name = "cccd_front_image")
+    private String cccdFrontImage;
+    @Column(name = "cccd_back_image")
+    private String cccdBackImage;
 
-    @PastOrPresent
     @Column(name = "start_work_at")
     private LocalDate startWorkAt;
+
+    @Column(name = "end_work_at")
+    private LocalDate endWorkAt;
 
     @Pattern(regexp = "^[0-9\\-\\+]{9,15}$", message = "Invalid phone number format")
     @Column(name = "phone_number")
@@ -122,6 +129,9 @@ public class Employee {
     @DecimalMin(value = "0.0", inclusive = true)
     @Column(name = "allowance_transport")
     private BigDecimal allowanceTransport;
+
+    @Column(name = "union_fee")
+    private BigDecimal unionFee = BigDecimal.valueOf(50000);
 
 
     @ManyToOne
@@ -160,7 +170,8 @@ public class Employee {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-
+    @Column(name = "is_account_requested")
+    private Boolean isAccountRequested;
 
 
     public String getCitizenIssuePlaceSafe() {

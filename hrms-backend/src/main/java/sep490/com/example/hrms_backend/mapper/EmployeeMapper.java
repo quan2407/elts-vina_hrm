@@ -18,10 +18,11 @@ public class EmployeeMapper {
                 .gender(employee.getGender())
                 .dob(employee.getDob())
                 .placeOfBirth(employee.getPlaceOfBirth())
-                .image(employee.getImage())
                 .nationality(employee.getNationality())
                 .address(employee.getAddress())
                 .startWorkAt(employee.getStartWorkAt())
+                .endWorkAt(employee.getEndWorkAt())
+                .basicSalary(employee.getBasicSalary())
                 .phoneNumber(employee.getPhoneNumber())
                 .citizenId(employee.getCitizenId())
                 .departmentName(employee.getDepartment() != null ? employee.getDepartment().getDepartmentName() : null)
@@ -30,6 +31,7 @@ public class EmployeeMapper {
                 .accountUsername(employee.getAccount() != null ? employee.getAccount().getUsername() : null)
                 .build();
     }
+
     public static Employee mapToEmployee(EmployeeRequestDTO dto) {
         return Employee.builder()
                 .employeeCode(dto.getEmployeeCode())
@@ -51,7 +53,8 @@ public class EmployeeMapper {
                 .trainingType(dto.getTrainingType())
                 .trainingMajor(dto.getTrainingMajor())
                 .foreignLanguages(dto.getForeignLanguages())
-                .image(dto.getImage())
+                .cccdFrontImage(dto.getCccdFrontImage())
+                .cccdBackImage(dto.getCccdBackImage())
                 .startWorkAt(dto.getStartWorkAt())
                 .phoneNumber(dto.getPhoneNumber())
                 .email(dto.getEmail())
@@ -78,10 +81,14 @@ public class EmployeeMapper {
         employee.setForeignLanguages(dto.getForeignLanguages());
         employee.setTrainingType(dto.getTrainingType());
         employee.setTrainingMajor(dto.getTrainingMajor());
-        employee.setImage(dto.getImage());
+        employee.setCccdFrontImage(dto.getCccdFrontImage());
+        employee.setCccdBackImage(dto.getCccdBackImage());
+
         employee.setStartWorkAt(dto.getStartWorkAt());
         employee.setPhoneNumber(dto.getPhoneNumber());
         employee.setEmail(dto.getEmail());
+        employee.setEndWorkAt(dto.getEndWorkAt());
+        employee.setBasicSalary(dto.getBasicSalary());
 
         // Gán phòng ban và vị trí nếu cần thiết
         if (employee.getDepartment() == null ||
@@ -112,6 +119,10 @@ public class EmployeeMapper {
                 .citizenId(employee.getCitizenId())
                 .citizenIssueDate(employee.getCitizenIssueDate())
                 .citizenExpiryDate(employee.getCitizenExpiryDate())
+                .cccdFrontImage(employee.getCccdFrontImage() != null
+                        ? "/uploads/cccd/" + employee.getCccdFrontImage() : null)
+                .cccdBackImage(employee.getCccdBackImage() != null
+                        ? "/uploads/cccd/" + employee.getCccdBackImage() : null)
                 .address(employee.getAddress())
                 .currentAddress(employee.getCurrentAddress())
                 .ethnicity(employee.getEthnicity())
@@ -124,19 +135,14 @@ public class EmployeeMapper {
                 .startWorkAt(employee.getStartWorkAt())
                 .phoneNumber(employee.getPhoneNumber())
                 .email(employee.getEmail())
-
+                .endWorkAt(employee.getEndWorkAt())
+                .basicSalary(employee.getBasicSalary())
                 .departmentId(employee.getDepartment() != null ? employee.getDepartment().getDepartmentId() : null)
                 .departmentName(employee.getDepartment() != null ? employee.getDepartment().getDepartmentName() : null)
-
                 .positionId(employee.getPosition() != null ? employee.getPosition().getPositionId() : null)
                 .positionName(employee.getPosition() != null ? employee.getPosition().getPositionName() : null)
-
                 .lineId(employee.getLine() != null ? employee.getLine().getLineId() : null)
                 .lineName(employee.getLine() != null ? employee.getLine().getLineName() : null)
-
                 .build();
     }
-
-
-
 }

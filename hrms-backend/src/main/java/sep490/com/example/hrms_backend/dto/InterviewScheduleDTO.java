@@ -21,7 +21,6 @@ public class InterviewScheduleDTO {
     @NotNull(message = "Thời gian phỏng vấn không được để trống")
     @FutureOrPresent(message = "Thời gian phỏng vấn phải là thời gian trong tương lai ")
     private LocalDateTime scheduledAt;
-    @NotNull(message = "Trạng thái lich phỏng vấn không được trống")
     private InterviewScheduleStatus status;
     private String feedback;
     @NotNull(message = "Ứng viên không được để trống")

@@ -6,9 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import sep490.com.example.hrms_backend.dto.EmployeeWorkScheduleDTO;
-import sep490.com.example.hrms_backend.dto.WorkScheduleCreateDTO;
-import sep490.com.example.hrms_backend.dto.WorkScheduleResponseDTO;
+import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.service.WorkScheduleService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
@@ -29,11 +27,10 @@ public class WorkScheduleController {
         return ResponseEntity.ok(createdList);
     }
     @GetMapping("/available")
-    public ResponseEntity<List<com.example.hrms_backend.dto.WorkScheduleMonthDTO>> getAvailableMonths() {
+    public ResponseEntity<List<WorkScheduleMonthDTO>> getAvailableMonths() {
         return ResponseEntity.ok(workScheduleService.getAvailableMonths());
     }
     @GetMapping("/resolve-id")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PMC','PRODUCTION_MANAGER')")
     public ResponseEntity<Long> resolveWorkScheduleId(
             @RequestParam Long departmentId,
             @RequestParam(required = false) Long lineId,
@@ -43,13 +40,11 @@ public class WorkScheduleController {
         return ResponseEntity.ok(id);
     }
     @PutMapping("/submit")
-    @PreAuthorize("hasRole('PMC')")
     public ResponseEntity<?> submitWorkSchedules(@RequestParam int month, @RequestParam int year) {
         workScheduleService.submitAllWorkSchedules(month, year);
         return ResponseEntity.ok().build();
     }
     @PutMapping("/accept")
-    @PreAuthorize("hasRole('PRODUCTION_MANAGER')")
     public ResponseEntity<?> acceptWorkSchedules(
             @RequestParam int month,
             @RequestParam int year) {
@@ -57,7 +52,6 @@ public class WorkScheduleController {
         return ResponseEntity.ok().build();
     }
     @GetMapping("/employee-view")
-    @PreAuthorize("hasRole('EMPLOYEE')")
     public ResponseEntity<List<EmployeeWorkScheduleDTO>> getEmployeeWorkSchedule(
             @RequestParam int month,
             @RequestParam int year
@@ -66,6 +60,27 @@ public class WorkScheduleController {
         List<EmployeeWorkScheduleDTO> result = workScheduleService.getWorkScheduleForEmployee(employeeId, month, year);
         return ResponseEntity.ok(result);
     }
-
-
+    @PutMapping("/reject")
+    public ResponseEntity<?> rejectWorkSchedules(
+            @RequestParam int month,
+            @RequestParam int year,
+            @RequestParam String reason
+    ) {
+        workScheduleService.rejectSubmittedSchedule(month, year, reason);
+        return ResponseEntity.ok("Từ chối bảng phân ca thành công.");
+    }
+    @PutMapping("/custom-range")
+    public ResponseEntity<?> createCustomRangeWorkSchedule(@Valid @RequestBody WorkScheduleRangeDTO dto) {
+        workScheduleService.createCustomWorkSchedules(dto);
+        return ResponseEntity.ok("Đã dải lịch thành công theo yêu cầu.");
+    }
+    @PutMapping("/request-revision")
+    public ResponseEntity<?> requestRevision(
+            @RequestParam int month,
+            @RequestParam int year,
+            @RequestParam String reason
+    ) {
+        workScheduleService.requestRevision(month, year, reason);
+        return ResponseEntity.ok("Đã yêu cầu PMC chỉnh sửa lại toàn bộ lịch đã duyệt.");
+    }
 }

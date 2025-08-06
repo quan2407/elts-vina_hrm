@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import workScheduleService from "../services/workScheduleService";
 import WorkScheduleModal from "./WorkScheduleModal";
+import holidayService from "../services/holidayService ";
 import "../styles/WorkScheduleTable.css";
+import { useSearchParams } from "react-router-dom";
 
 const weekdays = ["CN", "Th 2", "Th 3", "Th 4", "Th 5", "Th 6", "Th 7"];
 
@@ -14,7 +16,14 @@ function WorkScheduleTable({
   onMonthYearChange,
   canEdit = true,
   reloadTrigger,
+  onRejectReasonChange = () => {},
+  onNeedRevisionChange = () => {},
 }) {
+  const [searchParams] = useSearchParams();
+  const focusDateParam = searchParams.get("focusDate"); // yyyy-MM-dd
+  const departmentNameParam = searchParams.get("departmentName");
+  const lineNameParam = searchParams.get("lineName");
+
   const [dates, setDates] = useState([]);
   const [data, setData] = useState([]);
   const [selectedDeptId, setSelectedDeptId] = useState(null);
@@ -29,7 +38,18 @@ function WorkScheduleTable({
   const [selectedWorkScheduleId, setSelectedWorkScheduleId] = useState(null);
   const [startTime, setStartTime] = useState("08:00");
   const [endTime, setEndTime] = useState("17:00");
+  const [holidays, setHolidays] = useState([]);
   const [selectedDetailId, setSelectedDetailId] = useState(null);
+  const [canEditModal, setCanEditModal] = useState(true);
+  const pad = (n) => n.toString().padStart(2, "0");
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayIso = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(
+    today.getDate()
+  )}`;
+
+  console.log("📆 FIXED todayIso:", todayIso);
+
   const getTotalMonthValue = (m, y) => y * 12 + m;
   const handleDelete = (id) => {
     workScheduleService
@@ -91,40 +111,67 @@ function WorkScheduleTable({
 
   const isMonthSelectable = (m, y) => {
     if (availableMonths.length === 0) return false;
+
+    const totalMonth = getTotalMonthValue(m, y);
+    const todayMonth = getTotalMonthValue(
+      today.getMonth() + 1,
+      today.getFullYear()
+    );
+
     return (
-      getTotalMonthValue(m, y) <=
-      Math.max(
-        ...availableMonths.map((d) => getTotalMonthValue(d.month, d.year))
-      ) +
-        1
+      totalMonth >= todayMonth && // ✅ chặn tháng/năm quá khứ
+      totalMonth <=
+        Math.max(
+          ...availableMonths.map((d) => getTotalMonthValue(d.month, d.year))
+        ) +
+          1
     );
   };
+
   const fetchDataAndStatus = (m, y) => {
     workScheduleService
       .getWorkScheduleByMonth(m, y)
       .then((res) => {
         setData(res.data);
 
+        const allLines = res.data.flatMap((dept) => dept.lines);
+        const anyNeedRevision = allLines.some(
+          (line) => line.needRevision === true
+        );
+        onNeedRevisionChange(anyNeedRevision);
         if (onStatusChange) {
-          const allLines = res.data.flatMap((dept) => dept.lines);
+          const allAccepted =
+            allLines.length > 0 &&
+            allLines.every((line) => String(line.accepted) === "true");
 
           const allSubmitted =
             allLines.length > 0 &&
             allLines.every((line) => String(line.submitted) === "true");
 
-          const allAccepted =
+          const allRejected =
             allLines.length > 0 &&
-            allLines.every((line) => String(line.accepted) === "true");
+            allLines.every(
+              (line) =>
+                !line.accepted &&
+                !line.submitted &&
+                line.rejectReason?.trim()?.length > 0
+            );
 
-          console.log(
-            "🔥 Gọi onStatusChange từ WorkScheduleTable với:",
+          console.log("🔥 Gọi onStatusChange từ WorkScheduleTable với:", {
             allAccepted,
-            allSubmitted
-          );
+            allSubmitted,
+            allRejected,
+          });
 
           if (allAccepted) onStatusChange("approved");
           else if (allSubmitted) onStatusChange("submitted");
           else onStatusChange("not-submitted");
+        }
+        if (onRejectReasonChange) {
+          const firstRejected = allLines.find(
+            (line) => !line.accepted && !line.submitted && line.rejectReason
+          );
+          onRejectReasonChange(firstRejected?.rejectReason || "");
         }
       })
       .catch(() => {
@@ -139,8 +186,64 @@ function WorkScheduleTable({
       .then(() => fetchDataAndStatus(month, year))
       .catch((err) => console.error("Lỗi tạo lịch làm việc:", err));
   };
+  useEffect(() => {
+    if (
+      !departmentNameParam ||
+      !lineNameParam ||
+      data.length === 0 ||
+      dates.length === 0 ||
+      !focusDateParam
+    )
+      return;
+
+    const timeout = setTimeout(() => {
+      const decodedDept = decodeURIComponent(departmentNameParam);
+      const decodedLine = decodeURIComponent(lineNameParam);
+
+      const lineElements = document.querySelectorAll(
+        ".work-schedule-line-name"
+      );
+
+      for (let el of lineElements) {
+        const lineText = el.getAttribute("data-linename")?.trim();
+        const deptText = el.getAttribute("data-deptname")?.trim();
+
+        console.log("🔍 So sánh:", deptText, "-", lineText);
+
+        if (lineText === decodedLine && deptText === decodedDept) {
+          console.log("✅ Match:", deptText, lineText);
+
+          // Scroll dọc
+          el.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+          const index = dates.findIndex((d) => d.iso === focusDateParam);
+          if (index !== -1) {
+            const scrollContainer = document.querySelector(
+              ".work-schedule-scroll"
+            );
+            if (scrollContainer) {
+              const cellWidth = 100;
+              scrollContainer.scrollTo({
+                left: index * cellWidth,
+                behavior: "smooth",
+              });
+            }
+          }
+
+          break;
+        }
+      }
+    }, 200);
+
+    return () => clearTimeout(timeout);
+  }, [departmentNameParam, lineNameParam, data, dates, focusDateParam]);
 
   useEffect(() => {
+    holidayService.getAllHolidays().then((res) => {
+      setHolidays(res.data);
+    });
     const numDays = new Date(year, month, 0).getDate();
     const tempDates = Array.from({ length: numDays }, (_, i) => {
       const dateObj = new Date(year, month - 1, i + 1);
@@ -163,7 +266,28 @@ function WorkScheduleTable({
       .then((res) => setAvailableMonths(res.data))
       .catch((err) => console.error("Lỗi lấy danh sách tháng:", err));
   }, [month, year, reloadTrigger]);
+  useEffect(() => {
+    const numDays = new Date(year, month, 0).getDate();
+    const tempDates = Array.from({ length: numDays }, (_, i) => {
+      const dateObj = new Date(year, month - 1, i + 1);
+      const isoDate = `${dateObj.getFullYear()}-${(dateObj.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}-${dateObj.getDate().toString().padStart(2, "0")}`;
 
+      const isHoliday = holidays.some(
+        (holiday) => isoDate >= holiday.startDate && isoDate <= holiday.endDate
+      );
+
+      return {
+        full: dateObj.toLocaleDateString("vi-VN"),
+        weekday: weekdays[dateObj.getDay()],
+        isSunday: dateObj.getDay() === 0,
+        isHoliday: isHoliday,
+        iso: isoDate,
+      };
+    });
+    setDates(tempDates);
+  }, [month, year, holidays]);
   const handlePrevMonth = () => {
     const newMonth = month === 1 ? 12 : month - 1;
     const newYear = month === 1 ? year - 1 : year;
@@ -193,9 +317,9 @@ function WorkScheduleTable({
     lineName,
     dateIso,
     workScheduleId,
-    detail = null
+    detail = null,
+    editable = true
   ) => {
-    // Gán thông tin cơ bản
     setSelectedDeptId(deptId);
     setSelectedLineId(lineId);
     setSelectedDept(deptName);
@@ -203,13 +327,11 @@ function WorkScheduleTable({
     setSelectedDate(dateIso);
     setSelectedWorkScheduleId(workScheduleId);
 
-    // Xử lý giờ làm việc nếu có detail
     if (detail?.startTime && detail?.endTime) {
       console.log("Chi tiết lịch:", detail);
       const start = detail.startTime.slice(0, 5);
       const end = detail.endTime.slice(0, 5);
 
-      // Tự động xác định loại ca làm việc
       if (start === "08:00" && end === "17:00") {
         setWorkType("normal");
       } else if (start === "08:00" && end === "20:00") {
@@ -221,17 +343,15 @@ function WorkScheduleTable({
       setStartTime(start);
       setEndTime(end);
       setSelectedDetailId(detail.id);
+      setCanEditModal(editable);
 
       console.log("Giờ làm việc:", start, "-", end);
     } else {
-      // Mặc định nếu chưa có giờ
       setWorkType("normal");
       setStartTime("08:00");
       setEndTime("17:00");
       setSelectedDetailId(null);
     }
-
-    // Mở modal
     setModalOpen(true);
   };
 
@@ -384,12 +504,17 @@ function WorkScheduleTable({
                   {idx === 0 && (
                     <div
                       className="work-schedule-cell work-schedule-dept-name"
+                      data-deptname={dept.departmentName}
                       style={{ gridRow: `span ${dept.lines.length}` }}
                     >
                       {dept.departmentName}
                     </div>
                   )}
-                  <div className="work-schedule-cell work-schedule-line-name">
+                  <div
+                    className="work-schedule-cell work-schedule-line-name"
+                    data-linename={line.lineName}
+                    data-deptname={dept.departmentName}
+                  >
                     {line.lineName || <i></i>}
                   </div>
                 </React.Fragment>
@@ -408,7 +533,7 @@ function WorkScheduleTable({
                 <div
                   key={`date-${idx}`}
                   className={`work-schedule-header work-schedule-header-date ${
-                    d.isSunday ? "work-schedule-weekend" : ""
+                    d.isSunday || d.isHoliday ? "work-schedule-weekend" : ""
                   }`}
                 >
                   {d.full}
@@ -417,8 +542,8 @@ function WorkScheduleTable({
               {dates.map((d, idx) => (
                 <div
                   key={`weekday-${idx}`}
-                  className={`work-schedule-header work-schedule-header-weekday ${
-                    d.isSunday ? "work-schedule-weekend" : ""
+                  className={`work-schedule-header work-schedule-header-date ${
+                    d.isSunday || d.isHoliday ? "work-schedule-weekend" : ""
                   }`}
                 >
                   {d.weekday}
@@ -430,11 +555,16 @@ function WorkScheduleTable({
                   line.workDetails.map((detail, i) => {
                     const isOvertime =
                       detail.overtime === true || detail.overtime === "true";
-
+                    const isFocus =
+                      dates[i]?.iso === focusDateParam &&
+                      line.lineName === lineNameParam &&
+                      dept.departmentName === departmentNameParam;
                     return (
                       <div
                         key={`${dept.departmentId}-${idx}-${i}`}
-                        className="work-schedule-cell work-schedule-day-cell"
+                        className={`work-schedule-cell work-schedule-day-cell ${
+                          isFocus ? "work-schedule-focus-cell" : ""
+                        }`}
                       >
                         {detail.startTime && detail.endTime ? (
                           <span
@@ -450,7 +580,8 @@ function WorkScheduleTable({
                                 line?.lineName ?? "",
                                 dates[i].iso,
                                 detail.workScheduleId,
-                                detail
+                                detail,
+                                canEdit
                               )
                             }
                           >
@@ -458,10 +589,11 @@ function WorkScheduleTable({
                             {detail.endTime?.slice(0, 5)}
                           </span>
                         ) : (
-                          canEdit && (
+                          canEdit &&
+                          dates[i]?.iso >= todayIso && (
                             <button
                               className="work-schedule-add-btn"
-                              onClick={() =>
+                              onClick={() => {
                                 handleOpenModal(
                                   dept.departmentId,
                                   dept.departmentName,
@@ -469,9 +601,10 @@ function WorkScheduleTable({
                                   line?.lineName ?? "",
                                   dates[i].iso,
                                   detail.workScheduleId,
-                                  null
-                                )
-                              }
+                                  null,
+                                  canEdit
+                                );
+                              }}
                             >
                               +
                             </button>
@@ -517,6 +650,7 @@ function WorkScheduleTable({
           workScheduleId: selectedWorkScheduleId,
           id: selectedDetailId,
           onDelete: handleDelete,
+          canEdit: canEditModal,
         }}
         errorMessages={errorMessage}
       />

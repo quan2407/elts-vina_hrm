@@ -1,11 +1,14 @@
 package sep490.com.example.hrms_backend.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import sep490.com.example.hrms_backend.entity.Employee;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,8 +42,11 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @Query("SELECT e FROM Employee e WHERE e.isDeleted = false")
     List<Employee> findAllActive();
 
+    @Query("SELECT e FROM Employee e WHERE e.isDeleted = false")
+    Page<Employee> findAllActive(Pageable pageable);
 
-    @Query("SELECT e FROM Employee e WHERE (e.line IS NULL OR e.line.lineId <> :lineId) AND e.department.departmentName = 'Sản Xuất'")
+
+    @Query("SELECT e FROM Employee e WHERE (e.line IS NULL OR e.line.lineId <> :lineId) AND e.department.departmentName = 'Sản Xuất' AND (e.position.positionName != 'TỔ TRƯỞNG')")
     List<Employee> findEmployeesNotInLine(@Param("lineId") Long lineId);
 
     @Query("""
@@ -51,9 +57,34 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
                       e.line IS NULL
                       OR (e.line IS NOT NULL AND e.line.lineId <> :lineId)
                   )
+                  AND (e.position.positionName != 'TỔ TRƯỞNG')
                   AND LOWER(e.employeeName) LIKE :search
-            """)
+                """)
     List<Employee> findEmployeesNotInLineWithSearch(@Param("lineId") Long lineId, @Param("search") String search);
+
+    // Đã có trong repository rồi:
+    long countByPosition_PositionNameIgnoreCase(String positionName);
+
+    @Query("SELECT COUNT(e) FROM Employee e WHERE LOWER(e.position.positionName) <> LOWER(:positionName)")
+    long countByPosition_PositionNameNotIgnoreCase(@Param("positionName") String positionName);
+
+    List<Employee> findByPosition_PositionName(String positionName);
+
+    Optional<Employee> findByEmployeeCode(String employeeCode);
+
+    @Query("SELECT e.gender AS gender, COUNT(e) AS count " +
+            "FROM Employee e WHERE e.isDeleted = false AND " +
+            "(e.startWorkAt <= :endDate AND e.endWorkAt >= :startDate) " +
+            "GROUP BY e.gender")
+    List<Object[]> findGenderDistributionByDateRange(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT e.department.departmentName AS departmentName, COUNT(e) AS count " +
+            "FROM Employee e WHERE e.isDeleted = false AND " +
+            "(e.startWorkAt <= :endDate AND e.endWorkAt >= :startDate) " +
+            "GROUP BY e.department")
+    List<Object[]> findDepartmentDistributionByDateRange(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    Page<Employee> findByIsDeletedFalse(Pageable pageable);
 
 
     Optional<Employee> findByEmployeeNameIgnoreCaseOrEmailIgnoreCase(String employeeName, String email);
@@ -67,4 +98,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
 
     List<Employee> findByPosition_PositionId(Long positionId);
+
+    Page<Employee> findByIsDeletedFalseAndEmployeeCodeContainingIgnoreCaseOrEmployeeNameContainingIgnoreCase(String search, String search1, Pageable pageable);
+
 }

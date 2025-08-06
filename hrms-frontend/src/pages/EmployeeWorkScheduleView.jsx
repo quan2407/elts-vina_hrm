@@ -10,19 +10,18 @@ const EmployeeWorkScheduleView = () => {
   const [year, setYear] = useState(today.year());
   const [workSchedule, setWorkSchedule] = useState([]);
 
-  const fetchSchedule = async () => {
-    try {
-      const res = await workScheduleService.getWorkScheduleForCurrentEmployee(
-        month,
-        year
-      );
-      setWorkSchedule(res.data || []);
-    } catch (err) {
-      console.error("Lỗi khi tải lịch làm việc:", err);
-    }
-  };
-
   useEffect(() => {
+    const fetchSchedule = async () => {
+      try {
+        const res = await workScheduleService.getWorkScheduleForCurrentEmployee(
+          month,
+          year
+        );
+        setWorkSchedule(res.data || []);
+      } catch (err) {
+        console.error("Lỗi khi tải lịch làm việc:", err);
+      }
+    };
     fetchSchedule();
   }, [month, year]);
 
@@ -45,10 +44,12 @@ const EmployeeWorkScheduleView = () => {
   return (
     <MainLayout>
       <div className="workcal-container">
+        <h1 className="workcal-title">Lịch làm việc</h1>
         <div className="workcal-controls">
           <select
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
+            style={{ fontSize: "16px" }}
           >
             {[...Array(12)].map((_, i) => (
               <option
@@ -61,6 +62,7 @@ const EmployeeWorkScheduleView = () => {
           </select>
           <select
             value={year}
+            style={{ fontSize: "16px" }}
             onChange={(e) => setYear(Number(e.target.value))}
           >
             {[2024, 2025, 2026].map((y) => (
@@ -116,6 +118,17 @@ const EmployeeWorkScheduleView = () => {
                         <div>
                           <strong>Tổ:</strong> {schedule.lineName}
                         </div>
+
+                        {dayjs(dateStr).isAfter(dayjs(), "day") && (
+                          <button
+                            className="workcal-leave-btn"
+                            onClick={() =>
+                              (window.location.href = `/create-application?type=leave&date=${dateStr}`)
+                            }
+                          >
+                            Xin nghỉ
+                          </button>
+                        )}
                       </div>
                     ) : (
                       <div className="workcal-noshift">--</div>

@@ -6,7 +6,9 @@ import lombok.*;
 import sep490.com.example.hrms_backend.enums.Gender;
 import sep490.com.example.hrms_backend.enums.GenderDeserializer;
 import sep490.com.example.hrms_backend.validation.Age18;
+import sep490.com.example.hrms_backend.validation.ValidWorkDateRange;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
@@ -14,10 +16,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ValidWorkDateRange
 public class EmployeeRequestDTO {
 
     @NotBlank(message = "Mã nhân viên không được để trống")
-    @Pattern(regexp = "^ELTSSX\\d{4}$", message = "Mã nhân viên phải theo định dạng ELTSSXxxxx")
+    @Pattern(regexp = "^ELTS(SX|HC)\\d{4}$", message = "Mã nhân viên phải theo định dạng ELTSSXxxxx hoặc ELTSHCxxxx")
     private String employeeCode;
 
     @NotBlank(message = "Họ và tên không được để trống")
@@ -91,12 +94,14 @@ public class EmployeeRequestDTO {
     private String trainingMajor;
 
 
-    @Size(max = 255, message = "Link ảnh không được vượt quá 255 ký tự")
-    private String image;
+    private String cccdFrontImage;
+    private String cccdBackImage;
+
 
     @NotNull(message = "Ngày vào công ty không được để trống")
-    @PastOrPresent(message = "Ngày vào công ty phải trong quá khứ hoặc hiện tại")
     private LocalDate startWorkAt;
+    @NotNull(message = "Ngày ra công ty không được để trống")
+    private LocalDate endWorkAt;
 
     @Pattern(regexp = "^[0-9\\-\\+]{9,15}$", message = "Số điện thoại không đúng định dạng")
     @NotBlank(message = "Số điện thoại không được để trống")
@@ -105,7 +110,9 @@ public class EmployeeRequestDTO {
     @Email(message = "Email không đúng định dạng")
     @NotBlank(message = "Email không được để trống")
     private String email;
-
+    @NotNull(message = "Lương cơ bản không được để trống")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Lương cơ bản phải là số lớn hơn 0")
+    private BigDecimal basicSalary;
     @NotNull(message = "ID phòng ban không được để trống")
     private Long departmentId;
 

@@ -1,0 +1,61 @@
+/* Dashboard.css */
+.dashboard-container {
+  min-height: 100vh;
+  padding: 20px 50px;
+  box-sizing: border-box;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.dashboard-title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.dashboard-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.dashboard-content-card {
+  background-color: #fff;
+  border-radius: 24px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.dashboard-chart-wrapper {
+  width: 100%;
+  height: 400px;
+}
+
+.dashboard-table-wrapper {
+  width: 100%;
+}
+.date-range-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.date-label {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+}
+
+.date-range-container .form-control {
+  width: 240px;
+  height: 40px;
+  padding: 4px 8px;
+  font-size: 16px;
+}

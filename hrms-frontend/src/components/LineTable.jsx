@@ -7,13 +7,15 @@ import "../styles/LineTable.css";
 import * as XLSX from "xlsx";
 import { useNavigate } from "react-router-dom";
 import { getAllLines } from "../services/linesService";
+import { jwtDecode } from "jwt-decode";
 
 
-
-const LineTable = forwardRef(({searchTerm}) => {
+const LineTable = forwardRef(({ searchTerm }) => {
 
     const [line, setLine] = useState([]);
     const navigate = useNavigate();
+    const [userRole, setUserRole] = useState("");
+
 
 
     useEffect(() => {
@@ -28,10 +30,43 @@ const LineTable = forwardRef(({searchTerm}) => {
         fetchLines();
     }, [searchTerm]);
 
-    const handleEmployeeClick = (id) => {
-        navigate(`/employee/line/${id}`);
+    const handleEmployeeClick = (id, userRole) => {
+
+        if (userRole === 'pmc') {
+            navigate(`/employee/line/${id}`);
+        }
+        else if (userRole === 'hr') {
+            navigate(`/employee/line-hr/${id}`);
+        } else {
+            console.error("Không có quyền truy cập vào danh sách nhân viên của line này.");
+        }
     }
 
+    useEffect(() => {
+        const token = localStorage.getItem('accessToken');
+
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token);
+                console.log("Decoded token:", decodedToken);
+
+                if (decodedToken.roles) {
+                    const roles = decodedToken.roles;
+
+                    if (roles.includes('ROLE_PMC')) {
+                        setUserRole('pmc');
+                    } else if (roles.includes('ROLE_HR')) {
+                        setUserRole('hr');
+                    }
+                }
+            } catch (error) {
+                console.error('Error decoding token:', error);
+                setUserRole('employee');
+            }
+        } else {
+            setUserRole('employee');
+        }
+    }, []);
     return (
         <div className="line-table-wrapper">
             <div className="line-table">
@@ -56,7 +91,7 @@ const LineTable = forwardRef(({searchTerm}) => {
                         <div className="line-table-cell">{a.leaderName}</div>
                         <div className="line-table-cell">
 
-                            <button className="viewcandidate-button" onClick={() => handleEmployeeClick(a.id)}>Danh sách nhân viên</button>
+                            <button className="viewcandidate-button" onClick={() => handleEmployeeClick(a.id, userRole)}>Danh sách nhân viên</button>
 
                         </div>
                     </div>

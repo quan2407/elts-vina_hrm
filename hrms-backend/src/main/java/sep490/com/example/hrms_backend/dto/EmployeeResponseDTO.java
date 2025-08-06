@@ -2,6 +2,8 @@ package sep490.com.example.hrms_backend.dto;
 
 import lombok.Builder;
 import lombok.Data;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -13,14 +15,15 @@ public class EmployeeResponseDTO {
     private String gender;
     private LocalDate dob;
     private String placeOfBirth;
-    private String image;
     private String nationality;
     private String address;
     private LocalDate startWorkAt;
+    private LocalDate endWorkAt;
     private String phoneNumber;
     private String citizenId;
     private String departmentName;
     private String lineName;
     private String positionName;
+    private BigDecimal basicSalary;
     private String accountUsername;
 }

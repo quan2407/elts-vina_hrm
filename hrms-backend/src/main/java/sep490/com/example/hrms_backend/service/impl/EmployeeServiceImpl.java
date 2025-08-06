@@ -2,6 +2,10 @@ package sep490.com.example.hrms_backend.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -16,11 +20,12 @@ import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.mapper.EmployeeMapper;
 import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.AccountService;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,20 +40,69 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     private final AccountRepository accountRepository;
     private final AccountService accountService;
     private final BenefitRegistrationRepository benefitRegistrationRepository;
+    private final AccountRequestRepository accountRequestRepository;
+    private final RoleRepository roleRepository;
+
 
     @Override
-    public List<EmployeeResponseDTO> getAllEmployees() {
-        return employeeRepository.findByIsDeletedFalse().stream()
+    public Page<EmployeeResponseDTO> getAllEmployees(int page, int size, String search) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Employee> employeePage;
+
+        if (search != null && !search.trim().isEmpty()) {
+            employeePage = employeeRepository
+                    .findByIsDeletedFalseAndEmployeeCodeContainingIgnoreCaseOrEmployeeNameContainingIgnoreCase(
+                            search, search, pageable);
+        } else {
+            employeePage = employeeRepository.findByIsDeletedFalse(pageable);
+        }
+
+        List<EmployeeResponseDTO> dtos = employeePage.getContent().stream()
                 .map(EmployeeMapper::mapToEmployeeResponseDTO)
-                .collect(Collectors.toList());
+                .toList();
+
+        return new PageImpl<>(dtos, pageable, employeePage.getTotalElements());
     }
 
     @Override
     public String getNextEmployeeCode() {
-        long count = employeeRepository.count();
+        long total = employeeRepository.count();
+        long hrCount = employeeRepository.countByPosition_PositionNameIgnoreCase("HR");
+        long hrManagerCount = employeeRepository.countByPosition_PositionNameIgnoreCase("Trưởng Phòng Nhân Sự");
+        System.out.println(hrManagerCount);
+       long count = total - hrCount - hrManagerCount;
         long next = count + 1;
         return "ELTSSX" + String.format("%04d", next);
     }
+
+    @Override
+    public String getNextEmployeeCodeByPosition(Long positionId) {
+        Position position = positionRepository.findById(positionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Position", "id", positionId));
+
+        String positionName = position.getPositionName().toUpperCase();
+
+        String prefix;
+        long count;
+
+        if (positionName.equals("HR") || positionName.equals("HR_MANAGER")) {
+            prefix = "ELTSHC";
+            count = employeeRepository.countByPosition_PositionNameIgnoreCase("HR")
+                    + employeeRepository.countByPosition_PositionNameIgnoreCase("Trưởng Phòng Nhân Sự");
+            System.out.println("Count for HR and Manager " + count);
+        } else {
+            // Count all except HR and HR_MANAGER
+            long total = employeeRepository.count();
+            long hrCount = employeeRepository.countByPosition_PositionNameIgnoreCase("HR");
+            long hrManagerCount = employeeRepository.countByPosition_PositionNameIgnoreCase("HR_MANAGER");
+
+            prefix = "ELTSSX";
+            count = total - hrCount - hrManagerCount;
+        }
+
+        return prefix + String.format("%04d", count + 1);
+    }
+
 
     @Override
     public List<EmployeeResponseDTO> getEmployeesNotInLine(Long lineId, String search) {
@@ -66,14 +120,26 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     }
 
 
-
     @Override
     public List<EmployeeResponseDTO> getEmployeeByLineId(Long id) {
+
         Line line = lineRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Line", "id", id));
         List<EmployeeResponseDTO> employees = line.getEmployees().stream()
                 .map(EmployeeMapper::mapToEmployeeResponseDTO)
+                .sorted((e1, e2) -> {
+
+                    if ("Tổ Trưởng".equalsIgnoreCase(e1.getPositionName()) && !"Tổ Trưởng".equalsIgnoreCase(e2.getPositionName())) {
+                        return -1;
+                    } else if (!"Tổ Trưởng".equalsIgnoreCase(e1.getPositionName()) && "Tổ Trưởng".equalsIgnoreCase(e2.getPositionName())) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                })
                 .collect(Collectors.toList());
+
+
         return employees;
     }
 
@@ -82,9 +148,24 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     public void addEmployeesToLine(Long lineId, List<Long> employeeIds) {
         Line line = lineRepository.findById(lineId).orElseThrow(() -> new ResourceNotFoundException("Line", "id", lineId));
 
+        Position p = positionRepository.findByPositionName("Công Nhân");
+
+        Role r = roleRepository.findByRoleName("ROLE_EMPLOYEE")
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy quyền ROLE_EMPLOYEE"));
+
+
         for (Long employeeId : employeeIds) {
             Employee e = employeeRepository.findById(employeeId).orElseThrow(() -> new ResourceNotFoundException("Employee", "id", employeeId));
 
+            if (!e.getPosition().getPositionName().equalsIgnoreCase("Công Nhân")) {
+                e.setPosition(p);
+            }
+
+            if (!e.getAccount().getRole().getRoleName().equalsIgnoreCase("ROLE_EMPLOYEE")) {
+                Account a = e.getAccount();
+                a.setRole(r);
+                accountRepository.save(a);
+            }
             Line oldLine = e.getLine();
             if (oldLine != null) {
                 Employee currentLeader = oldLine.getLeader();
@@ -106,6 +187,10 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     public EmployeeResponseDTO createEmployee(EmployeeRequestDTO dto) {
         checkDuplicateFieldsForCreate(dto);
         checkPositionRequirements(dto.getDepartmentId(), dto.getPositionId());
+        if (dto.getEmployeeCode() == null || dto.getEmployeeCode().isBlank()) {
+            dto.setEmployeeCode(getNextEmployeeCodeByPosition(dto.getPositionId()));
+        }
+
 
         if (!positionRepository.existsDepartmentPositionMapping(dto.getDepartmentId(), dto.getPositionId())) {
             throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Chức vụ không thuộc phòng ban đã chọn");
@@ -114,9 +199,14 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         Employee employee = EmployeeMapper.mapToEmployee(dto);
         employee.setDepartment(fetchDepartment(dto.getDepartmentId()));
         employee.setPosition(fetchPosition(dto.getPositionId()));
-//        accountService.createAutoAccountForEmployee(employee);
         employee = employeeRepository.save(employee);
+        AccountRequest accountRequest = AccountRequest.builder()
+                .employee(employee)
+                .requestedAt(LocalDateTime.now())
+                .approved(null)
+                .build();
 
+        accountRequestRepository.save(accountRequest);
         return EmployeeMapper.mapToEmployeeResponseDTO(employee);
     }
 
@@ -136,6 +226,14 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         EmployeeMapper.updateEmployeeFromUpdateDTO(dto, employee);
         employee.setDepartment(fetchDepartment(dto.getDepartmentId()));
         employee.setPosition(fetchPosition(dto.getPositionId()));
+        if (dto.getCccdFrontImage() != null) {
+            employee.setCccdFrontImage(dto.getCccdFrontImage());
+        }
+        if (dto.getCccdBackImage() != null) {
+            employee.setCccdBackImage(dto.getCccdBackImage());
+        }
+
+
         employee = employeeRepository.save(employee);
 
         return EmployeeMapper.mapToEmployeeResponseDTO(employee);
@@ -147,7 +245,6 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
         return EmployeeMapper.mapToEmployeeDetailDTO(employee);
     }
-
 
 
     private void checkDuplicateFieldsForCreate(EmployeeRequestDTO dto) {
@@ -260,4 +357,22 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
             throw new HRMSAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi xuất file Excel");
         }
     }
+
+    @Override
+    public List<GenderDistributionDTO> getGenderDistribution(LocalDate startDate, LocalDate endDate) {
+        List<Object[]> result = employeeRepository.findGenderDistributionByDateRange(startDate, endDate);
+        return result.stream()
+                .map(r -> new GenderDistributionDTO((String) r[0], (Long) r[1]))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DepartmentDistributionDTO> getDepartmentDistribution(LocalDate startDate, LocalDate endDate) {
+        List<Object[]> result = employeeRepository.findDepartmentDistributionByDateRange(startDate, endDate);
+        return result.stream()
+                .map(r -> new DepartmentDistributionDTO((String) r[0], (Long) r[1]))
+                .collect(Collectors.toList());
+    }
+
+
 }

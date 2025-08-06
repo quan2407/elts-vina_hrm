@@ -42,6 +42,29 @@ const workScheduleService = {
       params: { month, year },
     });
   },
+  rejectWorkSchedules: (month, year, reason) => {
+    return axiosClient.put("/work-schedules/reject", null, {
+      params: { month, year, reason },
+    });
+  },
+  createCustomWorkSchedule: (payload) => {
+    return axiosClient.put("/work-schedules/custom-range", payload);
+  },
+  requestRevision: (month, year, reason) => {
+    return axiosClient.put("/work-schedules/request-revision", reason, {
+      params: { month, year, reason },
+      headers: { "Content-Type": "application/json" },
+    });
+  },
+  exportWorkSchedule: (month, year) => {
+    return axiosClient.post(
+      "/work-schedule-details/export-work-schedule",
+      { month, year },
+      {
+        responseType: "blob",
+      }
+    );
+  },
 };
 
 export default workScheduleService;

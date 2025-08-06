@@ -2,6 +2,10 @@ package sep490.com.example.hrms_backend.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.SalaryDTO;
 import sep490.com.example.hrms_backend.entity.AttendanceRecord;
@@ -16,6 +20,7 @@ import sep490.com.example.hrms_backend.service.SalaryService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +38,21 @@ public class SalaryServiceImpl implements SalaryService {
         List<Salary> salaries = salaryRepository.findBySalaryMonth(firstDay);
 
         return salaries.stream()
+                .map(SalaryMapper::mapToSalaryDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SalaryDTO> getEmpSalariesByMonth(Long employeeId, int month, int year) {
+        LocalDate firstDay = LocalDate.of(year, month, 1);
+        List<Salary> salaries = salaryRepository.findBySalaryMonth(firstDay);
+        List<Salary> results = new ArrayList<>();
+        for (Salary salary : salaries) {
+            if (salary.getEmployee().getEmployeeId().equals(employeeId)) {
+                results.add(salary);
+            }
+        }
+        return results.stream()
                 .map(SalaryMapper::mapToSalaryDTO)
                 .collect(Collectors.toList());
     }
@@ -66,7 +86,7 @@ public class SalaryServiceImpl implements SalaryService {
             }
 
             float totalWorkingHours = totalDayHours + otHours + weekendHours + holidayHours;
-            float workingDays = totalWorkingHours / 8f;
+            float workingDays = totalDayHours / 8f;
 
 
             BigDecimal hourlyRate = employee.getBasicSalary()
@@ -77,7 +97,7 @@ public class SalaryServiceImpl implements SalaryService {
 
 
             BigDecimal overtimeSalary = hourlyRate.multiply(
-                    BigDecimal.valueOf(otHours + weekendHours * 2 + holidayHours * 3)
+                    BigDecimal.valueOf(otHours*2 + weekendHours * 2 + holidayHours * 3)
             );
 
             BigDecimal totalAllowance = sum(employee.getAllowancePhone())
@@ -92,7 +112,7 @@ public class SalaryServiceImpl implements SalaryService {
             BigDecimal bhxh = gross.multiply(BigDecimal.valueOf(0.08));
             BigDecimal bhyt = gross.multiply(BigDecimal.valueOf(0.015));
             BigDecimal bhtn = gross.multiply(BigDecimal.valueOf(0.01));
-            BigDecimal unionFee = BigDecimal.valueOf(50);
+            BigDecimal unionFee = employee.getUnionFee();
             BigDecimal totalDeduct = bhxh.add(bhyt).add(bhtn).add(unionFee);
 
             BigDecimal net = gross.subtract(totalDeduct);
@@ -120,7 +140,6 @@ public class SalaryServiceImpl implements SalaryService {
             salaryRepository.save(salary);
         }
     }
-
 
 
     private BigDecimal sum(BigDecimal value) {
@@ -158,17 +177,23 @@ public class SalaryServiceImpl implements SalaryService {
                 .salaryMonth(s.getSalaryMonth())
                 .build();
     }
+
     @Override
     @Transactional
     public void regenerateMonthlySalaries(int month, int year) {
-        LocalDate salaryMonth = LocalDate.of(year, month, 1);
 
+
+        LocalDate salaryMonth = LocalDate.of(year, month, 1);
+        if (salaryRepository.existsBySalaryMonthAndLockedTrue(salaryMonth)) {
+            throw new IllegalStateException("Bảng lương đã chốt, không thể cập nhật lại.");
+        }
 
         salaryRepository.deleteBySalaryMonth(salaryMonth);
 
 
         generateMonthlySalaries(month, year);
     }
+
     @Override
     public List<LocalDate> getAvailableSalaryMonths() {
         List<Salary> salaries = salaryRepository.findAll();
@@ -177,6 +202,44 @@ public class SalaryServiceImpl implements SalaryService {
                 .distinct()
                 .sorted() // sắp xếp tăng dần
                 .collect(Collectors.toList());
+    }
+    @Override
+    @Transactional
+    public void lockSalariesByMonth(int month, int year, boolean locked) {
+        LocalDate salaryMonth = LocalDate.of(year, month, 1);
+        List<Salary> salaries = salaryRepository.findBySalaryMonth(salaryMonth);
+
+        for (Salary s : salaries) {
+            s.setLocked(locked);
+        }
+
+        salaryRepository.saveAll(salaries);
+    }
+    @Override
+    public Page<SalaryDTO> getSalariesByMonth(int month, int year, int page, int size, String search) {
+        LocalDate firstDay = LocalDate.of(year, month, 1);
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<Salary> all = salaryRepository.findBySalaryMonth(firstDay);
+
+        // Lọc theo mã hoặc tên nhân viên nếu có search
+        if (search != null && !search.trim().isEmpty()) {
+            String lower = search.trim().toLowerCase();
+            all = all.stream()
+                    .filter(s -> s.getEmployee().getEmployeeCode().toLowerCase().contains(lower)
+                            || s.getEmployee().getEmployeeName().toLowerCase().contains(lower))
+                    .toList();
+        }
+
+        List<SalaryDTO> allDTOs = all.stream()
+                .map(SalaryMapper::mapToSalaryDTO)
+                .toList();
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), allDTOs.size());
+
+        List<SalaryDTO> pagedContent = start >= allDTOs.size() ? List.of() : allDTOs.subList(start, end);
+        return new PageImpl<>(pagedContent, pageable, allDTOs.size());
     }
 
 }

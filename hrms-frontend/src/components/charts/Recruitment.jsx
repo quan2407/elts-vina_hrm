@@ -1,40 +1,111 @@
-
+import React from 'react';
+import { Bar } from 'react-chartjs-2';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
   Tooltip,
-  Legend,
-  ResponsiveContainer
-} from "recharts";
+  Legend
+} from 'chart.js';
 
-const RecruitmentChart = ({ data }) => {
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
+const RecruitmentChart = ({ data = [] }) => {
+  if (!Array.isArray(data) || data.length === 0) {
+    return <p style={{ textAlign: "center" }}>Không có dữ liệu để hiển thị biểu đồ.</p>;
+  }
+
+  
+  const chartData = {
+  labels: data.map(item => item.recruitmentTitle),
+  datasets: [
+    {
+      label: 'Cần tuyển',
+      data: data.map(item => item.canTuyen ?? 0),
+      backgroundColor: 'rgba(255, 0, 0, 0.6)',
+      barThickness: 38
+    },
+    {
+      label: 'Ứng tuyển',
+      data: data.map(item => item.ungTuyen ?? 0),
+      backgroundColor: 'rgba(12, 55, 248, 0.6)',
+      barThickness: 38
+    },
+    {
+      label: 'Đã tuyển',
+      data: data.map(item => item.daTuyen ?? 0),
+      backgroundColor: 'rgba(9, 252, 49, 0.6)',
+      barThickness: 38
+    }
+  ]
+};
+
+const options = {
+  maintainAspectRatio: false,
+  responsive: true,
+  scales: {
+    x: {
+      categoryPercentage: 1.0,
+      barPercentage: 1.0,
+      ticks: {
+        color: '#333',
+        font: {
+          size: 16,
+          weight: '500',
+          family: "'Product Sans', sans-serif"
+        }
+      }
+    },
+    y: {
+      beginAtZero: true,
+      ticks: {
+        stepSize: 1,
+        color: '#333',
+        font: {
+          size: 16,
+          weight: '500',
+          family: "'Product Sans', sans-serif"
+        }
+      }
+    }
+  },
+  plugins: {
+    legend: {
+      labels: {
+        color: '#000',
+        font: {
+          size: 16,
+          weight: '600',
+          family: "'Product Sans', sans-serif"
+        }
+      }
+    },
+    tooltip: {
+      titleFont: {
+        size: 16,
+        weight: '700',
+        family: "'Product Sans', sans-serif"
+      },
+      bodyFont: {
+        size: 16,
+        weight: '400',
+        family: "'Product Sans', sans-serif"
+      },
+      bodyColor: '#000',
+      titleColor: '#000',
+      backgroundColor: '#fff',
+      borderColor: '#ccc',
+      borderWidth: 1
+    }
+  }
+};
+
+
   return (
-    <div className="Interview-table-wrapper">
-      <div className="Interview-table">
-        <div style={{ width: '100%', height: 400 }}>
-          <h2>Kết quả tuyển dụng</h2>
-          <ResponsiveContainer>
-            <BarChart
-              data={data}
-              margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="recruitmentTitle" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              
-              <Bar dataKey="canTuyen" name="Cần tuyển" fill="#00bfff" />
-              <Bar dataKey="daTuyen" name="Đã tuyển" fill="#32cd32" />
-              <Bar dataKey="ungTuyen" name="Ứng tuyển" fill="#ffa500" />
-
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+    <div className="recruitment-chart" style={{ height: "400px" }}>
+      <Bar data={chartData} options={options} />
     </div>
   );
 };

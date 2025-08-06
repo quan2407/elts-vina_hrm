@@ -7,15 +7,9 @@ import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.DepartmentDTO;
 import sep490.com.example.hrms_backend.dto.LineDTO;
 import sep490.com.example.hrms_backend.dto.LinePMCDto;
-import sep490.com.example.hrms_backend.entity.Account;
-import sep490.com.example.hrms_backend.entity.Employee;
-import sep490.com.example.hrms_backend.entity.Line;
-import sep490.com.example.hrms_backend.entity.Role;
+import sep490.com.example.hrms_backend.entity.*;
 import sep490.com.example.hrms_backend.mapper.LinePMCMapper;
-import sep490.com.example.hrms_backend.repository.AccountRepository;
-import sep490.com.example.hrms_backend.repository.EmployeeRepository;
-import sep490.com.example.hrms_backend.repository.LineRepository;
-import sep490.com.example.hrms_backend.repository.RoleRepository;
+import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.LineService;
 
 import java.util.List;
@@ -28,6 +22,7 @@ public class LineServiceImpl implements LineService {
     private final EmployeeRepository employeeRepository;
     private final AccountRepository accountRepository;
     private final RoleRepository roleRepository;
+    private final PositionRepository positionRepository;
 
     @Override
     public DepartmentDTO getDepartmentByLineId(Long lineId) {
@@ -77,9 +72,12 @@ public class LineServiceImpl implements LineService {
 
             Role oldLeaderRole = roleRepository.findByRoleName("ROLE_EMPLOYEE")
                     .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy quyền ROLE_EMPLOYEE"));
-
+            Employee emp = oldLeaderAccount.getEmployee();
+            Position p = positionRepository.findByPositionName("Công Nhân");
+            emp.setPosition(p);
             oldLeaderAccount.setRole(oldLeaderRole);
             accountRepository.save(oldLeaderAccount);
+            employeeRepository.save(emp);
         }
 
         Employee employee = employeeRepository.findById(leaderId)
@@ -91,11 +89,13 @@ public class LineServiceImpl implements LineService {
         Role role = roleRepository.findByRoleName("ROLE_LINE_LEADER")
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy quyền ROLE_LINE_LEADER"));
 
-
+        Position p = positionRepository.findByPositionName("Tổ Trưởng");
+        employee.setPosition(p);
         account.setRole(role);
         accountRepository.save(account);
 
         line.setLeader(employee);
         lineRepository.save(line);
+        employeeRepository.save(employee);
     }
 }
