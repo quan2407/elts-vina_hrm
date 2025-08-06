@@ -161,8 +161,16 @@ public class BenefitServiceImplTest {
 
         when(benefitRepository.findById(1L)).thenReturn(Optional.of(benefitFromDb));
         when(employeeRepository.findAllActive()).thenReturn(List.of(new Employee(), new Employee(), new Employee()));
-        when(modelMapper.map(dto, Benefit.class)).thenReturn(modelMapper.map(dto, Benefit.class));
-        when(modelMapper.map(any(Benefit.class), eq(BenefitDTO.class))).thenReturn(new BenefitDTO());
+        Benefit mappedBenefit = new Benefit();
+        mappedBenefit.setTitle(dto.getTitle());
+        mappedBenefit.setStartDate(dto.getStartDate());
+        mappedBenefit.setEndDate(dto.getEndDate());
+        mappedBenefit.setMaxParticipants(dto.getMaxParticipants());
+        mappedBenefit.setIsActive(dto.getIsActive());
+        mappedBenefit.setDescription(dto.getDescription());
+        mappedBenefit.setDetail(dto.getDetail());
+
+        when(modelMapper.map(dto, Benefit.class)).thenReturn(mappedBenefit);        when(modelMapper.map(any(Benefit.class), eq(BenefitDTO.class))).thenReturn(new BenefitDTO());
         when(benefitRepository.save(any(Benefit.class))).thenReturn(benefitFromDb);
 
         BenefitDTO result = benefitService.updateBenefit(dto, 1L);
