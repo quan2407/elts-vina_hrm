@@ -5,9 +5,11 @@ import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitDTO;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitResponse;
 import sep490.com.example.hrms_backend.dto.benefit.PatchBenefitDTO;
+import sep490.com.example.hrms_backend.entity.Benefit;
 import sep490.com.example.hrms_backend.enums.BenefitType;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public interface BenefitService {
@@ -28,4 +30,6 @@ public interface BenefitService {
     BenefitDTO getBenefitById(Long id);
 
     BenefitResponse getEmployeeByPositionAndBenefit(Long benefitId, Long positionId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+
+    List<Benefit> getAllActive();
 }

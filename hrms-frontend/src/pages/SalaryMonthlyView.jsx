@@ -16,6 +16,24 @@ const SalaryMonthlyView = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   let debounceTimeout;
+  // Gom tất cả loại phụ cấp và khấu trừ từ dữ liệu lương
+  const allowanceTitles = Array.from(
+    new Set(
+      salaries
+        .flatMap((s) => s.appliedBenefits)
+        .filter((b) => b.type === "PHU_CAP")
+        .map((b) => b.title)
+    )
+  );
+
+  const deductionTitles = Array.from(
+    new Set(
+      salaries
+        .flatMap((s) => s.appliedBenefits)
+        .filter((b) => b.type === "KHAU_TRU")
+        .map((b) => b.title)
+    )
+  );
 
   const fetchSalaries = async () => {
     try {
@@ -231,54 +249,74 @@ const SalaryMonthlyView = () => {
                 <th rowSpan="2">Họ và Tên</th>
                 <th rowSpan="2">Chức vụ</th>
                 <th rowSpan="2">Lương cơ bản</th>
-                <th colSpan="4">Phụ cấp</th>
+
+                <th colSpan={allowanceTitles.length || 1}>Phụ cấp</th>
                 <th colSpan="2">Lương sản xuất</th>
                 <th colSpan="2">Lương thêm giờ</th>
-                <th colSpan="4">Các khoản khấu trừ</th>
+
+                <th colSpan={deductionTitles.length || 1}>
+                  Các khoản khấu trừ
+                </th>
                 <th rowSpan="2">Tổng trừ</th>
                 <th rowSpan="2">Thực lãnh</th>
               </tr>
               <tr>
-                <th>Điện thoại</th>
-                <th>Nhà ở</th>
-                <th>Chuyên cần</th>
-                <th>Đi lại</th>
+                {allowanceTitles.length > 0 ? (
+                  allowanceTitles.map((title) => <th key={title}>{title}</th>)
+                ) : (
+                  <th>--</th>
+                )}
                 <th>Số công</th>
                 <th>Tiền lương</th>
                 <th>Số giờ</th>
                 <th>Tiền lương</th>
-                <th>BHXH</th>
-                <th>BHYT</th>
-                <th>BHTN</th>
-                <th>Đoàn phí</th>
+                {deductionTitles.length > 0 ? (
+                  deductionTitles.map((title) => <th key={title}>{title}</th>)
+                ) : (
+                  <th>--</th>
+                )}
               </tr>
             </thead>
+
             <tbody>
-              {salaries.map((emp, index) => (
-                <tr key={emp.employeeCode}>
-                  <td>{index + 1}</td>
-                  <td>{emp.employeeCode}</td>
-                  <td>{emp.employeeName}</td>
-                  <td>{emp.positionName || "--"}</td>
-                  <td>{emp.basicSalary?.toLocaleString("vi-VN")}</td>
-                  <td>{emp.allowancePhone?.toLocaleString("vi-VN")}</td>
-                  <td>{emp.allowanceMeal?.toLocaleString("vi-VN")}</td>
-                  <td>{emp.allowanceAttendance?.toLocaleString("vi-VN")}</td>
-                  <td>{emp.allowanceTransport?.toLocaleString("vi-VN")}</td>
-                  <td>{emp.workingDays}</td>
-                  <td>{emp.productionSalary?.toLocaleString("vi-VN")}</td>
-                  <td>{emp.overtimeHours}</td>
-                  <td>{emp.overtimeSalary?.toLocaleString("vi-VN")}</td>
-                  <td>{emp.socialInsurance?.toLocaleString("vi-VN")}</td>
-                  <td>{emp.healthInsurance?.toLocaleString("vi-VN")}</td>
-                  <td>{emp.unemploymentInsurance?.toLocaleString("vi-VN")}</td>
-                  <td>{emp.unionFee?.toLocaleString("vi-VN")}</td>
-                  <td>{emp.totalDeduction?.toLocaleString("vi-VN")}</td>
-                  <td className="highlight-bold">
-                    {emp.totalIncome?.toLocaleString("vi-VN")}
-                  </td>
-                </tr>
-              ))}
+              {salaries.map((emp, index) => {
+                const benefitMap = {};
+                emp.appliedBenefits.forEach((b) => {
+                  benefitMap[b.title] = b.amount;
+                });
+
+                return (
+                  <tr key={emp.employeeCode}>
+                    <td>{index + 1}</td>
+                    <td>{emp.employeeCode}</td>
+                    <td>{emp.employeeName}</td>
+                    <td>{emp.positionName || "--"}</td>
+                    <td>{emp.basicSalary?.toLocaleString("vi-VN")}</td>
+
+                    {allowanceTitles.map((title) => (
+                      <td key={title}>
+                        {(benefitMap[title] || 0).toLocaleString("vi-VN")}
+                      </td>
+                    ))}
+
+                    <td>{emp.workingDays}</td>
+                    <td>{emp.productionSalary?.toLocaleString("vi-VN")}</td>
+                    <td>{emp.overtimeHours}</td>
+                    <td>{emp.overtimeSalary?.toLocaleString("vi-VN")}</td>
+
+                    {deductionTitles.map((title) => (
+                      <td key={title}>
+                        {(benefitMap[title] || 0).toLocaleString("vi-VN")}
+                      </td>
+                    ))}
+
+                    <td>{emp.totalDeduction?.toLocaleString("vi-VN")}</td>
+                    <td className="highlight-bold">
+                      {emp.totalIncome?.toLocaleString("vi-VN")}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
           <div className="attendance-pagination-container">
