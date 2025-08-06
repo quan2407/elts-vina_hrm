@@ -6,7 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.*;
+import sep490.com.example.hrms_backend.dto.benefit.UpdateOriginalSalaryDTO;
 import sep490.com.example.hrms_backend.entity.*;
+import sep490.com.example.hrms_backend.enums.BenefitType;
+import sep490.com.example.hrms_backend.enums.FormulaType;
 import sep490.com.example.hrms_backend.exception.DuplicateEntryException;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
@@ -16,6 +19,8 @@ import sep490.com.example.hrms_backend.service.AccountService;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +34,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     private final PositionRepository positionRepository;
     private final AccountRepository accountRepository;
     private final AccountService accountService;
+    private final BenefitRegistrationRepository benefitRegistrationRepository;
 
     @Override
     public List<EmployeeResponseDTO> getAllEmployees() {

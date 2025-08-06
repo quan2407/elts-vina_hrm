@@ -41,7 +41,7 @@ function BenefitForPosition() {
     const [modalOpen, setModalOpen] = useState(false);
 
 
-
+    console.log("benefitId trog benefitPosition:" ,benefitId);
     useEffect(() => {
         const fetchBenefitDetail = async () => {
             try {
@@ -57,9 +57,9 @@ function BenefitForPosition() {
         fetchBenefitDetail(); // ⬅ GỌI HÀM ở đây
     }, [benefitId]);
 
-
+console.log("benefit trog benefitPosition:" ,benefit);
     const breadcrumbPaths = [
-        { name: "Quản lý phúc lợi",  url: "http://localhost:5173/benefit"},
+        { name: "Quản lý phúc lợi",  url: "http://localhost:5173/benefits-management"},
         { name: benefit ? `${benefit.title} ` : "Đang tải..."  }
 
     ];
@@ -91,7 +91,7 @@ function BenefitForPosition() {
         <MainLayout>
             <div className="content-wrapper">
                 <div className="page-header">
-                    <h1 className="page-title">Quản lý  </h1>
+                    <h1 className="page-title">Quản lý {benefit ? benefit.title: ""}  </h1>
                     <div className="page-actions">
                         <AssignBenefitToPositionsModal benefitId={benefitId} />
 

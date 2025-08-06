@@ -1,7 +1,14 @@
 import { Dropdown, Button } from 'antd';
-import { EditOutlined, EyeOutlined, DeleteOutlined, DownOutlined, UnorderedListOutlined} from '@ant-design/icons';
+import {
+    EditOutlined,
+    EyeOutlined,
+    DeleteOutlined,
+    DownOutlined,
+    UnorderedListOutlined,
+    SettingOutlined
+} from '@ant-design/icons';
 
-const BenefitDetailActionDropdown = ({ onView, onEdit, onDelete, onDetails }) => {
+const BenefitForPositionActionDropDown = ({ onView, onEdit, onDelete, onDetails }) => {
     const handleMenuClick = (e) => {
         if (e.key === 'view') onView?.();
         else if (e.key === 'edit') onEdit?.();
@@ -12,14 +19,14 @@ const BenefitDetailActionDropdown = ({ onView, onEdit, onDelete, onDetails }) =>
     const items = [
         {
             key: 'details',  // Mới thêm mục Details
-            icon: <UnorderedListOutlined />,
-            label: 'Xem vị trí áp dụng',
+            icon: <SettingOutlined />,
+            label: 'Điều chỉnh lương cơ bản',
         },
 
         {
             key: 'view',
             icon: <EyeOutlined />,
-            label: 'Xem thông tin thêm',
+            label: 'Xem thông tin chi tiết nhân viên',
         },
         {
             key: 'edit',
@@ -49,4 +56,4 @@ const BenefitDetailActionDropdown = ({ onView, onEdit, onDelete, onDetails }) =>
     );
 };
 
-export default BenefitDetailActionDropdown;
+export default BenefitForPositionActionDropDown;

@@ -1,5 +1,7 @@
 package sep490.com.example.hrms_backend.service.impl;
 
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -14,6 +16,7 @@ import sep490.com.example.hrms_backend.dto.benefit.BenefitDTO;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitResponse;
 import sep490.com.example.hrms_backend.dto.benefit.PatchBenefitDTO;
 import sep490.com.example.hrms_backend.entity.Benefit;
+import sep490.com.example.hrms_backend.entity.BenefitPosition;
 import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.enums.BenefitType;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
@@ -26,6 +29,7 @@ import sep490.com.example.hrms_backend.service.BenefitService;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -369,7 +373,73 @@ public class BenefitServiceImpl implements BenefitService {
         return modelMapper.map(benefitRepository.findById(id), BenefitDTO.class);
     }
 
+    @Override
+    public BenefitResponse getEmployeeByPositionAndBenefit(Long benefitId, Long positionId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        // 1. Tạo đối tượng sắp xếp (theo field và hướng sắp xếp: asc/desc)
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
 
+        // 2. Tạo đối tượng phân trang (Pageable) dựa trên số trang, kích thước trang và sắp xếp
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sortByAndOrder);
+
+        // 3. Gọi repository với điều kiện lọc động (Specification)
+        Page<Benefit> benefitPage = benefitRepository.findAll((root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // 3.1 Lọc theo id
+            predicates.add(cb.equal(root.get("id"), benefitId));
+
+            if (positionId != null) {
+                Join<Object, Object> benefitPositionJoin = root.join("benefitPositions", JoinType.INNER);
+                Join<Object, Object> positionJoin = benefitPositionJoin.join("position", JoinType.INNER);
+                predicates.add(cb.equal(positionJoin.get("id"), positionId));
+            }
+            // 3.2 Lọc theo title
+//            if (title != null && !title.isEmpty()) {
+//                predicates.add(cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
+//            }
+
+
+
+            // 3.10 Trả về tất cả điều kiện AND lại
+            return cb.and(predicates.toArray(new Predicate[0]));
+        }, pageable);
+
+        // Lấy danh sách các Benefit từ trang hiện tại
+        List<Benefit> benefits = benefitPage.getContent();
+
+        // Kiểm tra nếu không có kết quả nào
+        if (benefits.isEmpty()) {
+            String message = positionId != null
+                    ? "No BenefitPosition found for benefit id " + benefitId + " and position id " + positionId + "."
+                    : "No Benefit found with id " + benefitId + ".";
+            throw new HRMSAPIException(message);
+        }
+
+        for (Benefit benefit : benefits) {
+            if (positionId != null) {
+                List<BenefitPosition> filtered = benefit.getBenefitPositions().stream()
+                        .filter(bp -> bp.getPosition().getPositionId().equals(positionId))
+                        .collect(Collectors.toList());
+                benefit.setBenefitPositions(filtered);
+            }
+        }
+
+        // Chuyển đổi danh sách Benefit sang BenefitDTO
+        List<BenefitDTO> benefitDTOList = benefitMapper.toBenefitDTOs(benefits);
+
+        // Tạo đối tượng BenefitResponse và lưu thông tin phân trang
+        BenefitResponse benefitResponse = new BenefitResponse();
+        benefitResponse.setContent(benefitDTOList);
+        benefitResponse.setPageNumber(benefitPage.getNumber());
+        benefitResponse.setPageSize(benefitPage.getSize());
+        benefitResponse.setTotalElements(benefitPage.getTotalElements());
+        benefitResponse.setTotalPages(benefitPage.getTotalPages());
+        benefitResponse.setLastPage(benefitPage.isLast());
+
+        return benefitResponse;
+    }
 
 
 }

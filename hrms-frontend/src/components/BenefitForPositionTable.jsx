@@ -11,7 +11,7 @@ import BenefitForPositionActionDropDown from "./common/BenefitForPositionActionD
 
 const BenefitByPositionHeader = () => {
     const headers = [
-        "Id", "Tên vị trí", "Giá trị tính vào lương",
+        "Id", "Tên vị trí", "Giá trị tính vào lương", "Chức năng",
     ];
 
     return (
@@ -74,9 +74,19 @@ const BenefitByPositionTableRow = ({ benefit, onUpdateSuccess }) => {
         <div className="employee-table-row">
             <div className="employee-table-cell">{benefit.positions.positionId}</div>
             <div className="employee-table-cell">{benefit.positions.positionName}</div>
-            <div className="employee-table-cell"> {benefit.positions.formulaType === "AMOUNT"
-                ? `Lương cơ bản + ${benefit.positions.formulaValue}`
-                : `${benefit.positions.formulaValue}% Lương cơ bản`}</div>
+            <div className="employee-table-cell">
+                {benefit.benefit.benefitType === "PHU_CAP" ? (
+                    benefit.positions.formulaType === "AMOUNT" ?
+                        `Lương cơ bản + ${benefit.positions.formulaValue}` :
+                        `Lương cơ bản + ${benefit.positions.formulaValue}%.Lương cơ bản`
+                ) : benefit.benefit.benefitType === "KHAU_TRU" ? (
+                    benefit.positions.formulaType === "AMOUNT" ?
+                        `Lương cơ bản - ${benefit.positions.formulaValue}` :
+                        `Lương cơ bản - ${benefit.positions.formulaValue}%.Lương cơ bản`
+                ) : (
+                    "-"
+                )}
+            </div>
             {/*<div className="employee-table-cell">{getBenefitTypeDisplay(benefit.benefitType)}</div>*/}
             {/*<div className="employee-table-cell">{formatDate(benefit.startDate)}</div>*/}
             {/*<div className="employee-table-cell">{formatDate(benefit.endDate)}</div>*/}
@@ -85,6 +95,7 @@ const BenefitByPositionTableRow = ({ benefit, onUpdateSuccess }) => {
             {/*<div className="employee-table-cell">{formatDate(benefit.createdAt)}</div>*/}
             <div className="employee-table-cell">
                 <BenefitForPositionActionDropDown
+                    positionName={benefit.positions.positionName}
                     onEdit={handleEdit}
                     onView={() => Modal.info({ title: 'Chi tiết', content: benefit.detail })}
                     onDelete={() =>
@@ -160,7 +171,7 @@ function BenefitForPositionTable({ benefitId }) {
             })
             .finally(() => setLoading(false));
     }, [benefitId,pageNumber, pageSize, filters]);
-    console.log(benefits);
+
 
     return (
         <div className="employee-table-wrapper">
@@ -187,7 +198,8 @@ function BenefitForPositionTable({ benefitId }) {
                                 benefit={{
                                     id: benefit.id,
                                     positionId: position.positionId,
-                                    positions: position
+                                    positions: position,
+                                    benefit: benefit
                                 }}
                                 onUpdateSuccess={() => setPageNumber(prev => prev)}
                             />

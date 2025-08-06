@@ -9,6 +9,9 @@ import BenefitCreateModal from "../components/modals/benefit/BenefitCreateModal.
 import Breadcrumb from "../components/Breadcrumb";
 import { useEffect, useState } from "react";
 import benefitService from "../services/benefitService.js";
+import BenefitForPositionForEmployeeTable from "../components/BenefitForPositionForEmployeeTable.jsx";
+import {useParams} from "react-router-dom";
+import AssignEmployeeToBenefit from "../components/modals/benefit/AssignEmployeeToBenefit.jsx";
 
 function BenefitForPositionForEmployee() {
     /**
@@ -30,27 +33,101 @@ function BenefitForPositionForEmployee() {
         //   fetchBenefits().then(setBenefits);
         // }, []);
     const [reloadKey, setReloadKey] = useState(0);
+    const { benefitId } = useParams();
+    const { positionId } = useParams();
+    const [benefit, setBenefit] = useState(null);
+    const [position, setPosition] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchBenefitDetail = async () => {
+            try {
+                const response = await benefitService.getById(benefitId);
+                setBenefit(response.data);
+            } catch (err) {
+                console.error("Failed to fetch benefit detail", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchBenefitDetail(); // ⬅ GỌI HÀM ở đây
+    }, [benefitId]);useEffect(() => {
+        const fetchBenefitDetail = async () => {
+            try {
+                const response = await benefitService.getById(benefitId);
+                setBenefit(response.data);
+            } catch (err) {
+                console.error("Failed to fetch benefit detail", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchBenefitDetail(); // ⬅ GỌI HÀM ở đây
+    }, [benefitId]);
+
+    useEffect(() => {
+        const fetchPositionDetail = async () => {
+            try {
+                const response = await benefitService.getEmployeeByPositionAndBenefit(benefitId, positionId);
+                setBenefit(response.data);
+            } catch (err) {
+                console.error("Failed to fetch benefit detail", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPositionDetail(); // ⬅ GỌI HÀM ở đây
+    }, [benefitId]);useEffect(() => {
+        const fetchBenefitDetail = async () => {
+            try {
+                const response = await benefitService.getById(benefitId);
+                setBenefit(response.data);
+            } catch (err) {
+                console.error("Failed to fetch benefit detail", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchBenefitDetail(); // ⬅ GỌI HÀM ở đây
+    }, [benefitId]);
+
 
 
     const breadcrumbPaths = [
-        { name: "Quản lý phúc lợi"}
+        { name: "Quản lý phúc lợi",  url: "http://localhost:5173/benefits-management"},
+        { name: benefit ? `${benefit.title} ` : "Đang tải..." , url: `http://localhost:5173/benefits-management/benefit/${benefitId}`},
+        // {name: employee}
 
     ];
     return (
         <MainLayout>
             <div className="content-wrapper">
                 <div className="page-header">
-                    <h1 className="page-title">Quản lý phúc lợi</h1>
+                    <h1 className="page-title">Quản lý phúc lợi của nhân viên theo phòng ban </h1>
                     <div className="page-actions">
-                        <BenefitCreateModal
-                            onCreated={() => setReloadKey(prev => prev + 1)}
+
+                        {/*<BenefitCreateModal*/}
+                        {/*    onCreated={() => setReloadKey(prev => prev + 1)}*/}
+                        {/*/>*/}
+
+                        <AssignEmployeeToBenefit
+                            benefitId={benefitId}
+                            positionId={positionId}
+                            reloadKey={reloadKey}
+                            onForceReload={() => setReloadKey((prev) => prev + 1)}
                         />
                     </div>
                 </div>
                 <Breadcrumb paths={breadcrumbPaths} />
 
 
-                <BenefitHrTable
+                <BenefitForPositionForEmployeeTable
+                    benefitId={benefitId}
+                    positionId={positionId}
                     reloadKey={reloadKey}
                     onForceReload={() => setReloadKey((prev) => prev + 1)}  />
             </div>

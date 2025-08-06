@@ -2,30 +2,28 @@ package sep490.com.example.hrms_backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import sep490.com.example.hrms_backend.dto.benefit.BenefitDTO;
-import sep490.com.example.hrms_backend.dto.benefit.BenefitRegistrationDTO;
-import sep490.com.example.hrms_backend.dto.benefit.BenefitRegistrationResponse;
-import sep490.com.example.hrms_backend.dto.benefit.BenefitResponse;
-import sep490.com.example.hrms_backend.entity.Benefit;
-import sep490.com.example.hrms_backend.entity.BenefitRegistration;
-import sep490.com.example.hrms_backend.entity.Employee;
+import sep490.com.example.hrms_backend.dto.benefit.*;
+import sep490.com.example.hrms_backend.entity.*;
+import sep490.com.example.hrms_backend.enums.FormulaType;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
+import sep490.com.example.hrms_backend.repository.BenefitPositionRepository;
 import sep490.com.example.hrms_backend.repository.BenefitRegistrationRepository;
 import sep490.com.example.hrms_backend.repository.BenefitRepository;
 import sep490.com.example.hrms_backend.repository.EmployeeRepository;
 import sep490.com.example.hrms_backend.service.BenefitRegistrationService;
-import sep490.com.example.hrms_backend.service.EmployeeService;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +37,8 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
     private final EmployeeRepository employeeRepository;
 
     private final BenefitRepository benefitRepository;
+
+    private final BenefitPositionRepository benefitPositionRepository;
 
     @Transactional
     @Override
@@ -117,5 +117,115 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
         return null;
     }
 
+    @Override
+    public void quickRegister(BenefitManualRegistrationRequest request) {
+        List<String> keywords = request.getKeywords();
+        List<String> failed = new ArrayList<>();
 
+
+        // 1. Tìm BenefitPosition
+        BenefitPosition benefitPosition = benefitPositionRepository
+                .findByBenefit_IdAndPosition_PositionId(request.getBenefitId(), request.getPositionId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy BenefitPosition phù hợp."));
+
+        Benefit benefit = benefitPosition.getBenefit();
+        String benefitType = benefit.getBenefitType().name();
+        FormulaType formulaType = benefitPosition.getFormulaType();
+        BigDecimal formulaValue = benefitPosition.getFormulaValue();
+
+        // 2. Lặp qua từng keyword
+        for (String keyword : keywords) {
+            Optional<Employee> employeeOpt = employeeRepository
+                    .findByEmployeeNameIgnoreCaseOrEmailIgnoreCase(keyword, keyword);
+
+            if (employeeOpt.isEmpty()) {
+                failed.add(keyword + " (không tìm thấy nhân viên)");
+                continue;
+            }
+
+            Employee employee = employeeOpt.get();
+            Department employeeDepartment = employee.getDepartment();
+            boolean isInPosition = employeeDepartment.getPositions()
+                    .stream()
+                    .anyMatch(p -> p.getPositionId().equals(request.getPositionId()));
+
+            if (!isInPosition) {
+                failed.add(keyword + " (không thuộc phòng ban có vị trí này)");
+                continue;
+            }
+
+            // 3. Kiểm tra trùng đăng ký
+            if (benefitRegistrationRepository.existsByBenefitPositionAndEmployee(benefitPosition, employee)) {
+                failed.add(keyword + " (đã đăng ký)");
+                continue;
+            }
+
+            // 6. Tính toán thay đổi basic_salary nếu cần
+            BigDecimal currentSalary = employee.getBasicSalary() != null ? employee.getBasicSalary() : BigDecimal.ZERO;
+
+            if ("PHU_CAP".equals(benefitType)) {
+                if (formulaType == FormulaType.AMOUNT) {
+                    currentSalary = currentSalary.add(formulaValue);
+                } else if (formulaType == FormulaType.PERCENTAGE) {
+                    currentSalary = currentSalary.add(currentSalary.multiply(formulaValue).divide(BigDecimal.valueOf(100)));
+                }
+            } else if ("KHAU_TRU".equals(benefitType)) {
+                if (formulaType == FormulaType.AMOUNT) {
+                    currentSalary = currentSalary.subtract(formulaValue);
+                } else if (formulaType == FormulaType.PERCENTAGE) {
+                    currentSalary = currentSalary.subtract(currentSalary.multiply(formulaValue).divide(BigDecimal.valueOf(100)));
+                }
+            }
+            // SU_KIEN: Không thay đổi
+            employee.setBasicSalary(currentSalary);
+
+            // 4. Đăng ký
+            BenefitRegistration registration = new BenefitRegistration();
+            registration.setBenefitPosition(benefitPosition);
+            registration.setEmployee(employee);
+            registration.setIsRegister(true);
+            registration.setRegisteredAt(LocalDateTime.now());
+
+            benefitRegistrationRepository.save(registration);
+        }
+
+        // 5. Nếu có lỗi, ném exception hoặc ghi log
+        if (!failed.isEmpty()) {
+            throw new RuntimeException("Một số nhân viên không thể đăng ký: " + String.join(", ", failed));
+        }
+}
+
+    @Override
+    public List<EmployeeBasicDetailResponse> searchUnregisteredEmployees(Long benefitId, Long positionId, String keyword) {
+        // 1. Tìm BenefitPosition theo benefitId và positionId
+        BenefitPosition benefitPosition = benefitPositionRepository
+                .findByBenefit_IdAndPosition_PositionId(benefitId, positionId)
+                .orElseThrow(() -> new HRMSAPIException("Không tìm thấy benefitPosition"));
+
+        Long benefitPositionId = benefitPosition.getId();
+
+
+        // 2. Tìm tất cả employee thuộc positionId (kèm keyword nếu có)
+        List<Employee> employees;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            String likeKeyword = "%" + keyword.toLowerCase() + "%";
+//            employees = employeeRepository
+//                    .searchByPositionAndKeyword(positionId, keyword.trim().toLowerCase());
+            employees = employeeRepository.searchByPositionAndKeyword(positionId, likeKeyword);
+        } else {
+            employees = employeeRepository.findByPosition_PositionId(positionId);
+        }
+
+        // 3. Lấy danh sách employeeId đã đăng ký rồi (với isRegister = true)
+        List<Long> registeredEmployeeIds = benefitRegistrationRepository
+                .findRegisteredEmployeeIdsByBenefitPositionId(benefitPositionId);
+
+
+        // 4. Trả về danh sách chưa đăng ký
+        return employees.stream()
+                .filter(emp -> !registeredEmployeeIds.contains(emp.getEmployeeId()))
+                .map(emp -> modelMapper.map(emp, EmployeeBasicDetailResponse.class))
+                .collect(Collectors.toList());
+
+    }
 }

@@ -3,9 +3,11 @@ package sep490.com.example.hrms_backend.service.impl;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sep490.com.example.hrms_backend.HrmsBackendApplication;
 import sep490.com.example.hrms_backend.dto.PositionDTO;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitResponse;
 import sep490.com.example.hrms_backend.entity.Position;
+import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.repository.BenefitPositionRepository;
 import sep490.com.example.hrms_backend.repository.PositionRepository;
 import sep490.com.example.hrms_backend.service.PositionService;
@@ -47,10 +49,11 @@ public class PositionServiceImpl implements PositionService {
     }
 
     @Override
-    public BenefitResponse getEmployeeByPositionAndBenefit(Long benefitId, Long positionId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public PositionDTO getPositionById(Long positionId) {
+        Position position = positionRepository.findById(positionId)
+                .orElseThrow(() -> new HRMSAPIException("Vị trí với id " + positionId + " không tồn tại."));
 
-
-        return null;
+        return modelMapper.map(position, PositionDTO.class) ;
     }
 
 

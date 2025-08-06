@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import sep490.com.example.hrms_backend.entity.Benefit;
+import sep490.com.example.hrms_backend.entity.BenefitPosition;
 import sep490.com.example.hrms_backend.entity.BenefitRegistration;
 import sep490.com.example.hrms_backend.entity.Employee;
 
@@ -27,5 +28,15 @@ public interface BenefitRegistrationRepository extends JpaRepository<BenefitRegi
 //            "WHERE br.isRegister = true AND br.benefit IN :benefitIds " +
 //            "GROUP BY br.benefit")
 //    List<Object[]> countRegisteredParticipants(@Param("benefitIds") List<Long> benefitIds);
+
+    boolean existsByBenefitPositionAndEmployee(BenefitPosition benefitPosition, Employee employee);
+
+    List<BenefitRegistration> findByBenefitPosition(BenefitPosition bp);
+
+    List<BenefitRegistration> findByEmployee(Employee employee);
+
+    @Query("SELECT br.employee.employeeId FROM BenefitRegistration br " +
+            "WHERE br.benefitPosition.id = :benefitPositionId AND br.isRegister = true")
+    List<Long> findRegisteredEmployeeIdsByBenefitPositionId(@Param("benefitPositionId") Long benefitPositionId);
 }
 

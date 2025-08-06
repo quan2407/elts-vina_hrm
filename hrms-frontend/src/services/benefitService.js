@@ -28,6 +28,26 @@ const benefitService = {
     assignPositionsToBenefit: (benefitPositions) => axiosClient.post(`/hr/benefits/assign`, benefitPositions ),
     unassignPositionsFromBenefit: (benefitId,positionId) => axiosClient.delete(`/hr/benefits/unassign/benefit/${benefitId}/position/${positionId}` ),
     updateFormula: (updatedFormula) => axiosClient.put("/hr/benefits/formula", updatedFormula),
+    getEmployeeByPositionAndBenefit: ( benefitId, positionId, {page, size, ...filters},) => axiosClient.get(`/hr/benefit/${benefitId}/position/${positionId}`, {
+        params: {
+            pageNumber: page,
+            pageSize: size
+            , ...filters
+        }
+    }),
+
+    searchUnregisteredEmployees: ({benefitId, positionId, keyword}) => axiosClient.get(`hr/benefits/search-unregistered`,{
+        params: {
+            benefitId,
+            positionId,
+            keyword
+        }
+    }),
+    quickRegister: (registeredEmployee) => axiosClient.post("/hr/benefits/quick-register", registeredEmployee),
+
+    // updateOriginalSalary: (updatedSalary) => axiosClient.put("/employees/update-original-salary", updatedSalary),
+
+
     changeStatus: (benefitId) => axiosClient.patch(`benefit/${benefitId}`),
     getByKeyword: (keyword) => axiosClient.get(`/benefit/keyword/${keyword}`)
 }

@@ -1,19 +1,21 @@
 package sep490.com.example.hrms_backend.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.config.AppConstants;
-import sep490.com.example.hrms_backend.dto.benefit.BenefitRegistrationDTO;
-import sep490.com.example.hrms_backend.dto.benefit.BenefitRegistrationResponse;
+import sep490.com.example.hrms_backend.dto.benefit.BenefitManualRegistrationRequest;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitResponse;
+import sep490.com.example.hrms_backend.dto.benefit.EmployeeBasicDetailResponse;
 import sep490.com.example.hrms_backend.service.BenefitRegistrationService;
 import sep490.com.example.hrms_backend.service.BenefitService;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("api/benefit")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class BenefitRegistrationController {
 
@@ -36,10 +38,34 @@ public class BenefitRegistrationController {
 
 
     //2. đăng kí Benefit
-    @PostMapping("register/employees/{employeeId}/benefits/{benefitId}")
-    public ResponseEntity<BenefitRegistrationDTO> registerBenefit(@PathVariable Long employeeId, @PathVariable Long benefitId, @RequestBody(required = false) String note){
-        BenefitRegistrationDTO benefitRegistrationDTO = benefitRegistrationService.registerBenefitForEmployee(benefitId, employeeId, note);
-        return new ResponseEntity<>(benefitRegistrationDTO, HttpStatus.CREATED);
+//    @PostMapping("register/employees/{employeeId}/benefits/{benefitId}")
+//    public ResponseEntity<BenefitRegistrationDTO> registerBenefit(@PathVariable Long employeeId, @PathVariable Long benefitId, @RequestBody(required = false) String note){
+//        BenefitRegistrationDTO benefitRegistrationDTO = benefitRegistrationService.registerBenefitForEmployee(benefitId, employeeId, note);
+//        return new ResponseEntity<>(benefitRegistrationDTO, HttpStatus.CREATED);
+//    }
+
+    @PreAuthorize("hasAnyRole( 'HR')")
+    @PostMapping("/hr/benefits/quick-register")
+    public ResponseEntity<?> quickRegister(@RequestBody BenefitManualRegistrationRequest request) {
+        try {
+            benefitRegistrationService.quickRegister(request);
+            return ResponseEntity.ok("Đăng ký thành công");
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        }
+    }
+
+    @PreAuthorize("hasAnyRole( 'HR')")
+    @GetMapping("/hr/benefits/search-unregistered")
+    public ResponseEntity<List<EmployeeBasicDetailResponse>> searchUnregisteredEmployees(
+            @RequestParam Long benefitId,
+            @RequestParam Long positionId,
+            @RequestParam(required = false) String keyword) {
+
+        List<EmployeeBasicDetailResponse> result = benefitRegistrationService
+                .searchUnregisteredEmployees(benefitId, positionId, keyword);
+
+        return ResponseEntity.ok(result);
     }
 
 }

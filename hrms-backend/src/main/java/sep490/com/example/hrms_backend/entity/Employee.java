@@ -101,6 +101,8 @@ public class Employee {
     @Column(name = "email")
     private String email;
 
+
+
     @DecimalMin(value = "0.0", inclusive = true, message = "Lương cơ bản không hợp lệ")
     @Column(name = "basic_salary")
     private BigDecimal basicSalary;

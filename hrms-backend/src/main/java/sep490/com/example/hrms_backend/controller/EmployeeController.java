@@ -9,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.*;
+import sep490.com.example.hrms_backend.dto.benefit.UpdateOriginalSalaryDTO;
 import sep490.com.example.hrms_backend.service.EmployeeService;
+import sep490.com.example.hrms_backend.dto.benefit.EmployeeBasicDetailResponse;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
@@ -123,4 +125,15 @@ public class EmployeeController {
         employeeService.addEmployeesToLine(lineId, employeeIds);
         return ResponseEntity.ok("Thêm thành công");
     }
+
+
+
+
+//    @PutMapping("/update-original-salary")
+//    public ResponseEntity<String> updateOriginalSalary(@RequestBody UpdateOriginalSalaryDTO request) {
+//        employeeService.updateOriginalSalaryAndRecalculate(request);
+//        return ResponseEntity.ok("Cập nhật lương gốc và lương hiện tại thành công.");
+//    }
+
+
 }

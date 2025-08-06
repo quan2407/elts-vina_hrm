@@ -288,7 +288,6 @@ VALUES
 INSERT INTO benefit_registrations (is_register, registered_at, benefit_position_id, employee_id)
 VALUES
 (true,  NOW(), 1, 1),
-(true,  NOW(), 1, 2)
 
 
 

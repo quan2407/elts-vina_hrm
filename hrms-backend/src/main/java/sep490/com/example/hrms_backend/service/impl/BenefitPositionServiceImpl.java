@@ -5,14 +5,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitPositionDTO;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitPositionUpdateDTO;
-import sep490.com.example.hrms_backend.entity.Benefit;
-import sep490.com.example.hrms_backend.entity.BenefitPosition;
-import sep490.com.example.hrms_backend.entity.Position;
-import sep490.com.example.hrms_backend.repository.BenefitPositionRepository;
-import sep490.com.example.hrms_backend.repository.BenefitRepository;
-import sep490.com.example.hrms_backend.repository.PositionRepository;
+import sep490.com.example.hrms_backend.entity.*;
+import sep490.com.example.hrms_backend.enums.FormulaType;
+import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.BenefitPositionService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -22,7 +20,8 @@ public class BenefitPositionServiceImpl implements BenefitPositionService {
     private final BenefitRepository benefitRepository;
     private final PositionRepository positionRepository;
     private final BenefitPositionRepository benefitPositionRepository;
-
+    private final BenefitRegistrationRepository benefitRegistrationRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Transactional
     @Override
@@ -67,7 +66,6 @@ public class BenefitPositionServiceImpl implements BenefitPositionService {
         benefitPositionRepository.deleteByBenefitAndPosition(benefit, position);
     }
 
-    @Override
     public void updateFormula(BenefitPositionUpdateDTO request) {
         System.out.println("Update formula" + request.getBenefitId()+ "," +request.getPositionId());
         BenefitPosition bp = benefitPositionRepository
@@ -79,4 +77,24 @@ public class BenefitPositionServiceImpl implements BenefitPositionService {
 
         benefitPositionRepository.save(bp);
     }
+
+
+//    private BigDecimal applySalaryChange(BigDecimal salary, FormulaType type, BigDecimal value, String benefitType, boolean isUndo) {
+//        BigDecimal delta = BigDecimal.ZERO;
+//
+//        if (type == FormulaType.AMOUNT) {
+//            delta = value;
+//        } else if (type == FormulaType.PERCENTAGE) {
+//            delta = salary.multiply(value).divide(BigDecimal.valueOf(100));
+//        }
+//
+//        if ("PHU_CAP".equals(benefitType)) {
+//            return isUndo ? salary.subtract(delta) : salary.add(delta);
+//        } else if ("KHAU_TRU".equals(benefitType)) {
+//            return isUndo ? salary.add(delta) : salary.subtract(delta);
+//        }
+//
+//        return salary;
+//    }
+
 }

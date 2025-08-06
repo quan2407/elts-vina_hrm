@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 
 const BenefitHRTableHeader = () => {
     const headers = [
-        "Id", "Tiêu đề", "Mô tả", "Loại phúc lợi", "Ngày bắt đầu", "Ngày kết thúc", "Số lượng người tham gia tối đa", "Trạng thái hoạt động", "Ngày tạo"
+        "Id", "Tiêu đề", "Mô tả", "Loại phúc lợi", "Ngày bắt đầu", "Ngày kết thúc", "Số lượng người tham gia tối đa", "Trạng thái hoạt động", "Ngày tạo", "Chức năng"
     ];
 
     return (

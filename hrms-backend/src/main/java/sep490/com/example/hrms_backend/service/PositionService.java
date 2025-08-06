@@ -11,6 +11,8 @@ public interface PositionService {
 
     List<PositionDTO> getPositionsNotRegisteredToBenefit(Long benefitId);
 
+    PositionDTO getPositionById(Long positionId);
 
-    BenefitResponse getEmployeeByPositionAndBenefit(Long benefitId, Long positionId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+
+//    BenefitResponse getEmployeeByPositionAndBenefit(Long benefitId, Long positionId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 }

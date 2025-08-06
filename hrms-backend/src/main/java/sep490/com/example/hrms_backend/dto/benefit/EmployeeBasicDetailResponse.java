@@ -7,29 +7,27 @@ import sep490.com.example.hrms_backend.dto.DepartmentDTO;
 import sep490.com.example.hrms_backend.dto.PositionDTO;
 import sep490.com.example.hrms_backend.entity.Employee;
 
-import java.math.BigDecimal;
-
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class EmployeeBasicDetailDTO {
+@NoArgsConstructor
+public class EmployeeBasicDetailResponse {
     private Long employeeId;
     private String employeeName;
     private String email;
-    private BigDecimal basicSalary;
     private DepartmentDTO department;
     private PositionDTO position;
 
-    public static EmployeeBasicDetailDTO fromEntity(Employee e) {
+
+    public static EmployeeBasicDetailResponse fromEntity(Employee e) {
         DepartmentDTO departmentDTO = DepartmentDTO.fromEntity(e.getDepartment());
         PositionDTO positionDTO = PositionDTO.fromEntity(e.getPosition());
-        return new EmployeeBasicDetailDTO(
+        return new EmployeeBasicDetailResponse(
                 e.getEmployeeId(),
                 e.getEmployeeName(),
                 e.getEmail(),
-                e.getBasicSalary(),
                 departmentDTO,
                 positionDTO
         );
     }
+
 }

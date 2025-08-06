@@ -1,6 +1,8 @@
 package sep490.com.example.hrms_backend.service;
 
 import sep490.com.example.hrms_backend.dto.*;
+import sep490.com.example.hrms_backend.dto.benefit.UpdateOriginalSalaryDTO;
+import sep490.com.example.hrms_backend.entity.Employee;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
@@ -22,6 +24,7 @@ public interface EmployeeService {
     List<EmployeeResponseDTO> getEmployeeByLineId(Long id);
 
     void addEmployeesToLine(Long lineId, List<Long> employeeIds);
+
 
 
 }

@@ -3,11 +3,13 @@ package sep490.com.example.hrms_backend.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import sep490.com.example.hrms_backend.entity.Employee;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     boolean existsByEmployeeCode(String employeeCode);
 
@@ -54,4 +56,15 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     List<Employee> findEmployeesNotInLineWithSearch(@Param("lineId") Long lineId, @Param("search") String search);
 
 
+    Optional<Employee> findByEmployeeNameIgnoreCaseOrEmailIgnoreCase(String employeeName, String email);
+
+    Optional<Employee> findByEmailIgnoreCase(String keyword);
+
+    Optional<Employee> findByEmployeeNameIgnoreCase(String employeeName);
+
+    @Query("SELECT e FROM Employee e WHERE e.position.positionId = :positionId AND (LOWER(e.employeeName) LIKE :keyword OR LOWER(e.email) LIKE :keyword)")
+    List<Employee> searchByPositionAndKeyword(@Param("positionId") Long positionId, @Param("keyword") String keyword);
+
+
+    List<Employee> findByPosition_PositionId(Long positionId);
 }
