@@ -13,6 +13,8 @@ DELETE FROM account_request;
 DELETE FROM salary;
 ALTER TABLE salary AUTO_INCREMENT = 1;
 DELETE FROM attendance_record;
+DELETE FROM benefit_position;
+DELETE FROM benefit_registration;
 DELETE FROM benefit;
 DELETE FROM work_schedule_detail;
 DELETE FROM work_schedule;
@@ -40,6 +42,8 @@ ALTER TABLE application_approval_step AUTO_INCREMENT = 1;
 ALTER TABLE application AUTO_INCREMENT = 1;
 ALTER TABLE account_request AUTO_INCREMENT = 1;
 ALTER TABLE attendance_record AUTO_INCREMENT = 1;
+ALTER TABLE benefit_position AUTO_INCREMENT = 1;
+ALTER TABLE benefit_registration AUTO_INCREMENT = 1;
 ALTER TABLE benefit AUTO_INCREMENT = 1;
 ALTER TABLE work_schedule AUTO_INCREMENT = 1;
 ALTER TABLE work_schedule_detail AUTO_INCREMENT = 1;
@@ -815,7 +819,7 @@ VALUES
 
 INSERT INTO benefit_registrations (is_register, registered_at, benefit_position_id, employee_id)
 VALUES
-(true,  NOW(), 1, 1),
+(true,  NOW(), 1, 1);
 
 
 
