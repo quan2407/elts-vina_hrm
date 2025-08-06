@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.repository.EmployeeRepository;
 import sep490.com.example.hrms_backend.service.EmployeeService;
+import sep490.com.example.hrms_backend.dto.benefit.EmployeeBasicDetailResponse;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -178,6 +179,7 @@ public class EmployeeController {
         return ResponseEntity.ok("Thêm thành công");
     }
 
+
     private final EmployeeRepository employeeRepository;
 
     @GetMapping("/simple")
@@ -195,4 +197,5 @@ public class EmployeeController {
 
         return ResponseEntity.ok(dtos);
     }
+
 }

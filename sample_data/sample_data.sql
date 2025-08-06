@@ -792,7 +792,6 @@ INSERT INTO interview_schedule (
 (2, '2025-06-12 10:30:00', 'INTERVIEWED', NULL, 2, 3, 1),
 (3, '2025-06-14 14:00:00', 'INTERVIEWED', 'Ứng viên chưa đủ kỹ năng kỹ thuật.', 3, 6, 2);
 
-
 -- ALTER TABLE benefit 
 -- MODIFY COLUMN created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP;
 
@@ -802,18 +801,30 @@ MODIFY COLUMN created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6);
 ALTER TABLE benefit
 MODIFY COLUMN updated_at TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
 
+INSERT INTO benefit(title, description, end_date, is_active, max_participants, start_date, benefit_type, detail, default_formula_type, default_formula_value ) values
+ ('Bảo hiểm sức khỏe mở rộng', 'Cung cấp gói bảo hiểm sức khỏe cao cấp cho nhân viên và người thân.', '2025-12-31', 1, 200, '2025-06-29', 'PHU_CAP', 'Gói bảo hiểm mở rộng áp dụng cho tất cả nhân viên chính thức và người thân trực hệ.', "PERCENTAGE", 50),
+('Khóa học nâng cao kỹ năng', 'Tài trợ 100% chi phí các khóa học trực tuyến hoặc offline để nâng cao kỹ năng mềm và chuyên môn.', '2025-09-30', 1, 150, '2025-06-30','PHU_CAP', 'Nhân viên đăng ký trên hệ thống nội bộ và được phê duyệt trước khi tham gia.', "AMOUNT", 20000),
+('Du lịch công ty 2025', 'Chuyến du lịch thường niên cùng công ty đến Đà Nẵng trong 3 ngày 2 đêm.', '2025-08-15', 0, 100, '2025-06-28','SU_KIEN','Chương trình chỉ áp dụng cho nhân viên đạt đủ điều kiện làm việc từ 6 tháng trở lên.', "PERCENTAGE", 50000),
+('Gói hỗ trợ sức khỏe tinh thần', 'Miễn phí 5 buổi tư vấn tâm lý cùng chuyên gia.', '2026-01-15', 1, 300, '2025-07-01','PHU_CAP','Đăng ký qua phòng nhân sự, ưu tiên nhân viên làm việc trên 1 năm.',  "AMOUNT",20000),
+('Phụ cấp thể thao', 'Hỗ trợ chi phí tham gia phòng gym, yoga, hoặc các hoạt động thể thao.', '2025-11-01', 1, 5, '2025-06-28','KHAU_TRU','Hỗ trợ 50% chi phí hàng tháng, tối đa 500.000đ/người.',"AMOUNT",500000);
+
+INSERT INTO benefit_position (benefit_id, position_id, formula_value, formula_type)
+VALUES
+(1, 3, 500000, 'AMOUNT'),
+(1, 6, 10.0, 'PERCENTAGE');
+
+INSERT INTO benefit_registrations (is_register, registered_at, benefit_position_id, employee_id)
+VALUES
+(true,  NOW(), 1, 1),
 
 
-INSERT INTO benefit(title, description, end_date, is_active, max_participants, start_date ) values
- ('Bảo hiểm sức khỏe mở rộng', 'Cung cấp gói bảo hiểm sức khỏe cao cấp cho nhân viên và người thân.', '2025-12-31', 1, 200, '2025-06-29'),
-('Khóa học nâng cao kỹ năng', 'Tài trợ 100% chi phí các khóa học trực tuyến hoặc offline để nâng cao kỹ năng mềm và chuyên môn.', '2025-09-30', 1, 150, '2025-06-30'),
-('Du lịch công ty 2025', 'Chuyến du lịch thường niên cùng công ty đến Đà Nẵng trong 3 ngày 2 đêm.', '2025-08-15', 0, 100, '2025-06-28'),
-('Gói hỗ trợ sức khỏe tinh thần', 'Miễn phí 5 buổi tư vấn tâm lý cùng chuyên gia.', '2026-01-15', 1, 300, '2025-07-01'),
-('Phụ cấp thể thao', 'Hỗ trợ chi phí tham gia phòng gym, yoga, hoặc các hoạt động thể thao.', '2025-11-01', 1, 5, '2025-06-28');
+
+
 
 INSERT INTO holidays (start_date, end_date, name, is_recurring,is_deleted) VALUES
 ('2025-01-01', '2025-01-01', 'Tết dương lịch', true,false),
 ('2025-04-30', '2025-04-30', 'Giải phóng miền Nam', true,false),
 ('2025-05-01', '2025-05-01', 'Quốc tế Lao động', true,false),
 ('2025-09-02', '2025-09-02', 'Quốc khánh', true,false);
+
 

@@ -6,12 +6,14 @@ import BenefitSearchForm from "./common/search/BenefitSearchForm.jsx";
 import BenefitDetailActionDropdown from "./common/BenefitDetailActionDropdown.jsx";
 import BenefitUpdateModal from "./modals/benefit/BenefitUpdateModal.jsx";
 import { Modal, message,  } from "antd";
-import getBenefitTypeDisplay from '../utils/DisplayBenefitType.js'
+// import getBenefitTypeDisplay from '../utils/DisplayBenefitType.js'
 import { useNavigate } from 'react-router-dom';
+import BenefitForPositionForEmployeeActionDropdown from "./common/BenefitForPositionForEmployeeActionDropdown.jsx";
+import employeeService from "../services/employeeService.js";
 
-const BenefitHRTableHeader = () => {
+const BenefitForPositionForEmployeeTableHeader = () => {
     const headers = [
-        "Id", "Tiêu đề", "Mô tả", "Loại phúc lợi", "Ngày bắt đầu", "Ngày kết thúc", "Số lượng người tham gia tối đa", "Trạng thái hoạt động", "Ngày tạo", "Chức năng"
+        "Id", "Tên nhân viên", "Email", "Lương cơ bản",  "Ngày đăng kí", "Vị trí", "Chức năng"
     ];
 
     return (
@@ -25,14 +27,23 @@ const BenefitHRTableHeader = () => {
     );
 };
 
-const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
+const BenefitForPositionForEmployeeTableRow = ({ benefit,registration, onUpdateSuccess, position }) => {
     const formatDate = (date) => new Date(date).toLocaleDateString("en-GB");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
     const [error, setError] = useState(null);
+    // const [isSalaryModalOpen, setIsSalaryModalOpen] = useState(false);
+    const [employee, setEmployee] = useState(null);
 
-
-
+    // const targetPosition = benefit.positions.find(pos => pos.positionId === positionId);
+    console.log("employeeId:", registration.employee.employeeId)
+    //
+    // employeeService.getEmployeeById(registration.employee.employeeId).then(res => {
+    //     setEmployee(res.data);
+    //     console.log("employee:", employee);
+    // }).catch(err => {
+    //
+    // }).finally()
     const handleEdit = () => {
         setIsModalOpen(true);
     };
@@ -90,18 +101,22 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
 
     return (
         <div className="employee-table-row">
-            <div className="employee-table-cell">{benefit.id}</div>
-            <div className="employee-table-cell">{benefit.title}</div>
-            <div className="employee-table-cell">{benefit.description}</div>
-            <div className="employee-table-cell">{getBenefitTypeDisplay(benefit.benefitType)}</div>
-            <div className="employee-table-cell">{formatDate(benefit.startDate)}</div>
-            <div className="employee-table-cell">{formatDate(benefit.endDate)}</div>
-            <div className="employee-table-cell">{benefit.maxParticipants}</div>
-            <div className="employee-table-cell">{benefit.isActive ? 'Đang hoạt động' : 'Ngừng hoạt động'}</div>
-            <div className="employee-table-cell">{formatDate(benefit.createdAt)}</div>
+            <div className="employee-table-cell">{registration.employee?.employeeId }</div>
+            <div className="employee-table-cell">{registration.employee?.employeeName}</div>
+            <div className="employee-table-cell">{registration.employee?.email}</div>
+            <div className="employee-table-cell"> {Number(registration.employee.basicSalary).toLocaleString('vi-VN')}đ</div>
+            <div className="employee-table-cell">{formatDate(registration.registeredAt)}</div>
+            <div className="employee-table-cell">{position.positionName}</div>
+            {/*<div className="employee-table-cell">{employee.departmentName}</div>*/}
+            {/*<div className="employee-table-cell">{formatDate(benefit.startDate)}</div>*/}
+            {/*<div className="employee-table-cell">{formatDate(benefit.endDate)}</div>*/}
+            {/*<div className="employee-table-cell">{benefit.maxParticipants}</div>*/}
+            {/*<div className="employee-table-cell">{benefit.isActive ? 'Đang hoạt động' : 'Ngừng hoạt động'}</div>*/}
+            {/*<div className="employee-table-cell">{formatDate(benefit.createdAt)}</div>*/}
             <div className="employee-table-cell">
-                <BenefitDetailActionDropdown
+                <BenefitForPositionForEmployeeActionDropdown
                     onEdit={handleEdit}
+                    // onDetails={() => setIsSalaryModalOpen(true)}
                     // onView={() => Modal.info({ title: 'Chi tiết', content: benefit.detail })}
                     onView={() => {
                         if (benefit.detail) {
@@ -129,7 +144,8 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
                         title: "Bạn có chắc chắn muốn xóa?",
                         onOk: async () => {
                             try {
-                                await benefitService.delete(benefit.id);
+
+                                await benefitService.unRegister(benefit.id, position.positionId,registration.employee.employeeId);
                                 message.success("Đã xóa thành công!");
                                 onUpdateSuccess();
                             } catch {
@@ -137,7 +153,7 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
                             }
                         }
                     })}
-                    onDetails={handleDetails}
+
                 />
             </div>
             <BenefitUpdateModal
@@ -146,11 +162,14 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
                 onSubmit={handleUpdate}
                 initialData={benefit}
             />
+
+
+
         </div>
     );
 };
 
-function BenefitHrTable({ reloadKey, onForceReload }) {
+function BenefitForPositionForEmployeeTable({ benefitId, positionId, reloadKey, onForceReload }) {
     const [benefits, setBenefit] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -158,6 +177,7 @@ function BenefitHrTable({ reloadKey, onForceReload }) {
     const [pageSize, setPageSize] = useState(10);
     const [totalElements, setTotalElements] = useState(0);
     const [filters, setFilters] = useState({});
+
 
     useEffect(() => {
         const params = {
@@ -169,9 +189,10 @@ function BenefitHrTable({ reloadKey, onForceReload }) {
         setError(null);
 
         benefitService
-            .getAll(params)
+            .getEmployeeByPositionAndBenefit(benefitId, positionId, params)
             .then((res) => {
                 setBenefit(res.data.content);
+                 console.log("benefits:", benefits);
                 setTotalElements(res.data.totalElements);
 
             })
@@ -188,13 +209,15 @@ function BenefitHrTable({ reloadKey, onForceReload }) {
 
 
 
-            <BenefitSearchForm
-                onSearch={(newFilters) => {
-                    setFilters(newFilters);
-                    setPageNumber(1); // reset về page đầu khi search
-                }}
+            {/*<BenefitSearchForm*/}
+            {/*    onSearch={(newFilters) => {*/}
+            {/*        setFilters(newFilters);*/}
+            {/*        setPageNumber(1); // reset về page đầu khi search*/}
+            {/*    }}*/}
+            {/*/>*/}
+            <BenefitForPositionForEmployeeTableHeader
+
             />
-            <BenefitHRTableHeader />
 
             <div className="employee-table">
 
@@ -202,13 +225,20 @@ function BenefitHrTable({ reloadKey, onForceReload }) {
                 {loading && <p>Loading...</p>}
                 {error && <p style={{ color: "red" }}>{error}</p>}
                 {!loading && benefits.length === 0 && <p>No benefits found.</p>}
-                {!error && !loading && Array.isArray(benefits) && benefits.map((benefit) => (
-                    <BenefitHRTableRow
-                        key={benefit.id}
-                        benefit={benefit}
-                        onUpdateSuccess={onForceReload}
-                    />
-                ))}
+                {!error && !loading && Array.isArray(benefits) && benefits.flatMap((benefit) => {
+                    const targetPosition = benefit.positions.find(pos => pos.positionId === Number(positionId));
+                    const registrations = targetPosition?.registrations || [];
+
+                    return registrations.map((reg) => (
+                        <BenefitForPositionForEmployeeTableRow
+                            key={`${benefit.id}-${reg.id}`}
+                            benefit={benefit}
+                            position={targetPosition}
+                            registration={reg}
+                            onUpdateSuccess={onForceReload}
+                        />
+                    ));
+                })}
             </div>
 
             {!loading && totalElements > 0 && (
@@ -224,4 +254,4 @@ function BenefitHrTable({ reloadKey, onForceReload }) {
     );
 }
 
-export default BenefitHrTable;
+export default BenefitForPositionForEmployeeTable;
