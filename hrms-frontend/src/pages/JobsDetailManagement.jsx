@@ -10,6 +10,7 @@ import { EditRecruitment } from "../services/recruitmentService";
 import { CreateRecruitment } from "../services/recruitmentService";
 import departmentService from "../services/departmentService";
 import { getRecruitmentById } from "../services/recruitmentService";
+import SuccessModal from "../components/popup/SuccessModal";
 import { useNavigate } from "react-router-dom";
 
 function RecruitmentDetailManagement() {
@@ -42,7 +43,8 @@ function RecruitmentDetailManagement() {
   const [expiredAt, setExpiredAt] = useState(null);
   const [departments, setDepartments] = useState([]);
   const [departmentId, setDepartmentId] = useState("");
-
+  const [successModal, setSuccessModal] = useState(false);
+  const [failModal, setFailModal] = useState(false);
   useEffect(() => {
     if (job) {
       setTitle(job.title || "");
@@ -79,8 +81,7 @@ function RecruitmentDetailManagement() {
 
     try {
       await EditRecruitment(payload, jobId);
-      alert("Sửa tin tuyển dụng thành công!");
-      navigate(-1);
+      setSuccessModal(true);
       setErrors({});
     } catch (err) {
       console.error(" Lỗi sửa tin tuyển dụng:", err);
@@ -96,7 +97,7 @@ function RecruitmentDetailManagement() {
 
         setErrors(normalizedErrors);
       } else {
-        alert("Có lỗi xảy ra khi tạo tin tuyển dụng!");
+        setFailModal(true);
       }
     }
   };
@@ -208,9 +209,9 @@ function RecruitmentDetailManagement() {
                   placeholder="Nhập yêu cầu công việc"
                   onChange={(e) => setJobRequirement(e.target.value)}
                 />
-                {errors.benefits && (
+                {errors.jobRequirement && (
                   <div className="error-message">
-                    {errors.benefits.join(", ")}
+                    {errors.jobRequirement.join(", ")}
                   </div>
                 )}
               </div>
@@ -355,6 +356,29 @@ function RecruitmentDetailManagement() {
             </div>
           </div>
         </div>
+
+        {successModal && (
+          <SuccessModal
+            title="Sửa tin tuyển dụng"
+            onClose={() => {
+              setSuccessModal(false);
+              navigate(-1);
+            }
+            }
+            message="Sửa tin tuyển dụng thành công!"
+            type="success"
+          />
+        )}
+
+        {failModal && (
+          <SuccessModal
+            title="Sửa tin tuyển dụng"
+            onClose={() => setFailModal(false)}
+            message="Có lỗi xảy ra khi sửa tin tuyển dụng!"
+            type="error"
+          />
+        )}
+
       </div>
     </MainLayout>
   );
