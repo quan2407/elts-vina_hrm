@@ -1,7 +1,9 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
+import nodePolyfills from "rollup-plugin-node-polyfills";
 import rollupNodePolyFill from "rollup-plugin-node-polyfills";
+
 
 export default defineConfig({
   plugins: [
@@ -15,18 +17,21 @@ export default defineConfig({
     }),
   ],
   define: {
-    global: "globalThis",
+    global: "globalThis", 
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        global: "globalThis",
+      },
+    },
+
   },
   build: {
     sourcemap: true,
     rollupOptions: {
-      plugins: [
-        rollupNodePolyFill(), // Thêm polyfill cho node built-ins
-      ],
+      plugins: [nodePolyfills()],
     },
-  },
-  optimizeDeps: {
-    include: ["buffer", "process", "util"], // Tùy từng lỗi, có thể thêm "crypto-browserify" nếu cần
   },
   logLevel: "info",
 });

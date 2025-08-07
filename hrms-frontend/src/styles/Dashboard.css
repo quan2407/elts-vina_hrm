@@ -40,6 +40,7 @@
 .dashboard-table-wrapper {
   width: 100%;
 }
+
 .date-range-container {
   display: flex;
   align-items: center;
@@ -58,4 +59,13 @@
   height: 40px;
   padding: 4px 8px;
   font-size: 16px;
+}
+
+.employeedetail-job-information {
+  margin-top: 50px;
+}
+.divider {
+  height: 1px;
+  background-color: #ccc;
+  margin: 8px 0;
 }

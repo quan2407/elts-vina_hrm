@@ -83,8 +83,7 @@ public class InterviewScheduleService {
 
         Employee sender = employeeRepository.findById(employeeId).orElse(null);
         Account senderAccount = sender.getAccount();
-        Set<Account> recipients = new HashSet<>();
-        recipients.add(recipientAccount);
+
 
         InterviewSchedule interviewSchedule = InterviewScheduleMapper.mapToInterviewScheduleEntity(interviewScheduleDTO);
         interviewSchedule.setCandidate(candidate);
@@ -101,7 +100,7 @@ public class InterviewScheduleService {
         candidateRecruitmentRepository.save(candidateRecruitment);
 
         sendInterviewEmail(candidate.getEmail(), interviewer.getEmail(), candidate.getCandidateName(), interviewSchedule.getScheduledAt());
-        notificationService.addNotification(NotificationType.INTERVIEW_SCHEDULE, senderAccount, recipients);
+        notificationService.addNotification(NotificationType.INTERVIEW_SCHEDULE, senderAccount, recipientAccount);
         return InterviewScheduleMapper.mapToInterviewScheduleDTO(savedInterviewSchedule);
     }
 

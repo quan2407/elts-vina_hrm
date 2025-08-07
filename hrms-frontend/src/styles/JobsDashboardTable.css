@@ -9,7 +9,7 @@
 }
 
 .jobdash-table {
-  min-width: 500px;
+  min-width: 600px;
 
 }
 
@@ -17,9 +17,9 @@
 .jobdash-table-row {
   display: grid;
   grid-template-columns:
-    60px 180px 180px 180px 180px;
+    25px 180px 170px 170px 170px;
   gap: 10px;
-  padding: 18px 30px;
+  padding: 18px 30px; 
   margin-bottom: 20px;
   border-radius: 6px;
 

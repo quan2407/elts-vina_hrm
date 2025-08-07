@@ -10,6 +10,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useNavigate } from "react-router-dom";
 import { updateInterviewStatus, updateInterviewResult } from "../services/interviewScheduleService";
+import SuccessModal from "../components/popup/SuccessModal";
 
 // Hàm xoá dấu tiếng Việt
 function removeVietnameseTones(str) {
@@ -24,7 +25,10 @@ const InterviewScheduleTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
 
     const [interviewSchedule, setInterviewSchedule] = useState([]);
     const navigate = useNavigate();
-
+    const [RsuccessModal, setRSuccessModal] = useState(false);
+    const [RfailModal, setRFailModal] = useState(false);
+    const [SsuccessModal, setSSuccessModal] = useState(false);
+    const [SFailModal, setSFailModal] = useState(false);
 
     useEffect(() => {
         const fetchInterviews = async () => {
@@ -88,9 +92,9 @@ const InterviewScheduleTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
                     item.id === id ? { ...item, result: result } : item
                 )
             );
-            alert("Cập nhật kết quả phỏng vấn thành công!");
+            setRSuccessModal(true);
         } catch {
-            alert("Lỗi khi cập nhật kết quả phỏng vấn!");
+            setRFailModal(true);
         };
     }
 
@@ -102,9 +106,9 @@ const InterviewScheduleTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
                     item.id === id ? { ...item, status: newStatus } : item
                 )
             );
-            alert("Cập nhật trạng thái thành công!");
+            setSSuccessModal(true)
         } catch {
-            alert("Lỗi khi cập nhật trạng thái!");
+            setSFailModal(true);
         }
     };
 
@@ -229,7 +233,40 @@ const InterviewScheduleTable = forwardRef(({ searchTerm, sortOrder }, ref) => {
                 ))}
 
             </div>
-        </div>
+            {RsuccessModal && (
+                <SuccessModal
+                title="Cập nhật kết quả phỏng vấn"
+                    message="Cập nhật kết quả phỏng vấn thành công!"
+                    type="success"
+                    onClose={() => setRSuccessModal(false)}
+                />
+            )}
+            {RfailModal && (
+                <SuccessModal
+                    title="Cập nhật kết quả phỏng vấn"
+                    type="fail"
+                    message="Cập nhật kết quả phỏng vấn thất bại!"
+                    onClose={() => setRFailModal(false)}
+                />
+            )}
+            {SsuccessModal && (
+                <SuccessModal
+                title="Cập nhật trạng thái phỏng vấn"
+                    type="success"
+                    message="Cập nhật trạng thái phỏng vấn thành công!"
+                    onClose={() => setSSuccessModal(false)}
+                />
+            )}
+            {SFailModal && (
+                <SuccessModal
+                title="Cập nhật trạng thái phỏng vấn"
+                    type="fail"
+                    message="Cập nhật trạng thái phỏng vấn thất bại!"
+                    onClose={() => setSFailModal(false)}
+                />
+            )}
+        </div>  
+        
     );
 });
 

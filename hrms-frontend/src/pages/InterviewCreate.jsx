@@ -14,7 +14,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import employeeService from "../services/employeeService";
 import dayjs from "dayjs";
-
+import SuccessModal from "../components/popup/SuccessModal";
 
 function InterviewCreate() {
   const navigate = useNavigate();
@@ -26,7 +26,8 @@ function InterviewCreate() {
   const [interviewers, setInterviewers] = useState([]);
   const [errors, setErrors] = useState({});
   const [activeSection, setActiveSection] = useState("basic-info");
-
+    const [successModal, setSuccessModal] = useState(false);
+    const [failModal, setFailModal] = useState(false);
   useEffect(() => {
     const fetchInterview = async () => {
       try {
@@ -79,7 +80,7 @@ function InterviewCreate() {
 
     try {
       await createInterview(payload);
-      alert("Tạo lịch phỏng vấn thành công!");
+            setSuccessModal(true);
       setErrors({});
     } catch (err) {
 
@@ -96,7 +97,7 @@ function InterviewCreate() {
 
         setErrors(normalizedErrors);
       } else {
-        alert("Có lỗi xảy ra khi tạo lịch phỏng vấn!");
+                setFailModal(true);
       }
     }
   };
@@ -458,6 +459,27 @@ function InterviewCreate() {
           </div>
         </div>
       </div>
+      {successModal && (
+                      <SuccessModal
+                          title="Tạo lịch phỏng vấn"
+                          message="Tạo lịch phỏng vấn thành công!"
+                          type="success"
+                          onClose={() => {
+                              setSuccessModal(false);
+                              navigate(-1);
+                          }}
+                      />
+                  )}
+                  {failModal && (
+                      <SuccessModal
+                          title="Tạo lịch phỏng vấn"
+                          message="Tạo lịch phỏng vấn thất bại!"
+                          type="fail"
+                          onClose={() => {
+                              setFailModal(false);
+                          }}
+                      />
+                  )}
     </MainLayout>
   );
 }

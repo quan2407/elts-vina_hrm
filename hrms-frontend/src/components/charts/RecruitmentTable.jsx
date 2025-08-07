@@ -3,6 +3,12 @@ import "../../styles/JobsDashboardTable.css";
 import * as XLSX from "xlsx";
 
 const RecruitmentDashboardTable = ({ data = [] }) => {
+
+  const totalCanTuyen = data.reduce((sum, job) => sum + (job.canTuyen || 0), 0);
+  const totalUngTuyen = data.reduce((sum, job) => sum + (job.ungTuyen || 0), 0);
+  const totalDaTuyen = data.reduce((sum, job) => sum + (job.daTuyen || 0), 0);
+
+
   return (
     <div className="jobdash-table-wrapper">
       <div className="jobdash-table">
@@ -26,6 +32,14 @@ const RecruitmentDashboardTable = ({ data = [] }) => {
             <div className="jobdash-table-cell">{job.daTuyen}</div>
           </div>
         ))}
+        <div className="divider" />
+        <div className="jobdash-table-row total-row">
+          <div className="jobdash-table-cell" style={{ gridColumn: 'span 2' }}>Tổng</div>
+          <div className="jobdash-table-cell">{totalCanTuyen}</div>
+          <div className="jobdash-table-cell">{totalUngTuyen}</div>
+          <div className="jobdash-table-cell">{totalDaTuyen}</div>
+        </div>
+
       </div>
     </div>
   );

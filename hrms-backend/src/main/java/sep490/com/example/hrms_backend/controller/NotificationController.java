@@ -28,6 +28,14 @@ public class NotificationController {
 
     }
 
+//    public void notifyEmployee(NotificationDto dto) {
+//        // Gửi socket tới user có username là dto.getReceiverUsername()
+//        messagingTemplate.convertAndSendToUser(
+//                dto.getReceiverUsername(),
+//                "/queue/notifications",
+//                dto
+//        );
+//    }
 
     @PatchMapping("/{id}/read")
     public ResponseEntity<?> markAsRead(

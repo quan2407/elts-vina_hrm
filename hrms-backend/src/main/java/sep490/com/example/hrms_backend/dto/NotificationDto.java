@@ -16,5 +16,5 @@ public class NotificationDto {
     private String content;
     private Boolean isRead;
     private LocalDateTime createdAt;
-
+    private String receiverUsername;
 }
