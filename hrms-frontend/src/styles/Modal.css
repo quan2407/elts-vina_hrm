@@ -1,7 +1,4 @@
-.modal-box.success {
-  background-color: #e8f5e9;
-  border: 1px solid #66bb6a;
-}
+/* Overlay: làm mờ nền với hiệu ứng */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -9,67 +6,86 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(3px);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
+/* Box: màu nền hiện đại và border glow */
 .modal-box {
-  background-color: white;
-  border-radius: 12px;
-  padding: 24px 32px;
-  max-width: 560px;
-  width: 100%;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 30px 36px;
+  width: 90%;
+  max-width: 480px;
   text-align: center;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.3s ease-in-out;
+  border-left: 6px solid #4caf50;
+}
+
+.modal-box.success {
+  background-color: #f1fdf4;
+}
+
+.modal-box.error {
+  background-color: #fff5f5;
+  border-left: 6px solid #f44336;
 }
 
 .modal-title {
   font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 16px;
+  font-weight: 700;
+  color: #2e7d32;
+  margin-bottom: 10px;
 }
 
 .modal-content {
-  font-size: 18px;
-  color: #333;
+  font-size: 17px;
+  color: #444;
   margin-bottom: 24px;
 }
 
 .modal-actions {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 30px;
+  margin-top: 20px;
 }
 
 .btn-confirm {
-  background-color: #2e7d32;
-  color: white;
-  font-weight: bold;
+  background-color: #4caf50;
+  color: #fff;
+  font-weight: 600;
   border: none;
-  padding: 8px 18px;
+  padding: 10px 24px;
+  font-size: 15px;
   border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.25s ease;
 }
 
+.btn-confirm:hover {
+  background-color: #388e3c;
+}
+
+/* Optional error style */
 .btn-danger {
-  background-color: #e53935; /* Đỏ */
+  background-color: #e53935;
   color: white;
   font-weight: bold;
   border: none;
-  padding: 8px 18px;
+  padding: 10px 24px;
   border-radius: 8px;
   cursor: pointer;
 }
 
-.btn-cancel {
-  background-color: #e70c0c;
-  color: #ffffff;
-  font-weight: 500;
-  border: none;
-  padding: 8px 18px;
-  border-radius: 8px;
-  cursor: pointer;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
