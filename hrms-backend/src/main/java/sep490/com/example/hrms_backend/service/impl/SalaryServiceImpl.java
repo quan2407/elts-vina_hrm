@@ -42,11 +42,7 @@ public class SalaryServiceImpl implements SalaryService {
     public List<SalaryDTO> getSalariesByMonth(int month, int year) {
         LocalDate firstDay = LocalDate.of(year, month, 1);
         List<Salary> salaries = salaryRepository.findBySalaryMonth(firstDay);
-
-        // ✅ LẤY TOÀN BỘ BENEFIT ACTIVE
         List<Benefit> allBenefits = benefitService.getAllActive();
-
-        // ✅ MAP SANG DTO VÀ BỔ SUNG BENEFIT
         return salaries.stream()
                 .map(salary -> {
                     SalaryDTO dto = SalaryMapper.mapToSalaryDTO(salary);
@@ -235,10 +231,8 @@ public class SalaryServiceImpl implements SalaryService {
                     .toList();
         }
 
-        // ✅ LẤY TOÀN BỘ BENEFIT ACTIVE
         List<Benefit> allBenefits = benefitService.getAllActive();
 
-        // ✅ MAP SANG DTO VÀ BỔ SUNG BENEFIT
         List<SalaryDTO> allDTOs = all.stream()
                 .map(salary -> {
                     SalaryDTO dto = SalaryMapper.mapToSalaryDTO(salary);
