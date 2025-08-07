@@ -247,14 +247,25 @@ const AssignEmployeeToBenefit = ({
           </Col>
           <Col>
             <Button
-              type="dashed"
-              onClick={() => {
-                const allEmails = employees.map((emp) => emp.email);
-                setSelectedEmails(allEmails);
-              }}
+                type="dashed"
+                onClick={() => {
+                  const allEmails = employees.map((emp) => emp.email);
+                  const isAllSelected = allEmails.length > 0 && allEmails.every(email => selectedEmails.includes(email));
+
+                  if (isAllSelected) {
+                    // Bỏ chọn tất cả
+                    setSelectedEmails([]);
+                  } else {
+                    // Chọn tất cả
+                    setSelectedEmails(allEmails);
+                  }
+                }}
             >
-              Chọn tất cả nhân viên
+              {employees.length > 0 && employees.every(emp => selectedEmails.includes(emp.email))
+                  ? "Bỏ chọn tất cả nhân viên"
+                  : "Chọn tất cả nhân viên"}
             </Button>
+
           </Col>
         </Row>
 

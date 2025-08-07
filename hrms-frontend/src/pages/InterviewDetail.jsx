@@ -13,6 +13,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import employeeService from "../services/employeeService";
+import SuccessModal from "../components/popup/SuccessModal";
+
 import dayjs from "dayjs";
 
 
@@ -27,7 +29,8 @@ function InterviewDetail() {
     const [status, setStatus] = useState("PENDING");
     const [errors, setErrors] = useState({});
     const [activeSection, setActiveSection] = useState("basic-info");
-
+    const [successModal, setSuccessModal] = useState(false);
+    const [failModal, setFailModal] = useState(false);
     const isDisabled = status === "COMPLETED";
 
     useEffect(() => {
@@ -90,9 +93,9 @@ function InterviewDetail() {
 
         try {
             await editInterview(payload, id);
-            alert("Lưu lịch phỏng vấn thành công!");
-            navigate("/interviews-management");
+            setSuccessModal(true);
             setErrors({});
+
         } catch (err) {
 
             console.error("Lỗi lưu lịch phỏng vấn:", err);
@@ -108,7 +111,7 @@ function InterviewDetail() {
 
                 setErrors(normalizedErrors);
             } else {
-                alert("Có lỗi xảy ra khi tạo lịch phỏng vấn!");
+                setFailModal(true);
             }
         }
     };
@@ -492,6 +495,27 @@ function InterviewDetail() {
                     </div>
                 </div>
             </div>
+            {successModal && (
+                <SuccessModal
+                    title="Cập nhật lịch phỏng vấn"
+                    message="Cập nhật lịch phỏng vấn thành công!"
+                    type="success"
+                    onClose={() => {
+                        setSuccessModal(false);
+                        navigate("/interviews-management");
+                    }}
+                />
+            )}
+            {failModal && (
+                <SuccessModal
+                    title="Cập nhật lịch phỏng vấn"
+                    message="Cập nhật lịch phỏng vấn thất bại!"
+                    type="fail"
+                    onClose={() => {
+                        setFailModal(false);
+                    }}
+                />
+            )}
         </MainLayout>
     );
 }

@@ -9,6 +9,7 @@ const AddEmployeeModal = ({ lineId, onClose, onSuccess }) => {
     const [selectedEmployeeIds, setSelectedEmployeeIds] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [showSuccess, setShowSuccess] = useState(false);
+    const [showAddEmpty, setShowAddEmpty] = useState(false);
 
     useEffect(() => {
         const fetchAvailableEmployees = async () => {
@@ -30,7 +31,20 @@ const AddEmployeeModal = ({ lineId, onClose, onSuccess }) => {
         );
     };
 
+const sortEmployeesByLineStatus = (list) => {
+    return list.slice().sort((a, b) => {
+        const aInLine = a.lineName && a.lineName.trim() !== "";
+        const bInLine = b.lineName && b.lineName.trim() !== "";
+        return aInLine - bInLine;
+    });
+};
+
+
     const handleAddEmployees = async () => {
+        if (selectedEmployeeIds.length === 0) {
+            setShowAddEmpty(true);
+            return;
+        }
         try {
             await employeeService.addEmployeesToLine(lineId, selectedEmployeeIds);
 
@@ -74,7 +88,7 @@ const AddEmployeeModal = ({ lineId, onClose, onSuccess }) => {
                             <div className="employee-table-empty" style={{ color: 'red' }}>Không tìm thấy nhân viên nào phù hợp.</div>
                         )}
 
-                        {employees.map((emp) => (
+                        {sortEmployeesByLineStatus(employees).map((emp) => (
                             <div key={emp.employeeId} className="employee-table-row">
                                 <div className="employee-table-cell">
                                     <input
@@ -105,6 +119,17 @@ const AddEmployeeModal = ({ lineId, onClose, onSuccess }) => {
                     </button>
                 </div>
             </div>
+            {showAddEmpty && (
+                <SuccessModal
+                    title="Chưa chọn nhân viên"
+                    message={`Chưa chọn nhân viên để thêm vào line!`}
+                    onClose={() => {
+                        setShowSuccess(false);
+                        onSuccess();
+                        onClose();
+                    }}
+                />
+            )}
 
             {showSuccess && (
                 <SuccessModal

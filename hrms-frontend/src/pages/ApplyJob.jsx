@@ -6,6 +6,10 @@ import HeaderRecruitment from "../components/HeaderRecruitment";
 import FooterRecruitment from "../components/FooterRecruitment";
 import { applyJob } from "../services/candidateRecruitmentService";
 import Breadcrumb from "../components/Breadcrumb";
+import SuccessModal from "../components/popup/SuccessModal.jsx";
+
+
+
 const formatDate = (dateString) => {
   if (!dateString) return "";
   const [year, month, day] = dateString.split("-");
@@ -24,6 +28,9 @@ const ApplyJob = () => {
     phoneNumber: "",
     email: "",
   });
+  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  const [isFailedOpen, setIsFailedOpen] = useState(false);
+  const [failMessage, setFailMessage] = useState("");
 
   useEffect(() => {
     const fetchJob = async () => {
@@ -57,17 +64,19 @@ const ApplyJob = () => {
     };
 
     try {
-      const response = await applyJob(id, payload);
-      alert(response);
+      await applyJob(id, payload);
+      setIsSuccessOpen(true);
       setError({});
-      navigate(-1);
     } catch (error) {
       const responseData = error.response?.data || {};
       setError(responseData);
+
       if (typeof responseData === "string") {
-        alert(responseData);
+        setFailMessage(responseData);
+        setIsFailedOpen(true);
       }
     }
+
   };
 
   if (!job) {
@@ -88,7 +97,7 @@ const ApplyJob = () => {
       <Breadcrumb
         paths={[
           { name: "Danh sách công việc", url: "/jobs" },
-          {name: "Chi tiết "+ job.title, url: `/jobs/${id}`},
+          { name: "Chi tiết " + job.title, url: `/jobs/${id}` },
           { name: job.title },
         ]}
       />
@@ -202,6 +211,33 @@ const ApplyJob = () => {
           </button>
         </section>
       </main>
+
+      {isSuccessOpen && (
+        <SuccessModal
+          type="success"
+          onClose={() => {
+            setIsSuccessOpen(false);
+            navigate(-1);
+          }}
+          title="Ứng tuyển thành công"
+          message="Cảm ơn bạn đã ứng tuyển vào vị trí này. Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất."
+        />
+      )
+      }
+
+      {isFailedOpen && (
+        <SuccessModal
+          type="fail"
+          onClose={() => {
+            setIsFailedOpen(false);
+            navigate(-1);
+          }}
+          title="Ứng tuyển thất bại"
+          message={failMessage}
+        />
+      )
+      }
+
       <FooterRecruitment />
     </div>
   );

@@ -278,7 +278,7 @@ public class BenefitServiceImpl implements BenefitService {
 
     @Transactional
     @Override
-    public BenefitResponse searchBenefitByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public BenefitResponse searchBenefitByKeyword(String keyword, Integer pageNumber, Integer  pageSize, String sortBy, String sortOrder) {
         Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
@@ -379,7 +379,7 @@ public class BenefitServiceImpl implements BenefitService {
                 ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
 
-        // 2. Tạo đối tượng phân trang (Pageable) dựa trên số trang, kích thước trang và sắp xếp
+        // 2. Tạo đối tượng  phân trang (Pageable) dựa trên số trang, kích thước trang và sắp xếp
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sortByAndOrder);
 
         // 3. Gọi repository với điều kiện lọc động (Specification)

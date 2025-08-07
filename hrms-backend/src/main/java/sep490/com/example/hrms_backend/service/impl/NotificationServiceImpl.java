@@ -1,6 +1,7 @@
 package sep490.com.example.hrms_backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sep490.com.example.hrms_backend.dto.NotificationDto;
@@ -27,9 +28,9 @@ public class NotificationServiceImpl implements NotificationService {
     private final AccountRepository accountRepository;
     private final EmployeeRepository employeeRepository;
     private final NotificationWebSocketSender notificationWebSocketSender;
-
+    private final SimpMessagingTemplate messagingTemplate;
     @Override
-    public Notification addNotification(NotificationType type, Account sender, Set<Account> recipients) {
+    public Notification addNotification(NotificationType type, Account sender, Account recipients) {
 
         String content;
         String title;
@@ -63,13 +64,10 @@ public class NotificationServiceImpl implements NotificationService {
                 .content(content)
                 .isRead(false)
                 .createdAt(LocalDateTime.now())
-                .account(recipients)
+                .receiver(recipients)
                 .build();
 
         Notification saved = notificationRepository.save(notification);
-
-        NotificationDto dto = NotificationMapper.toDto(saved);
-        notificationWebSocketSender.sendToAccounts(recipients, dto); // 🔥 Gửi WebSocket
 
         return saved;    }
 
@@ -79,7 +77,7 @@ public class NotificationServiceImpl implements NotificationService {
         Account account = accountRepository.findByEmployee_EmployeeId(employeeId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản cho nhân viên"));
 
-        Set<Notification> notificationList = account.getNotifications();
+        List<Notification> notificationList = account.getNotifications();
 
         // Sắp xếp theo createdAt giảm dần (mới nhất trước)
         return notificationList.stream()
@@ -98,7 +96,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .orElseThrow(() -> new RuntimeException("Notification not found"));
         Account account = e.getAccount();
 
-        if (notification.getAccount().contains(account)) {
+        if (notification.getReceiver() == account) {
             notification.setIsRead(true);
             notificationRepository.save(notification);
         }

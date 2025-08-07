@@ -39,11 +39,8 @@ public class Notification {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @ManyToMany
-    @JoinTable(
-            name = "account_notification",
-            joinColumns = @JoinColumn(name = "notification_id"),
-            inverseJoinColumns = @JoinColumn(name = "account_id")
-    )
-    private Set<Account> account;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "receiver_id", nullable = false)
+    private Account receiver;
+
 }

@@ -17,7 +17,8 @@ public class NotificationMapper {
                 entity.getType(),
                 entity.getContent(),
                 entity.getIsRead(),
-                entity.getCreatedAt()
+                entity.getCreatedAt(),
+                entity.getReceiver().getUsername()
         );
     }
 
