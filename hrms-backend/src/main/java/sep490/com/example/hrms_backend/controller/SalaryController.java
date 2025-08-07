@@ -90,18 +90,30 @@ public class SalaryController {
             @RequestParam int month,
             @RequestParam int year
     ) {
-        List<SalaryDTO> salaries = salaryService.getSalariesByMonth(month, year);
-        List<Benefit> benefits = benefitService.getAllActive(); // bạn cần service này để lấy danh sách benefit
+        try {
+            List<SalaryDTO> salaries = salaryService.getSalariesByMonth(month, year);
+            List<Benefit> benefits = benefitService.getAllActive();
 
-        ByteArrayInputStream excelFile = SalaryExcelExport.exportSalariesToExcel(salaries, benefits, month, year);
-        ByteArrayResource resource = new ByteArrayResource(excelFile.readAllBytes());
+            ByteArrayInputStream excelFile = SalaryExcelExport.exportSalariesToExcel(salaries, benefits, month, year);
+            if (excelFile == null) {
+                throw new IllegalStateException("Export failed: Excel file is null.");
+            }
 
-        String filename = String.format("bao_cao_luong_%02d_%d.xlsx", month, year);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(resource);
+            ByteArrayResource resource = new ByteArrayResource(excelFile.readAllBytes());
+            String filename = String.format("bao_cao_luong_%02d_%d.xlsx", month, year);
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
+
+        } catch (Exception e) {
+            // Log chi tiết nếu dùng logger (khuyến nghị)
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi xuất báo cáo lương: " + e.getMessage(), e);
+        }
     }
+
 
 
 }

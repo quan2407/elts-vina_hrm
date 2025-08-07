@@ -24,7 +24,6 @@ public class SalaryExcelExport {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Báo cáo lương");
 
-            // === Phân loại Benefit ===
             List<Benefit> allowances = allBenefits.stream()
                     .filter(b -> b.getBenefitType() == BenefitType.PHU_CAP)
                     .toList();
@@ -64,7 +63,7 @@ public class SalaryExcelExport {
             Cell titleCell = titleRow.createCell(0);
             titleCell.setCellValue("BÁO CÁO LƯƠNG THÁNG " + month + "/" + year);
             titleCell.setCellStyle(titleStyle);
-            int totalColumns = 8 + phuCapSize + 2 + 2 + khauTruSize + 2; // estimated
+            int totalColumns = 8 + phuCapSize + 2 + 2 + khauTruSize + 2;
             sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, totalColumns));
 
             // === Group Header (Row 1) ===
@@ -77,7 +76,9 @@ public class SalaryExcelExport {
             groupHeader.createCell(col++).setCellValue("Mức lương cơ bản");
 
             int phuCapStart = col;
-            for (int i = 0; i < phuCapSize; i++) col++;
+            for (int i = 0; i < phuCapSize; i++) {
+                groupHeader.createCell(col++); // tạo các cell cho phụ cấp
+            }
             sheet.addMergedRegion(new CellRangeAddress(1, 1, phuCapStart, col - 1));
             groupHeader.getCell(phuCapStart).setCellValue("Phụ cấp");
 
@@ -88,18 +89,22 @@ public class SalaryExcelExport {
             groupHeader.createCell(col++).setCellValue("Tiền lương thêm giờ");
 
             int khauTruStart = col;
-            for (int i = 0; i < khauTruSize; i++) col++;
+            for (int i = 0; i < khauTruSize; i++) {
+                groupHeader.createCell(col++); // tạo các cell cho khấu trừ
+            }
             sheet.addMergedRegion(new CellRangeAddress(1, 1, khauTruStart, col - 1));
             groupHeader.getCell(khauTruStart).setCellValue("Các khoản khấu trừ");
 
             groupHeader.createCell(col++).setCellValue("Tổng trừ");
             groupHeader.createCell(col++).setCellValue("Tổng thu nhập");
 
+// ✅ Đảm bảo đã createCell cho tất cả các cột trước khi set style
             for (int i = 0; i < col; i++) {
                 Cell cell = groupHeader.getCell(i);
-                if (cell == null) cell = groupHeader.createCell(i);
+                if (cell == null) cell = groupHeader.createCell(i); // nếu chưa có thì tạo
                 cell.setCellStyle(headerStyle);
             }
+
 
             // === Sub Header (Row 2) ===
             Row header = sheet.createRow(2);
@@ -140,7 +145,11 @@ public class SalaryExcelExport {
                 row.createCell(col++).setCellValue(dto.getPositionName());
                 row.createCell(col++).setCellValue(toNumber(dto.getBasicSalary()));
 
-                Map<String, BigDecimal> benefitMap = dto.getAppliedBenefits().stream()
+                List<SalaryBenefitDTO> appliedBenefits = dto.getAppliedBenefits() != null
+                        ? dto.getAppliedBenefits()
+                        : new ArrayList<>();
+
+                Map<String, BigDecimal> benefitMap = appliedBenefits.stream()
                         .collect(Collectors.toMap(SalaryBenefitDTO::getTitle, SalaryBenefitDTO::getAmount));
 
                 for (Benefit b : allowances) {
@@ -159,6 +168,7 @@ public class SalaryExcelExport {
                 row.createCell(col++).setCellValue(toNumber(dto.getTotalDeduction()));
                 row.createCell(col++).setCellValue(toNumber(dto.getTotalIncome()));
 
+                // set border style
                 for (int i = 0; i < col; i++) {
                     row.getCell(i).setCellStyle(borderStyle);
                 }
@@ -177,6 +187,7 @@ public class SalaryExcelExport {
             return null;
         }
     }
+
 
     private static double toNumber(BigDecimal value) {
         return value != null ? value.doubleValue() : 0.0;
