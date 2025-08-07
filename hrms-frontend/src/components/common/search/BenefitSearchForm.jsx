@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
     ProForm,
     ProFormText,
@@ -6,12 +6,42 @@ import {
     ProFormSelect,
     ProFormDigitRange,
 } from '@ant-design/pro-components';
-import { Button } from 'antd';
+import { Button, Divider, Select, Space } from 'antd';
 import { ConfigProvider } from 'antd';
 import viVN from 'antd/locale/vi_VN';
 import dayjs from 'dayjs';
 
+const QuickFilters = ({ onQuickFilter }) => {
+    return (
+        <Space style={{ marginBottom: 16 }}>
+            <Select
+                placeholder="Trạng thái"
+                onChange={(value) => onQuickFilter({ isActive: value })}
+                allowClear
+                options={[
+                    { label: 'Đang hoạt động', value: true },
+                    { label: 'Ngừng hoạt động', value: false },
+                ]}
+                style={{ width: 160 }}
+            />
+            <Select
+                placeholder="Loại phúc lợi"
+                onChange={(value) => onQuickFilter({ benefitType: value })}
+                allowClear
+                options={[
+                    { label: 'Sự kiện', value: 'SU_KIEN' },
+                    { label: 'Phụ cấp', value: 'PHU_CAP' },
+                    { label: 'Khấu trừ', value: 'KHAU_TRU' },
+                ]}
+                style={{ width: 160 }}
+            />
+            <Button onClick={() => onQuickFilter({})}>Xóa bộ lọc</Button>
+        </Space>
+    );
+};
+
 const BenefitSearchForm = ({ onSearch }) => {
+    const formRef = useRef();
     const handleFinish = (values) => {
         console.log('Received values of form: ', values);
         const filters = {
@@ -27,43 +57,82 @@ const BenefitSearchForm = ({ onSearch }) => {
     };
 
     return (
-        <ConfigProvider locale={viVN}>
-        <ProForm
-            submitter={{
-                render: (_, dom) => (
-                    <div style={{ textAlign: 'right' }}>
-                        {dom}
-                        <Button htmlType="reset" style={{ marginLeft: 8 }}>Xem toàn bộ phúc lợi</Button>
-                        {/*<Button*/}
-                        {/*    key="viewAll"*/}
-                        {/*    onClick={() => {*/}
-                        {/*        // Đặt lại bộ lọc và tải tất cả dữ liệu*/}
-                        {/*        setFilters({});*/}
-                        {/*        setPageNumber(1);*/}
-                        {/*    }}>View All Benefits*/}
-                        {/*</Button>/*/}
 
-                    </div>
-                ),
-            }}
-            layout="vertical"
-            onFinish={handleFinish}
-        >
-            <ProFormText name="title" label="Tiêu đề" placeholder="Nhập tiêu đề" />
-            <ProFormText name="description" label="Mô tả" placeholder="Nhập mô tả" />
-            <ProFormDateRangePicker name="dateRange" label="Ngày bắt đầu - Ngày kết thúc" />
-            <ProFormSelect
-                name="isActive"
-                label="Trạng thái"
-                options={[
-                    { label: 'Đang hoạt động', value: true },
-                    { label: 'Ngừng hoạt động', value: false },
-                ]}
-                allowClear
-                placeholder="Chọn trạng thái"
-            />
-            <ProFormDigitRange name="maxParticipants" label="Số lượng người tham gia" separator="~" />
-        </ProForm>
+        <ConfigProvider locale={viVN}>
+            {/*<QuickFilters*/}
+            {/*    onQuickFilter={(quickFilter) => {*/}
+            {/*        onSearch(quickFilter);*/}
+            {/*    }}*/}
+            {/*/>*/}
+            <ProForm
+                formRef={formRef}
+                submitter={{
+                    render: (_, dom) => (
+                        <div style={{ textAlign: 'right' }}>
+                            {dom}
+                            <Button
+                                style={{ marginLeft: 8 }}
+                                onClick={() => {
+                                    formRef.current?.resetFields();  // reset toàn bộ form
+                                    onSearch({});                    // gửi filter rỗng lên cha
+                                }}
+                            >
+                                Xem toàn bộ phúc lợi
+                            </Button>
+
+                        </div>
+                    ),
+                }}
+                layout="vertical"
+                onFinish={handleFinish}
+            >
+                <ProFormText
+                    name="title"
+                    label="Tiêu đề"
+                    placeholder="Nhập tiêu đề"
+                    fieldProps={{
+                        style: { width: '50%' }, // hoặc 600, 700 px
+                    }}
+                />
+                <ProFormText
+                    name="description"
+                    label="Mô tả"
+                    placeholder="Nhập mô tả"
+                    fieldProps={{
+                    style: { width: '50%' }, // hoặc 600, 700 px
+                }}/>
+                <ProForm.Group>
+                    <ProFormSelect
+                        name="benefitType"
+                        label="Loại phúc lợi"
+                        options={[
+                            { label: 'Sự Kiện', value: "SU_KIEN" },
+                            { label: 'Phụ cấp', value: "PHU_CAP" },
+                            { label: 'Khấu trừ', value: 'KHAU_TRU' }
+                        ]}
+                        allowClear
+                        placeholder="Chọn loại phúc lợi"
+                    />
+                    <ProFormDateRangePicker name="dateRange" label="Ngày bắt đầu - Ngày kết thúc" />
+                </ProForm.Group>
+
+                <ProForm.Group>
+                    <ProFormSelect
+                        name="isActive"
+                        label="Trạng thái"
+                        options={[
+                            { label: 'Đang hoạt động', value: true },
+                            { label: 'Ngừng hoạt động', value: false },
+                        ]}
+                        allowClear
+                        placeholder="Chọn trạng thái"
+                    />
+                    <ProFormDigitRange name="maxParticipants" label="Số lượng người tham gia" separator="~" />
+                </ProForm.Group>
+
+
+            </ProForm>
+            <Divider style={{ margin: '16px 0' }} />
         </ConfigProvider>
     );
 };

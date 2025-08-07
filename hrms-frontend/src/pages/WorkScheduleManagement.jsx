@@ -84,6 +84,7 @@ function WorkScheduleManagement() {
             <button
               className="work-schedule-add-button"
               onClick={() => setShowRangeModal(true)}
+              disabled={status === "approved"}
             >
               <Plus
                 size={16}
@@ -95,6 +96,7 @@ function WorkScheduleManagement() {
             <button
               className="work-schedule-add-button"
               onClick={handleSubmit}
+              disabled={status === "approved"}
             >
               <Plus
                 size={16}

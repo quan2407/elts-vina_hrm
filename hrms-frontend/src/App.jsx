@@ -38,6 +38,8 @@ import SalaryMonthlyView from "./pages/SalaryMonthlyView";
 import LineManagement from "./pages/LineManagementPMC.jsx";
 import EmployeeInLineManagement from "./pages/EmployeeInLineManagement.jsx";
 import EmployeeWorkScheduleView from "./pages/EmployeeWorkScheduleView";
+import BenefitForPosition from "./pages/BenefitForPosition.jsx";
+import BenefitForPositionForEmployee from "./pages/BenefitForPositionForEmployee.jsx";
 import EmployeeAttendanceMonthlyView from "./pages/EmployeeAttendanceMonthlyView.jsx";
 import EmpSalaryView from "./pages/EmployeeSalaryView.jsx";
 import HolidayManagement from "./pages/HolidayManagement";
@@ -54,6 +56,7 @@ import RoleListPage from "./pages/RoleListPage.jsx";
 import { PermissionProvider } from "./contexts/PermissionContext";
 import { usePermissions } from "./contexts/PermissionContext";
 import Sidebar from "./components/Sidebar";
+
 
 function App() {
   const { refreshPermissions, loading } = usePermissions();
@@ -416,13 +419,32 @@ function App() {
 
             {/* Module's Benefit */}
             <Route
-              path="/benefit"
+              path="/benefits-management"
               element={
                 <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_USER"]}>
                   <BenefitManagement />
                 </ProtectedRoute>
               }
             />
+              <Route
+                  path="/benefits-management/benefit/:benefitId"
+                  element={
+                      <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_USER"]}>
+                          <BenefitForPosition />
+                      </ProtectedRoute>
+                  }
+              />
+
+              <Route
+                  path="/benefits-management/benefit/:benefitId/position/:positionId"
+                  element={
+                      <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_USER"]}>
+                          <BenefitForPositionForEmployee />
+                      </ProtectedRoute>
+                  }
+              />
+
+            {/* Catch all unmatched routes */}
 
             <Route
               path="*"

@@ -5,6 +5,15 @@
   height: calc(100vh - 80px);
   box-sizing: border-box;
 }
+.approval-list-page-header {
+  display: flex;
+  align-items: center;
+  margin: 24px;
+}
+
+.create-button-right {
+  margin-left: auto;
+}
 
 .approval-list-sidebar {
   width: 200px;

@@ -119,14 +119,16 @@ const EmployeeWorkScheduleView = () => {
                           <strong>Tổ:</strong> {schedule.lineName}
                         </div>
 
-                        <button
-                          className="workcal-leave-btn"
-                          onClick={() =>
-                            (window.location.href = `/create-application?type=leave&date=${dateStr}`)
-                          }
-                        >
-                          Xin nghỉ
-                        </button>
+                        {dayjs(dateStr).isAfter(dayjs(), "day") && (
+                          <button
+                            className="workcal-leave-btn"
+                            onClick={() =>
+                              (window.location.href = `/create-application?type=leave&date=${dateStr}`)
+                            }
+                          >
+                            Xin nghỉ
+                          </button>
+                        )}
                       </div>
                     ) : (
                       <div className="workcal-noshift">--</div>

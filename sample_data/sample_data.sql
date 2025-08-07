@@ -13,6 +13,8 @@ DELETE FROM account_request;
 DELETE FROM salary;
 ALTER TABLE salary AUTO_INCREMENT = 1;
 DELETE FROM attendance_record;
+DELETE FROM benefit_registrations;
+DELETE FROM benefit_position;
 DELETE FROM benefit;
 DELETE FROM work_schedule_detail;
 DELETE FROM work_schedule;
@@ -40,6 +42,8 @@ ALTER TABLE application_approval_step AUTO_INCREMENT = 1;
 ALTER TABLE application AUTO_INCREMENT = 1;
 ALTER TABLE account_request AUTO_INCREMENT = 1;
 ALTER TABLE attendance_record AUTO_INCREMENT = 1;
+ALTER TABLE benefit_position AUTO_INCREMENT = 1;
+ALTER TABLE benefit_registrations AUTO_INCREMENT = 1;
 ALTER TABLE benefit AUTO_INCREMENT = 1;
 ALTER TABLE work_schedule AUTO_INCREMENT = 1;
 ALTER TABLE work_schedule_detail AUTO_INCREMENT = 1;
@@ -160,6 +164,9 @@ INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 (25, 'POST', '/api/auth/request-reset-password', 'Yêu cầu reset mật khẩu', 'Auth'),
 (26, 'GET', '/api/auth/admin/pending-reset-requests', 'Xem yêu cầu reset đang chờ duyệt', 'Auth'),
 (27, 'POST', '/api/auth/admin/approve-reset-password', 'Phê duyệt reset mật khẩu', 'Auth');
+UPDATE permission
+SET method = 'PUT'
+WHERE permission_id = 24;
 
 -- Gán permission:
 INSERT INTO role_permission (role_id, permission_id) VALUES 
@@ -789,7 +796,6 @@ INSERT INTO interview_schedule (
 (2, '2025-06-12 10:30:00', 'INTERVIEWED', NULL, 2, 3, 1),
 (3, '2025-06-14 14:00:00', 'INTERVIEWED', 'Ứng viên chưa đủ kỹ năng kỹ thuật.', 3, 6, 2);
 
-
 -- ALTER TABLE benefit 
 -- MODIFY COLUMN created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP;
 
@@ -799,18 +805,38 @@ MODIFY COLUMN created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6);
 ALTER TABLE benefit
 MODIFY COLUMN updated_at TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
 
+INSERT INTO benefit(title, description, end_date, is_active, max_participants, start_date, benefit_type, detail, default_formula_type, default_formula_value) VALUES
+-- PHU_CAP
+('điện thoại', 'Hỗ trợ tiền điện thoại hàng tháng cho nhân viên liên lạc công việc.', '2025-12-31', 1, 200, '2025-06-29', 'PHU_CAP', 'Áp dụng cho tất cả nhân viên làm việc chính thức.', 'AMOUNT', 100000),
+('nhà ở', 'Hỗ trợ tiền nhà ở cho nhân viên làm việc xa nhà.', '2025-12-31', 1, 200, '2025-06-29', 'PHU_CAP', 'Áp dụng cho nhân viên ở các tỉnh lên thành phố làm việc.', 'AMOUNT', 200000),
+('chuyên cần', 'Thưởng chuyên cần hàng tháng cho nhân viên đi làm đầy đủ.', '2025-12-31', 1, 200, '2025-06-29', 'PHU_CAP', 'Áp dụng khi không có ngày nghỉ/đi trễ/thẻ quẹt thiếu.', 'AMOUNT', 500000),
+('đi lại', 'Hỗ trợ chi phí đi lại cho nhân viên.', '2025-12-31', 1, 200, '2025-06-29', 'PHU_CAP', 'Áp dụng theo khoảng cách từ nhà đến công ty.', 'AMOUNT', 50000),
+
+-- KHAU_TRU
+('BHYT', 'Khấu trừ bảo hiểm y tế theo quy định.', '2025-12-31', 1, 200, '2025-06-29', 'KHAU_TRU', 'Khấu trừ vào lương theo tỷ lệ quy định.', 'PERCENTAGE', 8.0),
+('BHXH', 'Khấu trừ bảo hiểm xã hội theo quy định.', '2025-12-31', 1, 200, '2025-06-29', 'KHAU_TRU', 'Khấu trừ vào lương theo tỷ lệ quy định.', 'PERCENTAGE', 1.5),
+('BHTN', 'Khấu trừ bảo hiểm thất nghiệp theo quy định.', '2025-12-31', 1, 200, '2025-06-29', 'KHAU_TRU', 'Khấu trừ vào lương theo tỷ lệ quy định.', 'PERCENTAGE', 1.0),
+('Đoàn phí', 'Khấu trừ đoàn phí hàng tháng.', '2025-12-31', 1, 200, '2025-06-29', 'KHAU_TRU', 'Áp dụng cho nhân viên thuộc công đoàn.', 'AMOUNT', 50000);
 
 
-INSERT INTO benefit(title, description, end_date, is_active, max_participants, start_date ) values
- ('Bảo hiểm sức khỏe mở rộng', 'Cung cấp gói bảo hiểm sức khỏe cao cấp cho nhân viên và người thân.', '2025-12-31', 1, 200, '2025-06-29'),
-('Khóa học nâng cao kỹ năng', 'Tài trợ 100% chi phí các khóa học trực tuyến hoặc offline để nâng cao kỹ năng mềm và chuyên môn.', '2025-09-30', 1, 150, '2025-06-30'),
-('Du lịch công ty 2025', 'Chuyến du lịch thường niên cùng công ty đến Đà Nẵng trong 3 ngày 2 đêm.', '2025-08-15', 0, 100, '2025-06-28'),
-('Gói hỗ trợ sức khỏe tinh thần', 'Miễn phí 5 buổi tư vấn tâm lý cùng chuyên gia.', '2026-01-15', 1, 300, '2025-07-01'),
-('Phụ cấp thể thao', 'Hỗ trợ chi phí tham gia phòng gym, yoga, hoặc các hoạt động thể thao.', '2025-11-01', 1, 5, '2025-06-28');
+
+INSERT INTO benefit_position (benefit_id, position_id, formula_value, formula_type)
+VALUES
+(1, 3, 500000, 'AMOUNT'),
+(1, 6, 10.0, 'PERCENTAGE');
+
+INSERT INTO benefit_registrations (is_register, registered_at, benefit_position_id, employee_id)
+VALUES
+(true,  NOW(), 1, 1);
+
+
+
+
 
 INSERT INTO holidays (start_date, end_date, name, is_recurring,is_deleted) VALUES
 ('2025-01-01', '2025-01-01', 'Tết dương lịch', true,false),
 ('2025-04-30', '2025-04-30', 'Giải phóng miền Nam', true,false),
 ('2025-05-01', '2025-05-01', 'Quốc tế Lao động', true,false),
 ('2025-09-02', '2025-09-02', 'Quốc khánh', true,false);
+
 

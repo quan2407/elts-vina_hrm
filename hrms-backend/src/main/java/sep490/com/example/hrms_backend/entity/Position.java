@@ -41,4 +41,5 @@ public class Position {
             inverseJoinColumns = @JoinColumn(name = "department_id")
     )
     private List<Department> departments;
+
 }

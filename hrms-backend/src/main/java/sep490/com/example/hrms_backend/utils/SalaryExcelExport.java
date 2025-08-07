@@ -3,18 +3,37 @@ package sep490.com.example.hrms_backend.utils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import sep490.com.example.hrms_backend.dto.SalaryBenefitDTO;
 import sep490.com.example.hrms_backend.dto.SalaryDTO;
+import sep490.com.example.hrms_backend.enums.BenefitType;
+import sep490.com.example.hrms_backend.entity.Benefit;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SalaryExcelExport {
 
-    public static ByteArrayInputStream exportSalariesToExcel(List<SalaryDTO> salaries, int month, int year) {
+    public static ByteArrayInputStream exportSalariesToExcel(
+            List<SalaryDTO> salaries,
+            List<Benefit> allBenefits,
+            int month,
+            int year) {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Báo cáo lương");
+
+            // === Phân loại Benefit ===
+            List<Benefit> allowances = allBenefits.stream()
+                    .filter(b -> b.getBenefitType() == BenefitType.PHU_CAP)
+                    .toList();
+            List<Benefit> deductions = allBenefits.stream()
+                    .filter(b -> b.getBenefitType() == BenefitType.KHAU_TRU)
+                    .toList();
+
+            int phuCapSize = allowances.size();
+            int khauTruSize = deductions.size();
 
             // === Styles ===
             CellStyle titleStyle = workbook.createCellStyle();
@@ -45,53 +64,67 @@ public class SalaryExcelExport {
             Cell titleCell = titleRow.createCell(0);
             titleCell.setCellValue("BÁO CÁO LƯƠNG THÁNG " + month + "/" + year);
             titleCell.setCellStyle(titleStyle);
-            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 18));
+            int totalColumns = 8 + phuCapSize + 2 + 2 + khauTruSize + 2; // estimated
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, totalColumns));
 
             // === Group Header (Row 1) ===
             Row groupHeader = sheet.createRow(1);
-            groupHeader.createCell(0).setCellValue("STT");
-            groupHeader.createCell(1).setCellValue("Mã NV");
-            groupHeader.createCell(2).setCellValue("Họ và Tên");
-            groupHeader.createCell(3).setCellValue("Chức vụ");
-            groupHeader.createCell(4).setCellValue("Mức lương cơ bản");
+            int col = 0;
+            groupHeader.createCell(col++).setCellValue("STT");
+            groupHeader.createCell(col++).setCellValue("Mã NV");
+            groupHeader.createCell(col++).setCellValue("Họ và Tên");
+            groupHeader.createCell(col++).setCellValue("Chức vụ");
+            groupHeader.createCell(col++).setCellValue("Mức lương cơ bản");
 
-            groupHeader.createCell(5).setCellValue("Phụ cấp");
-            sheet.addMergedRegion(new CellRangeAddress(1, 1, 5, 8));
+            int phuCapStart = col;
+            for (int i = 0; i < phuCapSize; i++) col++;
+            sheet.addMergedRegion(new CellRangeAddress(1, 1, phuCapStart, col - 1));
+            groupHeader.getCell(phuCapStart).setCellValue("Phụ cấp");
 
-            groupHeader.createCell(9).setCellValue("Lương sản xuất");
-            sheet.addMergedRegion(new CellRangeAddress(1, 1, 9, 10));
+            groupHeader.createCell(col++).setCellValue("Số công");
+            groupHeader.createCell(col++).setCellValue("Tiền lương");
 
-            groupHeader.createCell(11).setCellValue("Lương thêm giờ");
-            sheet.addMergedRegion(new CellRangeAddress(1, 1, 11, 12));
+            groupHeader.createCell(col++).setCellValue("Số giờ");
+            groupHeader.createCell(col++).setCellValue("Tiền lương thêm giờ");
 
-            groupHeader.createCell(13).setCellValue("Các khoản khấu trừ");
-            sheet.addMergedRegion(new CellRangeAddress(1, 1, 13, 17));
+            int khauTruStart = col;
+            for (int i = 0; i < khauTruSize; i++) col++;
+            sheet.addMergedRegion(new CellRangeAddress(1, 1, khauTruStart, col - 1));
+            groupHeader.getCell(khauTruStart).setCellValue("Các khoản khấu trừ");
 
-            groupHeader.createCell(18).setCellValue("Tổng thu nhập");
-            sheet.addMergedRegion(new CellRangeAddress(1, 2, 18, 18));
+            groupHeader.createCell(col++).setCellValue("Tổng trừ");
+            groupHeader.createCell(col++).setCellValue("Tổng thu nhập");
 
-            for (int i = 0; i <= 18; i++) {
+            for (int i = 0; i < col; i++) {
                 Cell cell = groupHeader.getCell(i);
-                if (cell == null) {
-                    cell = groupHeader.createCell(i);
-                }
+                if (cell == null) cell = groupHeader.createCell(i);
                 cell.setCellStyle(headerStyle);
             }
 
             // === Sub Header (Row 2) ===
             Row header = sheet.createRow(2);
-            String[] headers = {
-                    "", "", "", "", "", // 0-4
-                    "Điện thoại", "Nhà ở", "Chuyên Cần", "Đi lại", // 5-8
-                    "Số công", "Tiền lương", // 9-10
-                    "Số giờ", "Tiền lương thêm giờ", // 11-12
-                    "BHXH 8%", "BHYT 1.5%", "BHTN 1%", "Đoàn phí", "Tổng trừ", // 13-17
-                    "" // 18
-            };
-            for (int i = 0; i < headers.length; i++) {
-                Cell cell = header.createCell(i);
-                cell.setCellValue(headers[i]);
-                cell.setCellStyle(headerStyle);
+            col = 0;
+            header.createCell(col++).setCellValue(""); // STT
+            header.createCell(col++).setCellValue(""); // Mã NV
+            header.createCell(col++).setCellValue(""); // Họ tên
+            header.createCell(col++).setCellValue(""); // Chức vụ
+            header.createCell(col++).setCellValue(""); // Lương cơ bản
+
+            for (Benefit b : allowances) {
+                header.createCell(col++).setCellValue(b.getTitle());
+            }
+            header.createCell(col++).setCellValue("Số công");
+            header.createCell(col++).setCellValue("Tiền lương");
+            header.createCell(col++).setCellValue("Số giờ");
+            header.createCell(col++).setCellValue("Tiền lương thêm giờ");
+            for (Benefit b : deductions) {
+                header.createCell(col++).setCellValue(b.getTitle());
+            }
+            header.createCell(col++).setCellValue("Tổng trừ");
+            header.createCell(col++).setCellValue("Tổng thu nhập");
+
+            for (int i = 0; i < col; i++) {
+                header.getCell(i).setCellStyle(headerStyle);
             }
 
             // === Data Rows ===
@@ -99,25 +132,30 @@ public class SalaryExcelExport {
             int stt = 1;
             for (SalaryDTO dto : salaries) {
                 Row row = sheet.createRow(rowIndex++);
-                int col = 0;
+                col = 0;
 
                 row.createCell(col++).setCellValue(stt++);
                 row.createCell(col++).setCellValue(dto.getEmployeeCode());
                 row.createCell(col++).setCellValue(dto.getEmployeeName());
                 row.createCell(col++).setCellValue(dto.getPositionName());
                 row.createCell(col++).setCellValue(toNumber(dto.getBasicSalary()));
-                row.createCell(col++).setCellValue(toNumber(dto.getAllowancePhone()));
-                row.createCell(col++).setCellValue(toNumber(dto.getAllowanceMeal()));
-                row.createCell(col++).setCellValue(toNumber(dto.getAllowanceAttendance()));
-                row.createCell(col++).setCellValue(toNumber(dto.getAllowanceTransport()));
+
+                Map<String, BigDecimal> benefitMap = dto.getAppliedBenefits().stream()
+                        .collect(Collectors.toMap(SalaryBenefitDTO::getTitle, SalaryBenefitDTO::getAmount));
+
+                for (Benefit b : allowances) {
+                    row.createCell(col++).setCellValue(toNumber(benefitMap.get(b.getTitle())));
+                }
+
                 row.createCell(col++).setCellValue(dto.getWorkingDays());
                 row.createCell(col++).setCellValue(toNumber(dto.getProductionSalary()));
                 row.createCell(col++).setCellValue(dto.getOvertimeHours());
                 row.createCell(col++).setCellValue(toNumber(dto.getOvertimeSalary()));
-                row.createCell(col++).setCellValue(toNumber(dto.getSocialInsurance()));
-                row.createCell(col++).setCellValue(toNumber(dto.getHealthInsurance()));
-                row.createCell(col++).setCellValue(toNumber(dto.getUnemploymentInsurance()));
-                row.createCell(col++).setCellValue(toNumber(dto.getUnionFee()));
+
+                for (Benefit b : deductions) {
+                    row.createCell(col++).setCellValue(toNumber(benefitMap.get(b.getTitle())));
+                }
+
                 row.createCell(col++).setCellValue(toNumber(dto.getTotalDeduction()));
                 row.createCell(col++).setCellValue(toNumber(dto.getTotalIncome()));
 
@@ -126,11 +164,10 @@ public class SalaryExcelExport {
                 }
             }
 
-            // Auto-size all columns
-            for (int i = 0; i <= 18; i++) {
+            for (int i = 0; i <= totalColumns; i++) {
                 sheet.autoSizeColumn(i);
             }
-            sheet.setColumnWidth(18, 20 * 256);
+
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             workbook.write(out);
             return new ByteArrayInputStream(out.toByteArray());
