@@ -17,6 +17,7 @@ const UpdateProgramModal = ({ open, onCancel, onSubmit, initialData }) => {
                 startDate: dayjs(initialData.startDate),
                 endDate: dayjs(initialData.endDate),
                 maxParticipants: initialData.maxParticipants,
+                detail: initialData.detail || ''
             });
         }
     }, [open, initialData, form]);
@@ -88,6 +89,14 @@ const UpdateProgramModal = ({ open, onCancel, onSubmit, initialData }) => {
                     rules={[{ required: true, message: 'Vui lòng nhập số lượng!' }]}
                 >
                     <InputNumber min={1} style={{ width: '100%' }} />
+                </Form.Item>
+
+                <Form.Item
+                    name="detail"
+                    label="Chi tiết"
+                    rules={[{ required: false, message: 'Vui lòng nhập thông tin chi tiết!' }]}
+                >
+                    <TextArea rows={3} placeholder="Nhập thông tin chi tiết" />
                 </Form.Item>
 
                 <Form.Item

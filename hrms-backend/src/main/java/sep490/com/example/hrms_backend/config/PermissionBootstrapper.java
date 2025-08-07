@@ -118,5 +118,38 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Salary",
                 List.of("ROLE_HR", "ROLE_HR_MANAGER")
         );
+        permissionRegistrationService.registerPermission(
+               "/api/username/me/name",
+                "GET",
+                "Profile",
+                allRoles
+);
+        permissionRegistrationService.registerPermission("/api/hr/benefits", "GET", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+        permissionRegistrationService.registerPermission("/api/hr/benefits/*", "GET", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+        permissionRegistrationService.registerPermission("/api/hr/benefit/*/position/*", "GET", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+        permissionRegistrationService.registerPermission("/api/hr/benefit/*", "GET", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+        permissionRegistrationService.registerPermission("/api/hr/benefits/*/available-positions", "GET", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+        permissionRegistrationService.registerPermission("/api/hr/benefits/assign", "POST", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+        permissionRegistrationService.registerPermission("/api/hr/benefits/unassign/benefit/*/position/*", "DELETE", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+        permissionRegistrationService.registerPermission("/api/hr/benefits/formula", "PUT", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+        permissionRegistrationService.registerPermission("/api/hr/benefits", "POST", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+        permissionRegistrationService.registerPermission("/api/hr/benefits/*", "PATCH", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+        permissionRegistrationService.registerPermission("/api/*", "PATCH", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER")); // (status toggle)
+        permissionRegistrationService.registerPermission("/api/keyword/*", "GET", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+        permissionRegistrationService.registerPermission("/api/hr/benefits/*", "DELETE", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+        permissionRegistrationService.registerPermission("/api/hr/benefit/position/*", "GET", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+// [1] GET /api/employees/{employeeId}
+        permissionRegistrationService.registerPermission("/api/employees/*", "GET", "BenefitRegistration", allRoles);
+
+// [2] POST /api/hr/benefits/quick-register
+        permissionRegistrationService.registerPermission("/api/hr/benefits/quick-register", "POST", "BenefitRegistration", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+
+// [3] DELETE /api/hr/benefits/un-register/benefit/{benefitId}/position/{positionId}/employee/{employeeId}
+        permissionRegistrationService.registerPermission("/api/hr/benefits/un-register/benefit/*/position/*/employee/*", "DELETE", "BenefitRegistration", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+
+// [4] GET /api/hr/benefits/search-unregistered
+        permissionRegistrationService.registerPermission("/api/hr/benefits/search-unregistered", "GET", "BenefitRegistration", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+
+
     }
 }

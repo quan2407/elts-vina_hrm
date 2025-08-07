@@ -7,14 +7,17 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import sep490.com.example.hrms_backend.dto.SalaryBenefitDTO;
 import sep490.com.example.hrms_backend.dto.SalaryDTO;
-import sep490.com.example.hrms_backend.entity.AttendanceRecord;
-import sep490.com.example.hrms_backend.entity.Employee;
-import sep490.com.example.hrms_backend.entity.Salary;
+import sep490.com.example.hrms_backend.entity.*;
+import sep490.com.example.hrms_backend.enums.BenefitType;
+import sep490.com.example.hrms_backend.enums.FormulaType;
 import sep490.com.example.hrms_backend.mapper.SalaryMapper;
 import sep490.com.example.hrms_backend.repository.AttendanceRecordRepository;
+import sep490.com.example.hrms_backend.repository.BenefitRegistrationRepository;
 import sep490.com.example.hrms_backend.repository.EmployeeRepository;
 import sep490.com.example.hrms_backend.repository.SalaryRepository;
+import sep490.com.example.hrms_backend.service.BenefitService;
 import sep490.com.example.hrms_backend.service.SalaryService;
 
 import java.math.BigDecimal;
@@ -31,6 +34,9 @@ public class SalaryServiceImpl implements SalaryService {
     private final SalaryRepository salaryRepository;
     private final EmployeeRepository employeeRepository;
     private final AttendanceRecordRepository attendanceRecordRepository;
+    private final BenefitRegistrationRepository benefitRegistrationRepository;
+    private final BenefitService benefitService;
+
 
     @Override
     public List<SalaryDTO> getSalariesByMonth(int month, int year) {
@@ -100,44 +106,42 @@ public class SalaryServiceImpl implements SalaryService {
                     BigDecimal.valueOf(otHours*2 + weekendHours * 2 + holidayHours * 3)
             );
 
-            BigDecimal totalAllowance = sum(employee.getAllowancePhone())
-                    .add(sum(employee.getAllowanceMeal()))
-                    .add(sum(employee.getAllowanceAttendance()))
-                    .add(sum(employee.getAllowanceTransport()));
+            List<SalaryBenefit> benefitItems = generateSalaryBenefits(employee, null); // chưa gán Salary
+
+            BigDecimal totalAllowance = benefitItems.stream()
+                    .filter(b -> b.getBenefitType() == BenefitType.PHU_CAP)
+                    .map(SalaryBenefit::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal totalDeduction = benefitItems.stream()
+                    .filter(b -> b.getBenefitType() == BenefitType.KHAU_TRU)
+                    .map(SalaryBenefit::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             BigDecimal gross = totalAllowance
                     .add(productionSalary)
                     .add(overtimeSalary);
 
-            BigDecimal bhxh = gross.multiply(BigDecimal.valueOf(0.08));
-            BigDecimal bhyt = gross.multiply(BigDecimal.valueOf(0.015));
-            BigDecimal bhtn = gross.multiply(BigDecimal.valueOf(0.01));
-            BigDecimal unionFee = employee.getUnionFee();
-            BigDecimal totalDeduct = bhxh.add(bhyt).add(bhtn).add(unionFee);
-
-            BigDecimal net = gross.subtract(totalDeduct);
-
+            BigDecimal net = gross.subtract(totalDeduction);
             Salary salary = Salary.builder()
                     .employee(employee)
                     .basicSalary(employee.getBasicSalary())
-                    .allowancePhone(employee.getAllowancePhone())
-                    .allowanceMeal(employee.getAllowanceMeal())
-                    .allowanceAttendance(employee.getAllowanceAttendance())
-                    .allowanceTransport(employee.getAllowanceTransport())
-                    .workingDays(workingDays) // float
+                    .workingDays(workingDays)
                     .productionSalary(productionSalary)
                     .overtimeHours(otHours + weekendHours + holidayHours)
                     .overtimeSalary(overtimeSalary)
-                    .socialInsurance(bhxh)
-                    .healthInsurance(bhyt)
-                    .unemploymentInsurance(bhtn)
-                    .unionFee(unionFee)
-                    .totalDeduction(totalDeduct)
+                    .totalDeduction(totalDeduction)
                     .totalIncome(net)
                     .salaryMonth(salaryMonth)
                     .build();
 
+// Gán lại salary cho các benefit (nếu ban đầu truyền null)
+            for (SalaryBenefit b : benefitItems) {
+                b.setSalary(salary);
+            }
+            salary.setSalaryBenefits(benefitItems);
             salaryRepository.save(salary);
+
         }
     }
 
@@ -155,28 +159,6 @@ public class SalaryServiceImpl implements SalaryService {
         }
     }
 
-    private SalaryDTO mapToDTO(Salary s) {
-        return SalaryDTO.builder()
-                .employeeCode(s.getEmployee().getEmployeeCode())
-                .employeeName(s.getEmployee().getEmployeeName())
-                .basicSalary(s.getBasicSalary())
-                .allowancePhone(s.getAllowancePhone())
-                .allowanceMeal(s.getAllowanceMeal())
-                .allowanceAttendance(s.getAllowanceAttendance())
-                .allowanceTransport(s.getAllowanceTransport())
-                .workingDays(s.getWorkingDays())
-                .productionSalary(s.getProductionSalary())
-                .overtimeHours(s.getOvertimeHours())
-                .overtimeSalary(s.getOvertimeSalary())
-                .socialInsurance(s.getSocialInsurance())
-                .healthInsurance(s.getHealthInsurance())
-                .unemploymentInsurance(s.getUnemploymentInsurance())
-                .unionFee(s.getUnionFee())
-                .totalDeduction(s.getTotalDeduction())
-                .totalIncome(s.getTotalIncome())
-                .salaryMonth(s.getSalaryMonth())
-                .build();
-    }
 
     @Override
     @Transactional
@@ -231,8 +213,30 @@ public class SalaryServiceImpl implements SalaryService {
                     .toList();
         }
 
+        // ✅ LẤY TOÀN BỘ BENEFIT ACTIVE
+        List<Benefit> allBenefits = benefitService.getAllActive();
+
+        // ✅ MAP SANG DTO VÀ BỔ SUNG BENEFIT
         List<SalaryDTO> allDTOs = all.stream()
-                .map(SalaryMapper::mapToSalaryDTO)
+                .map(salary -> {
+                    SalaryDTO dto = SalaryMapper.mapToSalaryDTO(salary);
+
+                    List<SalaryBenefitDTO> fullBenefits = allBenefits.stream()
+                            .map(benefit -> dto.getAppliedBenefits().stream()
+                                    .filter(applied -> applied.getTitle().equals(benefit.getTitle()))
+                                    .findFirst()
+                                    .orElse(
+                                            SalaryBenefitDTO.builder()
+                                                    .title(benefit.getTitle())
+                                                    .type(benefit.getBenefitType())
+                                                    .amount(BigDecimal.ZERO)
+                                                    .build()
+                                    ))
+                            .toList();
+
+                    dto.setAppliedBenefits(fullBenefits);
+                    return dto;
+                })
                 .toList();
 
         int start = (int) pageable.getOffset();
@@ -240,6 +244,40 @@ public class SalaryServiceImpl implements SalaryService {
 
         List<SalaryDTO> pagedContent = start >= allDTOs.size() ? List.of() : allDTOs.subList(start, end);
         return new PageImpl<>(pagedContent, pageable, allDTOs.size());
+    }
+
+    private BigDecimal calculateAmount(BigDecimal basic, BigDecimal value, FormulaType type) {
+        if (value == null || type == null) return BigDecimal.ZERO;
+        return switch (type) {
+            case AMOUNT -> value;
+            case PERCENTAGE -> basic.multiply(value).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        };
+    }
+    private List<SalaryBenefit> generateSalaryBenefits(Employee employee, Salary salary) {
+        List<BenefitRegistration> regs = benefitRegistrationRepository.findByEmployee(employee);
+        List<SalaryBenefit> result = new ArrayList<>();
+
+        for (BenefitRegistration reg : regs) {
+            if (!Boolean.TRUE.equals(reg.getIsRegister())) continue;
+
+            var bp = reg.getBenefitPosition();
+            var benefit = bp.getBenefit();
+
+            BigDecimal amount = calculateAmount(
+                    employee.getBasicSalary(),
+                    bp.getFormulaValue(),
+                    bp.getFormulaType()
+            );
+
+            result.add(SalaryBenefit.builder()
+                    .salary(salary)
+                    .benefitType(benefit.getBenefitType())
+                    .benefitTitle(benefit.getTitle())
+                    .amount(amount)
+                    .build());
+        }
+
+        return result;
     }
 
 }

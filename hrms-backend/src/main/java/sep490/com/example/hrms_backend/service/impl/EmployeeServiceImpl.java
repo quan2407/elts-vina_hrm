@@ -10,16 +10,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.*;
+import sep490.com.example.hrms_backend.dto.benefit.UpdateOriginalSalaryDTO;
 import sep490.com.example.hrms_backend.entity.*;
+import sep490.com.example.hrms_backend.enums.BenefitType;
+import sep490.com.example.hrms_backend.enums.FormulaType;
 import sep490.com.example.hrms_backend.exception.DuplicateEntryException;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.mapper.EmployeeMapper;
 import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.AccountService;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,8 +39,10 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     private final PositionRepository positionRepository;
     private final AccountRepository accountRepository;
     private final AccountService accountService;
+    private final BenefitRegistrationRepository benefitRegistrationRepository;
     private final AccountRequestRepository accountRequestRepository;
     private final RoleRepository roleRepository;
+
 
     @Override
     public Page<EmployeeResponseDTO> getAllEmployees(int page, int size, String search) {
@@ -60,7 +66,11 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
 
     @Override
     public String getNextEmployeeCode() {
-        long count = employeeRepository.countByPosition_PositionNameNotIgnoreCase("HR");
+        long total = employeeRepository.count();
+        long hrCount = employeeRepository.countByPosition_PositionNameIgnoreCase("HR");
+        long hrManagerCount = employeeRepository.countByPosition_PositionNameIgnoreCase("Trưởng Phòng Nhân Sự");
+        System.out.println(hrManagerCount);
+       long count = total - hrCount - hrManagerCount;
         long next = count + 1;
         return "ELTSSX" + String.format("%04d", next);
     }
@@ -70,13 +80,24 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         Position position = positionRepository.findById(positionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Position", "id", positionId));
 
-        String prefix = position.getPositionName().equalsIgnoreCase("HR") ? "ELTSHC" : "ELTSSX";
+        String positionName = position.getPositionName().toUpperCase();
 
+        String prefix;
         long count;
-        if (prefix.equals("ELTSHC")) {
-            count = employeeRepository.countByPosition_PositionNameIgnoreCase("HR");
+
+        if (positionName.equals("HR") || positionName.equals("HR_MANAGER")) {
+            prefix = "ELTSHC";
+            count = employeeRepository.countByPosition_PositionNameIgnoreCase("HR")
+                    + employeeRepository.countByPosition_PositionNameIgnoreCase("Trưởng Phòng Nhân Sự");
+            System.out.println("Count for HR and Manager " + count);
         } else {
-            count = employeeRepository.countByPosition_PositionNameNotIgnoreCase("HR");
+            // Count all except HR and HR_MANAGER
+            long total = employeeRepository.count();
+            long hrCount = employeeRepository.countByPosition_PositionNameIgnoreCase("HR");
+            long hrManagerCount = employeeRepository.countByPosition_PositionNameIgnoreCase("HR_MANAGER");
+
+            prefix = "ELTSSX";
+            count = total - hrCount - hrManagerCount;
         }
 
         return prefix + String.format("%04d", count + 1);

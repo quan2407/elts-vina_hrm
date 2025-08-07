@@ -59,6 +59,9 @@ const employeeService = {
   getSimpleEmployees: () => {
     return axiosClient.get("/employees/simple");
   },
+  getCurrentEmployeeName: () => {
+    return axiosClient.get("/username/me/name");
+  },
 };
 
 export default employeeService;

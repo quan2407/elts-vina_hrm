@@ -1,21 +1,22 @@
 package sep490.com.example.hrms_backend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import sep490.com.example.hrms_backend.enums.BenefitType;
+import sep490.com.example.hrms_backend.enums.FormulaType;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "benefit")
@@ -49,6 +50,12 @@ public class Benefit {
     private BenefitType benefitType;
 
 
+    @Column(name = "default_formula_value")
+    private BigDecimal defaultFormulaValue;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "default_formula_type")
+    private FormulaType defaultFormulaType;
 
 
     @NotNull
@@ -66,8 +73,6 @@ public class Benefit {
     @Column(name = "is_active")
     private Boolean isActive; // trạng thái hoạt động
 
-
-
     // ===Audit==
     @CreatedDate
     @PastOrPresent
@@ -82,21 +87,15 @@ public class Benefit {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt; // thời điểm cập nhật gần nhất
 
- 
-
-
-
 
 
     // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 
     // Một phúc lợi có thể được nhiều nhân viên đăng ký
-    @OneToMany(mappedBy = "benefit", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BenefitRegistration> registrations;
+//    @OneToMany(mappedBy = "benefit", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<BenefitRegistration> registrations;
 
     @OneToMany(mappedBy = "benefit",  cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BenefitPosition> benefitPositions;
-
-
 
 }

@@ -21,7 +21,23 @@ function ProfilePage() {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [currentAddress, setCurrentAddress] = useState("");
+  const [ethnicity, setEthnicity] = useState("");
+  const [religion, setReligion] = useState("");
+  const [educationLevel, setEducationLevel] = useState("");
+  const [specializedLevel, setSpecializedLevel] = useState("");
+  const [foreignLanguages, setForeignLanguages] = useState("");
+  const [trainingType, setTrainingType] = useState("");
+  const [trainingMajor, setTrainingMajor] = useState("");
 
+  const [startWorkAt, setStartWorkAt] = useState(null);
+  const [departmentId, setDepartmentId] = useState("");
+  const [positionId, setPositionId] = useState("");
+  const [lineId, setLineId] = useState("");
+  const [endWorkAt, setEndWorkAt] = useState(null);
+  const [departments, setDepartments] = useState([]);
+  const [positions, setPositions] = useState([]);
+  const [lines, setLines] = useState([]);
   const [errors, setErrors] = useState({});
   const [activeSection, setActiveSection] = useState("basic-info");
   const isClickScrolling = useRef(false);
@@ -47,7 +63,6 @@ function ProfilePage() {
       setPhone(data.phoneNumber || "");
       setEmail(data.email || "");
       setAddress(data.address || "");
-
       setEmployeeCode(data.employeeCode || "");
       setGender(data.gender || "");
       setBirthDate(data.dob ? new Date(data.dob) : null);
@@ -115,8 +130,14 @@ function ProfilePage() {
           data.citizenExpiryDate ? new Date(data.citizenExpiryDate) : null
         );
         setAddress(data.address || "");
+        setEthnicity(data.ethnicity || "");
         setPhone(data.phoneNumber || "");
         setEmail(data.email || "");
+        setStartWorkAt(data.startWorkAt ? new Date(data.startWorkAt) : null);
+        setDepartmentId(data.departmentId || "");
+        setPositionId(data.positionId || "");
+        setLineId(data.lineId || "");
+        setEndWorkAt(data.endWorkAt ? new Date(data.endWorkAt) : null);
       } catch (err) {
         console.error("❌ Lỗi load profile:", err);
       }
@@ -225,6 +246,7 @@ function ProfilePage() {
                     className="employeedetail-input-field"
                     type="text"
                     value={fullName}
+                    readOnly
                     onChange={(e) => setFullName(e.target.value)}
                   />
                   {errors.employeeName && (
@@ -250,9 +272,133 @@ function ProfilePage() {
                     selected={birthDate}
                     dateFormat="dd/MM/yyyy"
                     locale={vi}
+                    readOnly
                     customInput={<CustomInput />}
                     disabled
                   />
+                </div>
+              </div>
+              <div className="employeedetail-form-row">
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Nơi sinh<span className="required-star">*</span>
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="text"
+                    value={birthPlace}
+                    readOnly
+                    placeholder="Nhập nơi sinh"
+                    onChange={(e) => setBirthPlace(e.target.value)}
+                  />
+                  {errors.placeOfBirth && (
+                    <div className="error-message">
+                      {errors.placeOfBirth.join(", ")}
+                    </div>
+                  )}
+                </div>
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Nguyên quán<span className="required-star">*</span>
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="text"
+                    value={originPlace}
+                    readOnly
+                    placeholder="Nhập nguyên quán"
+                    onChange={(e) => setOriginPlace(e.target.value)}
+                  />
+                  {errors.originPlace && (
+                    <div className="error-message">
+                      {errors.originPlace.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="employeedetail-form-row">
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Quốc tịch<span className="required-star">*</span>
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="text"
+                    value={nationality}
+                    readOnly
+                    placeholder="Nhập quốc tịch"
+                    onChange={(e) => setNationality(e.target.value)}
+                  />
+                  {errors.nationality && (
+                    <div className="error-message">
+                      {errors.nationality.join(", ")}
+                    </div>
+                  )}
+                </div>
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Số CCCD<span className="required-star">*</span>
+                  </div>
+                  <input
+                    className="employeedetail-input-field"
+                    type="text"
+                    value={idNumber}
+                    readOnly
+                    placeholder="Nhập số CCCD"
+                    onChange={(e) => setIdNumber(e.target.value)}
+                  />
+                  {errors.citizenId && (
+                    <div className="error-message">
+                      {errors.citizenId.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="employeedetail-form-row">
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Ngày cấp<span className="required-star">*</span>
+                  </div>
+                  <DatePicker
+                    selected={issueDate}
+                    onChange={(date) => setIssueDate(date)}
+                    dateFormat="dd/MM/yyyy"
+                    locale={vi}
+                    readOnly
+                    customInput={<CustomInput />}
+                    placeholderText="Chọn ngày"
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                  />
+                  {errors.citizenIssueDate && (
+                    <div className="error-message">
+                      {errors.citizenIssueDate.join(", ")}
+                    </div>
+                  )}
+                </div>
+                <div className="employeedetail-input-group">
+                  <div className="employeedetail-input-label">
+                    Ngày hết hạn<span className="required-star">*</span>
+                  </div>
+                  <DatePicker
+                    selected={expiryDate}
+                    onChange={(date) => setExpiryDate(date)}
+                    dateFormat="dd/MM/yyyy"
+                    locale={vi}
+                    readOnly
+                    customInput={<CustomInput />}
+                    placeholderText="Chọn ngày"
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                  />
+                  {errors.citizenExpiryDate && (
+                    <div className="error-message">
+                      {errors.citizenExpiryDate.join(", ")}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

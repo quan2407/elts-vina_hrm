@@ -2,6 +2,7 @@ package sep490.com.example.hrms_backend.dto;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
@@ -35,10 +36,10 @@ public class EmployeeDetailDTO {
     private String phoneNumber;
     private String email;
     private LocalDate startWorkAt;
-
+    private LocalDate endWorkAt;
     private Long departmentId;
     private String departmentName;
-
+    private BigDecimal basicSalary;
     private Long positionId;
     private String positionName;
 

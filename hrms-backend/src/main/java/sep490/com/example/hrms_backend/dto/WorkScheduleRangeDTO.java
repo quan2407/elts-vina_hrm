@@ -5,29 +5,30 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import sep490.com.example.hrms_backend.validation.ValidDateRange;
 import java.time.LocalDate;
 import java.time.LocalTime;
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ValidDateRange
 public class WorkScheduleRangeDTO {
-    @NotNull
+    @NotNull(message = "Phòng ban không được để trống")
     private Long departmentId;
 
     private Long lineId;
 
-    @NotNull
+    @NotNull(message = "Giờ bắt đầu không được để trống")
     private LocalTime startTime;
 
-    @NotNull
+    @NotNull(message = "Giờ kết thúc không được để trống")
     private LocalTime endTime;
 
-    @NotNull
+    @NotNull(message = "Ngày bắt đầu không được để trống")
     private LocalDate startDate;
 
-    @NotNull
+    @NotNull(message = "Ngày kết thúc không được để trống")
     private LocalDate endDate;
 
 }
