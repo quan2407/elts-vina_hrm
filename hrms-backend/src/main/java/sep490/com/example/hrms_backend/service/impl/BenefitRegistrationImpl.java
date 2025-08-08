@@ -155,29 +155,30 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
             }
 
             // 3. Kiểm tra trùng đăng ký
+            //update to commit
             if (benefitRegistrationRepository.existsByBenefitPositionAndEmployee(benefitPosition, employee)) {
                 failed.add(keyword + " (đã đăng ký)");
                 continue;
             }
 
-            // 6. Tính toán thay đổi basic_salary nếu cần
-            BigDecimal currentSalary = employee.getBasicSalary() != null ? employee.getBasicSalary() : BigDecimal.ZERO;
-
-            if ("PHU_CAP".equals(benefitType)) {
-                if (formulaType == FormulaType.AMOUNT) {
-                    currentSalary = currentSalary.add(formulaValue);
-                } else if (formulaType == FormulaType.PERCENTAGE) {
-                    currentSalary = currentSalary.add(currentSalary.multiply(formulaValue).divide(BigDecimal.valueOf(100)));
-                }
-            } else if ("KHAU_TRU".equals(benefitType)) {
-                if (formulaType == FormulaType.AMOUNT) {
-                    currentSalary = currentSalary.subtract(formulaValue);
-                } else if (formulaType == FormulaType.PERCENTAGE) {
-                    currentSalary = currentSalary.subtract(currentSalary.multiply(formulaValue).divide(BigDecimal.valueOf(100)));
-                }
-            }
+//            // 6. Tính toán thay đổi basic_salary nếu cần
+//            BigDecimal currentSalary = employee.getBasicSalary() != null ? employee.getBasicSalary() : BigDecimal.ZERO;
+//
+//            if ("PHU_CAP".equals(benefitType)) {
+//                if (formulaType == FormulaType.AMOUNT) {
+//                    currentSalary = currentSalary.add(formulaValue);
+//                } else if (formulaType == FormulaType.PERCENTAGE) {
+//                    currentSalary = currentSalary.add(currentSalary.multiply(formulaValue).divide(BigDecimal.valueOf(100)));
+//                }
+//            } else if ("KHAU_TRU".equals(benefitType)) {
+//                if (formulaType == FormulaType.AMOUNT) {
+//                    currentSalary = currentSalary.subtract(formulaValue);
+//                } else if (formulaType == FormulaType.PERCENTAGE) {
+//                    currentSalary = currentSalary.subtract(currentSalary.multiply(formulaValue).divide(BigDecimal.valueOf(100)));
+//                }
+//            }
             // SU_KIEN: Không thay đổi
-            employee.setBasicSalary(currentSalary);
+//            employee.setBasicSalary(currentSalary);
 
             // 4. Đăng ký
             BenefitRegistration registration = new BenefitRegistration();
