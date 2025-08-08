@@ -31,13 +31,10 @@ public class Salary {
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
-    // ✅ [A] Phần cố định
     @DecimalMin("0.0")
     @Column(name = "basic_salary", nullable = false)
     private BigDecimal basicSalary;
 
-
-    // ✅ [C] Lương sản xuất
     @Column(name = "working_days")
     private Float workingDays;
 
@@ -45,7 +42,6 @@ public class Salary {
     @Column(name = "production_salary")
     private BigDecimal productionSalary;
 
-    // ✅ [D] Lương thêm giờ
     @Column(name = "overtime_hours")
     private Float overtimeHours;
 
@@ -53,18 +49,14 @@ public class Salary {
     @Column(name = "overtime_salary")
     private BigDecimal overtimeSalary;
 
-
-
     @DecimalMin("0.0")
-    @Column(name = "total_deduction") // Tổng trừ
+    @Column(name = "total_deduction")
     private BigDecimal totalDeduction;
 
-    // ✅ [F] Tổng thu nhập
     @DecimalMin("0.0")
     @Column(name = "total_income")
     private BigDecimal totalIncome;
 
-    // ✅ [G] Mốc thời gian
     @NotNull
     @Column(name = "salary_month")
     private LocalDate salaryMonth;
@@ -85,7 +77,6 @@ public class Salary {
 
     @OneToMany(mappedBy = "salary", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SalaryBenefit> salaryBenefits = new ArrayList<>();
-
 }
 
 

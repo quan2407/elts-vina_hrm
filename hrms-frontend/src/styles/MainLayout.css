@@ -2,11 +2,11 @@
   display: flex;
   min-height: 100vh;
   font-family: "Product Sans", sans-serif;
-  background-color: #e3edf9;
+  background-color: #e3edf9; /* vẫn giữ nền */
 }
 
+/* KHÔNG margin-left mặc định nữa: mobile = 0 */
 .main-content {
-  margin-left: 250px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -14,9 +14,14 @@
   overflow-x: hidden;
 }
 
+/* Desktop: chừa chỗ cho sidebar 250px */
+@media (min-width: 768px) {
+  .main-content {
+    margin-left: 250px;
+  }
+}
+
 .content-wrapper {
   flex: 1;
-  padding: 20px 50px;
-  display: flex;
-  flex-direction: column;
+  padding: 20px 16px; /* dùng khoảng cách gọn hơn, đã có container-fluid */
 }

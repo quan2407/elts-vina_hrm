@@ -1,12 +1,11 @@
 package sep490.com.example.hrms_backend.service;
 
-import sep490.com.example.hrms_backend.dto.benefit.BenefitRegistrationDTO;
-import sep490.com.example.hrms_backend.dto.benefit.BenefitManualRegistrationRequest;
-import sep490.com.example.hrms_backend.dto.benefit.BenefitResponse;
-import sep490.com.example.hrms_backend.dto.benefit.EmployeeBasicDetailResponse;
+import org.springframework.stereotype.Service;
+import sep490.com.example.hrms_backend.dto.benefit.*;
 
 import java.util.List;
 
+@Service
 public interface BenefitRegistrationService {
     BenefitResponse searchBenefitByEmployee(Long employeeId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 

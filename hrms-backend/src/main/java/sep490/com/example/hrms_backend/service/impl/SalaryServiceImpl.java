@@ -42,11 +42,30 @@ public class SalaryServiceImpl implements SalaryService {
     public List<SalaryDTO> getSalariesByMonth(int month, int year) {
         LocalDate firstDay = LocalDate.of(year, month, 1);
         List<Salary> salaries = salaryRepository.findBySalaryMonth(firstDay);
-
+        List<Benefit> allBenefits = benefitService.getAllActive();
         return salaries.stream()
-                .map(SalaryMapper::mapToSalaryDTO)
+                .map(salary -> {
+                    SalaryDTO dto = SalaryMapper.mapToSalaryDTO(salary);
+
+                    List<SalaryBenefitDTO> fullBenefits = allBenefits.stream()
+                            .map(benefit -> dto.getAppliedBenefits().stream()
+                                    .filter(applied -> applied.getTitle().equals(benefit.getTitle()))
+                                    .findFirst()
+                                    .orElse(
+                                            SalaryBenefitDTO.builder()
+                                                    .title(benefit.getTitle())
+                                                    .type(benefit.getBenefitType())
+                                                    .amount(BigDecimal.ZERO)
+                                                    .build()
+                                    ))
+                            .toList();
+
+                    dto.setAppliedBenefits(fullBenefits);
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public List<SalaryDTO> getEmpSalariesByMonth(Long employeeId, int month, int year) {
@@ -106,7 +125,7 @@ public class SalaryServiceImpl implements SalaryService {
                     BigDecimal.valueOf(otHours*2 + weekendHours * 2 + holidayHours * 3)
             );
 
-            List<SalaryBenefit> benefitItems = generateSalaryBenefits(employee, null); // chưa gán Salary
+            List<SalaryBenefit> benefitItems = generateSalaryBenefits(employee, null);
 
             BigDecimal totalAllowance = benefitItems.stream()
                     .filter(b -> b.getBenefitType() == BenefitType.PHU_CAP)
@@ -135,7 +154,6 @@ public class SalaryServiceImpl implements SalaryService {
                     .salaryMonth(salaryMonth)
                     .build();
 
-// Gán lại salary cho các benefit (nếu ban đầu truyền null)
             for (SalaryBenefit b : benefitItems) {
                 b.setSalary(salary);
             }
@@ -213,10 +231,8 @@ public class SalaryServiceImpl implements SalaryService {
                     .toList();
         }
 
-        // ✅ LẤY TOÀN BỘ BENEFIT ACTIVE
         List<Benefit> allBenefits = benefitService.getAllActive();
 
-        // ✅ MAP SANG DTO VÀ BỔ SUNG BENEFIT
         List<SalaryDTO> allDTOs = all.stream()
                 .map(salary -> {
                     SalaryDTO dto = SalaryMapper.mapToSalaryDTO(salary);
