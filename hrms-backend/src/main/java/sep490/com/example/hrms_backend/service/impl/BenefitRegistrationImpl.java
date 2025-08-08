@@ -196,6 +196,7 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
         }
 }
 
+
     @Override
     public List<EmployeeBasicDetailResponse> searchUnregisteredEmployees(Long benefitId, Long positionId, String keyword) {
         // 1. Tìm BenefitPosition theo benefitId và positionId
