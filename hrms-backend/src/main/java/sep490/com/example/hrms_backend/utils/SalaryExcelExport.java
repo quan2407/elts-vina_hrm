@@ -75,45 +75,49 @@ public class SalaryExcelExport {
             groupHeader.createCell(col++).setCellValue("Chức vụ");
             groupHeader.createCell(col++).setCellValue("Mức lương cơ bản");
 
+
             int phuCapStart = col;
-            for (int i = 0; i < phuCapSize; i++) {
-                groupHeader.createCell(col++); // tạo các cell cho phụ cấp
-            }
+            for (int i = 0; i < phuCapSize; i++) groupHeader.createCell(col++);
             sheet.addMergedRegion(new CellRangeAddress(1, 1, phuCapStart, col - 1));
             groupHeader.getCell(phuCapStart).setCellValue("Phụ cấp");
 
-            groupHeader.createCell(col++).setCellValue("Số công");
-            groupHeader.createCell(col++).setCellValue("Tiền lương");
+            int luongSXStart = col;
+            groupHeader.createCell(col++); // Số công
+            groupHeader.createCell(col++); // Tiền lương
+            sheet.addMergedRegion(new CellRangeAddress(1, 1, luongSXStart, col - 1));
+            groupHeader.getCell(luongSXStart).setCellValue("Lương sản xuất");
 
-            groupHeader.createCell(col++).setCellValue("Số giờ");
-            groupHeader.createCell(col++).setCellValue("Tiền lương thêm giờ");
+            int luongTGStart = col;
+            groupHeader.createCell(col++); // Số giờ
+            groupHeader.createCell(col++); // Tiền lương thêm giờ
+            sheet.addMergedRegion(new CellRangeAddress(1, 1, luongTGStart, col - 1));
+            groupHeader.getCell(luongTGStart).setCellValue("Lương thêm giờ");
 
             int khauTruStart = col;
-            for (int i = 0; i < khauTruSize; i++) {
-                groupHeader.createCell(col++); // tạo các cell cho khấu trừ
-            }
+            for (int i = 0; i < khauTruSize; i++) groupHeader.createCell(col++);
             sheet.addMergedRegion(new CellRangeAddress(1, 1, khauTruStart, col - 1));
             groupHeader.getCell(khauTruStart).setCellValue("Các khoản khấu trừ");
+
 
             groupHeader.createCell(col++).setCellValue("Tổng trừ");
             groupHeader.createCell(col++).setCellValue("Tổng thu nhập");
 
-// ✅ Đảm bảo đã createCell cho tất cả các cột trước khi set style
             for (int i = 0; i < col; i++) {
                 Cell cell = groupHeader.getCell(i);
-                if (cell == null) cell = groupHeader.createCell(i); // nếu chưa có thì tạo
+                if (cell == null) cell = groupHeader.createCell(i);
                 cell.setCellStyle(headerStyle);
             }
+
 
 
             // === Sub Header (Row 2) ===
             Row header = sheet.createRow(2);
             col = 0;
-            header.createCell(col++).setCellValue(""); // STT
-            header.createCell(col++).setCellValue(""); // Mã NV
-            header.createCell(col++).setCellValue(""); // Họ tên
-            header.createCell(col++).setCellValue(""); // Chức vụ
-            header.createCell(col++).setCellValue(""); // Lương cơ bản
+            header.createCell(col++).setCellValue("");
+            header.createCell(col++).setCellValue("");
+            header.createCell(col++).setCellValue("");
+            header.createCell(col++).setCellValue("");
+            header.createCell(col++).setCellValue("");
 
             for (Benefit b : allowances) {
                 header.createCell(col++).setCellValue(b.getTitle());
@@ -125,8 +129,7 @@ public class SalaryExcelExport {
             for (Benefit b : deductions) {
                 header.createCell(col++).setCellValue(b.getTitle());
             }
-            header.createCell(col++).setCellValue("Tổng trừ");
-            header.createCell(col++).setCellValue("Tổng thu nhập");
+
 
             for (int i = 0; i < col; i++) {
                 header.getCell(i).setCellStyle(headerStyle);
@@ -168,7 +171,6 @@ public class SalaryExcelExport {
                 row.createCell(col++).setCellValue(toNumber(dto.getTotalDeduction()));
                 row.createCell(col++).setCellValue(toNumber(dto.getTotalIncome()));
 
-                // set border style
                 for (int i = 0; i < col; i++) {
                     row.getCell(i).setCellStyle(borderStyle);
                 }
