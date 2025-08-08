@@ -20,6 +20,4 @@ public interface BenefitPositionRepository  extends JpaRepository<BenefitPositio
     void deleteByBenefitAndPosition(Benefit benefit, Position position);
 
     Optional<BenefitPosition> findByBenefit_IdAndPosition_PositionId(Long benefitId, Long positionId);
-
-
 }
