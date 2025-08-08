@@ -101,4 +101,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     Page<Employee> findByIsDeletedFalseAndEmployeeCodeContainingIgnoreCaseOrEmployeeNameContainingIgnoreCase(String search, String search1, Pageable pageable);
 
+    boolean existsByPhoneNumberAndEmployeeIdNot(String phoneNumber, Long id);
+
+    boolean existsByPhoneNumber(String phoneNumber);
 }
