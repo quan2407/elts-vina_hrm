@@ -181,7 +181,7 @@ public class BenefitServiceImpl implements BenefitService {
         //Step2: check existed in DB
         Benefit benefitFromDb = benefitRepository.findByTitle(benefit.getTitle());
         if (benefitFromDb != null) {
-            throw new HRMSAPIException("Benefit with title " + benefit.getTitle() + " is already existed.");
+            throw new HRMSAPIException("Phúc lợi với tiêu đề " + benefit.getTitle() + " đã tồn tại.");
         }
 
         if(employeeSize < benefit.getMaxParticipants()){
@@ -221,8 +221,13 @@ public class BenefitServiceImpl implements BenefitService {
         if(benefit.getIsActive() != null){
             benefitFromDb.setIsActive(benefit.getIsActive());
         }
-        if(benefit.getEndDate() != null ){
-            if (benefit.getEndDate().isBefore(benefit.getStartDate())) {
+        if (benefit.getEndDate() != null) {
+            // Lấy startDate từ DTO nếu có, nếu không thì lấy từ DB
+            LocalDate dateToCompare = (benefit.getStartDate() != null)
+                    ? benefit.getStartDate()
+                    : benefitFromDb.getStartDate();
+
+            if (benefit.getEndDate().isBefore(dateToCompare)) {
                 throw new HRMSAPIException("Ngày kết thúc phải lớn hơn ngày bắt đầu");
             }
             benefitFromDb.setEndDate(benefit.getEndDate());
@@ -264,7 +269,7 @@ public class BenefitServiceImpl implements BenefitService {
     }
 
 
-    @Transactional
+
     @Override
     public BenefitDTO updateInactiveStatus(Long id, boolean isActive) {
         Benefit benefit = benefitRepository.findById(id)
@@ -277,31 +282,6 @@ public class BenefitServiceImpl implements BenefitService {
     }
 
     @Transactional
-    @Override
-    public BenefitResponse searchBenefitByKeyword(String keyword, Integer pageNumber, Integer  pageSize, String sortBy, String sortOrder) {
-        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
-        Pageable pageable = PageRequest.of(pageNumber  - 1 , pageSize, sortByAndOrder);
-        Page<Benefit> benefitPage = benefitRepository.findByTitleLikeIgnoreCase('%' + keyword + '%', pageable);
-
-        List<Benefit> benefits = benefitPage.getContent();
-        if (benefits.isEmpty()) {
-            throw new ResourceNotFoundException("Benefit with keyword ." + keyword + " not found. Please add Benefit with keyword .");
-        }
-        List<BenefitDTO> benefitsByKeywordDTOS = benefits.stream()
-                .map(benefit -> modelMapper.map(benefit, BenefitDTO.class)).toList();
-
-        BenefitResponse benefitResponse = new BenefitResponse();
-        benefitResponse.setContent(benefitsByKeywordDTOS);
-        benefitResponse.setPageNumber(benefitPage.getNumber());
-        benefitResponse.setPageSize(benefitPage.getSize());
-        benefitResponse.setTotalElements(benefitPage.getTotalElements());
-        benefitResponse.setTotalPages(benefitPage.getTotalPages());
-        benefitResponse.setLastPage(benefitPage.isLast());
-        return benefitResponse;
-    }
-
     @Override
     public BenefitDTO deleteBenefit(Long benefitId) {
         Benefit benefit = benefitRepository.findById(benefitId)
@@ -345,7 +325,7 @@ public class BenefitServiceImpl implements BenefitService {
 
         // Kiểm tra nếu không có kết quả nào
         if (benefits.isEmpty()) {
-            throw new HRMSAPIException("No Benefit found with id " + benefitId + ". Please check the id.");
+            throw new HRMSAPIException("Không có phúc lợi tương ứng với id " + benefitId );
         }
 
         // Chuyển đổi danh sách Benefit sang BenefitDTO
@@ -369,7 +349,10 @@ public class BenefitServiceImpl implements BenefitService {
 
     @Override
     public BenefitDTO getBenefitById(Long id) {
-        return modelMapper.map(benefitRepository.findById(id), BenefitDTO.class);
+        Benefit benefit = benefitRepository.findById(id)
+                .orElseThrow(() -> new HRMSAPIException("Phúc lợi với id " + id + " không tồn tại."));
+
+        return modelMapper.map(benefit, BenefitDTO.class);
     }
 
     @Override
@@ -411,8 +394,8 @@ public class BenefitServiceImpl implements BenefitService {
         // Kiểm tra nếu không có kết quả nào
         if (benefits.isEmpty()) {
             String message = positionId != null
-                    ? "No BenefitPosition found for benefit id " + benefitId + " and position id " + positionId + "."
-                    : "No Benefit found with id " + benefitId + ".";
+                    ? "Không có BenefitPostiotion nào được tìm thấy với benefit id " + benefitId + " và position id " + positionId + "."
+                    : "Không có phúc lợi nào với id " + benefitId + ".";
             throw new HRMSAPIException(message);
         }
 
@@ -442,6 +425,32 @@ public class BenefitServiceImpl implements BenefitService {
 
     public List<Benefit> getAllActive() {
         return benefitRepository.findByIsActiveTrue();
+    }
+
+    @Transactional
+    @Override
+    public BenefitResponse searchBenefitByKeyword(String keyword, Integer pageNumber, Integer  pageSize, String sortBy, String sortOrder) {
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNumber  - 1 , pageSize, sortByAndOrder);
+        Page<Benefit> benefitPage = benefitRepository.findByTitleLikeIgnoreCase('%' + keyword + '%', pageable);
+
+        List<Benefit> benefits = benefitPage.getContent();
+        if (benefits.isEmpty()) {
+            throw new ResourceNotFoundException("Benefit with keyword ." + keyword + " not found. Please add Benefit with keyword .");
+        }
+        List<BenefitDTO> benefitsByKeywordDTOS = benefits.stream()
+                .map(benefit -> modelMapper.map(benefit, BenefitDTO.class)).toList();
+
+        BenefitResponse benefitResponse = new BenefitResponse();
+        benefitResponse.setContent(benefitsByKeywordDTOS);
+        benefitResponse.setPageNumber(benefitPage.getNumber());
+        benefitResponse.setPageSize(benefitPage.getSize());
+        benefitResponse.setTotalElements(benefitPage.getTotalElements());
+        benefitResponse.setTotalPages(benefitPage.getTotalPages());
+        benefitResponse.setLastPage(benefitPage.isLast());
+        return benefitResponse;
     }
 
 }

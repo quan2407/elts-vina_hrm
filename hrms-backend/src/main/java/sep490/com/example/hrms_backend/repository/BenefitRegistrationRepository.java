@@ -14,6 +14,7 @@ import sep490.com.example.hrms_backend.entity.Employee;
 
 import java.util.List;
 
+
 public interface BenefitRegistrationRepository extends JpaRepository<BenefitRegistration, Long> {
 
     Page<Benefit> findByEmployeeOrderById(Employee employee, Pageable pageable);
