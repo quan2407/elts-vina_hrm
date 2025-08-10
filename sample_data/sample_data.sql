@@ -10,6 +10,8 @@ ALTER TABLE employee MODIFY COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0;
 DELETE FROM application_approval_step;
 DELETE FROM application;
 DELETE FROM account_request;
+DELETE FROM salary_benefit;
+ALTER TABLE salary_benefit AUTO_INCREMENT = 1;
 DELETE FROM salary;
 ALTER TABLE salary AUTO_INCREMENT = 1;
 DELETE FROM attendance_record;
