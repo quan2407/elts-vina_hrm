@@ -22,6 +22,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     private final DepartmentRepository departmentRepository;
     private final LineRepository lineRepository;
 
+    //Tested
     @Override
     public List<DepartmentDTO> getAllDepartments() {
         return departmentRepository.findAll()
@@ -30,6 +31,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .collect(Collectors.toList());
     }
 
+    //Tested
     @Override
     public List<PositionDTO> getPositionsByDepartment(Long departmentId) {
         Department department = departmentRepository.findById(departmentId)
@@ -40,6 +42,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .collect(Collectors.toList());
     }
 
+    //Tested
     @Override
     public List<LineDTO> getLinesByDepartment(Long departmentId) {
         List<Line> lines = lineRepository.findByDepartmentDepartmentId(departmentId);

@@ -40,6 +40,8 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
 
     private final BenefitPositionRepository benefitPositionRepository;
 
+
+    //Tested
     @Transactional
     @Override
     public BenefitResponse searchBenefitByEmployee(Long employeeId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
@@ -76,6 +78,7 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
         return benefitResponse;
     }
 
+    //Tested
     @Override
     public BenefitRegistrationDTO registerBenefitForEmployee(Long benefitId, Long employeeId, String note) {
 //        //Tim kiem thong tin nhan vien (exception: 0 co nhan vien)
@@ -117,6 +120,7 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
         return null;
     }
 
+    //Tested
     @Override
     public void quickRegister(BenefitManualRegistrationRequest request) {
         List<String> keywords = request.getKeywords();
@@ -196,7 +200,7 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
         }
 }
 
-
+    //Tested
     @Override
     public List<EmployeeBasicDetailResponse> searchUnregisteredEmployees(Long benefitId, Long positionId, String keyword) {
         // 1. Tìm BenefitPosition theo benefitId và positionId
@@ -231,6 +235,7 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
 
     }
 
+    //Tested
     @Transactional
     @Override
     public void unRegister(Long benefitId, Long positionId, Long employeeId) {
@@ -244,6 +249,7 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
 
     }
 
+    //Tested
     @Transactional
     @Override
     public void quickRegisterAll(BenefitMultiPositionRequestDTO request) {

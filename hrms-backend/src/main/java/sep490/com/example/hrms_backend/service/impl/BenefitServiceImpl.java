@@ -44,6 +44,7 @@ public class BenefitServiceImpl implements BenefitService {
 
     private final EmployeeRepository employeeRepository;
 
+    //Tested
     @Transactional
     @Override
     public BenefitResponse getAllBenefitsForHr(String username, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder,
@@ -161,6 +162,7 @@ public class BenefitServiceImpl implements BenefitService {
         return benefitResponse;
     }
 
+    //Tested
     @Transactional
     @Override
     public BenefitDTO addBenefit(BenefitDTO benefitDTO) {
@@ -201,6 +203,7 @@ public class BenefitServiceImpl implements BenefitService {
         return updatedBenefitDTO;
     }
 
+    //Tested
     @Transactional
     @Override
     public BenefitDTO updateBenefit(PatchBenefitDTO benefitDTO, Long benefitId) {
@@ -270,6 +273,7 @@ public class BenefitServiceImpl implements BenefitService {
 
 
 
+    //Tested
     @Override
     public BenefitDTO updateInactiveStatus(Long id, boolean isActive) {
         Benefit benefit = benefitRepository.findById(id)
@@ -281,6 +285,7 @@ public class BenefitServiceImpl implements BenefitService {
         return modelMapper.map(updated, BenefitDTO.class);
     }
 
+    //Tested
     @Transactional
     @Override
     public BenefitDTO deleteBenefit(Long benefitId) {
@@ -291,6 +296,7 @@ public class BenefitServiceImpl implements BenefitService {
         return modelMapper.map(benefit, BenefitDTO.class);
     }
 
+    //Tested
     @Override
     public BenefitResponse getEmployeeAndPositionRegistrationByBenefitId(Long benefitId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
 
@@ -347,6 +353,7 @@ public class BenefitServiceImpl implements BenefitService {
 
     }
 
+    //Tested
     @Override
     public BenefitDTO getBenefitById(Long id) {
         Benefit benefit = benefitRepository.findById(id)
@@ -355,6 +362,7 @@ public class BenefitServiceImpl implements BenefitService {
         return modelMapper.map(benefit, BenefitDTO.class);
     }
 
+    //Tested
     @Override
     public BenefitResponse getEmployeeByPositionAndBenefit(Long benefitId, Long positionId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
         // 1. Tạo đối tượng sắp xếp (theo field và hướng sắp xếp: asc/desc)
@@ -423,10 +431,12 @@ public class BenefitServiceImpl implements BenefitService {
         return benefitResponse;
     }
 
+    //Tested
     public List<Benefit> getAllActive() {
         return benefitRepository.findByIsActiveTrue();
     }
 
+    //Tested
     @Transactional
     @Override
     public BenefitResponse searchBenefitByKeyword(String keyword, Integer pageNumber, Integer  pageSize, String sortBy, String sortOrder) {
