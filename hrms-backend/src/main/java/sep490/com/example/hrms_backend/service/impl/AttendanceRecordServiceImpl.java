@@ -310,26 +310,37 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     //Tested
     @Override
     public void updateDailyAttendanceForDate(LocalDate date) {
-        int month = date.getMonthValue();
-        int year = date.getYear();
+        // Nếu truyền vào là hôm nay, thì mình backfill từ mùng 1 -> hôm qua
+        LocalDate firstDay = date.withDayOfMonth(1);
+        LocalDate endDay = date.minusDays(1);
 
-        List<WorkSchedule> acceptedSchedules = workScheduleRepository
-                .findByMonthAndYearAndIsAcceptedTrue(month, year);
+        for (LocalDate d = firstDay; !d.isAfter(endDay); d = d.plusDays(1)) {
+            final LocalDate currentDate = d; // biến final để dùng trong lambda
 
-        for (WorkSchedule schedule : acceptedSchedules) {
-            List<WorkScheduleDetail> details = workScheduleDetailRepository
-                    .findByWorkSchedule_Id(schedule.getId());
+            int month = currentDate.getMonthValue();
+            int year = currentDate.getYear();
 
-            schedule.setWorkScheduleDetails(details); // gán thủ công vào entity
+            List<WorkSchedule> acceptedSchedules = workScheduleRepository
+                    .findByMonthAndYearAndIsAcceptedTrue(month, year);
 
-            boolean hasDetailForDate = details != null &&
-                    details.stream().anyMatch(d -> d.getDateWork().isEqual(date));
+            for (WorkSchedule schedule : acceptedSchedules) {
+                List<WorkScheduleDetail> details = workScheduleDetailRepository
+                        .findByWorkSchedule_Id(schedule.getId());
 
-            if (hasDetailForDate) {
-                workScheduleService.generateAttendanceRecords(schedule);
+                schedule.setWorkScheduleDetails(details);
+
+                boolean hasDetailForDate = details != null &&
+                        details.stream().anyMatch(dt -> dt.getDateWork().isEqual(currentDate));
+
+                if (hasDetailForDate) {
+                    workScheduleService.generateAttendanceRecords(schedule);
+                } else {
+                    System.out.println("Can not find detail for " + currentDate);
+                }
             }
         }
     }
+
 
     private void calculateShift(AttendanceRecord record) {
         Optional<WorkScheduleDetail> optionalDetail = record.getWorkSchedule().getWorkScheduleDetails().stream()
