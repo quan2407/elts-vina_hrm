@@ -4,7 +4,7 @@ import benefitService from "../services/benefitService.js";
 import Paging from "./common/Paging.jsx";
 import BenefitForPositionActionDropDown from "./common/BenefitForPositionActionDropDown.jsx";
 import BenefitPositionUpdateModal from "./modals/benefit/BenefitPositionUpdateModal.jsx";
-import { Modal, message, Checkbox, Button } from "antd";
+import { Modal, message, Checkbox, Button, Input } from "antd";
 import { useNavigate } from "react-router-dom";
 
 const BenefitByPositionHeader = ({ isMultiSelectMode }) => {
@@ -21,30 +21,11 @@ const BenefitByPositionHeader = ({ isMultiSelectMode }) => {
     );
 };
 
-const BenefitByPositionTableRow = ({ benefit, onUpdateSuccess, isMultiSelectMode, isSelected, onSelectChange, onRowReady }) => {
+const BenefitByPositionTableRow = ({ benefit, onUpdateSuccess, isMultiSelectMode, isSelected, onSelectChange, isFull }) => {
     const formatDate = (date) => new Date(date).toLocaleDateString("en-GB");
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isFull, setIsFull] = useState(false);
     const navigate = useNavigate();
     const rowKey = benefit.id + "-" + benefit.positions.positionId;
-
-    useEffect(() => {
-        if (isMultiSelectMode) {
-            benefitService
-                .searchUnregisteredEmployees({
-                    benefitId: benefit.id,
-                    positionId: benefit.positions.positionId,
-                })
-                .then((res) => {
-                    const full = res.data.length === 0;
-                    setIsFull(full);
-                    onRowReady(rowKey, full);
-                })
-                .catch((err) => {
-                    console.error("Lỗi khi kiểm tra unregistered employees:", err);
-                });
-        }
-    }, [isMultiSelectMode, benefit.id, benefit.positions.positionId, onRowReady, rowKey]);
 
     const handleEdit = () => {
         setIsModalOpen(true);
@@ -133,19 +114,21 @@ const BenefitByPositionTableRow = ({ benefit, onUpdateSuccess, isMultiSelectMode
     );
 };
 
-function BenefitForPositionTable({ benefitId, reloadFlag, isMultiSelectMode }) {
-    const [benefits, setBenefit] = useState([]);
+function BenefitForPositionTable({ benefitId, reloadFlag, isMultiSelectMode, onReload }) {
+    const [benefits, setBenefits] = useState([]); // Dữ liệu gốc từ API
+    const [filteredBenefits, setFilteredBenefits] = useState([]); // Dữ liệu sau khi lọc (flatMap thành danh sách positions)
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [pageNumber, setPageNumber] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [totalElements, setTotalElements] = useState(0);
-    const [filters, setFilters] = useState({});
+    const [searchTerm, setSearchTerm] = useState(""); // Từ khóa tìm kiếm
     const [selectedRows, setSelectedRows] = useState([]); // Trạng thái cho các hàng được chọn
     const [selectableKeys, setSelectableKeys] = useState([]);
+    const [positionFullMap, setPositionFullMap] = useState({});
 
     const reloadData = () => {
-        setFilters((prev) => ({ ...prev }));
+        fetchData();
     };
 
     const handleSelectChange = (rowKey, checked) => {
@@ -164,16 +147,6 @@ function BenefitForPositionTable({ benefitId, reloadFlag, isMultiSelectMode }) {
         setSelectedRows([]);
     };
 
-    const handleRowReady = (rowKey, isFull) => {
-        if (!isFull) {
-            setSelectableKeys((prev) => {
-                const newKeys = new Set(prev);
-                newKeys.add(rowKey);
-                return [...newKeys];
-            });
-        }
-    };
-
     const handleConfirmRegister = () => {
         Modal.confirm({
             title: "Xác nhận đăng ký",
@@ -189,7 +162,7 @@ function BenefitForPositionTable({ benefitId, reloadFlag, isMultiSelectMode }) {
                     });
                     message.success("Đã đăng ký thành công!");
                     setSelectedRows([]);
-                    reloadData();
+                    onReload();
                 } catch (err) {
                     console.error("Lỗi khi xử lý đăng ký:", err);
                     message.error("Đăng ký thất bại!");
@@ -199,37 +172,105 @@ function BenefitForPositionTable({ benefitId, reloadFlag, isMultiSelectMode }) {
     };
 
     useEffect(() => {
+        if (isMultiSelectMode) {
+            const allPositions = benefits.flatMap(b => b.positions.map(p => p.positionId));
+            if (allPositions.length === 0) return;
+
+            Promise.all(
+                allPositions.map(pid =>
+                    benefitService.searchUnregisteredEmployees({
+                        benefitId: parseInt(benefitId),
+                        positionId: pid,
+                    }).then(res => ({ pid, isFull: res.data.length === 0 }))
+                )
+            )
+                .then(results => {
+                    const map = results.reduce((acc, { pid, isFull }) => {
+                        acc[pid] = isFull;
+                        return acc;
+                    }, {});
+                    setPositionFullMap(map);
+                    const selectable = allPositions
+                        .filter(pid => !map[pid])
+                        .map(pid => `${benefitId}-${pid}`);
+                    setSelectableKeys(selectable);
+                })
+                .catch(err => {
+                    console.error("Lỗi khi kiểm tra unregistered employees:", err);
+                });
+        } else {
+            setPositionFullMap({});
+            setSelectedRows([]);
+            setSelectableKeys([]);
+        }
+    }, [isMultiSelectMode, benefitId, benefits]);
+
+    const fetchData = () => {
         if (!benefitId) {
             console.warn("❗ benefitId chưa có, không gọi API");
             return;
         }
 
-        const params = {
-            page: pageNumber,
-            size: pageSize,
-            ...filters,
-        };
-
         setError(null);
         setLoading(true);
-        console.log("🧪 Đang gọi API:", `http://localhost:8080/api/hr/benefits/${benefitId}`, params);
+        console.log("🧪 Đang gọi API:", `http://localhost:8080/api/hr/benefits/${benefitId}`);
 
+        // Gọi API mà không có phân trang để lấy tất cả dữ liệu
         benefitService
-            .getPositionRegisterationDetail(params, benefitId)
+            .getPositionRegisterationDetail({}, benefitId) // Giả sử API hỗ trợ lấy tất cả nếu không có params page/size
             .then((res) => {
-                setSelectableKeys([]); // Reset selectable keys before setting new data
-                setBenefit(res.data.content);
-                setTotalElements(res.data.totalElements);
+                setBenefits(res.data.content || res.data); // Điều chỉnh nếu API trả về khác
+                setTotalElements(res.data.totalElements || res.data.length);
             })
             .catch((err) => {
                 console.error("Lỗi khi lấy dữ liệu phúc lợi:", err);
                 setError("Không thể lấy dữ liệu phúc lợi tương ứng");
             })
             .finally(() => setLoading(false));
-    }, [benefitId, pageNumber, pageSize, filters, reloadFlag]);
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, [benefitId, reloadFlag]);
+
+    // Xử lý tìm kiếm và phân trang ở client-side
+    useEffect(() => {
+        // FlatMap dữ liệu thành danh sách positions để dễ lọc
+        const allPositions = benefits.flatMap((benefit) =>
+            benefit.positions.map((position) => ({
+                id: benefit.id,
+                positionId: position.positionId,
+                positions: position,
+                benefit: benefit,
+            }))
+        );
+
+        // Lọc theo searchTerm (tên vị trí)
+        const filtered = allPositions.filter((item) =>
+            item.positions.positionName.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+        setFilteredBenefits(filtered);
+        setTotalElements(filtered.length); // Cập nhật total sau lọc
+        setPageNumber(1); // Reset về trang 1 khi lọc thay đổi
+    }, [searchTerm, benefits]);
+
+    // Dữ liệu hiển thị cho trang hiện tại
+    const currentPageData = filteredBenefits.slice(
+        (pageNumber - 1) * pageSize,
+        pageNumber * pageSize
+    );
 
     return (
         <div className="employee-table-wrapper">
+            <div style={{ marginBottom: 16 }}>
+                <Input
+                    placeholder="Tìm kiếm theo tên vị trí"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{ width: 300 }}
+                />
+            </div>
             <BenefitByPositionHeader isMultiSelectMode={isMultiSelectMode} />
             {isMultiSelectMode && (
                 <div style={{ marginBottom: 16 }}>
@@ -259,26 +300,18 @@ function BenefitForPositionTable({ benefitId, reloadFlag, isMultiSelectMode }) {
             <div className="employee-table">
                 {loading && <p>Đang tải...</p>}
                 {error && <p style={{ color: "red" }}>{error}</p>}
-                {!loading && benefits.length === 0 && <p>Không tìm thấy phúc lợi.</p>}
-                {!error && !loading && Array.isArray(benefits) &&
-                    benefits.flatMap((benefit) =>
-                        benefit.positions.map((position, index) => (
-                            <BenefitByPositionTableRow
-                                key={`${benefit.id}-${index}`}
-                                benefit={{
-                                    id: benefit.id,
-                                    positionId: position.positionId,
-                                    positions: position,
-                                    benefit: benefit,
-                                }}
-                                onUpdateSuccess={reloadData}
-                                isMultiSelectMode={isMultiSelectMode}
-                                isSelected={selectedRows.includes(`${benefit.id}-${position.positionId}`)}
-                                onSelectChange={handleSelectChange}
-                                onRowReady={handleRowReady}
-                            />
-                        ))
-                    )}
+                {!loading && filteredBenefits.length === 0 && <p>Không tìm thấy phúc lợi.</p>}
+                {!error && !loading && currentPageData.map((benefitItem, index) => (
+                    <BenefitByPositionTableRow
+                        key={`${benefitItem.id}-${index}`}
+                        benefit={benefitItem}
+                        onUpdateSuccess={reloadData}
+                        isMultiSelectMode={isMultiSelectMode}
+                        isSelected={selectedRows.includes(`${benefitItem.id}-${benefitItem.positions.positionId}`)}
+                        onSelectChange={handleSelectChange}
+                        isFull={positionFullMap[benefitItem.positions.positionId] || false}
+                    />
+                ))}
             </div>
             {!loading && totalElements > 0 && (
                 <Paging
