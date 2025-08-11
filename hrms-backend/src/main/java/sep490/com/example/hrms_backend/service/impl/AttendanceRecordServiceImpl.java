@@ -40,6 +40,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     private final WorkScheduleServiceImpl workScheduleService;
     private final WorkScheduleDetailRepository workScheduleDetailRepository;
 
+    //Tested
     @Override
     public List<AttendanceMonthlyViewDTO> getEmpMonthlyAttendanceById(Long employeeId, int month, int year) {
 
@@ -111,6 +112,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         return List.of(result);
     }
 
+    //Tested
     @Override
     public Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year, int page, int size, String search) {
         Pageable pageable = PageRequest.of(page, size);
@@ -213,7 +215,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     }
 
 
-
     private float parseHour(String value) {
         if (value == null || value.isBlank()) return 0f;
 
@@ -233,6 +234,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         }
     }
 
+    //Tested
     @Override
     public List<MonthYearDTO> getAvailableMonths() {
         List<Object[]> rawList = attendanceRecordRepository.findDistinctMonthYear();
@@ -241,6 +243,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                 .collect(Collectors.toList());
     }
 
+    //Tested
     @Override
     public void updateCheckInOut(Long id, AttendanceCheckInOutDTO dto) {
         AttendanceRecord record = attendanceRecordRepository.findById(id)
@@ -277,7 +280,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         attendanceRecordRepository.save(record);
     }
 
-
+    //Tested
     public void updateLeaveCode(Long id, LeaveCodeUpdateDTO dto) {
         AttendanceRecord record = attendanceRecordRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Attendance record not found"));
@@ -304,6 +307,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
         attendanceRecordRepository.save(record);
     }
+    //Tested
     @Override
     public void updateDailyAttendanceForDate(LocalDate date) {
         // Nếu truyền vào là hôm nay, thì mình backfill từ mùng 1 -> hôm qua

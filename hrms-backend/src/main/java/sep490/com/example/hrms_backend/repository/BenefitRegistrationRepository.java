@@ -14,6 +14,7 @@ import sep490.com.example.hrms_backend.entity.Employee;
 
 import java.util.List;
 
+
 public interface BenefitRegistrationRepository extends JpaRepository<BenefitRegistration, Long> {
 
     Page<Benefit> findByEmployeeOrderById(Employee employee, Pageable pageable);
@@ -45,5 +46,9 @@ public interface BenefitRegistrationRepository extends JpaRepository<BenefitRegi
     @Modifying
     @Query("DELETE FROM BenefitRegistration br WHERE br.benefitPosition.id = :benefitPositionId AND br.employee.employeeId = :employeeId")
     void deleteByBenefitPositionIdAndEmployeeId(Long benefitPositionId, Long employeeId);
+
+    Object countByBenefit(Benefit benefit);
+
+    Object existsByBenefitAndEmployee(Benefit benefit, Employee employee);
 }
 

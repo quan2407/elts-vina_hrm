@@ -67,6 +67,8 @@ public class BenefitPositionServiceImpl implements BenefitPositionService {
         benefitPositionRepository.deleteByBenefitAndPosition(benefit, position);
     }
 
+    @Transactional
+    @Override
     public void updateFormula(BenefitPositionUpdateDTO request) {
 
         // Tìm Benefit từ benefitId

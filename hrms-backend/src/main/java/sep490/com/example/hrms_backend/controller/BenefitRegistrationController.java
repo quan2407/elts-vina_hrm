@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.benefit.BenefitManualRegistrationRequest;
+import sep490.com.example.hrms_backend.dto.benefit.BenefitMultiPositionRequestDTO;
 import sep490.com.example.hrms_backend.dto.benefit.EmployeeBasicDetailResponse;
 import sep490.com.example.hrms_backend.service.BenefitRegistrationService;
 import sep490.com.example.hrms_backend.service.BenefitService;
@@ -71,6 +72,17 @@ public class BenefitRegistrationController {
                 .searchUnregisteredEmployees(benefitId, positionId, keyword);
 
         return ResponseEntity.ok(result);
+    }
+
+    @PreAuthorize("hasAnyRole( 'HR')")
+    @PostMapping("/hr/benefits/quick-register-all")
+    public ResponseEntity<?> quickRegisterAll(@RequestBody BenefitMultiPositionRequestDTO request) {
+        try {
+            benefitRegistrationService.quickRegisterAll(request);
+            return ResponseEntity.ok("Đăng ký thành công");
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        }
     }
 
 }
