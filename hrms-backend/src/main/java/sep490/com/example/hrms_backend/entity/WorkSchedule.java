@@ -45,4 +45,24 @@ public class WorkSchedule {
     private String rejectReason;
     @Column(name = "need_revision", nullable = false)
     private boolean needRevision = false;
+
+    @Column(name = "monthly_ot_cap_minutes", nullable = false)
+    @Builder.Default
+    private int monthlyOtCapMinutes = 40 * 60; // 40 giờ
+
+    @Column(name = "monthly_ot_used_minutes", nullable = false)
+    @Builder.Default
+    private int monthlyOtUsedMinutes = 0;
+
+
+    @Transient
+    public int getMonthlyOtRemainingMinutes() {
+        return Math.max(0, monthlyOtCapMinutes - monthlyOtUsedMinutes);
+    }
+
+    @Transient
+    public double getMonthlyOtRemainingHours() {
+        return getMonthlyOtRemainingMinutes() / 60.0;
+    }
+
 }
