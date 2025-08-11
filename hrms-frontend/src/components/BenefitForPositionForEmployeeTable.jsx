@@ -23,7 +23,14 @@ const BenefitForPositionForEmployeeTableHeader = ({ sortConfig, onSort }) => {
     };
 
     return (
-        <div className="employee-table-header">
+        <div
+            className="employee-table-header"
+            style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 2fr 2fr 2fr 2fr 2fr 2fr",
+                alignItems: "center",
+            }}
+        >
             {headers.map(({ label, key }) => (
                 <div
                     className="employee-header-cell"
@@ -33,7 +40,9 @@ const BenefitForPositionForEmployeeTableHeader = ({ sortConfig, onSort }) => {
                         cursor: key ? "pointer" : "default",
                         display: "flex",
                         alignItems: "center",
-                        gap: "4px"
+                        justifyContent: "center",
+                        gap: "4px",
+                        padding: "8px",
                     }}
                 >
                     <span>{label}</span>
@@ -68,48 +77,57 @@ const BenefitForPositionForEmployeeTableRow = ({ benefit, registration, onUpdate
     };
 
     return (
-        <div className="employee-table-row">
-            <div className="employee-table-cell">{registration.employee?.employeeId}</div>
-            <div className="employee-table-cell">{registration.employee?.employeeName}</div>
-            <div className="employee-table-cell">{registration.employee?.email}</div>
-            <div className="employee-table-cell">
-                {Number(registration.employee.basicSalary).toLocaleString('vi-VN')}đ
-            </div>
-            <div className="employee-table-cell">{formatDate(registration.registeredAt)}</div>
-            <div className="employee-table-cell">{position.positionName}</div>
-            <div className="employee-table-cell">
-                <BenefitForPositionForEmployeeActionDropdown
-                    onEdit={handleEdit}
-                    onView={() => {
-                        if (benefit.detail) {
-                            Modal.info({ title: 'Chi tiết phúc lợi', content: benefit.detail });
-                        } else {
-                            Modal.confirm({
-                                title: 'Chưa có chi tiết',
-                                content: 'Bạn chưa nhập chi tiết cho phúc lợi này. Bạn có muốn thêm không?',
-                                okText: 'Thêm ngay',
-                                cancelText: 'Đóng',
-                                onOk: () => setIsModalOpen(true),
-                            });
-                        }
-                    }}
-                    onDelete={() => Modal.confirm({
-                        title: "Bạn có chắc chắn muốn xóa?",
-                        onOk: async () => {
-                            try {
-                                await benefitService.unRegister(
-                                    benefit.id,
-                                    position.positionId,
-                                    registration.employee.employeeId
-                                );
-                                message.success("Đã xóa thành công!");
-                                onUpdateSuccess();
-                            } catch {
-                                message.error("Xóa thất bại");
+        <>
+            <div
+                className="employee-table-row"
+                style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 2fr 2fr 2fr 2fr 2fr 2fr",
+                    alignItems: "center",
+                }}
+            >
+                <div className="employee-table-cell" style={{ padding: "8px", textAlign: "center" }}>{registration.employee?.employeeId}</div>
+                <div className="employee-table-cell" style={{ padding: "8px" }}>{registration.employee?.employeeName}</div>
+                <div className="employee-table-cell" style={{ padding: "8px" }}>{registration.employee?.email}</div>
+                <div className="employee-table-cell" style={{ padding: "8px", textAlign: "right" }}>
+                    {Number(registration.employee.basicSalary).toLocaleString('vi-VN')}đ
+                </div>
+                <div className="employee-table-cell" style={{ padding: "8px", textAlign: "center" }}>{formatDate(registration.registeredAt)}</div>
+                <div className="employee-table-cell" style={{ padding: "8px" }}>{position.positionName}</div>
+                <div className="employee-table-cell" style={{ padding: "8px", textAlign: "center" }}>
+                    <BenefitForPositionForEmployeeActionDropdown
+                        onEdit={handleEdit}
+                        onView={() => {
+                            if (benefit.detail) {
+                                Modal.info({ title: 'Chi tiết phúc lợi', content: benefit.detail });
+                            } else {
+                                Modal.confirm({
+                                    title: 'Chưa có chi tiết',
+                                    content: 'Bạn chưa nhập chi tiết cho phúc lợi này. Bạn có muốn thêm không?',
+                                    okText: 'Thêm ngay',
+                                    cancelText: 'Đóng',
+                                    onOk: () => setIsModalOpen(true),
+                                });
                             }
-                        }
-                    })}
-                />
+                        }}
+                        onDelete={() => Modal.confirm({
+                            title: "Bạn có chắc chắn muốn xóa?",
+                            onOk: async () => {
+                                try {
+                                    await benefitService.unRegister(
+                                        benefit.id,
+                                        position.positionId,
+                                        registration.employee.employeeId
+                                    );
+                                    message.success("Đã xóa thành công!");
+                                    onUpdateSuccess();
+                                } catch {
+                                    message.error("Xóa thất bại");
+                                }
+                            }
+                        })}
+                    />
+                </div>
             </div>
             <BenefitUpdateModal
                 open={isModalOpen}
@@ -117,7 +135,7 @@ const BenefitForPositionForEmployeeTableRow = ({ benefit, registration, onUpdate
                 onSubmit={handleUpdate}
                 initialData={benefit}
             />
-        </div>
+        </>
     );
 };
 
