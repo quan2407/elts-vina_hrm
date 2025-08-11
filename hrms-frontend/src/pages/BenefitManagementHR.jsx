@@ -42,9 +42,12 @@ function BenefitManagementHR() {
         <div className="page-header">
           <h1 className="page-title">Quản lý phúc lợi</h1>
           <div className="page-actions">
-              <BenefitCreateModal
-                  onCreated={() => setReloadKey(prev => prev + 1)}
-              />
+              <div className="page-actions" style={{ marginTop: '30px' }}>
+                  <BenefitCreateModal
+                      onCreated={() => setReloadKey(prev => prev + 1)}
+                  />
+              </div>
+
           </div>
           </div>
           <Breadcrumb paths={breadcrumbPaths} />

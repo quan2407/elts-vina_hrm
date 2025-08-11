@@ -89,12 +89,20 @@ const BenefitCreateModal = ({onCreated}) => {
                 icon={<PlusOutlined />}
                 onClick={() => setOpen(true)}
                 style={{
-                    backgroundColor: '#388e3c',
+                    borderRadius: 14,
+                    padding: '23px 20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 16,
+                    cursor: 'pointer',
+                    boxShadow: '11px 4px 14px 0px rgba(0, 0, 0, 0.12)',
+                    backgroundColor: '#3f861e',
                     border: 'none',
-                    borderRadius: 20,
                     fontWeight: 600,
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                    fontSize: '18px',
+                    color: '#fff'
                 }}
+
             >
                 Tạo phúc lợi
             </Button>
