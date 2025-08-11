@@ -10,8 +10,6 @@ ALTER TABLE employee MODIFY COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0;
 DELETE FROM application_approval_step;
 DELETE FROM application;
 DELETE FROM account_request;
-DELETE FROM salary_benefit;
-ALTER TABLE salary_benefit AUTO_INCREMENT = 1;
 DELETE FROM salary;
 ALTER TABLE salary AUTO_INCREMENT = 1;
 DELETE FROM attendance_record;
@@ -628,20 +626,6 @@ INSERT INTO employee (
  8, 19,
  8000000, 120000, 250000, 550000, 50000);
 
-INSERT INTO employee (
-    employee_id, employee_code, employee_name, gender, dob,
-    place_of_birth, origin_place, nationality, citizen_id,
-    citizen_issue_date, citizen_expiry_date, citizen_issue_place,
-    address, image, start_work_at, end_work_at, phone_number, email,
-    department_id, position_id,
-    basic_salary, allowance_phone, allowance_meal, allowance_attendance, allowance_transport
-) VALUES
-(51, 'ELTSXC0010', 'Ngô Văn C', 'NAM', '1980-12-12',
- NULL, NULL, 'Vietnam', '01283273421',
- '2005-01-01', '2025-01-01', 'Hà Nội',
- NULL, NULL, '2010-01-01', '2025-12-31', '09237223642', 'user51@example.com',
- 6, 15,
- 8000000, 120000, 250000, 550000, 50000);
 
 
 INSERT INTO account (account_id, username, password_hash, email, is_active, created_at, updated_at, last_login_at, login_attempts, must_change_password, employee_id, role_id) VALUES
@@ -708,13 +692,7 @@ INSERT INTO account (
 (50, 'hrmanager', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy',
  'truongphonghr@example.com', true, NOW(), NOW(),
  NULL, 5, false, 50, 8);
-INSERT INTO account (
-    account_id, username, password_hash, email, is_active, created_at, updated_at,
-    last_login_at, login_attempts, must_change_password, employee_id, role_id
-) VALUES
-(51, 'user51', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy',
- 'user51@example.com', true, NOW(), NOW(),
- NULL, 5, false, 51, 6);
+
 
 
 

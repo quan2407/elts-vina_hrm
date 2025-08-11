@@ -21,8 +21,6 @@ function CustomRangeModal({
   const [endDate, setEndDate] = useState("");
   const [workType, setWorkType] = useState("normal");
   const [endTime, setEndTime] = useState("17:00");
-  const [serverError, setServerError] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
 
   // Trả về Date object thay vì string
   const rawToday = new Date();
@@ -58,7 +56,7 @@ function CustomRangeModal({
 
   const [errors, setErrors] = useState({});
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const newErrors = {};
 
     if (!departmentId) {
@@ -95,34 +93,21 @@ function CustomRangeModal({
       return;
     }
 
-    // Không có lỗi -> gọi API
+    // Nếu không có lỗi thì gọi submit
     let finalEndTime = endTime;
     if (workType === "normal") finalEndTime = "17:00";
     else if (workType === "overtime") finalEndTime = "20:00";
 
-    setErrors({});
-    setServerError(null);
-    setSubmitting(true);
+    setErrors({}); // Clear lỗi cũ
 
-    try {
-      await onSubmit({
-        departmentId: parseInt(departmentId),
-        lineId: lineId ? parseInt(lineId) : null,
-        startDate,
-        endDate,
-        startTime: "08:00",
-        endTime: finalEndTime,
-      });
-    } catch (err) {
-      const msg =
-        err?.response?.data?.message ||
-        err?.response?.data ||
-        err?.message ||
-        "Có lỗi xảy ra. Vui lòng thử lại.";
-      setServerError(msg);
-    } finally {
-      setSubmitting(false);
-    }
+    onSubmit({
+      departmentId: parseInt(departmentId),
+      lineId: lineId ? parseInt(lineId) : null,
+      startDate,
+      endDate,
+      startTime: "08:00",
+      endTime: finalEndTime,
+    });
   };
 
   return (
@@ -131,8 +116,6 @@ function CustomRangeModal({
       style={{ display: isOpen ? "flex" : "none" }}
     >
       <div className="work-schedule-modal-container">
-        {serverError && <div className="error-banner">{serverError}</div>}
-
         <h2 className="work-schedule-modal-title">Dải lịch theo khoảng</h2>
 
         <div className="work-schedule-modal-field">
@@ -261,11 +244,9 @@ function CustomRangeModal({
           <button
             className="work-schedule-modal-save-btn"
             onClick={handleSubmit}
-            disabled={submitting}
           >
-            {submitting ? "Đang xử lý..." : "Dải lịch"}
+            Dải lịch
           </button>
-
           <button
             className="work-schedule-modal-cancel-btn"
             onClick={onClose}

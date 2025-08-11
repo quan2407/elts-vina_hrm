@@ -5,14 +5,11 @@ import "../styles/MainLayout.css";
 
 const MainLayout = ({ children }) => {
   return (
-    <div className="layout-container bg-light">
+    <div className="layout-container">
       <Sidebar />
-
       <div className="main-content">
         <Header />
-        <div className="content-wrapper container-fluid">
-          {children}
-        </div>
+        <div className="content-wrapper">{children}</div>
       </div>
     </div>
   );
