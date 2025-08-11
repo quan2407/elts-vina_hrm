@@ -16,5 +16,9 @@ public class LineWorkScheduleViewDTO {
     private boolean isSubmitted;
     private boolean isAccepted;
     private String rejectReason;
-
+    // ==== NEW: thông tin OT tháng (đơn vị phút/giờ) ====
+    private Integer monthlyOtCapMinutes;        // mặc định 2400 (40h)
+    private Integer monthlyOtUsedMinutes;       // đã dùng trong tháng
+    private Integer monthlyOtRemainingMinutes;  // còn lại trong tháng
+    private Double  monthlyOtRemainingHours;    // còn lại theo giờ (hiển thị)
 }

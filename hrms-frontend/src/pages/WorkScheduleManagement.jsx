@@ -125,12 +125,11 @@ function WorkScheduleManagement() {
           month={month}
           year={year}
           onDepartmentChange={handleDepartmentChange}
-          onSubmit={(payload) => {
-            workScheduleService.createCustomWorkSchedule(payload).then(() => {
-              alert("Dải lịch thành công!");
-              setShowRangeModal(false);
-              setReloadTrigger((prev) => prev + 1);
-            });
+          onSubmit={async (payload) => {
+            await workScheduleService.createCustomWorkSchedule(payload);
+            alert("Dải lịch thành công!");
+            setShowRangeModal(false);
+            setReloadTrigger((prev) => prev + 1);
           }}
         />
 
