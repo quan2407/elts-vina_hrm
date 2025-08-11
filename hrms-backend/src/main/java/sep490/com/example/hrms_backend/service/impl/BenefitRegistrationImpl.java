@@ -253,34 +253,35 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
     @Transactional
     @Override
     public void quickRegisterAll(BenefitMultiPositionRequestDTO request) {
-        Long benefitId = request.getBenefitId()  ;
+        Long benefitId = request.getBenefitId();
         List<Long> positionIds = request.getPositionIds();
-        List<String> failed = new ArrayList<>();
 
         // 1. Lấy danh sách BenefitPosition tương ứng
         List<BenefitPosition> benefitPositions = benefitPositionRepository
                 .findAllByBenefit_IdAndPosition_PositionIdIn(benefitId, positionIds);
         System.out.println(benefitPositions);
 
-
         if (benefitPositions.isEmpty()) {
             throw new RuntimeException("Không tìm thấy BenefitPosition phù hợp với benefitId và positionIds.");
         }
 
+        boolean hasEmployees = false;
 
         // 2. Duyệt qua từng BenefitPosition
         for (BenefitPosition bp : benefitPositions) {
             Long positionId = bp.getPosition().getPositionId();
 
-
             // 3. Tìm nhân viên thuộc phòng ban có chứa position này
             List<Employee> employees = employeeRepository
                     .findAllByDepartment_Positions_PositionId(positionId);
 
+            if (!employees.isEmpty()) {
+                hasEmployees = true;
+            }
+
             for (Employee employee : employees) {
                 if (benefitRegistrationRepository.existsByBenefitPositionAndEmployee(bp, employee)) {
-                    failed.add(employee.getEmployeeName() + " (đã đăng ký)");
-                    continue;
+                    continue; // Skip nếu đã đăng ký
                 }
 
                 BenefitRegistration registration = new BenefitRegistration();
@@ -293,8 +294,8 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
             }
         }
 
-        if (!failed.isEmpty()) {
-            throw new RuntimeException("Một số nhân viên không thể đăng ký: " + String.join(", ", failed));
+        if (!hasEmployees) {
+            throw new RuntimeException("Không tìm thấy nhân viên nào cho các position.");
         }
     }
 }

@@ -66,6 +66,7 @@ function BenefitForPosition() {
                     benefitId={benefitId}
                     reloadFlag={reloadFlag}
                     isMultiSelectMode={isMultiSelectMode}
+                    onReload={handleReload}
                 />
             </div>
         </MainLayout>
