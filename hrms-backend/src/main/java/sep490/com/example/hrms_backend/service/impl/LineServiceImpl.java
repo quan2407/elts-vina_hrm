@@ -24,6 +24,7 @@ public class LineServiceImpl implements LineService {
     private final RoleRepository roleRepository;
     private final PositionRepository positionRepository;
 
+    //tested
     @Override
     public DepartmentDTO getDepartmentByLineId(Long lineId) {
         Line line = lineRepository.findById(lineId)
@@ -34,7 +35,7 @@ public class LineServiceImpl implements LineService {
                 line.getDepartment().getDepartmentName()
         );
     }
-
+    //tested
     @Override
     public List<LinePMCDto> getAllLine(String search) {
         List<Line> lineServiceList;
@@ -46,7 +47,7 @@ public class LineServiceImpl implements LineService {
         return lineServiceList.stream().map(LinePMCMapper::mapToLinePMCDto)
                 .toList();
     }
-
+    //tested
     @Override
     public LineDTO getLineByLineId(Long lineId) {
         Line line = lineRepository.findById(lineId)
@@ -57,7 +58,7 @@ public class LineServiceImpl implements LineService {
             return new LineDTO(line.getLineId(), line.getLineName(), line.getLeader().getEmployeeId());
         }
     }
-
+    //tested
     @Transactional
     @Override
     public void assignLeaderToLine(Long lineId, Long leaderId) {

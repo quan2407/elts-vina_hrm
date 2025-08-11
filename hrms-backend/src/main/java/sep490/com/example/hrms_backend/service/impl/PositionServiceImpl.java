@@ -27,6 +27,7 @@ public class PositionServiceImpl implements PositionService {
     private ModelMapper modelMapper;
 
 
+    //tested
     @Override
     public List<PositionDTO> getPositionsNotRegisteredToBenefit(Long benefitId) {
         // 1. Lấy danh sách ID position đã đăng ký benefit này
@@ -47,7 +48,7 @@ public class PositionServiceImpl implements PositionService {
         return positionDTOList;
 
     }
-
+    //tested
     @Override
     public PositionDTO getPositionById(Long positionId) {
         Position position = positionRepository.findById(positionId)

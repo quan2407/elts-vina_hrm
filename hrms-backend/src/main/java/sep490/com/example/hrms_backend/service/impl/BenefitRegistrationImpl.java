@@ -40,6 +40,8 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
 
     private final BenefitPositionRepository benefitPositionRepository;
 
+
+    //Tested
     @Transactional
     @Override
     public BenefitResponse searchBenefitByEmployee(Long employeeId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
@@ -76,6 +78,7 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
         return benefitResponse;
     }
 
+    //Tested
     @Override
     public BenefitRegistrationDTO registerBenefitForEmployee(Long benefitId, Long employeeId, String note) {
 //        //Tim kiem thong tin nhan vien (exception: 0 co nhan vien)
@@ -117,6 +120,7 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
         return null;
     }
 
+    //Tested
     @Override
     public void quickRegister(BenefitManualRegistrationRequest request) {
         List<String> keywords = request.getKeywords();
@@ -196,7 +200,7 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
         }
 }
 
-
+    //Tested
     @Override
     public List<EmployeeBasicDetailResponse> searchUnregisteredEmployees(Long benefitId, Long positionId, String keyword) {
         // 1. Tìm BenefitPosition theo benefitId và positionId
@@ -231,6 +235,7 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
 
     }
 
+    //Tested
     @Transactional
     @Override
     public void unRegister(Long benefitId, Long positionId, Long employeeId) {
@@ -242,5 +247,54 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
         benefitRegistrationRepository.deleteByBenefitPositionIdAndEmployeeId(benefitPositionId, employeeId);
 
 
+    }
+
+    //Tested
+    @Transactional
+    @Override
+    public void quickRegisterAll(BenefitMultiPositionRequestDTO request) {
+        Long benefitId = request.getBenefitId()  ;
+        List<Long> positionIds = request.getPositionIds();
+        List<String> failed = new ArrayList<>();
+
+        // 1. Lấy danh sách BenefitPosition tương ứng
+        List<BenefitPosition> benefitPositions = benefitPositionRepository
+                .findAllByBenefit_IdAndPosition_PositionIdIn(benefitId, positionIds);
+        System.out.println(benefitPositions);
+
+
+        if (benefitPositions.isEmpty()) {
+            throw new RuntimeException("Không tìm thấy BenefitPosition phù hợp với benefitId và positionIds.");
+        }
+
+
+        // 2. Duyệt qua từng BenefitPosition
+        for (BenefitPosition bp : benefitPositions) {
+            Long positionId = bp.getPosition().getPositionId();
+
+
+            // 3. Tìm nhân viên thuộc phòng ban có chứa position này
+            List<Employee> employees = employeeRepository
+                    .findAllByDepartment_Positions_PositionId(positionId);
+
+            for (Employee employee : employees) {
+                if (benefitRegistrationRepository.existsByBenefitPositionAndEmployee(bp, employee)) {
+                    failed.add(employee.getEmployeeName() + " (đã đăng ký)");
+                    continue;
+                }
+
+                BenefitRegistration registration = new BenefitRegistration();
+                registration.setBenefitPosition(bp);
+                registration.setEmployee(employee);
+                registration.setIsRegister(true);
+                registration.setRegisteredAt(LocalDateTime.now());
+
+                benefitRegistrationRepository.save(registration);
+            }
+        }
+
+        if (!failed.isEmpty()) {
+            throw new RuntimeException("Một số nhân viên không thể đăng ký: " + String.join(", ", failed));
+        }
     }
 }

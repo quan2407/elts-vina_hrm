@@ -38,6 +38,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final AttendanceRecordService attendanceRecordService;
     private final ApplicationValidator applicationValidator;
 
+    //tested
     @Override
     public void createApplication(ApplicationCreateDTO dto, Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
@@ -134,7 +135,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
 
-
+    //tested
     private ApplicationApprovalStep createInitialApprovalStep(Application application) {
         return ApplicationApprovalStep.builder()
                 .application(application)
@@ -143,7 +144,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .status(ApprovalStepStatus.PENDING)
                 .build();
     }
-
+    //tested
     @Override
     public Page<ApplicationListItemDTO> getApplicationsForEmployee(Long employeeId, ApplicationStatus status, Pageable pageable) {
         Page<Application> applications;
@@ -162,7 +163,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
 
-
+    //tested
     private ApplicationListItemDTO toListItemDTO(Application app) {
         return ApplicationListItemDTO.builder()
                 .id(app.getId())
@@ -176,6 +177,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .applicationTypeName(app.getApplicationType().getName())
                 .build();
     }
+
+    //tested
     @Override
     public ApplicationDetailDTO getApplicationDetail(Long id) {
         Application application = applicationRepository.findById(id)
@@ -223,6 +226,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .build();
     }
 
+    //tested
     @Override
     public void updateApplication(Long id, ApplicationCreateDTO dto, Long employeeId) {
         Application application = applicationRepository.findById(id)
@@ -262,6 +266,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
 
+    //tested
     @Override
     @Transactional
     public void approveStep1(Long applicationId, Long approverId, ApplicationApprovalRequestDTO request) {
@@ -305,6 +310,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         applicationRepository.save(app);
     }
 
+    //tested
     @Override
     public Page<ApplicationApprovalListItemDTO> getStep1Applications(ApplicationStatus status, PageRequest of) {
         Page<ApplicationApprovalStep> steps;
@@ -347,6 +353,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .lineName(emp.getLine() != null ? emp.getLine().getLineName() : null)
                 .build();
     }
+
+    //tested
     @Override
     @Transactional
     public void approveStep2(Long applicationId, Long approverId, ApplicationApprovalRequestDTO request) {
@@ -392,6 +400,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         applicationRepository.save(app);
     }
 
+    //tested
     @Override
     public Page<ApplicationApprovalListItemDTO> getStep2Applications(ApplicationStatus status, PageRequest pageRequest) {
         Page<ApplicationApprovalStep> steps;
