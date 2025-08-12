@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface AttendanceRecordService {
-    Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year, int page, int size, String search);
 
 
 
@@ -27,4 +26,6 @@ public interface AttendanceRecordService {
     void importAttendanceFromExcel(MultipartFile file, LocalDate date);
 
     List<AttendanceMonthlyViewDTO> getAttendanceForExport(int month, int year);
+
+    Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year, int page, int size, String search, Long departmentId, Long positionId, Long lineId);
 }

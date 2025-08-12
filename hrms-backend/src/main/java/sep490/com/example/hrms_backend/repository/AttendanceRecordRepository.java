@@ -91,5 +91,15 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
 
 
     Optional<AttendanceRecord> findByEmployeeAndDate(Employee emp, LocalDate date);
+
+    @Query("""
+        SELECT ar FROM AttendanceRecord ar
+        WHERE MONTH(ar.date) = :month
+          AND YEAR(ar.date)  = :year
+          AND ar.employee.employeeId IN :empIds
+        """)
+    List<AttendanceRecord> findByMonthYearAndEmpIds(@Param("month") int month,
+                                                    @Param("year") int year,
+                                                    @Param("empIds") List<Long> empIds);
 }
 
