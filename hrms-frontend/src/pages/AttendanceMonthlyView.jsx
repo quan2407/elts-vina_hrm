@@ -9,9 +9,10 @@ import "../styles/AttendanceMonthlyView.css";
 import { Pencil } from "lucide-react";
 import DatePicker from "react-datepicker";
 import { parse } from "date-fns";
-
 import "react-datepicker/dist/react-datepicker.css";
-
+import departmentService from "../services/departmentService";
+import positionService from "../services/positionService";
+import { getAllLines } from "../services/linesService"; // bạn đã có
 const AttendanceMonthlyView = ({ readOnly = false }) => {
   const location = useLocation();
   const [data, setData] = useState([]);
@@ -109,6 +110,54 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
       alert("Cập nhật nghỉ phép thất bại!");
     }
   };
+  const [departments, setDepartments] = useState([]);
+  const [positions, setPositions] = useState([]);
+  const [lines, setLines] = useState([]);
+
+  const [departmentId, setDepartmentId] = useState(null);
+  const [positionId, setPositionId] = useState(null);
+  const [lineId, setLineId] = useState(null);
+  useEffect(() => {
+    (async () => {
+      try {
+        const depRes = await departmentService.getAllDepartments();
+        setDepartments(depRes.data || []);
+
+        const posRes = await positionService.getAll();
+        setPositions(posRes.data || []);
+
+        const lineRes = await getAllLines();
+        setLines(lineRes || []);
+      } catch (e) {
+        console.error("Load danh mục lỗi:", e);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        if (departmentId) {
+          const [posByDep, lineByDep] = await Promise.all([
+            departmentService.getPositionsByDepartment(departmentId),
+            departmentService.getLinesByDepartment(departmentId),
+          ]);
+          setPositions(posByDep.data || []);
+          setLines(lineByDep.data || []);
+        } else {
+          const posRes = await positionService.getAll();
+          setPositions(posRes.data || []);
+          const lineRes = await getAllLines();
+          setLines(lineRes || []);
+        }
+
+        setPositionId(null);
+        setLineId(null);
+      } catch (e) {
+        console.error("Load positions/lines theo department lỗi:", e);
+      }
+    })();
+  }, [departmentId]);
 
   useEffect(() => {
     const fetchAvailableMonths = async () => {
@@ -160,7 +209,10 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
         year,
         page,
         size,
-        searchTerm
+        searchTerm,
+        departmentId,
+        positionId,
+        lineId
       );
       console.log("✅ RESPONSE DATA:", response.data);
       setData(response.data.content);
@@ -174,15 +226,15 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
       console.error("Fetch attendance failed:", error);
     }
   };
-  useEffect(() => {
-    const debounceTimeout = setTimeout(() => {
-      if (month && year) {
-        fetchAttendance();
-      }
-    }, 100);
+  // useEffect(() => {
+  //   const debounceTimeout = setTimeout(() => {
+  //     if (month && year) {
+  //       fetchAttendance();
+  //     }
+  //   }, 100);
 
-    return () => clearTimeout(debounceTimeout);
-  }, [searchTerm]);
+  //   return () => clearTimeout(debounceTimeout);
+  // }, [searchTerm]);
 
   const daysInMonth = month && year ? new Date(year, month, 0).getDate() : 0;
 
@@ -254,58 +306,7 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
     <MainLayout>
       <div className="attendance-container">
         <div className="attendance-controls">
-          <div className="attendance-filters">
-            <select
-              value={month || ""}
-              onChange={(e) => {
-                setMonth(Number(e.target.value));
-                setPage(0);
-              }}
-            >
-              <option
-                value=""
-                disabled
-              >
-                -- Chọn tháng --
-              </option>
-              {Array.from(new Set(availableMonths.map((m) => m.month))).map(
-                (m) => (
-                  <option
-                    key={m}
-                    value={m}
-                  >
-                    Tháng {m < 10 ? `0${m}` : m}
-                  </option>
-                )
-              )}
-            </select>
-
-            <select
-              value={year || ""}
-              onChange={(e) => {
-                setYear(Number(e.target.value));
-                setPage(0);
-              }}
-            >
-              <option
-                value=""
-                disabled
-              >
-                -- Chọn năm --
-              </option>
-              {Array.from(new Set(availableMonths.map((m) => m.year))).map(
-                (y) => (
-                  <option
-                    key={y}
-                    value={y}
-                  >
-                    Năm {y}
-                  </option>
-                )
-              )}
-            </select>
-          </div>
-
+          {/* Các nút hành động */}
           <div className="attendance-actions">
             <div className="leave-code-popover-wrapper">
               <button
@@ -406,109 +407,134 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
             >
               Import Excel
             </button>
-
-            {importModalOpen && (
-              <div className="import-popup-overlay">
-                <div className="import-popup-content">
-                  <h3>Nhập file chấm công Excel</h3>
-
-                  <div style={{ marginBottom: "12px" }}>
-                    <label style={{ marginRight: "8px" }}>
-                      Chọn ngày áp dụng:
-                    </label>
-                    <DatePicker
-                      selected={
-                        selectedDate
-                          ? parse(selectedDate, "dd-MM-yyyy", new Date())
-                          : null
-                      }
-                      onChange={(date) => {
-                        const day = String(date.getDate()).padStart(2, "0");
-                        const month = String(date.getMonth() + 1).padStart(
-                          2,
-                          "0"
-                        );
-                        const year = date.getFullYear();
-                        const formatted = `${day}-${month}-${year}`;
-                        setSelectedDate(formatted);
-                        console.log("Ngày được chọn:", formatted);
-                      }}
-                      dateFormat="dd-MM-yyyy"
-                      placeholderText="Chọn ngày áp dụng"
-                      minDate={new Date(year, month - 1, 1)}
-                      maxDate={
-                        new Date(new Date().setDate(new Date().getDate() - 1))
-                      }
-                      className="attendance-search-input"
-                    />
-                  </div>
-
-                  <div style={{ marginBottom: "12px" }}>
-                    <label>Chọn file Excel (.xlsx): </label>
-                    <input
-                      type="file"
-                      accept=".xlsx"
-                      onChange={(e) => setFile(e.target.files[0])}
-                    />
-                  </div>
-
-                  <div className="import-popup-actions">
-                    <button
-                      onClick={() => {
-                        if (!selectedDate || !file) {
-                          alert("Vui lòng chọn ngày và file Excel.");
-                          return;
-                        }
-
-                        // ✅ Chuyển từ dd-MM-yyyy => yyyy-MM-dd
-                        const [day, month, year] = selectedDate.split("-");
-                        const apiFormattedDate = `${year}-${month}-${day}`;
-                        console.log("📤 Gửi API với ngày:", apiFormattedDate);
-
-                        handleImportAttendance(file, apiFormattedDate);
-                      }}
-                      style={{
-                        padding: "8px 14px",
-                        backgroundColor: "#22c55e",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "4px",
-                      }}
-                    >
-                      Import
-                    </button>
-                    <button
-                      onClick={() => setImportModalOpen(false)}
-                      style={{
-                        padding: "8px 14px",
-                        backgroundColor: "#ccc",
-                        border: "none",
-                        borderRadius: "4px",
-                      }}
-                    >
-                      Hủy
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
-        </div>
 
-        <div className="attendance-table-wrapper">
-          <div className="attendance-search-wrapper">
+          {/* Chuyển bộ lọc tháng/năm xuống dưới */}
+          <div className="attendance-filters">
+            <select
+              value={month || ""}
+              onChange={(e) => {
+                setMonth(Number(e.target.value));
+                setPage(0);
+              }}
+            >
+              <option
+                value=""
+                disabled
+              >
+                -- Chọn tháng --
+              </option>
+              {Array.from(new Set(availableMonths.map((m) => m.month))).map(
+                (m) => (
+                  <option
+                    key={m}
+                    value={m}
+                  >
+                    Tháng {m < 10 ? `0${m}` : m}
+                  </option>
+                )
+              )}
+            </select>
+
+            <select
+              value={year || ""}
+              onChange={(e) => {
+                setYear(Number(e.target.value));
+                setPage(0);
+              }}
+            >
+              <option
+                value=""
+                disabled
+              >
+                -- Chọn năm --
+              </option>
+              {Array.from(new Set(availableMonths.map((m) => m.year))).map(
+                (y) => (
+                  <option
+                    key={y}
+                    value={y}
+                  >
+                    Năm {y}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
+
+          {/* Di chuyển các bộ lọc còn lại xuống dưới */}
+          <div className="attendance-filters">
             <input
               type="text"
               className="attendance-search-input"
               placeholder="Tìm mã hoặc tên nhân viên..."
               value={searchTerm}
               onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setPage(0);
+                setSearchTerm(e.target.value); // Chỉ cập nhật giá trị searchTerm khi gõ
               }}
             />
-          </div>
 
+            {/* Bộ lọc Department */}
+            <select
+              value={departmentId || ""}
+              onChange={(e) => setDepartmentId(e.target.value)}
+            >
+              <option value="">-- Chọn Bộ Phận --</option>
+              {departments.map((department) => (
+                <option
+                  key={department.id}
+                  value={department.id}
+                >
+                  {department.name}
+                </option>
+              ))}
+            </select>
+
+            {/* Bộ lọc Line */}
+            <select
+              value={lineId || ""}
+              onChange={(e) => setLineId(e.target.value)}
+            >
+              <option value="">-- Chọn Chuyền --</option>
+              {lines.map((line) => (
+                <option
+                  key={line.id}
+                  value={line.id}
+                >
+                  {line.name}
+                </option>
+              ))}
+            </select>
+
+            {/* Bộ lọc Position */}
+            <select
+              value={positionId || ""}
+              onChange={(e) => setPositionId(e.target.value)}
+            >
+              <option value="">-- Chọn Chức Vụ --</option>
+              {positions.map((position) => (
+                <option
+                  key={position.id}
+                  value={position.id}
+                >
+                  {position.name}
+                </option>
+              ))}
+            </select>
+
+            {/* Nút Tìm kiếm */}
+            <button
+              onClick={() => {
+                setPage(0); // Reset về trang đầu tiên khi tìm kiếm
+                fetchAttendance(); // Gọi lại hàm fetch dữ liệu dựa trên bộ lọc
+              }}
+            >
+              Tìm kiếm
+            </button>
+          </div>
+        </div>
+
+        <div className="attendance-table-wrapper">
           <table className="attendance-table">
             <thead>
               <tr>
