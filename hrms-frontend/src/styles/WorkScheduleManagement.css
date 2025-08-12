@@ -136,12 +136,3 @@ button:disabled {
   cursor: not-allowed;
   background-color: #999;
 }
-.error-banner {
-  background: #fee2e2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
-  padding: 8px 10px;
-  border-radius: 6px;
-  margin-bottom: 10px;
-  font-size: 14px;
-}

@@ -57,13 +57,12 @@ const BenefitSearchForm = ({ onSearch }) => {
     };
 
     return (
-
         <ConfigProvider locale={viVN}>
-            {/*<QuickFilters*/}
-            {/*    onQuickFilter={(quickFilter) => {*/}
-            {/*        onSearch(quickFilter);*/}
-            {/*    }}*/}
-            {/*/>*/}
+            {/*<QuickFilters
+                onQuickFilter={(quickFilter) => {
+                    onSearch(quickFilter);
+                }}
+            />*/}
             <ProForm
                 formRef={formRef}
                 submitter={{
@@ -79,58 +78,59 @@ const BenefitSearchForm = ({ onSearch }) => {
                             >
                                 Xem toàn bộ phúc lợi
                             </Button>
-
                         </div>
                     ),
                 }}
+                grid={true}
                 layout="vertical"
                 onFinish={handleFinish}
             >
                 <ProFormText
+                    colProps={{ span: 4 }}
                     name="title"
                     label="Tiêu đề"
                     placeholder="Nhập tiêu đề"
-                    fieldProps={{
-                        style: { width: '50%' }, // hoặc 600, 700 px
-                    }}
                 />
                 <ProFormText
+                    colProps={{ span: 4 }}
                     name="description"
                     label="Mô tả"
                     placeholder="Nhập mô tả"
-                    fieldProps={{
-                    style: { width: '50%' }, // hoặc 600, 700 px
-                }}/>
-                <ProForm.Group>
-                    <ProFormSelect
-                        name="benefitType"
-                        label="Loại phúc lợi"
-                        options={[
-                            { label: 'Sự Kiện', value: "SU_KIEN" },
-                            { label: 'Phụ cấp', value: "PHU_CAP" },
-                            { label: 'Khấu trừ', value: 'KHAU_TRU' }
-                        ]}
-                        allowClear
-                        placeholder="Chọn loại phúc lợi"
-                    />
-                    <ProFormDateRangePicker name="dateRange" label="Ngày bắt đầu - Ngày kết thúc" />
-                </ProForm.Group>
-
-                <ProForm.Group>
-                    <ProFormSelect
-                        name="isActive"
-                        label="Trạng thái"
-                        options={[
-                            { label: 'Đang hoạt động', value: true },
-                            { label: 'Ngừng hoạt động', value: false },
-                        ]}
-                        allowClear
-                        placeholder="Chọn trạng thái"
-                    />
-                    <ProFormDigitRange name="maxParticipants" label="Số lượng người tham gia" separator="~" />
-                </ProForm.Group>
-
-
+                />
+                <ProFormSelect
+                    colProps={{ span: 4 }}
+                    name="benefitType"
+                    label="Loại phúc lợi"
+                    options={[
+                        { label: 'Sự Kiện', value: "SU_KIEN" },
+                        { label: 'Phụ cấp', value: "PHU_CAP" },
+                        { label: 'Khấu trừ', value: 'KHAU_TRU' }
+                    ]}
+                    allowClear
+                    placeholder="Chọn loại phúc lợi"
+                />
+                <ProFormDateRangePicker
+                    colProps={{ span: 4 }}
+                    name="dateRange"
+                    label="Ngày bắt đầu - Ngày kết thúc"
+                />
+                <ProFormSelect
+                    colProps={{ span: 4 }}
+                    name="isActive"
+                    label="Trạng thái"
+                    options={[
+                        { label: 'Đang hoạt động', value: true },
+                        { label: 'Ngừng hoạt động', value: false },
+                    ]}
+                    allowClear
+                    placeholder="Chọn trạng thái"
+                />
+                <ProFormDigitRange
+                    colProps={{ span: 4 }}
+                    name="maxParticipants"
+                    label="Số lượng người tham gia"
+                    separator="~"
+                />
             </ProForm>
             <Divider style={{ margin: '16px 0' }} />
         </ConfigProvider>

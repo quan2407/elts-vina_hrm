@@ -1,16 +1,15 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import { Bell, ChevronDown, User, Key, LogOut } from "lucide-react";
+import { Bell, ChevronDown, User, Key, HelpCircle, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Header.css";
-import {
-  getNotifications,
-  markNotificationAsRead,
-} from "../services/notificationService";
+import { getNotifications, markNotificationAsRead } from "../services/notificationService";
+
 
 function Header() {
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] =
+    useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notificationFilter, setNotificationFilter] = useState("all");
   const [showAllNotifications, setShowAllNotifications] = useState(false);
@@ -20,6 +19,16 @@ function Header() {
   // Decode token to get username
   const token = localStorage.getItem("accessToken");
   let username = "Unknown";
+
+  const filteredNotifications = notifications.filter((n) =>
+    notificationFilter === "all" ? true : !n.isRead
+  );
+
+  const visibleNotifications = showAllNotifications
+    ? filteredNotifications
+    : filteredNotifications.slice(0, 5);
+
+
   if (token) {
     try {
       const decoded = jwtDecode(token);
@@ -29,13 +38,6 @@ function Header() {
     }
   }
 
-  const filteredNotifications = notifications.filter((n) =>
-    notificationFilter === "all" ? true : !n.isRead
-  );
-  const visibleNotifications = showAllNotifications
-    ? filteredNotifications
-    : filteredNotifications.slice(0, 5);
-
   const handleSignOut = () => {
     localStorage.removeItem("accessToken");
     window.location.href = "/";
@@ -43,12 +45,12 @@ function Header() {
 
   const handleGoToProfile = () => {
     navigate("/profile");
-    setIsProfileOpen(false);
+    setIsDropdownOpen(false);
   };
 
   const handleChangePassword = () => {
     navigate("/change-password");
-    setIsProfileOpen(false);
+    setIsDropdownOpen(false);
   };
 
   const fetchNotifications = async () => {
@@ -64,7 +66,9 @@ function Header() {
     try {
       await markNotificationAsRead(id);
       setNotifications((prev) =>
-        prev.map((noti) => (noti.id === id ? { ...noti, isRead: true } : noti))
+        prev.map((noti) =>
+          noti.id === id ? { ...noti, isRead: true } : noti
+        )
       );
     } catch (error) {
       console.error("Error marking notification as read:", error);
@@ -78,62 +82,39 @@ function Header() {
     if (diff < 60) return `${diff} giây trước`;
     if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
     if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
+
     return `${Math.floor(diff / 86400)} ngày trước`;
   }
+
 
   useEffect(() => {
     fetchNotifications();
   }, []);
 
-  // Đóng dropdown khi click ra ngoài
-  const profileRef = useRef(null);
-  const notiRef = useRef(null);
-  useEffect(() => {
-    const onClickOutside = (e) => {
-      if (profileRef.current && !profileRef.current.contains(e.target)) {
-        setIsProfileOpen(false);
-      }
-      if (notiRef.current && !notiRef.current.contains(e.target)) {
-        setIsNotificationOpen(false);
-      }
-    };
-    document.addEventListener("click", onClickOutside);
-    return () => document.removeEventListener("click", onClickOutside);
-  }, []);
-
   return (
     <div className="header">
-      <button
-        className="btn btn-outline-secondary d-md-none"
-        type="button"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#sidebarOffcanvas"
-        aria-controls="sidebarOffcanvas"
-      >
-        ☰
-      </button>
-
-      <div className="header-actions ms-auto">
-        {/* Thông báo */}
+      <div></div>
+      <div className="header-actions">
         <div
-          className="action-button position-relative"
-          ref={notiRef}
-          onClick={() => setIsNotificationOpen((s) => !s)}
+          className="action-button"
+          onClick={() => setIsNotificationDropdownOpen(!isNotificationDropdownOpen)}
         >
-          <Bell size={20} stroke="#000" />
+          <Bell
+            size={20}
+            stroke="#000"
+          />
           {notifications.some((n) => !n.isRead) && (
             <div className="notification-badge">
               {notifications.filter((n) => !n.isRead).length}
             </div>
           )}
-        </div>
 
-        {isNotificationOpen && (
+        </div>
+        {isNotificationDropdownOpen && (
           <div className="notification-dropdown">
             <div className="notification-header">
               <span>Thông báo</span>
             </div>
-
             <div className="notification-tabs">
               <button
                 className={notificationFilter === "all" ? "active" : ""}
@@ -148,19 +129,15 @@ function Header() {
                 Chưa đọc
               </button>
             </div>
-
             <div className="notification-list">
               {filteredNotifications.length === 0 ? (
-                <div className="notification-empty">
-                  Không có thông báo nào
-                </div>
+                <div className="notification-empty">Không có thông báo nào</div>
               ) : (
-                visibleNotifications.map((noti) => (
+                visibleNotifications.map((noti, index) => (
                   <div
-                    key={noti.id}
-                    className={`notification-item ${
-                      !noti.isRead ? "unread" : ""
-                    }`}
+                    className={`notification-item ${!noti.isRead ? 'unread' : ''}`}
+                    key={index}
+
                     onClick={() => handleNotificationClick(noti.id)}
                     style={{ cursor: "pointer" }}
                   >
@@ -169,30 +146,25 @@ function Header() {
                     </div>
                     <div className="notification-content">
                       <div className="notification-text">{noti.content}</div>
-                      <div className="notification-time">
-                        {formatRelativeTime(noti.createdAt)}
-                      </div>
+                      <div className="notification-time">{formatRelativeTime(noti.createdAt)}</div>
                     </div>
                   </div>
                 ))
               )}
             </div>
-
             <div className="notification-footer">
               {!showAllNotifications && filteredNotifications.length > 5 && (
-                <button onClick={() => setShowAllNotifications(true)}>
-                  Xem thông báo trước đó
-                </button>
+                <button onClick={() => setShowAllNotifications(true)}>Xem thông báo trước đó</button>
               )}
             </div>
+
           </div>
         )}
 
-        {/* Hồ sơ */}
+
         <div
           className="header-profile"
-          ref={profileRef}
-          onClick={() => setIsProfileOpen((s) => !s)}
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         >
           <img
             className="header-avatar"
@@ -200,23 +172,35 @@ function Header() {
             alt="User"
           />
           <span className="header-username">{username}</span>
-          <ChevronDown size={16} stroke="#000" />
+          <ChevronDown
+            size={16}
+            stroke="#000"
+          />
         </div>
 
-        {isProfileOpen && (
+        {isDropdownOpen && (
           <div className="profile-dropdown">
             <div className="profile-info">
               <div className="profile-name">{username}</div>
             </div>
-            <div className="profile-item" onClick={handleGoToProfile}>
+            <div
+              className="profile-item"
+              onClick={handleGoToProfile}
+            >
               <User size={16} /> <span>Hồ sơ cá nhân</span>
             </div>
-            <div className="profile-item" onClick={handleChangePassword}>
+            <div
+              className="profile-item"
+              onClick={handleChangePassword}
+            >
               <Key size={16} /> <span>Đổi mật khẩu</span>
             </div>
 
             <div className="profile-divider"></div>
-            <div className="profile-item profile-logout" onClick={handleSignOut}>
+            <div
+              className="profile-item profile-logout"
+              onClick={handleSignOut}
+            >
               <LogOut size={16} /> <span>Đăng xuất</span>
             </div>
           </div>

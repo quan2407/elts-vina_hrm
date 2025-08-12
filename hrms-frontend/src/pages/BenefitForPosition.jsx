@@ -55,7 +55,20 @@ function BenefitForPosition() {
                             type={isMultiSelectMode ? "primary" : "default"}
                             icon={<CheckSquareOutlined />}
                             onClick={() => setIsMultiSelectMode(!isMultiSelectMode)}
-                            style={{ marginLeft: 8 }}
+                            style={{
+                                borderRadius: 14,
+                                padding: '23px 20px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 16,
+                                cursor: 'pointer',
+                                boxShadow: '11px 4px 14px 0px rgba(0, 0, 0, 0.12)',
+                                backgroundColor: '#3f861e',
+                                border: 'none',
+                                fontWeight: 600,
+                                fontSize: '18px',
+                                color: '#fff'
+                            }}
                         >
                             {isMultiSelectMode ? "Tắt chọn nhiều" : "Chọn nhiều"}
                         </Button>
@@ -66,6 +79,7 @@ function BenefitForPosition() {
                     benefitId={benefitId}
                     reloadFlag={reloadFlag}
                     isMultiSelectMode={isMultiSelectMode}
+                    onReload={handleReload}
                 />
             </div>
         </MainLayout>

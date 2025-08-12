@@ -125,9 +125,7 @@ public class SalaryServiceImpl implements SalaryService {
                     BigDecimal.valueOf(otHours*2 + weekendHours * 2 + holidayHours * 3)
             );
 
-            // generateMonthlySalaries(...)
-            List<SalaryBenefit> benefitItems = generateSalaryBenefits(employee, null, month, year);
-
+            List<SalaryBenefit> benefitItems = generateSalaryBenefits(employee, null);
 
             BigDecimal totalAllowance = benefitItems.stream()
                     .filter(b -> b.getBenefitType() == BenefitType.PHU_CAP)
@@ -271,13 +269,9 @@ public class SalaryServiceImpl implements SalaryService {
             case PERCENTAGE -> basic.multiply(value).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
         };
     }
-    // SalaryServiceImpl.java
-    private List<SalaryBenefit> generateSalaryBenefits(Employee employee, Salary salary, int month, int year) {
+    private List<SalaryBenefit> generateSalaryBenefits(Employee employee, Salary salary) {
         List<BenefitRegistration> regs = benefitRegistrationRepository.findByEmployee(employee);
         List<SalaryBenefit> result = new ArrayList<>();
-
-        long klCount = countKLInMonth(employee.getEmployeeId(), month, year);
-        BigDecimal penalty = penaltyPercentByKL(klCount);
 
         for (BenefitRegistration reg : regs) {
             if (!Boolean.TRUE.equals(reg.getIsRegister())) continue;
@@ -285,66 +279,21 @@ public class SalaryServiceImpl implements SalaryService {
             var bp = reg.getBenefitPosition();
             var benefit = bp.getBenefit();
 
-            BigDecimal baseAmount = calculateAmount(
+            BigDecimal amount = calculateAmount(
                     employee.getBasicSalary(),
-                    bp.getFormulaValue() != null ? bp.getFormulaValue() : benefit.getDefaultFormulaValue(),
-                    bp.getFormulaType()  != null ? bp.getFormulaType()  : benefit.getDefaultFormulaType()
+                    bp.getFormulaValue(),
+                    bp.getFormulaType()
             );
-
-            BigDecimal finalAmount = baseAmount;
-
-            if ("chuyên cần".equalsIgnoreCase(benefit.getTitle())) {
-                finalAmount = applyPenalty(baseAmount, penalty);
-            }
 
             result.add(SalaryBenefit.builder()
                     .salary(salary)
                     .benefitType(benefit.getBenefitType())
                     .benefitTitle(benefit.getTitle())
-                    .amount(finalAmount != null ? finalAmount : BigDecimal.ZERO)
+                    .amount(amount)
                     .build());
         }
+
         return result;
-    }
-
-// SalaryServiceImpl.java
-
-    private long countKLInMonth(Long employeeId, int month, int year) {
-        List<AttendanceRecord> records =
-                attendanceRecordRepository.findByEmployee_EmployeeIdAndMonthAndYear(employeeId, month, year);
-
-        long kl = 0;
-        for (AttendanceRecord r : records) {
-            if ("KL".equalsIgnoreCase(safe(r.getDayShift()))) kl++;
-            if ("KL".equalsIgnoreCase(safe(r.getOtShift()))) kl++;
-            if ("KL".equalsIgnoreCase(safe(r.getWeekendShift()))) kl++;
-            if ("KL".equalsIgnoreCase(safe(r.getHolidayShift()))) kl++;
-        }
-        return kl;
-    }
-
-    private String safe(String s) { return s == null ? "" : s.trim(); }
-// SalaryServiceImpl.java
-
-    private BigDecimal penaltyPercentByKL(long klCount) {
-        if (klCount <= 0) return BigDecimal.ZERO;
-        return switch ((int) klCount) {
-            case 1 -> BigDecimal.valueOf(10);
-            case 2 -> BigDecimal.valueOf(20);
-            case 3 -> BigDecimal.valueOf(50);
-            case 4 -> BigDecimal.valueOf(75);
-            default -> BigDecimal.valueOf(100);
-        };
-    }
-
-    private BigDecimal applyPenalty(BigDecimal base, BigDecimal penaltyPercent) {
-        if (base == null || base.signum() == 0) return BigDecimal.ZERO;
-        if (penaltyPercent.compareTo(BigDecimal.ZERO) <= 0) return base;
-        if (penaltyPercent.compareTo(BigDecimal.valueOf(100)) >= 0) return BigDecimal.ZERO;
-
-        BigDecimal keepRate = BigDecimal.ONE.subtract(
-                penaltyPercent.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
-        return base.multiply(keepRate).setScale(0, RoundingMode.HALF_UP);
     }
 
 }
