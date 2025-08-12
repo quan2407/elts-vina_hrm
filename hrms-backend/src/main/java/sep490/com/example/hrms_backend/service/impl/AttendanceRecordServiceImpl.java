@@ -117,31 +117,33 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     public Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year, int page, int size, String search) {
         Pageable pageable = PageRequest.of(page, size);
 
-        List<Employee> filteredEmployees;
+        List<Employee> pagedEmployees;
+        long totalElements;
+
         if (search != null && !search.trim().isEmpty()) {
             String keyword = search.trim().toLowerCase();
-            filteredEmployees = employeeRepository.findAllActive().stream()
+            // Lọc toàn bộ, rồi tự phân trang thủ công
+            List<Employee> filtered = employeeRepository.findAllActive().stream()
                     .filter(e -> e.getEmployeeCode().toLowerCase().contains(keyword)
                             || e.getEmployeeName().toLowerCase().contains(keyword))
-                    .collect(Collectors.toList());
+                    .toList();
+
+            int start = page * size;
+            int end = Math.min(start + size, filtered.size());
+            pagedEmployees = start >= filtered.size() ? List.of() : filtered.subList(start, end);
+            totalElements = filtered.size();
         } else {
-            // Dùng phân trang mặc định nếu không có search
+            // ĐÃ phân trang ở DB — KHÔNG cắt subList lần nữa
             Page<Employee> employeePage = employeeRepository.findAllActive(pageable);
-            filteredEmployees = employeePage.getContent();
+            pagedEmployees = employeePage.getContent();
+            totalElements = employeePage.getTotalElements();
         }
 
-        // Nếu có search, xử lý phân trang thủ công
-        int start = page * size;
-        int end = Math.min(start + size, filteredEmployees.size());
-        List<Employee> pagedEmployees = start >= filteredEmployees.size()
-                ? List.of()
-                : filteredEmployees.subList(start, end);
-
+        // build dtoList như cũ nhưng dùng pagedEmployees
+        List<AttendanceMonthlyViewDTO> dtoList = new ArrayList<>();
         List<AttendanceRecord> records = attendanceRecordRepository.findByMonthAndYear(month, year);
         Map<Long, List<AttendanceRecord>> recordsByEmployee = records.stream()
                 .collect(Collectors.groupingBy(r -> r.getEmployee().getEmployeeId()));
-
-        List<AttendanceMonthlyViewDTO> dtoList = new ArrayList<>();
 
         for (Employee emp : pagedEmployees) {
             AttendanceMonthlyViewDTO dto = AttendanceMonthlyViewDTO.builder()
@@ -152,66 +154,42 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                     .positionName(emp.getPosition() != null ? emp.getPosition().getPositionName() : null)
                     .lineName(emp.getLine() != null ? emp.getLine().getLineName() : null)
                     .attendanceByDate(new LinkedHashMap<>())
-                    .totalDayShiftHours(0f)
-                    .totalOvertimeHours(0f)
-                    .totalWeekendHours(0f)
-                    .totalHolidayHours(0f)
+                    .totalDayShiftHours(0f).totalOvertimeHours(0f).totalWeekendHours(0f).totalHolidayHours(0f)
                     .totalHours(0f)
                     .build();
 
-            List<AttendanceRecord> empRecords = recordsByEmployee.getOrDefault(emp.getEmployeeId(), Collections.emptyList());
-
-            for (AttendanceRecord record : empRecords) {
+            for (AttendanceRecord record : recordsByEmployee.getOrDefault(emp.getEmployeeId(), List.of())) {
                 String dateKey = String.valueOf(record.getDate().getDayOfMonth());
-
-                boolean hasSchedule = false;
-                boolean isWeekend = false;
-                if (record.getWorkSchedule() != null && record.getWorkSchedule().getWorkScheduleDetails() != null) {
-                    Optional<WorkScheduleDetail> detailOpt = record.getWorkSchedule().getWorkScheduleDetails().stream()
-                            .filter(detail -> detail.getDateWork().equals(record.getDate()))
-                            .findFirst();
-                    if (detailOpt.isPresent()) {
-                        hasSchedule = true;
-                        isWeekend = detailOpt.get().getDateWork().getDayOfWeek().getValue() == 7;
-                    }
-                }
-
+                boolean hasSchedule = record.getWorkSchedule() != null &&
+                        record.getWorkSchedule().getWorkScheduleDetails() != null &&
+                        record.getWorkSchedule().getWorkScheduleDetails().stream()
+                                .anyMatch(d -> d.getDateWork().equals(record.getDate()));
+                boolean isWeekend = hasSchedule &&
+                        record.getWorkSchedule().getWorkScheduleDetails().stream()
+                                .filter(d -> d.getDateWork().equals(record.getDate()))
+                                .findFirst().get().getDateWork().getDayOfWeek().getValue() == 7;
                 boolean isHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(record.getDate());
 
-                AttendanceCellDTO cell = AttendanceCellDTO.builder()
+                dto.getAttendanceByDate().put(dateKey, AttendanceCellDTO.builder()
                         .attendanceRecordId(record.getId())
-                        .shift(record.getDayShift())
-                        .overtime(record.getOtShift())
-                        .weekend(record.getWeekendShift())
-                        .holiday(record.getHolidayShift())
+                        .shift(record.getDayShift()).overtime(record.getOtShift())
+                        .weekend(record.getWeekendShift()).holiday(record.getHolidayShift())
                         .hasScheduleDetail(hasSchedule)
                         .checkIn(record.getCheckInTime() != null ? record.getCheckInTime().toString() : null)
                         .checkOut(record.getCheckOutTime() != null ? record.getCheckOutTime().toString() : null)
-                        .holidayFlag(isHoliday)
-                        .weekendFlag(isWeekend)
-                        .build();
-
-                dto.getAttendanceByDate().put(dateKey, cell);
+                        .holidayFlag(isHoliday).weekendFlag(isWeekend).build());
 
                 dto.setTotalDayShiftHours(dto.getTotalDayShiftHours() + parseHour(record.getDayShift()));
                 dto.setTotalOvertimeHours(dto.getTotalOvertimeHours() + parseHour(record.getOtShift()));
                 dto.setTotalWeekendHours(dto.getTotalWeekendHours() + parseHour(record.getWeekendShift()));
                 dto.setTotalHolidayHours(dto.getTotalHolidayHours() + parseHour(record.getHolidayShift()));
             }
-
-            dto.setTotalHours(dto.getTotalDayShiftHours()
-                    + dto.getTotalOvertimeHours()
-                    + dto.getTotalWeekendHours()
-                    + dto.getTotalHolidayHours());
-
+            dto.setTotalHours(dto.getTotalDayShiftHours() + dto.getTotalOvertimeHours()
+                    + dto.getTotalWeekendHours() + dto.getTotalHolidayHours());
             dtoList.add(dto);
         }
 
-        return new PageImpl<>(dtoList, pageable,
-                (search != null && !search.trim().isEmpty())
-                        ? filteredEmployees.size()
-                        : employeeRepository.findAllActive().size());
-
+        return new PageImpl<>(dtoList, pageable, totalElements);
     }
 
 
