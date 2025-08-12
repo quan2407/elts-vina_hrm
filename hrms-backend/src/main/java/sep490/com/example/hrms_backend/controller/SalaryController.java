@@ -42,11 +42,15 @@ public class SalaryController {
             @RequestParam int year,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String search // NEW
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long departmentId,  // Thêm bộ lọc bộ phận
+            @RequestParam(required = false) Long positionId,    // Thêm bộ lọc chức vụ
+            @RequestParam(required = false) Long lineId         // Thêm bộ lọc chuyền
     ) {
-        Page<SalaryDTO> salaries = salaryService.getSalariesByMonth(month, year, page, size, search);
+        Page<SalaryDTO> salaries = salaryService.getSalariesByMonth(month, year, page, size, search, departmentId, positionId, lineId);
         return ResponseEntity.ok(salaries);
     }
+
 
     @PutMapping("/regenerate")
     public ResponseEntity<String> regenerateSalary(

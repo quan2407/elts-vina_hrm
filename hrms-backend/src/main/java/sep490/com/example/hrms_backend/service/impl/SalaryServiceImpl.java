@@ -216,24 +216,49 @@ public class SalaryServiceImpl implements SalaryService {
         salaryRepository.saveAll(salaries);
     }
     @Override
-    public Page<SalaryDTO> getSalariesByMonth(int month, int year, int page, int size, String search) {
+    public Page<SalaryDTO> getSalariesByMonth(int month, int year, int page, int size, String search, Long departmentId, Long positionId, Long lineId) {
         LocalDate firstDay = LocalDate.of(year, month, 1);
         Pageable pageable = PageRequest.of(page, size);
 
-        List<Salary> all = salaryRepository.findBySalaryMonth(firstDay);
+        // Lấy tất cả các lương trong tháng
+        List<Salary> allSalaries = salaryRepository.findBySalaryMonth(firstDay);
 
         // Lọc theo mã hoặc tên nhân viên nếu có search
         if (search != null && !search.trim().isEmpty()) {
             String lower = search.trim().toLowerCase();
-            all = all.stream()
+            allSalaries = allSalaries.stream()
                     .filter(s -> s.getEmployee().getEmployeeCode().toLowerCase().contains(lower)
                             || s.getEmployee().getEmployeeName().toLowerCase().contains(lower))
-                    .toList();
+                    .collect(Collectors.toList());
         }
 
+        // Lọc theo departmentId, positionId, lineId
+        if (departmentId != null) {
+            allSalaries = allSalaries.stream()
+                    .filter(s -> s.getEmployee().getDepartment() != null &&
+                            s.getEmployee().getDepartment().getDepartmentId().equals(departmentId))
+                    .collect(Collectors.toList());
+        }
+
+        if (positionId != null) {
+            allSalaries = allSalaries.stream()
+                    .filter(s -> s.getEmployee().getPosition() != null &&
+                            s.getEmployee().getPosition().getPositionId().equals(positionId))
+                    .collect(Collectors.toList());
+        }
+
+        if (lineId != null) {
+            allSalaries = allSalaries.stream()
+                    .filter(s -> s.getEmployee().getLine() != null &&
+                            s.getEmployee().getLine().getLineId().equals(lineId))
+                    .collect(Collectors.toList());
+        }
+
+        // Lấy danh sách các benefit đang hoạt động
         List<Benefit> allBenefits = benefitService.getAllActive();
 
-        List<SalaryDTO> allDTOs = all.stream()
+        // Map các đối tượng Salary thành SalaryDTO và áp dụng full benefits
+        List<SalaryDTO> salaryDTOs = allSalaries.stream()
                 .map(salary -> {
                     SalaryDTO dto = SalaryMapper.mapToSalaryDTO(salary);
 
@@ -248,19 +273,21 @@ public class SalaryServiceImpl implements SalaryService {
                                                     .amount(BigDecimal.ZERO)
                                                     .build()
                                     ))
-                            .toList();
+                            .collect(Collectors.toList());
 
                     dto.setAppliedBenefits(fullBenefits);
                     return dto;
                 })
-                .toList();
+                .collect(Collectors.toList());
 
+        // Tính phân trang
         int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), allDTOs.size());
+        int end = Math.min((start + pageable.getPageSize()), salaryDTOs.size());
 
-        List<SalaryDTO> pagedContent = start >= allDTOs.size() ? List.of() : allDTOs.subList(start, end);
-        return new PageImpl<>(pagedContent, pageable, allDTOs.size());
+        List<SalaryDTO> pagedContent = start >= salaryDTOs.size() ? List.of() : salaryDTOs.subList(start, end);
+        return new PageImpl<>(pagedContent, pageable, salaryDTOs.size());
     }
+
 
     private BigDecimal calculateAmount(BigDecimal basic, BigDecimal value, FormulaType type) {
         if (value == null || type == null) return BigDecimal.ZERO;
