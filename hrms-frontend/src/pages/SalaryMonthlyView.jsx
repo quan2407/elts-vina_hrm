@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import salaryService from "../services/salaryService";
 import MainLayout from "../components/MainLayout";
 import "../styles/AttendanceMonthlyView.css";
-
+import departmentService from "../services/departmentService";
+import positionService from "../services/positionService";
+import { getAllLines } from "../services/linesService"; // bạn đã có
 const SalaryMonthlyView = () => {
   const [salaries, setSalaries] = useState([]);
   const [month, setMonth] = useState(new Date().getMonth() + 1);
@@ -16,6 +18,13 @@ const SalaryMonthlyView = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   let debounceTimeout;
+  const [departmentId, setDepartmentId] = useState(null);
+  const [positionId, setPositionId] = useState(null);
+  const [lineId, setLineId] = useState(null);
+  const [departments, setDepartments] = useState([]);
+  const [positions, setPositions] = useState([]);
+  const [lines, setLines] = useState([]);
+
   // Gom tất cả loại phụ cấp và khấu trừ từ dữ liệu lương
   const allowanceTitles = Array.from(
     new Set(
@@ -42,7 +51,10 @@ const SalaryMonthlyView = () => {
         year,
         page,
         size,
-        searchTerm
+        searchTerm,
+        departmentId,
+        positionId,
+        lineId
       );
       setSalaries(res.data.content);
       setTotalPages(res.data.totalPages);
@@ -51,17 +63,81 @@ const SalaryMonthlyView = () => {
       console.error("Lỗi khi tải dữ liệu lương:", err);
     }
   };
-  useEffect(() => {
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(() => {
-      fetchSalaries();
-    }, 100);
-    return () => clearTimeout(debounceTimeout);
-  }, [searchTerm]);
+  // useEffect(() => {
+  //   clearTimeout(debounceTimeout);
+  //   debounceTimeout = setTimeout(() => {
+  //     fetchSalaries();
+  //   }, 100);
+  //   return () => clearTimeout(debounceTimeout);
+  // }, [searchTerm]);
 
+  // 1) Lấy lương khi đổi tháng/năm/trang
   useEffect(() => {
     if (month && year) fetchSalaries();
   }, [month, year, page]);
+
+  // 2) Load danh mục lần đầu (departments/positions/lines)
+  useEffect(() => {
+    (async () => {
+      try {
+        const depRes = await departmentService.getAllDepartments();
+        setDepartments(depRes.data || []);
+
+        const posRes = await positionService.getAll();
+        setPositions(posRes.data || []);
+
+        const lineRes = await getAllLines();
+        setLines(lineRes || []);
+      } catch (e) {
+        console.error("Load danh mục lỗi:", e);
+      }
+    })();
+  }, []);
+
+  // 3) Khi đổi department => reload positions/lines, reset positionId/lineId
+  useEffect(() => {
+    (async () => {
+      try {
+        if (departmentId) {
+          const [posByDep, lineByDep] = await Promise.all([
+            departmentService.getPositionsByDepartment(departmentId),
+            departmentService.getLinesByDepartment(departmentId),
+          ]);
+          setPositions(posByDep.data || []);
+          setLines(lineByDep.data || []);
+        } else {
+          const posRes = await positionService.getAll();
+          setPositions(posRes.data || []);
+          const lineRes = await getAllLines();
+          setLines(lineRes || []);
+        }
+        setPositionId(null);
+        setLineId(null);
+      } catch (e) {
+        console.error("Load positions/lines theo department lỗi:", e);
+      }
+    })();
+  }, [departmentId]);
+
+  const fetchSalariesParams = async (m, y, p, q, depId, posId, liId) => {
+    try {
+      const res = await salaryService.getMonthlySalaries(
+        m,
+        y,
+        p,
+        size,
+        q,
+        depId,
+        posId,
+        liId
+      );
+      setSalaries(res.data.content);
+      setTotalPages(res.data.totalPages);
+      setIsLocked(res.data.content.length > 0 && res.data.content[0].locked);
+    } catch (err) {
+      console.error("Lỗi khi tải dữ liệu lương:", err);
+    }
+  };
 
   useEffect(() => {
     const fetchAvailableMonths = async () => {
@@ -90,12 +166,11 @@ const SalaryMonthlyView = () => {
 
     fetchAvailableMonths();
   }, []);
-
   return (
     <MainLayout>
       <div className="attendance-container">
         <div className="attendance-controls">
-          <div className="attendance-filters">
+          <div className="salary-filters">
             <select
               value={month}
               onChange={(e) => setMonth(Number(e.target.value))}
@@ -226,21 +301,88 @@ const SalaryMonthlyView = () => {
             </button>
           </div>
         </div>
-
-        <div className="attendance-table-wrapper">
-          <div className="attendance-search-wrapper">
+        <div className="attendance-controls">
+          <div className="salary-filters">
             <input
               type="text"
               className="attendance-search-input"
               placeholder="Tìm mã hoặc tên nhân viên..."
               value={searchTerm}
               onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setPage(0);
+                setSearchTerm(e.target.value); // Chỉ cập nhật giá trị searchTerm khi gõ
               }}
             />
-          </div>
+            <select
+              value={departmentId ?? ""}
+              onChange={(e) => setDepartmentId(e.target.value)}
+            >
+              <option value="">-- Chọn Bộ Phận --</option>
+              {departments.map((department) => (
+                <option
+                  key={department.id}
+                  value={department.id}
+                >
+                  {department.name}
+                </option>
+              ))}
+            </select>
 
+            <select
+              value={lineId ?? ""}
+              onChange={(e) => setLineId(e.target.value)}
+            >
+              <option value="">-- Chọn Chuyền --</option>
+              {lines.map((line) => (
+                <option
+                  key={line.id}
+                  value={line.id}
+                >
+                  {line.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={positionId ?? ""}
+              onChange={(e) => setPositionId(e.target.value)}
+            >
+              <option value="">-- Chọn Chức Vụ --</option>
+              {positions.map((position) => (
+                <option
+                  key={position.id}
+                  value={position.id}
+                >
+                  {position.name}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={() => {
+                setSearchTerm("");
+                setDepartmentId(null);
+                setLineId(null);
+                setPositionId(null);
+                setPage(0);
+
+                // Gọi API ngay với tham số “clear” thay vì chờ state cập nhật
+                fetchSalariesParams(month, year, 0, "", null, null, null);
+              }}
+            >
+              Reset
+            </button>
+
+            <button
+              onClick={() => {
+                setPage(0); // Reset to the first page when searching
+                fetchSalaries(); // Fetch data based on filters
+              }}
+            >
+              Tìm kiếm
+            </button>
+          </div>
+        </div>
+
+        <div className="attendance-table-wrapper">
           <table className="attendance-table">
             <thead>
               <tr>

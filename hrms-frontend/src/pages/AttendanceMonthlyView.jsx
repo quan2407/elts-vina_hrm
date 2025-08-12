@@ -55,6 +55,25 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
       alert("Tạo bảng lương thất bại!");
     }
   };
+  const fetchAttendanceParams = async (m, y, p, q, depId, posId, liId) => {
+    try {
+      const res = await attendanceService.getMonthlyAttendance(
+        m,
+        y,
+        p,
+        size,
+        q,
+        depId,
+        posId,
+        liId
+      );
+      setData(res.data.content);
+      setTotalPages(res.data.totalPages);
+    } catch (err) {
+      console.error("Lỗi khi tải dữ liệu chấm công:", err);
+    }
+  };
+
   const handleImportAttendance = async (file, date) => {
     try {
       await attendanceService.importAttendanceFromExcel(file, date);
@@ -466,16 +485,15 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
           <div className="attendance-filters">
             <input
               type="text"
-              className="attendance-search-input"
+              className="attendance-filter-input"
               placeholder="Tìm mã hoặc tên nhân viên..."
               value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value); // Chỉ cập nhật giá trị searchTerm khi gõ
-              }}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
 
             {/* Bộ lọc Department */}
             <select
+              className="attendance-filter-select"
               value={departmentId || ""}
               onChange={(e) => setDepartmentId(e.target.value)}
             >
@@ -492,6 +510,7 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
 
             {/* Bộ lọc Line */}
             <select
+              className="attendance-filter-select"
               value={lineId || ""}
               onChange={(e) => setLineId(e.target.value)}
             >
@@ -508,6 +527,7 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
 
             {/* Bộ lọc Position */}
             <select
+              className="attendance-filter-select"
               value={positionId || ""}
               onChange={(e) => setPositionId(e.target.value)}
             >
@@ -522,11 +542,27 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
               ))}
             </select>
 
+            {/* Nút Reset */}
+            <button
+              className="attendance-filter-btn reset-btn"
+              onClick={() => {
+                setSearchTerm("");
+                setDepartmentId(null);
+                setLineId(null);
+                setPositionId(null);
+                setPage(0);
+                fetchAttendanceParams(month, year, 0, "", null, null, null);
+              }}
+            >
+              Reset
+            </button>
+
             {/* Nút Tìm kiếm */}
             <button
+              className="attendance-filter-btn search-btn"
               onClick={() => {
-                setPage(0); // Reset về trang đầu tiên khi tìm kiếm
-                fetchAttendance(); // Gọi lại hàm fetch dữ liệu dựa trên bộ lọc
+                setPage(0);
+                fetchAttendance();
               }}
             >
               Tìm kiếm
