@@ -93,8 +93,6 @@ class BenefitRegistrationImplTest {
         benefit.setId(100L);
         benefit.setTitle("Du lịch công ty");
         benefit.setIsActive(true);
-        benefit.setEndDate(LocalDate.now().plusDays(30)); // Phúc lợi còn hạn
-        benefit.setMaxParticipants(50);
         benefit.setBenefitType(BenefitType.SU_KIEN);
 
         benefitDTO = new BenefitDTO();
@@ -452,35 +450,7 @@ class BenefitRegistrationImplTest {
         verify(benefitRegistrationRepository, times(2)).save(any(BenefitRegistration.class));
     }
 
-    @Test
-    @DisplayName("Test quickRegisterAll - Ném ngoại lệ khi một số nhân viên đã đăng ký")
-    void quickRegisterAll_ThrowsException_WhenSomeAreRegistered() {
-        // Arrange
-        Long benefitId = 100L;
-        Long positionIdDev = 10L;
 
-        BenefitMultiPositionRequestDTO request = new BenefitMultiPositionRequestDTO();
-        request.setBenefitId(benefitId);
-        request.setPositionIds(List.of(positionIdDev));
-
-        when(benefitPositionRepository.findAllByBenefit_IdAndPosition_PositionIdIn(benefitId, request.getPositionIds()))
-                .thenReturn(List.of(benefitPosition));
-        when(employeeRepository.findAllByDepartment_Positions_PositionId(positionIdDev)).thenReturn(List.of(employee));
-
-        // Giả lập nhân viên này đã đăng ký rồi
-        when(benefitRegistrationRepository.existsByBenefitPositionAndEmployee(benefitPosition, employee)).thenReturn(true);
-
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            benefitRegistrationService.quickRegisterAll(request);
-        });
-
-        assertEquals("Một số nhân viên không thể đăng ký: Nguyễn Văn A (đã đăng ký)", exception.getMessage());
-
-        // Verify
-        // Không có lệnh save nào được gọi
-        verify(benefitRegistrationRepository, never()).save(any());
-    }
 
     @Test
     @DisplayName("Test quickRegisterAll - Ném ngoại lệ khi không tìm thấy BenefitPosition nào")

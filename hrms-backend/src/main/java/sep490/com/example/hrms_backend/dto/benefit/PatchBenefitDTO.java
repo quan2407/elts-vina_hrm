@@ -29,8 +29,6 @@ public class PatchBenefitDTO {
     private String detail;
 
 
-    @Min(value = 1, message = "Số lượng đăng kí tối thiểu phải là 1")
-    private Integer maxParticipants;
 
     private Boolean isActive;
 
