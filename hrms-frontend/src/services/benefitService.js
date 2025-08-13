@@ -49,6 +49,14 @@ const benefitService = {
 
     unRegister: (benefitId, positionId, employeeId) => axiosClient.delete(`/hr/benefits/un-register/benefit/${benefitId}/position/${positionId}/employee/${employeeId}`),
     quickRegisterAll: (registerAll) => axiosClient.post(`/hr/benefits/quick-register-all`,registerAll),
+    multiUnRegister: (benefitId, positionId, payload) =>
+        axiosClient.delete(
+            `/hr/benefits/multi-un-register/benefit/${benefitId}/position/${positionId}`,
+            {
+                data: payload,
+                headers: { 'Content-Type': 'application/json' } 
+            }
+        ),
     changeStatus: (benefitId) => axiosClient.patch(`benefit/${benefitId}`),
     getByKeyword: (keyword) => axiosClient.get(`/benefit/keyword/${keyword}`)
 }

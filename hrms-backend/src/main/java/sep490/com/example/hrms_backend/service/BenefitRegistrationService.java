@@ -1,5 +1,7 @@
 package sep490.com.example.hrms_backend.service;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.benefit.*;
 
@@ -17,4 +19,6 @@ public interface BenefitRegistrationService {
     void unRegister(Long benefitId, Long positionId, Long employeeId);
 
     void quickRegisterAll(BenefitMultiPositionRequestDTO request);
+
+    int unRegisterMany(Long benefitId, Long positionId, @NotNull @NotEmpty List<Long> employeeIds);
 }

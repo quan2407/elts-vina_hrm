@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -297,5 +298,32 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
         if (!hasEmployees) {
             throw new RuntimeException("Không tìm thấy nhân viên nào cho các position.");
         }
+    }
+
+    @Transactional
+    @Override
+    public int unRegisterMany(Long benefitId, Long positionId, List<Long> employeeIds) {
+        if (employeeIds == null || employeeIds.isEmpty()) {
+            return 0;
+        }
+
+        BenefitPosition benefitPosition = benefitPositionRepository
+                .findByBenefit_IdAndPosition_PositionId(benefitId, positionId)
+                .orElseThrow(() -> new HRMSAPIException("Không tìm thấy benefitPosition"));
+
+        Long benefitPositionId = benefitPosition.getId();
+
+        // Lọc null + distinct để tránh lỗi/duplicate điều kiện
+        List<Long> sanitizedIds = employeeIds.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        if (sanitizedIds.isEmpty()) {
+            return 0;
+        }
+
+        return benefitRegistrationRepository
+                .deleteByBenefitPosition_IdAndEmployee_EmployeeIdIn(benefitPositionId, sanitizedIds);
     }
 }

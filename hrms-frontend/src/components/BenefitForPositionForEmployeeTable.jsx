@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "../styles/EmployeeTable.css";
 import benefitService from "../services/benefitService.js";
-import { Modal, message, Pagination } from "antd";
+import { Modal, message, Pagination, Button } from "antd";
 import BenefitForPositionForEmployeeActionDropdown from "./common/BenefitForPositionForEmployeeActionDropdown.jsx";
 import BenefitUpdateModal from "./modals/benefit/BenefitUpdateModal.jsx";
 import { useNavigate } from 'react-router-dom';
 
-const BenefitForPositionForEmployeeTableHeader = ({ sortConfig, onSort }) => {
-    const headers = [
+/** HEADER */
+const BenefitForPositionForEmployeeTableHeader = ({ sortConfig, onSort, bulkMode }) => {
+    const baseHeaders = [
         { label: "Id", key: "id" },
         { label: "Tên nhân viên", key: "name" },
         { label: "Email", key: "email" },
@@ -16,6 +17,7 @@ const BenefitForPositionForEmployeeTableHeader = ({ sortConfig, onSort }) => {
         { label: "Vị trí", key: "position" },
         { label: "Chức năng", key: null }
     ];
+    const headers = bulkMode ? [{ label: "", key: null }, ...baseHeaders] : baseHeaders;
 
     const getSortSymbol = (key) => {
         if (sortConfig.key !== key) return null;
@@ -27,14 +29,16 @@ const BenefitForPositionForEmployeeTableHeader = ({ sortConfig, onSort }) => {
             className="employee-table-header"
             style={{
                 display: "grid",
-                gridTemplateColumns: "1fr 2fr 2fr 2fr 2fr 2fr 2fr",
+                gridTemplateColumns: bulkMode
+                    ? "56px 1fr 2fr 2fr 2fr 2fr 2fr 2fr"
+                    : "1fr 2fr 2fr 2fr 2fr 2fr 2fr",
                 alignItems: "center",
             }}
         >
-            {headers.map(({ label, key }) => (
+            {headers.map(({ label, key }, idx) => (
                 <div
                     className="employee-header-cell"
-                    key={label}
+                    key={`${label}-${idx}`}
                     onClick={() => key && onSort(key)}
                     style={{
                         cursor: key ? "pointer" : "default",
@@ -46,10 +50,10 @@ const BenefitForPositionForEmployeeTableHeader = ({ sortConfig, onSort }) => {
                     }}
                 >
                     <span>{label}</span>
-                    {getSortSymbol(key) && (
+                    {key && getSortSymbol(key) && (
                         <span style={{ fontSize: "12px", color: "black" }}>
-                            {getSortSymbol(key)}
-                        </span>
+              {getSortSymbol(key)}
+            </span>
                     )}
                 </div>
             ))}
@@ -57,10 +61,28 @@ const BenefitForPositionForEmployeeTableHeader = ({ sortConfig, onSort }) => {
     );
 };
 
-const BenefitForPositionForEmployeeTableRow = ({ benefit, registration, onUpdateSuccess, position }) => {
+/** ROW */
+const BenefitForPositionForEmployeeTableRow = ({
+                                                   benefit,
+                                                   registration,
+                                                   onUpdateSuccess,
+                                                   position,
+                                                   selectedEmployees,
+                                                   setSelectedEmployees,
+                                                   bulkMode
+                                               }) => {
     const formatDate = (date) => new Date(date).toLocaleDateString("en-GB");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
+
+    const employeeId = Number(registration?.employee?.employeeId);
+    const isSelected = selectedEmployees.includes(employeeId);
+
+    const toggleSelect = () => {
+        setSelectedEmployees((prev) =>
+            isSelected ? prev.filter((id) => id !== employeeId) : [...prev, employeeId]
+        );
+    };
 
     const handleEdit = () => setIsModalOpen(true);
 
@@ -82,18 +104,36 @@ const BenefitForPositionForEmployeeTableRow = ({ benefit, registration, onUpdate
                 className="employee-table-row"
                 style={{
                     display: "grid",
-                    gridTemplateColumns: "1fr 2fr 2fr 2fr 2fr 2fr 2fr",
+                    gridTemplateColumns: bulkMode
+                        ? "40px 1fr 2fr 2fr 2fr 2fr 2fr 2fr"
+                        : "1fr 2fr 2fr 2fr 2fr 2fr 2fr",
                     alignItems: "center",
                 }}
             >
-                <div className="employee-table-cell" style={{ padding: "8px", textAlign: "center" }}>{registration.employee?.employeeId}</div>
-                <div className="employee-table-cell" style={{ padding: "8px" }}>{registration.employee?.employeeName}</div>
-                <div className="employee-table-cell" style={{ padding: "8px" }}>{registration.employee?.email}</div>
+                {bulkMode && (
+                    <div className="checkbox-cell">
+                        <input type="checkbox" className="bulk-checkbox" checked={isSelected} onChange={toggleSelect} />
+                    </div>
+                )}
+
+                <div className="employee-table-cell" style={{ padding: "8px", textAlign: "center" }}>
+                    {registration.employee?.employeeId}
+                </div>
+                <div className="employee-table-cell" style={{ padding: "8px" }}>
+                    {registration.employee?.employeeName}
+                </div>
+                <div className="employee-table-cell" style={{ padding: "8px" }}>
+                    {registration.employee?.email}
+                </div>
                 <div className="employee-table-cell" style={{ padding: "8px", textAlign: "right" }}>
                     {Number(registration.employee.basicSalary).toLocaleString('vi-VN')}đ
                 </div>
-                <div className="employee-table-cell" style={{ padding: "8px", textAlign: "center" }}>{formatDate(registration.registeredAt)}</div>
-                <div className="employee-table-cell" style={{ padding: "8px" }}>{position.positionName}</div>
+                <div className="employee-table-cell" style={{ padding: "8px", textAlign: "center" }}>
+                    {formatDate(registration.registeredAt)}
+                </div>
+                <div className="employee-table-cell" style={{ padding: "8px" }}>
+                    {position.positionName}
+                </div>
                 <div className="employee-table-cell" style={{ padding: "8px", textAlign: "center" }}>
                     <BenefitForPositionForEmployeeActionDropdown
                         onEdit={handleEdit}
@@ -110,25 +150,28 @@ const BenefitForPositionForEmployeeTableRow = ({ benefit, registration, onUpdate
                                 });
                             }
                         }}
-                        onDelete={() => Modal.confirm({
-                            title: "Bạn có chắc chắn muốn xóa?",
-                            onOk: async () => {
-                                try {
-                                    await benefitService.unRegister(
-                                        benefit.id,
-                                        position.positionId,
-                                        registration.employee.employeeId
-                                    );
-                                    message.success("Đã xóa thành công!");
-                                    onUpdateSuccess();
-                                } catch {
-                                    message.error("Xóa thất bại");
-                                }
-                            }
-                        })}
+                        onDelete={() =>
+                            Modal.confirm({
+                                title: "Bạn có chắc chắn muốn xóa?",
+                                onOk: async () => {
+                                    try {
+                                        await benefitService.unRegister(
+                                            benefit.id,
+                                            position.positionId,
+                                            registration.employee.employeeId
+                                        );
+                                        message.success("Đã xóa thành công!");
+                                        onUpdateSuccess();
+                                    } catch {
+                                        message.error("Xóa thất bại");
+                                    }
+                                },
+                            })
+                        }
                     />
                 </div>
             </div>
+
             <BenefitUpdateModal
                 open={isModalOpen}
                 onCancel={() => setIsModalOpen(false)}
@@ -139,13 +182,24 @@ const BenefitForPositionForEmployeeTableRow = ({ benefit, registration, onUpdate
     );
 };
 
-function BenefitForPositionForEmployeeTable({ benefitId, positionId, reloadKey, onForceReload }) {
+/** TABLE */
+function BenefitForPositionForEmployeeTable({
+                                                benefitId,
+                                                positionId,
+                                                reloadKey,
+                                                onForceReload,
+                                                selectedEmployees = [],
+                                                setSelectedEmployees = () => {},
+                                                bulkMode = false,
+                                                onRequestBulkDelete = () => {},
+                                                // NEW: nhận searchText từ parent
+                                                searchText = ""
+                                            }) {
     const [benefits, setBenefits] = useState([]);
     const [registrationsToRender, setRegistrationsToRender] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const [searchText, setSearchText] = useState("");
     const [pageNumber, setPageNumber] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
@@ -159,10 +213,10 @@ function BenefitForPositionForEmployeeTable({ benefitId, positionId, reloadKey, 
                 setBenefits(fetchedBenefits);
 
                 const allRegs = [];
-                fetchedBenefits.forEach(benefit => {
-                    const targetPosition = benefit.positions?.find(pos => pos.positionId === Number(positionId));
+                fetchedBenefits.forEach((benefit) => {
+                    const targetPosition = benefit.positions?.find((pos) => pos.positionId === Number(positionId));
                     if (targetPosition?.registrations) {
-                        targetPosition.registrations.forEach(reg => {
+                        targetPosition.registrations.forEach((reg) => {
                             allRegs.push({ benefit, registration: reg, position: targetPosition });
                         });
                     }
@@ -176,6 +230,17 @@ function BenefitForPositionForEmployeeTable({ benefitId, positionId, reloadKey, 
             .finally(() => setLoading(false));
     }, [reloadKey, benefitId, positionId]);
 
+    // Reset page khi đổi từ khóa tìm kiếm
+    useEffect(() => {
+        setPageNumber(1);
+    }, [searchText]);
+
+    // Khi thoát bulkMode hoặc reload, bỏ chọn
+    useEffect(() => {
+        if (!bulkMode) setSelectedEmployees([]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [bulkMode, reloadKey]);
+
     const handleSort = (key) => {
         setPageNumber(1);
         setSortConfig((prev) => {
@@ -187,13 +252,15 @@ function BenefitForPositionForEmployeeTable({ benefitId, positionId, reloadKey, 
         });
     };
 
+    // Lọc theo searchText (từ parent)
     let filteredData = registrationsToRender.filter(({ registration }) => {
-        const keyword = searchText.toLowerCase();
+        const keyword = (searchText || "").toLowerCase();
         const name = registration.employee?.employeeName?.toLowerCase() || "";
         const email = registration.employee?.email?.toLowerCase() || "";
         return name.includes(keyword) || email.includes(keyword);
     });
 
+    // Sort
     if (sortConfig.key && sortConfig.direction) {
         filteredData = [...filteredData].sort((a, b) => {
             const { key } = sortConfig;
@@ -223,24 +290,38 @@ function BenefitForPositionForEmployeeTable({ benefitId, positionId, reloadKey, 
     const startIndex = (pageNumber - 1) * pageSize;
     const currentPageData = filteredData.slice(startIndex, startIndex + pageSize);
 
+    // IDs theo bộ lọc để dùng cho “Chọn tất cả”
+    const allFilteredIds = filteredData.map(({ registration }) => Number(registration.employee?.employeeId));
+
+    const selectAllFiltered = () => {
+        setSelectedEmployees(Array.from(new Set([...selectedEmployees, ...allFilteredIds])));
+    };
+
+    const clearSelection = () => setSelectedEmployees([]);
+
     return (
         <div className="employee-table-wrapper">
-            <div className="filter-wrapper" style={{ marginBottom: 16 }}>
-                <input
-                    type="text"
-                    placeholder="Tìm theo tên hoặc email..."
-                    value={searchText}
-                    onChange={(e) => {
-                        setSearchText(e.target.value);
-                        setPageNumber(1);
-                    }}
-                    style={{ padding: "8px", width: "300px", borderRadius: "4px", border: "1px solid #ccc" }}
-                />
-            </div>
+            {/* NEW: Chỉ còn thanh hành động khi bulkMode = true (search box đã chuyển ra parent) */}
+            {bulkMode && (
+                <div className="bulk-actions">
+                    <Button onClick={selectAllFiltered}>Chọn tất cả</Button>
+                    <Button onClick={clearSelection} disabled={selectedEmployees.length === 0}>Hủy chọn tất cả</Button>
+                    <Button
+                        type="primary"
+                        danger
+                        disabled={selectedEmployees.length === 0}
+                        onClick={onRequestBulkDelete}
+                    >
+                        Xóa đã chọn ({selectedEmployees.length})
+                    </Button>
+                </div>
+            )}
+
 
             <BenefitForPositionForEmployeeTableHeader
                 sortConfig={sortConfig}
                 onSort={handleSort}
+                bulkMode={bulkMode}
             />
 
             <div className="employee-table">
@@ -254,6 +335,9 @@ function BenefitForPositionForEmployeeTable({ benefitId, positionId, reloadKey, 
                         registration={registration}
                         position={position}
                         onUpdateSuccess={onForceReload}
+                        selectedEmployees={selectedEmployees}
+                        setSelectedEmployees={setSelectedEmployees}
+                        bulkMode={bulkMode}
                     />
                 ))}
             </div>
