@@ -205,8 +205,7 @@ public class BenefitServiceImplTest {
         // 1.1. Dữ liệu đầu vào
         BenefitDTO benefitDTO = new BenefitDTO();
         benefitDTO.setTitle("Tiệc năm mới 2026");
-        benefitDTO.setStartDate(LocalDate.of(2026, 1, 15));
-        benefitDTO.setEndDate(LocalDate.of(2026, 1, 15));
+
 
 
         // 1.2. Dữ liệu mock

@@ -36,7 +36,6 @@ const BenefitCreateModal = ({onCreated}) => {
                 benefitType: values.benefitType,
                 defaultFormulaType: values.formulaType,
                 defaultFormulaValue: values.formulaValue,
-                isActive: values.isActive,
                 detail: values.detail || ''
             };
 
@@ -182,16 +181,6 @@ const BenefitCreateModal = ({onCreated}) => {
 
 
 
-                    <Form.Item
-                        label="Trạng thái"
-                        name="isActive"
-                        rules={[{ required: true, message: 'Chọn trạng thái' }]}
-                    >
-                        <Select placeholder="Chọn trạng thái">
-                            <Select.Option value={true}>Hoạt động</Select.Option>
-                            <Select.Option value={false}>Ngưng hoạt động</Select.Option>
-                        </Select>
-                    </Form.Item>
 
                     <Form.Item label="Đặc tả chi tiết" name="detail">
                         <Input.TextArea rows={3} placeholder="Nhập đặc tả (không bắt buộc)" />

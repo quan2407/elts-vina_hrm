@@ -25,7 +25,6 @@ const UpdateProgramModal = ({ open, onCancel, onSubmit, initialData }) => {
             .then(values => {
                 onSubmit({
                     ...values,
-
                 });
                 form.resetFields();
             })
@@ -79,7 +78,7 @@ const UpdateProgramModal = ({ open, onCancel, onSubmit, initialData }) => {
                 <Form.Item
                     name="isActive"
                     label="Trạng thái hoạt động"
-                    valuePropName="checked" // ✅ Rất quan trọng với Switch
+                    valuePropName="checked"
                 >
                     <Switch
                         checkedChildren="Hoạt động"

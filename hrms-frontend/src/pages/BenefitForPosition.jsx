@@ -47,10 +47,10 @@ function BenefitForPosition() {
                 <div className="page-header">
                     <h1 className="page-title">Quản lý {benefit ? benefit.title : ""}</h1>
                     <div className="page-actions">
-                        <AssignBenefitToPositionsModal
-                            benefitId={benefitId}
-                            onSuccess={handleReload}
-                        />
+                        {/*<AssignBenefitToPositionsModal*/}
+                        {/*    benefitId={benefitId}*/}
+                        {/*    onSuccess={handleReload}*/}
+                        {/*/>*/}
                         <Button
                             type={isMultiSelectMode ? "primary" : "default"}
                             icon={<CheckSquareOutlined />}

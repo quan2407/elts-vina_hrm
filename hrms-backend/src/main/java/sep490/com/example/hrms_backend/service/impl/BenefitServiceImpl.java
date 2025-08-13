@@ -18,12 +18,15 @@ import sep490.com.example.hrms_backend.dto.benefit.PatchBenefitDTO;
 import sep490.com.example.hrms_backend.entity.Benefit;
 import sep490.com.example.hrms_backend.entity.BenefitPosition;
 import sep490.com.example.hrms_backend.entity.Employee;
+import sep490.com.example.hrms_backend.entity.Position;
 import sep490.com.example.hrms_backend.enums.BenefitType;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.mapper.BenefitMapper;
+import sep490.com.example.hrms_backend.repository.BenefitPositionRepository;
 import sep490.com.example.hrms_backend.repository.BenefitRepository;
 import sep490.com.example.hrms_backend.repository.EmployeeRepository;
+import sep490.com.example.hrms_backend.repository.PositionRepository;
 import sep490.com.example.hrms_backend.service.BenefitService;
 
 import java.time.LocalDate;
@@ -44,6 +47,10 @@ public class BenefitServiceImpl implements BenefitService {
     private final BenefitMapper benefitMapper;
 
     private final EmployeeRepository employeeRepository;
+
+    private final PositionRepository positionRepository;
+
+    private final BenefitPositionRepository benefitPositionRepository;
 
     //Tested
     @Transactional
@@ -148,36 +155,59 @@ public class BenefitServiceImpl implements BenefitService {
     @Transactional
     @Override
     public BenefitDTO addBenefit(BenefitDTO benefitDTO) {
+        // Step 0: lấy danh sách nhân sự đang active để trả về số lượng (như logic cũ)
         List<Employee> employees = employeeRepository.findAllActive();
 
-        //Step1: DTO -> Entiry
-
+        // Step 1: DTO -> Entity
         Benefit benefit = modelMapper.map(benefitDTO, Benefit.class);
 
+        // >>> NEW: set mặc định isActive = 1 cho Benefit
+        benefit.setIsActive(true); // nếu field là boolean: benefit.setIsActive(true);
 
-
-
-
-
-        //Step2: check existed in DB
+        // Step 2: kiểm tra trùng tiêu đề
         Benefit benefitFromDb = benefitRepository.findByTitle(benefit.getTitle());
         if (benefitFromDb != null) {
             throw new HRMSAPIException("Phúc lợi với tiêu đề " + benefit.getTitle() + " đã tồn tại.");
         }
 
+        // Step 3: lưu Benefit mới
+        Benefit savedBenefit = benefitRepository.save(benefit);
+
+        // >>> NEW: Gắn tất cả Position hiện có vào Benefit vừa tạo
+        List<Position> positions = positionRepository.findAll();
+
+        if (!positions.isEmpty()) {
+            List<BenefitPosition> benefitPositions = positions.stream()
+                    // Tránh tạo trùng nếu vì lý do nào đó đã tồn tại
+                    .filter(position -> !benefitPositionRepository.existsByBenefitAndPosition(savedBenefit, position))
+                    .map(position -> {
+                        BenefitPosition bp = new BenefitPosition();
+                        bp.setBenefit(savedBenefit);
+                        bp.setPosition(position);
+
+                        // Gán các trường mặc định từ Benefit
+                        bp.setFormulaValue(savedBenefit.getDefaultFormulaValue());
+                        bp.setFormulaType(savedBenefit.getDefaultFormulaType());
 
 
-        //Step3: if not existed => save benefit
-        Benefit savedCategory = benefitRepository.save(benefit);
 
+                        return bp;
+                    })
+                    .toList();
 
-        //Step 4: return DTO
+            if (!benefitPositions.isEmpty()) {
+                benefitPositionRepository.saveAll(benefitPositions);
+            }
+        }
+        // <<< END NEW
 
-        BenefitDTO updatedBenefitDTO = modelMapper.map(savedCategory, BenefitDTO.class);
-       updatedBenefitDTO.setNumberOfEmployee(employees.size());
-
+        // Step 4: trả về DTO
+        BenefitDTO updatedBenefitDTO = modelMapper.map(savedBenefit, BenefitDTO.class);
+        updatedBenefitDTO.setNumberOfEmployee(employees.size());
         return updatedBenefitDTO;
     }
+
+
 
     //Tested
     @Transactional
