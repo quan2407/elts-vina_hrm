@@ -67,9 +67,7 @@ public class BenefitServiceImplTest {
         benefit.setId(1L);
         benefit.setTitle("Du lịch công ty 2025");
         benefit.setDescription("Du lịch công ty thường niên - Đà Nẵng.");
-        benefit.setStartDate(LocalDate.of(2025, 9, 1));
-        benefit.setEndDate(LocalDate.of(2025, 9, 5));
-        benefit.setMaxParticipants(100);
+//        benefit.setMaxParticipants(100);
         benefit.setIsActive(true);
 
         benefitDTO = new BenefitDTO();
@@ -132,7 +130,7 @@ public class BenefitServiceImplTest {
         // Gọi phương thức cần test
         BenefitResponse response = benefitService.getAllBenefitsForHr(
                 "hr_user", pageNumber, pageSize, sortBy, sortOrder,
-                title, null, null, null, null, null, null, null
+                title, null, null, null
         );
 
         //3. Assert
@@ -166,7 +164,7 @@ public class BenefitServiceImplTest {
         // 2. Act & Assert
         // Dùng assertThrows để kiểm tra rằng một ngoại lệ cụ thể được ném ra
         HRMSAPIException exception = assertThrows(HRMSAPIException.class, () -> {
-            benefitService.getAllBenefitsForHr("hr_user", 1, 10, "id", "asc", "NonExistent", null, null, null, null, null, null, null);
+            benefitService.getAllBenefitsForHr("hr_user", 1, 10, "id", "asc", "NonExistent", null, null, null);
         });
 
         // Kiểm tra thông điệp của ngoại lệ
@@ -186,7 +184,7 @@ public class BenefitServiceImplTest {
 
         // 2. Act & Assert
         HRMSAPIException exception = assertThrows(HRMSAPIException.class, () -> {
-            benefitService.getAllBenefitsForHr("hr_user", 1, 10, "id", "asc", null, null, null, startDate, endDate, null, null, null);
+            benefitService.getAllBenefitsForHr("hr_user", 1, 10, "id", "asc", null, null, null, null);
         });
 
         assertEquals("Ngày kết thúc phải lớn hơn ngày bắt đầu", exception.getMessage());
@@ -196,24 +194,6 @@ public class BenefitServiceImplTest {
         verify(benefitRepository, never()).findAll(any(Specification.class), any(Pageable.class));
     }
 
-    @Test
-    @DisplayName("Test getAllBenefitsForHr - Ném ra ngoại lệ khi minParticipants lớn hơn maxParticipants")
-    void testGetAllBenefitsForHr_ThrowsException_WhenMinParticipantsIsGreaterThanMax() {
-        // 1. Arrange
-        Integer minParticipants = 100;
-        Integer maxParticipants = 50; // Dữ liệu không hợp lệ
-
-        // 2. Act & Assert
-        HRMSAPIException exception = assertThrows(HRMSAPIException.class, () -> {
-            benefitService.getAllBenefitsForHr("hr_user", 1, 10, "id", "asc", null, null, null, null, null, minParticipants, maxParticipants, null);
-        });
-
-        assertEquals("Số người tham gia tối thiểu không được lớn hơn số người tham gia tối đa.", exception.getMessage());
-
-        // 3. Verify
-        // Đảm bảo rằng repository không bao giờ được gọi
-        verify(benefitRepository, never()).findAll(any(Specification.class), any(Pageable.class));
-    }
 
 
     //@@@@@@Test addBenefits()@@@@@@@
@@ -225,16 +205,12 @@ public class BenefitServiceImplTest {
         // 1.1. Dữ liệu đầu vào
         BenefitDTO benefitDTO = new BenefitDTO();
         benefitDTO.setTitle("Tiệc năm mới 2026");
-        benefitDTO.setStartDate(LocalDate.of(2026, 1, 15));
-        benefitDTO.setEndDate(LocalDate.of(2026, 1, 15));
-        benefitDTO.setMaxParticipants(50);
+
+
 
         // 1.2. Dữ liệu mock
         Benefit benefitToSave = new Benefit(); // Đối tượng sau khi map
         benefitToSave.setTitle("New Year Party 2026");
-        benefitToSave.setStartDate(LocalDate.of(2026, 1, 15));
-        benefitToSave.setEndDate(LocalDate.of(2026, 1, 15));
-        benefitToSave.setMaxParticipants(50);
 
         Benefit savedBenefit = new Benefit(); // Đối tượng sau khi lưu vào DB
         savedBenefit.setId(100L);
@@ -302,68 +278,9 @@ public class BenefitServiceImplTest {
         verify(benefitRepository, never()).save(any(Benefit.class));
     }
 
-    @Test
-    @DisplayName("Test addBenefit - Ném ngoại lệ khi Ngày kết thúc trước Ngày bắt đầu")
-    void testAddBenefit_ThrowsException_WhenEndDateIsBeforeStartDate() {
-        //1. Arrange
-        BenefitDTO benefitDTO = new BenefitDTO();
-        benefitDTO.setTitle("Ngày phúc lợi không hợp lệ");
-        benefitDTO.setStartDate(LocalDate.of(2025, 10, 10));
-        benefitDTO.setEndDate(LocalDate.of(2025, 10, 9)); // Ngày không hợp lệ
 
-        Benefit benefitToSave = new Benefit();
-        benefitToSave.setStartDate(LocalDate.of(2025, 10, 10));
-        benefitToSave.setEndDate(LocalDate.of(2025, 10, 9));
 
-        when(employeeRepository.findAllActive()).thenReturn(List.of(new Employee()));
-        when(modelMapper.map(benefitDTO, Benefit.class)).thenReturn(benefitToSave);
 
-        // 2.Act & Assert
-        HRMSAPIException exception = assertThrows(HRMSAPIException.class, () -> {
-            benefitService.addBenefit(benefitDTO);
-        });
-
-        assertEquals("Ngày kết thúc phải lớn hơn ngày bắt đầu", exception.getMessage());
-
-        // 3. Verify
-        // Đảm bảo không có tương tác nào với repository vì lỗi xảy ra trước
-        verify(benefitRepository, never()).findByTitle(anyString());
-        verify(benefitRepository, never()).save(any(Benefit.class));
-    }
-
-    @Test
-    @DisplayName("Test addBenefit - Ném ngoại lệ khi Số người tham gia lớn hơn số nhân viên")
-    void testAddBenefit_ThrowsException_WhenParticipantsExceedEmployees() {
-        // Arrange
-        BenefitDTO benefitDTO = new BenefitDTO();
-        benefitDTO.setTitle("Too Big Party");
-        benefitDTO.setMaxParticipants(100); // Yêu cầu 100 người
-        benefitDTO.setStartDate(LocalDate.now());
-
-        Benefit benefitToSave = new Benefit();
-        benefitToSave.setTitle("Too Big Party");
-        benefitToSave.setMaxParticipants(100);
-        benefitToSave.setStartDate(LocalDate.now());
-
-        // Giả lập công ty chỉ có 50 nhân viên
-        List<Employee> employees = new ArrayList<>();
-        IntStream.range(0, 50).forEach(i -> employees.add(new Employee()));
-        when(employeeRepository.findAllActive()).thenReturn(employees);
-
-        when(modelMapper.map(benefitDTO, Benefit.class)).thenReturn(benefitToSave);
-        when(benefitRepository.findByTitle("Too Big Party")).thenReturn(null); // Title chưa tồn tại
-
-        // Act & Assert
-        HRMSAPIException exception = assertThrows(HRMSAPIException.class, () -> {
-            benefitService.addBenefit(benefitDTO);
-        });
-
-        assertEquals("Số người tham gia không thể lớn hơn số nhân viên công ty đang làm việc", exception.getMessage());
-
-        // Verify
-        verify(benefitRepository, times(1)).findByTitle(anyString()); // Vẫn check title
-        verify(benefitRepository, never()).save(any(Benefit.class)); // Nhưng không save
-    }
 
     //@@@@@@Test updateBenefit()@@@@@@@
     // ######SUCCESS CASE########
@@ -376,11 +293,10 @@ public class BenefitServiceImplTest {
         // 1. Dữ liệu đầu vào: Chỉ cập nhật title và maxParticipants
         PatchBenefitDTO patchDTO = new PatchBenefitDTO();
         patchDTO.setTitle("Du lịch công ty MỚI 2025");
-        patchDTO.setMaxParticipants(120);
+
 
         Benefit mappedFromPatch = new Benefit();
         mappedFromPatch.setTitle("Du lịch công ty MỚI 2025");
-        mappedFromPatch.setMaxParticipants(120);
         when(modelMapper.map(patchDTO, Benefit.class)).thenReturn(mappedFromPatch);
 
         // Các trường khác trong patchDTO là null
@@ -393,9 +309,7 @@ public class BenefitServiceImplTest {
         benefitFromDb.setId(benefit.getId());
         benefitFromDb.setTitle(benefit.getTitle());
         benefitFromDb.setDescription(benefit.getDescription());
-        benefitFromDb.setStartDate(benefit.getStartDate());
-        benefitFromDb.setEndDate(benefit.getEndDate());
-        benefitFromDb.setMaxParticipants(benefit.getMaxParticipants());
+
         benefitFromDb.setIsActive(benefit.getIsActive());
 
 
@@ -413,7 +327,6 @@ public class BenefitServiceImplTest {
             BenefitDTO dto = new BenefitDTO();
             dto.setId(b.getId());
             dto.setTitle(b.getTitle());
-            dto.setMaxParticipants(b.getMaxParticipants());
             dto.setDescription(b.getDescription()); // Giả lập mapper
             return dto;
         });
@@ -430,7 +343,6 @@ public class BenefitServiceImplTest {
         // 1. Kiểm tra DTO trả về
         assertNotNull(updatedDto);
         assertEquals("Du lịch công ty MỚI 2025", updatedDto.getTitle());
-        assertEquals(120, updatedDto.getMaxParticipants());
 
         // 2. Dùng captor để kiểm tra đối tượng đã được lưu vào DB
         verify(benefitRepository).save(benefitCaptor.capture());
@@ -438,11 +350,9 @@ public class BenefitServiceImplTest {
 
         // Kiểm tra các trường đã được cập nhật
         assertEquals("Du lịch công ty MỚI 2025", savedBenefit.getTitle());
-        assertEquals(120, savedBenefit.getMaxParticipants());
 
         // Quan trọng: Kiểm tra các trường khác KHÔNG bị thay đổi
         assertEquals(benefit.getDescription(), savedBenefit.getDescription());
-        assertEquals(benefit.getStartDate(), savedBenefit.getStartDate());
         assertTrue(savedBenefit.getIsActive());
     }
 
@@ -466,39 +376,7 @@ public class BenefitServiceImplTest {
         verify(benefitRepository, never()).save(any());
     }
 
-    @Test
-    @DisplayName("Test updateBenefit - Ném ngoại lệ khi số người tham gia không hợp lệ")
-    void testUpdateBenefit_ThrowsException_WhenParticipantsAreInvalid() {
-        // Arrange
-        PatchBenefitDTO patchDTO = new PatchBenefitDTO();
-        patchDTO.setMaxParticipants(200); // Lớn hơn số nhân viên
-        Long benefitId = 1L;
 
-        List<Employee> mockEmployees = IntStream.range(0, 150)
-                .mapToObj(i -> new Employee())
-                .collect(Collectors.toList());
-        when(employeeRepository.findAllActive()).thenReturn(mockEmployees);
-
-        when(benefitRepository.findById(benefitId)).thenReturn(Optional.of(benefit));
-
-        // Dữ liệu mẫu sẽ được trả về từ modelMapper
-        Benefit mappedFromPatch = new Benefit();
-        mappedFromPatch.setMaxParticipants(200); // Quan trọng là phải có giá trị này
-
-        // Dạy cho modelMapper một cách linh hoạt hơn bằng Argument Matchers
-        when(modelMapper.map(any(PatchBenefitDTO.class), eq(Benefit.class))).thenReturn(mappedFromPatch);
-        // ====================================================
-
-
-        // Act & Assert
-        HRMSAPIException exception = assertThrows(HRMSAPIException.class, () -> {
-            benefitService.updateBenefit(patchDTO, benefitId);
-        });
-
-        // Bây giờ test sẽ kiểm tra đúng ngoại lệ nghiệp vụ
-        assertEquals("Số người tham gia không thể lớn hơn số nhân viên công ty đang làm việc", exception.getMessage());
-        verify(benefitRepository, never()).save(any());
-    }
 
     @Test
     @DisplayName("Test updateBenefit - Ném ngoại lệ khi ngày kết thúc trước ngày bắt đầu")
@@ -515,7 +393,6 @@ public class BenefitServiceImplTest {
         // Set cho modelMapper phải trả về gì để tránh NullPointerException.
         // Đối tượng trả về cần có endDate để logic trong service tiếp tục chạy.
         Benefit mappedFromPatch = new Benefit();
-        mappedFromPatch.setEndDate(LocalDate.of(2025, 8, 31));
 
         // Dùng Argument Matchers để đảm bảo stubbing luôn hoạt động
         when(modelMapper.map(any(PatchBenefitDTO.class), eq(Benefit.class))).thenReturn(mappedFromPatch);

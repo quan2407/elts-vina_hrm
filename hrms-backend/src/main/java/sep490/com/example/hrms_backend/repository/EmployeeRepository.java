@@ -103,6 +103,10 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     List<Employee> findAllByDepartment_Positions_PositionId(Long positionId);
 
+    List<Employee> findAllByPosition_PositionId(Long positionId);
+
+    long countByPosition_PositionId(Long positionId);
+
     @Query("""
         SELECT e FROM Employee e
         WHERE e.isDeleted = false
@@ -119,4 +123,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
             @Param("positionId") Long positionId,
             @Param("lineId") Long lineId,
             Pageable pageable);
+
 }

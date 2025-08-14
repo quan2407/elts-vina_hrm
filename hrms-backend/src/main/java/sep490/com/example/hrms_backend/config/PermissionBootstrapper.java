@@ -151,11 +151,17 @@ public class PermissionBootstrapper implements ApplicationRunner {
         permissionRegistrationService.registerPermission("/api/hr/benefits/search-unregistered", "GET", "BenefitRegistration", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
 
         permissionRegistrationService.registerPermission("/api/hr/benefits/quick-register-all", "POST", "BenefitRegistration", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+
+        permissionRegistrationService.registerPermission("/api/hr/benefits/multi-un-register/benefit/*/position/*", "DELETE", "BenefitRegistration", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+
+        permissionRegistrationService.registerPermission("/api/hr/benefit/*/position/*/stats", "GET", "BenefitRegistration", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
+
         permissionRegistrationService.registerPermission(
                 "/api/positions",
                 "GET",
                 "Position",
                 allRoles
         );
+
     }
 }

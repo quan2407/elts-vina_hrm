@@ -195,3 +195,29 @@
   border: 1px solid #ccc;
   border-radius: 6px;
 }
+
+/* Checkbox to hơn */
+.bulk-checkbox {
+  transform: scale(1.4);
+  transform-origin: center;
+  width: 18px;     /* tăng vùng click */
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Ô chứa checkbox (giúp căn giữa đẹp hơn) */
+.checkbox-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+/* Thanh nút hành động khi bulkMode = true, căn trái */
+.bulk-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-start;  /* căn trái */
+  margin-bottom: 12px;
+}

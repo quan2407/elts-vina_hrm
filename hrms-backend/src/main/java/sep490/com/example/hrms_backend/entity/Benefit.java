@@ -58,17 +58,9 @@ public class Benefit {
     private FormulaType defaultFormulaType;
 
 
-    @NotNull
-    @Column(name = "start_date")
-    private LocalDate startDate; // ngày bắt đầu áp dụng
 
 
-    @Column(name = "end_date")
-    private LocalDate endDate; // ngày kết thúc áp dụng
 
-    @Min(1)
-    @Column(name = "max_participants")
-    private Integer maxParticipants; // số người tối đa được hưởng
 
     @Column(name = "is_active")
     private Boolean isActive; // trạng thái hoạt động

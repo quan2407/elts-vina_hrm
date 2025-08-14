@@ -15,7 +15,7 @@ function BenefitForPosition() {
     const [loading, setLoading] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
     const [reloadFlag, setReloadFlag] = useState(false);
-    const [isMultiSelectMode, setIsMultiSelectMode] = useState(false); // Trạng thái cho chế độ chọn nhiều
+    const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
 
     const handleReload = () => {
         setReloadFlag((prev) => !prev);
@@ -47,10 +47,10 @@ function BenefitForPosition() {
                 <div className="page-header">
                     <h1 className="page-title">Quản lý {benefit ? benefit.title : ""}</h1>
                     <div className="page-actions">
-                        <AssignBenefitToPositionsModal
-                            benefitId={benefitId}
-                            onSuccess={handleReload}
-                        />
+                        {/*<AssignBenefitToPositionsModal*/}
+                        {/*    benefitId={benefitId}*/}
+                        {/*    onSuccess={handleReload}*/}
+                        {/*/>*/}
                         <Button
                             type={isMultiSelectMode ? "primary" : "default"}
                             icon={<CheckSquareOutlined />}
@@ -70,7 +70,7 @@ function BenefitForPosition() {
                                 color: '#fff'
                             }}
                         >
-                            {isMultiSelectMode ? "Tắt chọn nhiều" : "Chọn nhiều"}
+                            {isMultiSelectMode ? "Tắt chọn nhiều" : "Áp dụng cho nhiều vị trí"}
                         </Button>
                     </div>
                 </div>
