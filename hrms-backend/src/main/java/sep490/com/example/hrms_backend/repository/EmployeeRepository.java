@@ -106,4 +106,22 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     List<Employee> findAllByPosition_PositionId(Long positionId);
 
     long countByPosition_PositionId(Long positionId);
+
+    @Query("""
+        SELECT e FROM Employee e
+        WHERE e.isDeleted = false
+          AND (:search IS NULL OR :search = '' OR
+               LOWER(e.employeeCode) LIKE LOWER(CONCAT('%', :search, '%')) OR
+               LOWER(e.employeeName) LIKE LOWER(CONCAT('%', :search, '%')))
+          AND (:departmentId IS NULL OR e.department.departmentId = :departmentId)
+          AND (:positionId   IS NULL OR e.position.positionId     = :positionId)
+          AND (:lineId       IS NULL OR e.line.lineId             = :lineId)
+        """)
+    Page<Employee> findActiveByFilters(
+            @Param("search") String search,
+            @Param("departmentId") Long departmentId,
+            @Param("positionId") Long positionId,
+            @Param("lineId") Long lineId,
+            Pageable pageable);
+
 }

@@ -9,9 +9,10 @@ import "../styles/AttendanceMonthlyView.css";
 import { Pencil } from "lucide-react";
 import DatePicker from "react-datepicker";
 import { parse } from "date-fns";
-
 import "react-datepicker/dist/react-datepicker.css";
-
+import departmentService from "../services/departmentService";
+import positionService from "../services/positionService";
+import { getAllLines } from "../services/linesService"; // bạn đã có
 const AttendanceMonthlyView = ({ readOnly = false }) => {
   const location = useLocation();
   const [data, setData] = useState([]);
@@ -30,7 +31,7 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
   const [leaveCellMeta, setLeaveCellMeta] = useState({});
   const [validationErrors, setValidationErrors] = useState({});
   const [page, setPage] = useState(0);
-  const [size] = useState(10);
+  const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [importModalOpen, setImportModalOpen] = useState(false);
@@ -39,7 +40,7 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
   const today = new Date();
   const params = new URLSearchParams(location.search);
   const empId = params.get("focusEmployee");
-  const focusDate = params.get("focusDate"); // yyyy-MM-dd
+  const focusDate = params.get("focusDate");
   const targetCellId =
     empId && focusDate ? `attendance-cell-${empId}-${focusDate}` : null;
   console.log("🔍 targetCellId:", targetCellId);
@@ -54,6 +55,25 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
       alert("Tạo bảng lương thất bại!");
     }
   };
+  const fetchAttendanceParams = async (m, y, p, q, depId, posId, liId) => {
+    try {
+      const res = await attendanceService.getMonthlyAttendance(
+        m,
+        y,
+        p,
+        size,
+        q,
+        depId,
+        posId,
+        liId
+      );
+      setData(res.data.content);
+      setTotalPages(res.data.totalPages);
+    } catch (err) {
+      console.error("Lỗi khi tải dữ liệu chấm công:", err);
+    }
+  };
+
   const handleImportAttendance = async (file, date) => {
     try {
       await attendanceService.importAttendanceFromExcel(file, date);
@@ -109,6 +129,54 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
       alert("Cập nhật nghỉ phép thất bại!");
     }
   };
+  const [departments, setDepartments] = useState([]);
+  const [positions, setPositions] = useState([]);
+  const [lines, setLines] = useState([]);
+
+  const [departmentId, setDepartmentId] = useState(null);
+  const [positionId, setPositionId] = useState(null);
+  const [lineId, setLineId] = useState(null);
+  useEffect(() => {
+    (async () => {
+      try {
+        const depRes = await departmentService.getAllDepartments();
+        setDepartments(depRes.data || []);
+
+        const posRes = await positionService.getAll();
+        setPositions(posRes.data || []);
+
+        const lineRes = await getAllLines();
+        setLines(lineRes || []);
+      } catch (e) {
+        console.error("Load danh mục lỗi:", e);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        if (departmentId) {
+          const [posByDep, lineByDep] = await Promise.all([
+            departmentService.getPositionsByDepartment(departmentId),
+            departmentService.getLinesByDepartment(departmentId),
+          ]);
+          setPositions(posByDep.data || []);
+          setLines(lineByDep.data || []);
+        } else {
+          const posRes = await positionService.getAll();
+          setPositions(posRes.data || []);
+          const lineRes = await getAllLines();
+          setLines(lineRes || []);
+        }
+
+        setPositionId(null);
+        setLineId(null);
+      } catch (e) {
+        console.error("Load positions/lines theo department lỗi:", e);
+      }
+    })();
+  }, [departmentId]);
 
   useEffect(() => {
     const fetchAvailableMonths = async () => {
@@ -116,7 +184,6 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
         const res = await attendanceService.getAvailableMonths();
         setAvailableMonths(res.data);
 
-        // ✅ Nếu có focusDate trên URL → parse ra year & month
         const focusDate = params.get("focusDate");
         let defaultMonth = res.data[0].month;
         let defaultYear = res.data[0].year;
@@ -144,7 +211,7 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
     if (month && year) {
       fetchAttendance();
     }
-  }, [month, year, page]);
+  }, [month, year, page, size]);
 
   const fetchAttendance = async () => {
     try {
@@ -160,7 +227,10 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
         year,
         page,
         size,
-        searchTerm
+        searchTerm,
+        departmentId,
+        positionId,
+        lineId
       );
       console.log("✅ RESPONSE DATA:", response.data);
       setData(response.data.content);
@@ -174,15 +244,15 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
       console.error("Fetch attendance failed:", error);
     }
   };
-  useEffect(() => {
-    const debounceTimeout = setTimeout(() => {
-      if (month && year) {
-        fetchAttendance();
-      }
-    }, 100);
+  // useEffect(() => {
+  //   const debounceTimeout = setTimeout(() => {
+  //     if (month && year) {
+  //       fetchAttendance();
+  //     }
+  //   }, 100);
 
-    return () => clearTimeout(debounceTimeout);
-  }, [searchTerm]);
+  //   return () => clearTimeout(debounceTimeout);
+  // }, [searchTerm]);
 
   const daysInMonth = month && year ? new Date(year, month, 0).getDate() : 0;
 
@@ -245,8 +315,6 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
         setTimeout(tryScroll, 200);
       }
     };
-
-    // Delay đầu tiên sau khi render toàn bộ bảng
     setTimeout(tryScroll, 500);
   }, [data, targetCellId]);
 
@@ -254,7 +322,7 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
     <MainLayout>
       <div className="attendance-container">
         <div className="attendance-controls">
-          <div className="attendance-filters">
+          <div className="salary-filters">
             <select
               value={month || ""}
               onChange={(e) => {
@@ -306,14 +374,14 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
             </select>
           </div>
 
-          <div className="attendance-actions">
+          <div className="salary-actions">
             <div className="leave-code-popover-wrapper">
               <button
                 className="leave-code-toggle-btn"
                 onClick={() =>
                   document
                     .getElementById("leave-code-popover")
-                    .classList.toggle("show")
+                    ?.classList.toggle("show")
                 }
               >
                 🛈 Ghi chú mã nghỉ
@@ -355,160 +423,155 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
             </div>
 
             <button
-              className="generate-salary-btn"
+              className="btn-update"
               onClick={handleGenerateSalary}
             >
               Tạo bảng lương
             </button>
+
             <button
-              className="generate-salary-btn"
-              style={{ backgroundColor: "#2563eb", marginLeft: "8px" }}
+              className="btn-update"
+              style={{ backgroundColor: "#2563eb" }}
               onClick={async () => {
                 if (!month || !year) {
                   alert("Vui lòng chọn tháng và năm trước khi xuất báo cáo.");
                   return;
                 }
-
                 try {
-                  const response =
-                    await attendanceService.exportAttendanceToExcel(
-                      month,
-                      year
-                    );
-                  const blob = new Blob([response.data], {
+                  const res = await attendanceService.exportAttendanceToExcel(
+                    month,
+                    year
+                  );
+                  const blob = new Blob([res.data], {
                     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                   });
-
-                  const url = window.URL.createObjectURL(blob);
-                  const link = document.createElement("a");
-                  link.href = url;
-                  link.setAttribute(
-                    "download",
-                    `baocao_chamcong_thang_${month
-                      .toString()
-                      .padStart(2, "0")}_${year}.xlsx`
-                  );
-                  document.body.appendChild(link);
-                  link.click();
-                  link.remove();
-                } catch (error) {
-                  console.error("Xuất Excel thất bại:", error);
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `baocao_chamcong_thang_${String(month).padStart(
+                    2,
+                    "0"
+                  )}_${year}.xlsx`;
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                } catch (e) {
+                  console.error(e);
                   alert("Không thể xuất báo cáo chấm công.");
                 }
               }}
             >
               Xuất Excel
             </button>
+
             <button
-              className="generate-salary-btn"
-              style={{ backgroundColor: "#22c55e", marginLeft: "8px" }}
+              className="btn-update"
+              style={{ backgroundColor: "#22c55e" }}
               onClick={() => setImportModalOpen(true)}
             >
               Import Excel
             </button>
-
-            {importModalOpen && (
-              <div className="import-popup-overlay">
-                <div className="import-popup-content">
-                  <h3>Nhập file chấm công Excel</h3>
-
-                  <div style={{ marginBottom: "12px" }}>
-                    <label style={{ marginRight: "8px" }}>
-                      Chọn ngày áp dụng:
-                    </label>
-                    <DatePicker
-                      selected={
-                        selectedDate
-                          ? parse(selectedDate, "dd-MM-yyyy", new Date())
-                          : null
-                      }
-                      onChange={(date) => {
-                        const day = String(date.getDate()).padStart(2, "0");
-                        const month = String(date.getMonth() + 1).padStart(
-                          2,
-                          "0"
-                        );
-                        const year = date.getFullYear();
-                        const formatted = `${day}-${month}-${year}`;
-                        setSelectedDate(formatted);
-                        console.log("Ngày được chọn:", formatted);
-                      }}
-                      dateFormat="dd-MM-yyyy"
-                      placeholderText="Chọn ngày áp dụng"
-                      minDate={new Date(year, month - 1, 1)}
-                      maxDate={
-                        new Date(new Date().setDate(new Date().getDate() - 1))
-                      }
-                      className="attendance-search-input"
-                    />
-                  </div>
-
-                  <div style={{ marginBottom: "12px" }}>
-                    <label>Chọn file Excel (.xlsx): </label>
-                    <input
-                      type="file"
-                      accept=".xlsx"
-                      onChange={(e) => setFile(e.target.files[0])}
-                    />
-                  </div>
-
-                  <div className="import-popup-actions">
-                    <button
-                      onClick={() => {
-                        if (!selectedDate || !file) {
-                          alert("Vui lòng chọn ngày và file Excel.");
-                          return;
-                        }
-
-                        // ✅ Chuyển từ dd-MM-yyyy => yyyy-MM-dd
-                        const [day, month, year] = selectedDate.split("-");
-                        const apiFormattedDate = `${year}-${month}-${day}`;
-                        console.log("📤 Gửi API với ngày:", apiFormattedDate);
-
-                        handleImportAttendance(file, apiFormattedDate);
-                      }}
-                      style={{
-                        padding: "8px 14px",
-                        backgroundColor: "#22c55e",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "4px",
-                      }}
-                    >
-                      Import
-                    </button>
-                    <button
-                      onClick={() => setImportModalOpen(false)}
-                      style={{
-                        padding: "8px 14px",
-                        backgroundColor: "#ccc",
-                        border: "none",
-                        borderRadius: "4px",
-                      }}
-                    >
-                      Hủy
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
-        <div className="attendance-table-wrapper">
-          <div className="attendance-search-wrapper">
+        <div className="attendance-controls">
+          <div className="page-size-control">
+            <label htmlFor="pageSize">Hiển thị</label>
+            <select
+              id="pageSize"
+              value={size}
+              onChange={(e) => {
+                setSize(Number(e.target.value));
+                setPage(0);
+              }}
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+            <span>/ trang</span>
+          </div>
+
+          <div className="salary-filters">
             <input
               type="text"
               className="attendance-search-input"
               placeholder="Tìm mã hoặc tên nhân viên..."
               value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setPage(0);
-              }}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </div>
 
+            <select
+              value={departmentId ?? ""}
+              onChange={(e) => setDepartmentId(e.target.value)}
+            >
+              <option value="">-- Chọn Bộ Phận --</option>
+              {departments.map((d) => (
+                <option
+                  key={d.id}
+                  value={d.id}
+                >
+                  {d.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={lineId ?? ""}
+              onChange={(e) => setLineId(e.target.value)}
+            >
+              <option value="">-- Chọn Chuyền --</option>
+              {lines.map((l) => (
+                <option
+                  key={l.id}
+                  value={l.id}
+                >
+                  {l.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={positionId ?? ""}
+              onChange={(e) => setPositionId(e.target.value)}
+            >
+              <option value="">-- Chọn Chức Vụ --</option>
+              {positions.map((p) => (
+                <option
+                  key={p.id}
+                  value={p.id}
+                >
+                  {p.name}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={() => {
+                setSearchTerm("");
+                setDepartmentId(null);
+                setLineId(null);
+                setPositionId(null);
+                setPage(0);
+                fetchAttendanceParams(month, year, 0, "", null, null, null);
+              }}
+            >
+              Xóa bộ lọc
+            </button>
+
+            <button
+              onClick={() => {
+                setPage(0);
+                fetchAttendance();
+              }}
+            >
+              Tìm kiếm
+            </button>
+          </div>
+        </div>
+
+        <div className="attendance-table-wrapper">
           <table className="attendance-table">
             <thead>
               <tr>
