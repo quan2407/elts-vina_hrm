@@ -105,7 +105,12 @@
 
 .attendance-table-wrapper {
   overflow: auto;
+  max-width: 100%;
   scrollbar-gutter: stable both-edges;
+  /* dự phòng cho trường hợp overlay scrollbar vẫn che nội dung */
+  padding-right: 16px; /* chừa chỗ cho thanh cuộn dọc */
+  padding-bottom: 14px; /* chừa chỗ cho thanh cuộn ngang */
+  box-sizing: content-box;
 }
 
 .attendance-pagination-container {

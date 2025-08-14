@@ -115,15 +115,13 @@ public class SalaryServiceImpl implements SalaryService {
 
 
             BigDecimal hourlyRate = employee.getBasicSalary()
-                    .divide(BigDecimal.valueOf(26 * 8), 2, RoundingMode.HALF_UP);
+                    .divide(BigDecimal.valueOf(26 * 8), 10, RoundingMode.HALF_UP);
 
+            BigDecimal productionSalary = hourlyRate.multiply(BigDecimal.valueOf(totalDayHours))
+                    .setScale(0, RoundingMode.CEILING);
 
-            BigDecimal productionSalary = hourlyRate.multiply(BigDecimal.valueOf(totalDayHours));
-
-
-            BigDecimal overtimeSalary = hourlyRate.multiply(
-                    BigDecimal.valueOf(otHours*2 + weekendHours * 2 + holidayHours * 3)
-            );
+            BigDecimal overtimeSalary = hourlyRate.multiply(BigDecimal.valueOf(otHours*2 + weekendHours * 2 + holidayHours * 3))
+                    .setScale(0, RoundingMode.CEILING);
 
             List<SalaryBenefit> benefitItems = generateSalaryBenefits(employee, null);
 
@@ -293,7 +291,12 @@ public class SalaryServiceImpl implements SalaryService {
         if (value == null || type == null) return BigDecimal.ZERO;
         return switch (type) {
             case AMOUNT -> value;
-            case PERCENTAGE -> basic.multiply(value).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+            case PERCENTAGE -> {
+                BigDecimal result = basic.multiply(value)
+                        .divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP);
+                yield result.setScale(0, RoundingMode.CEILING);
+            }
+
         };
     }
     private List<SalaryBenefit> generateSalaryBenefits(Employee employee, Salary salary) {
