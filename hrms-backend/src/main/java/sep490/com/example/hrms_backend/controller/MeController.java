@@ -5,12 +5,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import sep490.com.example.hrms_backend.dto.EmployeeDetailDTO;
 import sep490.com.example.hrms_backend.dto.PermissionDTO;
 import sep490.com.example.hrms_backend.entity.Account;
 import sep490.com.example.hrms_backend.entity.Role;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.mapper.PermissionMapper;
 import sep490.com.example.hrms_backend.repository.AccountRepository;
+import sep490.com.example.hrms_backend.service.EmployeeService;
 import sep490.com.example.hrms_backend.service.PermissionRegistrationService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
@@ -25,6 +27,7 @@ public class MeController {
     private final CurrentUserUtils currentUserUtils;
     private final AccountRepository accountRepository;
     private final PermissionRegistrationService permissionRegistrationService;
+    private final EmployeeService employeeService;
 
     @GetMapping("/permissions")
     public ResponseEntity<Set<PermissionDTO>> getCurrentUserPermissions() {
@@ -42,5 +45,12 @@ public class MeController {
                 .collect(Collectors.toSet());
 
         return ResponseEntity.ok(permissions);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getUser() {
+        Long id = currentUserUtils.getCurrentEmployeeId();
+        EmployeeDetailDTO employeeDetail = employeeService.getEmployeeDetailById(id);
+        return ResponseEntity.ok(employeeDetail);
     }
 }
