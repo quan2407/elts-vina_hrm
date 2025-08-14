@@ -12,7 +12,9 @@ import { parse } from "date-fns";
 import "react-datepicker/dist/react-datepicker.css";
 import departmentService from "../services/departmentService";
 import positionService from "../services/positionService";
-import { getAllLines } from "../services/linesService"; // bạn đã có
+import { getAllLines } from "../services/linesService";
+import SuccessModal from "../components/popup/SuccessModal";
+
 const AttendanceMonthlyView = ({ readOnly = false }) => {
   const location = useLocation();
   const [data, setData] = useState([]);
@@ -36,6 +38,18 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [file, setFile] = useState(null);
+  const [modal, setModal] = useState({
+    open: false,
+    title: "",
+    message: "",
+    type: "success", // "success" | "error"
+  });
+
+  const showSuccess = (title, message) =>
+    setModal({ open: true, title, message, type: "success" });
+
+  const showError = (title, message) =>
+    setModal({ open: true, title, message, type: "error" });
 
   const today = new Date();
   const params = new URLSearchParams(location.search);
@@ -49,10 +63,13 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
 
     try {
       await salaryService.regenerateMonthlySalaries(month, year);
-      alert(`Tạo bảng lương cho ${month}/${year} thành công.`);
+      showSuccess(
+        "Tạo bảng lương",
+        `Tạo bảng lương cho ${month}/${year} thành công.`
+      );
     } catch (error) {
       console.error("Tạo bảng lương thất bại:", error);
-      alert("Tạo bảng lương thất bại!");
+      showError("Tạo bảng lương", "Tạo bảng lương thất bại!");
     }
   };
   const fetchAttendanceParams = async (m, y, p, q, depId, posId, liId) => {
@@ -77,12 +94,12 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
   const handleImportAttendance = async (file, date) => {
     try {
       await attendanceService.importAttendanceFromExcel(file, date);
-      alert("Import thành công.");
+      showSuccess("Import chấm công", "Import thành công.");
       setImportModalOpen(false);
       fetchAttendance();
     } catch (error) {
       console.error("Import lỗi:", error);
-      alert("Import thất bại!");
+      showError("Import chấm công", "Import thất bại!");
     }
   };
 
@@ -126,7 +143,7 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
       setLeaveModalOpen(false);
     } catch (error) {
       console.error("Cập nhật nghỉ phép thất bại:", error);
-      alert("Cập nhật nghỉ phép thất bại!");
+      showError("Cập nhật nghỉ phép", "Cập nhật nghỉ phép thất bại!");
     }
   };
   const [departments, setDepartments] = useState([]);
@@ -296,7 +313,7 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
       ) {
         setValidationErrors(error.response.data);
       } else {
-        alert("Cập nhật thất bại!");
+        showError("Cập nhật giờ vào/ra", "Cập nhật thất bại!");
       }
     }
   };
@@ -434,9 +451,13 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
               style={{ backgroundColor: "#2563eb" }}
               onClick={async () => {
                 if (!month || !year) {
-                  alert("Vui lòng chọn tháng và năm trước khi xuất báo cáo.");
+                  showError(
+                    "Xuất báo cáo",
+                    "Vui lòng chọn tháng và năm trước khi xuất báo cáo."
+                  );
                   return;
                 }
+
                 try {
                   const res = await attendanceService.exportAttendanceToExcel(
                     month,
@@ -457,7 +478,10 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
                   a.remove();
                 } catch (e) {
                   console.error(e);
-                  alert("Không thể xuất báo cáo chấm công.");
+                  showError(
+                    "Xuất báo cáo",
+                    "Không thể xuất báo cáo chấm công."
+                  );
                 }
               }}
             >
@@ -784,7 +808,7 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
                   setModalOpen(false);
                 } catch (error) {
                   console.error("Xóa giờ vào/ra thất bại:", error);
-                  alert("Xóa thất bại!");
+                  showError("Xóa giờ vào/ra", "Xóa thất bại!");
                 }
               },
             }}
@@ -799,6 +823,14 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
             dateMeta={leaveCellMeta}
           />
         </>
+      )}
+      {modal.open && (
+        <SuccessModal
+          title={modal.title}
+          message={modal.message}
+          type={modal.type}
+          onClose={() => setModal((m) => ({ ...m, open: false }))}
+        />
       )}
     </MainLayout>
   );

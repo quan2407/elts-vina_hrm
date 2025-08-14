@@ -5,6 +5,8 @@ import "../styles/AttendanceMonthlyView.css";
 import departmentService from "../services/departmentService";
 import positionService from "../services/positionService";
 import { getAllLines } from "../services/linesService";
+import SuccessModal from "../components/popup/SuccessModal";
+
 const SalaryMonthlyView = () => {
   const [salaries, setSalaries] = useState([]);
   const [month, setMonth] = useState(new Date().getMonth() + 1);
@@ -24,7 +26,6 @@ const SalaryMonthlyView = () => {
   const [departments, setDepartments] = useState([]);
   const [positions, setPositions] = useState([]);
   const [lines, setLines] = useState([]);
-  // Gom tất cả loại phụ cấp và khấu trừ từ dữ liệu lương
   const allowanceTitles = Array.from(
     new Set(
       salaries
@@ -33,6 +34,18 @@ const SalaryMonthlyView = () => {
         .map((b) => b.title)
     )
   );
+  const [modal, setModal] = useState({
+    open: false,
+    title: "",
+    message: "",
+    type: "success", // "success" | "error"
+  });
+
+  const showSuccess = (title, message) =>
+    setModal({ open: true, title, message, type: "success" });
+
+  const showError = (title, message) =>
+    setModal({ open: true, title, message, type: "error" });
 
   const deductionTitles = Array.from(
     new Set(
@@ -215,10 +228,16 @@ const SalaryMonthlyView = () => {
                   try {
                     await salaryService.regenerateMonthlySalaries(month, year);
                     await fetchSalaries();
-                    alert("Đã cập nhật bảng lương thành công!");
+                    showSuccess(
+                      "Cập nhật bảng lương",
+                      "Đã cập nhật bảng lương thành công!"
+                    );
                   } catch (err) {
                     console.error("Lỗi khi cập nhật bảng lương:", err);
-                    alert("Cập nhật bảng lương thất bại!");
+                    showError(
+                      "Cập nhật bảng lương",
+                      "Cập nhật bảng lương thất bại!"
+                    );
                   }
                 }
               }}
@@ -241,13 +260,17 @@ const SalaryMonthlyView = () => {
                         !isLocked
                       );
                       await fetchSalaries();
-                      alert(
+                      showSuccess(
+                        "Trạng thái chốt lương",
                         isLocked
                           ? "Đã mở khóa bảng lương."
                           : "Đã chốt bảng lương."
                       );
                     } catch (err) {
-                      alert("Lỗi khi cập nhật trạng thái chốt lương!");
+                      showError(
+                        "Trạng thái chốt lương",
+                        "Lỗi khi cập nhật trạng thái chốt lương!"
+                      );
                     }
                   }
                 }}
@@ -265,9 +288,13 @@ const SalaryMonthlyView = () => {
               }}
               onClick={async () => {
                 if (!month || !year) {
-                  alert("Vui lòng chọn tháng và năm.");
+                  showError(
+                    "Xuất báo cáo lương",
+                    "Vui lòng chọn tháng và năm."
+                  );
                   return;
                 }
+
                 try {
                   const response = await salaryService.exportMonthlySalaries(
                     month,
@@ -291,7 +318,10 @@ const SalaryMonthlyView = () => {
                   link.remove();
                 } catch (err) {
                   console.error("Export lương thất bại:", err);
-                  alert("Không thể xuất báo cáo lương.");
+                  showError(
+                    "Xuất báo cáo lương",
+                    "Không thể xuất báo cáo lương."
+                  );
                 }
               }}
             >
@@ -522,6 +552,14 @@ const SalaryMonthlyView = () => {
           </div>
         </div>
       </div>
+      {modal.open && (
+        <SuccessModal
+          title={modal.title}
+          message={modal.message}
+          type={modal.type}
+          onClose={() => setModal((m) => ({ ...m, open: false }))}
+        />
+      )}
     </MainLayout>
   );
 };
