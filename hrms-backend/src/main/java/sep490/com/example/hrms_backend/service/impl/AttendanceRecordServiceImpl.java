@@ -40,6 +40,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     private final WorkScheduleServiceImpl workScheduleService;
     private final WorkScheduleDetailRepository workScheduleDetailRepository;
 
+    //Tested
     @Override
     public List<AttendanceMonthlyViewDTO> getEmpMonthlyAttendanceById(Long employeeId, int month, int year) {
 
@@ -112,36 +113,30 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     }
 
     @Override
-    public Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year, int page, int size, String search) {
+    public Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(
+            int month, int year, int page, int size, String search,
+            Long departmentId, Long positionId, Long lineId) {
+
         Pageable pageable = PageRequest.of(page, size);
 
-        List<Employee> filteredEmployees;
-        if (search != null && !search.trim().isEmpty()) {
-            String keyword = search.trim().toLowerCase();
-            filteredEmployees = employeeRepository.findAllActive().stream()
-                    .filter(e -> e.getEmployeeCode().toLowerCase().contains(keyword)
-                            || e.getEmployeeName().toLowerCase().contains(keyword))
-                    .collect(Collectors.toList());
-        } else {
-            // Dùng phân trang mặc định nếu không có search
-            Page<Employee> employeePage = employeeRepository.findAllActive(pageable);
-            filteredEmployees = employeePage.getContent();
+        Page<Employee> employeePage = employeeRepository.findActiveByFilters(
+                (search == null || search.isBlank()) ? null : search.trim(),
+                departmentId, positionId, lineId, pageable);
+
+        List<Employee> employees = employeePage.getContent();
+        if (employees.isEmpty()) {
+            return new PageImpl<>(List.of(), pageable, employeePage.getTotalElements());
         }
 
-        // Nếu có search, xử lý phân trang thủ công
-        int start = page * size;
-        int end = Math.min(start + size, filteredEmployees.size());
-        List<Employee> pagedEmployees = start >= filteredEmployees.size()
-                ? List.of()
-                : filteredEmployees.subList(start, end);
+        List<Long> empIds = employees.stream().map(Employee::getEmployeeId).toList();
+        List<AttendanceRecord> records = attendanceRecordRepository
+                .findByMonthYearAndEmpIds(month, year, empIds);
 
-        List<AttendanceRecord> records = attendanceRecordRepository.findByMonthAndYear(month, year);
-        Map<Long, List<AttendanceRecord>> recordsByEmployee = records.stream()
+        Map<Long, List<AttendanceRecord>> byEmp = records.stream()
                 .collect(Collectors.groupingBy(r -> r.getEmployee().getEmployeeId()));
 
         List<AttendanceMonthlyViewDTO> dtoList = new ArrayList<>();
-
-        for (Employee emp : pagedEmployees) {
+        for (Employee emp : employees) {
             AttendanceMonthlyViewDTO dto = AttendanceMonthlyViewDTO.builder()
                     .employeeId(emp.getEmployeeId())
                     .employeeCode(emp.getEmployeeCode())
@@ -150,66 +145,49 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                     .positionName(emp.getPosition() != null ? emp.getPosition().getPositionName() : null)
                     .lineName(emp.getLine() != null ? emp.getLine().getLineName() : null)
                     .attendanceByDate(new LinkedHashMap<>())
-                    .totalDayShiftHours(0f)
-                    .totalOvertimeHours(0f)
-                    .totalWeekendHours(0f)
-                    .totalHolidayHours(0f)
+                    .totalDayShiftHours(0f).totalOvertimeHours(0f).totalWeekendHours(0f).totalHolidayHours(0f)
                     .totalHours(0f)
                     .build();
 
-            List<AttendanceRecord> empRecords = recordsByEmployee.getOrDefault(emp.getEmployeeId(), Collections.emptyList());
+            for (AttendanceRecord r : byEmp.getOrDefault(emp.getEmployeeId(), List.of())) {
+                String dateKey = String.valueOf(r.getDate().getDayOfMonth());
 
-            for (AttendanceRecord record : empRecords) {
-                String dateKey = String.valueOf(record.getDate().getDayOfMonth());
+                boolean hasSchedule = r.getWorkSchedule() != null
+                        && r.getWorkSchedule().getWorkScheduleDetails() != null
+                        && r.getWorkSchedule().getWorkScheduleDetails().stream()
+                        .anyMatch(d -> d.getDateWork().equals(r.getDate()));
 
-                boolean hasSchedule = false;
-                boolean isWeekend = false;
-                if (record.getWorkSchedule() != null && record.getWorkSchedule().getWorkScheduleDetails() != null) {
-                    Optional<WorkScheduleDetail> detailOpt = record.getWorkSchedule().getWorkScheduleDetails().stream()
-                            .filter(detail -> detail.getDateWork().equals(record.getDate()))
-                            .findFirst();
-                    if (detailOpt.isPresent()) {
-                        hasSchedule = true;
-                        isWeekend = detailOpt.get().getDateWork().getDayOfWeek().getValue() == 7;
-                    }
-                }
+                boolean isWeekend = hasSchedule && r.getWorkSchedule().getWorkScheduleDetails().stream()
+                        .filter(d -> d.getDateWork().equals(r.getDate()))
+                        .findFirst().map(d -> d.getDateWork().getDayOfWeek().getValue() == 7).orElse(false);
 
-                boolean isHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(record.getDate());
+                boolean isHoliday = holidayRepository
+                        .existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(r.getDate());
 
-                AttendanceCellDTO cell = AttendanceCellDTO.builder()
-                        .attendanceRecordId(record.getId())
-                        .shift(record.getDayShift())
-                        .overtime(record.getOtShift())
-                        .weekend(record.getWeekendShift())
-                        .holiday(record.getHolidayShift())
+                dto.getAttendanceByDate().put(dateKey, AttendanceCellDTO.builder()
+                        .attendanceRecordId(r.getId())
+                        .shift(r.getDayShift())
+                        .overtime(r.getOtShift())
+                        .weekend(r.getWeekendShift())
+                        .holiday(r.getHolidayShift())
                         .hasScheduleDetail(hasSchedule)
-                        .checkIn(record.getCheckInTime() != null ? record.getCheckInTime().toString() : null)
-                        .checkOut(record.getCheckOutTime() != null ? record.getCheckOutTime().toString() : null)
+                        .checkIn(r.getCheckInTime() != null ? r.getCheckInTime().toString() : null)
+                        .checkOut(r.getCheckOutTime() != null ? r.getCheckOutTime().toString() : null)
                         .holidayFlag(isHoliday)
                         .weekendFlag(isWeekend)
-                        .build();
+                        .build());
 
-                dto.getAttendanceByDate().put(dateKey, cell);
-
-                dto.setTotalDayShiftHours(dto.getTotalDayShiftHours() + parseHour(record.getDayShift()));
-                dto.setTotalOvertimeHours(dto.getTotalOvertimeHours() + parseHour(record.getOtShift()));
-                dto.setTotalWeekendHours(dto.getTotalWeekendHours() + parseHour(record.getWeekendShift()));
-                dto.setTotalHolidayHours(dto.getTotalHolidayHours() + parseHour(record.getHolidayShift()));
+                dto.setTotalDayShiftHours(dto.getTotalDayShiftHours() + parseHour(r.getDayShift()));
+                dto.setTotalOvertimeHours(dto.getTotalOvertimeHours() + parseHour(r.getOtShift()));
+                dto.setTotalWeekendHours(dto.getTotalWeekendHours() + parseHour(r.getWeekendShift()));
+                dto.setTotalHolidayHours(dto.getTotalHolidayHours() + parseHour(r.getHolidayShift()));
             }
-
-            dto.setTotalHours(dto.getTotalDayShiftHours()
-                    + dto.getTotalOvertimeHours()
-                    + dto.getTotalWeekendHours()
-                    + dto.getTotalHolidayHours());
-
+            dto.setTotalHours(dto.getTotalDayShiftHours() + dto.getTotalOvertimeHours()
+                    + dto.getTotalWeekendHours() + dto.getTotalHolidayHours());
             dtoList.add(dto);
         }
 
-        return new PageImpl<>(dtoList, pageable,
-                (search != null && !search.trim().isEmpty())
-                        ? filteredEmployees.size()
-                        : employeeRepository.findAllActive().size());
-
+        return new PageImpl<>(dtoList, pageable, employeePage.getTotalElements());
     }
 
 
@@ -233,6 +211,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         }
     }
 
+    //Tested
     @Override
     public List<MonthYearDTO> getAvailableMonths() {
         List<Object[]> rawList = attendanceRecordRepository.findDistinctMonthYear();
@@ -241,6 +220,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                 .collect(Collectors.toList());
     }
 
+    //Tested
     @Override
     public void updateCheckInOut(Long id, AttendanceCheckInOutDTO dto) {
         AttendanceRecord record = attendanceRecordRepository.findById(id)
@@ -277,7 +257,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         attendanceRecordRepository.save(record);
     }
 
-
+    //Tested
     public void updateLeaveCode(Long id, LeaveCodeUpdateDTO dto) {
         AttendanceRecord record = attendanceRecordRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Attendance record not found"));
@@ -304,28 +284,37 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
         attendanceRecordRepository.save(record);
     }
+    //Tested
     @Override
     public void updateDailyAttendanceForDate(LocalDate date) {
-        int month = date.getMonthValue();
-        int year = date.getYear();
+        LocalDate firstDayOfMonth = date.withDayOfMonth(1);
+        LocalDate yesterday = LocalDate.now().minusDays(1);
 
-        List<WorkSchedule> acceptedSchedules = workScheduleRepository
-                .findByMonthAndYearAndIsAcceptedTrue(month, year);
+        for (LocalDate currentDate = firstDayOfMonth; !currentDate.isAfter(yesterday); currentDate = currentDate.plusDays(1)) {
+            final LocalDate dateToCheck = currentDate; // biến final dùng trong lambda
 
-        for (WorkSchedule schedule : acceptedSchedules) {
-            List<WorkScheduleDetail> details = workScheduleDetailRepository
-                    .findByWorkSchedule_Id(schedule.getId());
+            int month = currentDate.getMonthValue();
+            int year = currentDate.getYear();
 
-            schedule.setWorkScheduleDetails(details); // gán thủ công vào entity
+            List<WorkSchedule> acceptedSchedules = workScheduleRepository
+                    .findByMonthAndYearAndIsAcceptedTrue(month, year);
 
-            boolean hasDetailForDate = details != null &&
-                    details.stream().anyMatch(d -> d.getDateWork().isEqual(date));
+            for (WorkSchedule schedule : acceptedSchedules) {
+                List<WorkScheduleDetail> details = workScheduleDetailRepository
+                        .findByWorkSchedule_Id(schedule.getId());
 
-            if (hasDetailForDate) {
-                workScheduleService.generateAttendanceRecords(schedule);
+                schedule.setWorkScheduleDetails(details); // gán thủ công vào entity
+
+                boolean hasDetailForDate = details != null &&
+                        details.stream().anyMatch(d -> d.getDateWork().isEqual(dateToCheck));
+
+                if (hasDetailForDate) {
+                    workScheduleService.generateAttendanceRecords(schedule);
+                }
             }
         }
     }
+
 
     private void calculateShift(AttendanceRecord record) {
         Optional<WorkScheduleDetail> optionalDetail = record.getWorkSchedule().getWorkScheduleDetails().stream()
@@ -419,7 +408,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                 LocalDate date = dateTime.toLocalDate();
                 LocalTime time = dateTime.toLocalTime();
 
-                // ❌ Skip nếu không đúng ngày
                 if (!date.equals(targetDate)) continue;
 
                 String key = employeeCode + "_" + date;
@@ -430,7 +418,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                 dateMap.putIfAbsent(key, date);
             }
 
-            // ✅ Gán giờ vào – ra theo log
             for (String key : timeMap.keySet()) {
                 Employee emp = employeeMap.get(key);
                 LocalDate date = dateMap.get(key);
@@ -440,7 +427,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
                 AttendanceRecord record = attendanceRecordRepository.findByEmployeeAndDate(emp, date).orElse(null);
                 if (record == null) {
-                    System.err.println("⚠ Không có bảng công cho ngày " + date + ", nhân viên " + emp.getEmployeeCode());
+                    System.err.println("Không có bảng công cho ngày " + date + ", nhân viên " + emp.getEmployeeCode());
                     continue;
                 }
 
@@ -449,7 +436,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                     record.setCheckOutTime(null);
                     updateLeaveCode(record.getId(), new LeaveCodeUpdateDTO("KL", "dayShift"));
                     attendanceRecordRepository.save(record);
-                    System.out.println("❗ 1 log: Gán KL cho " + emp.getEmployeeCode());
+                    System.out.println("Gán KL cho " + emp.getEmployeeCode());
                     continue;
                 }
 
@@ -477,19 +464,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
                 attendanceRecordRepository.save(record);
                 System.out.println("✔ Đã cập nhật cho: " + emp.getEmployeeCode() + " ngày " + date);
-            }
-
-            // 🔍 Gán KL cho các nhân viên không có log nào
-            List<AttendanceRecord> allRecords = attendanceRecordRepository.findByDate(targetDate);
-            for (AttendanceRecord record : allRecords) {
-                String key = record.getEmployee().getEmployeeCode() + "_" + targetDate;
-                if (!timeMap.containsKey(key)) {
-                    record.setCheckInTime(null);
-                    record.setCheckOutTime(null);
-                    updateLeaveCode(record.getId(), new LeaveCodeUpdateDTO("KL", "dayShift"));
-                    attendanceRecordRepository.save(record);
-                    System.out.println("⚠ Không có log: Gán KL cho " + record.getEmployee().getEmployeeCode());
-                }
             }
 
         } catch (Exception e) {

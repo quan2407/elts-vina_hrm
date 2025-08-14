@@ -21,5 +21,5 @@ public interface BenefitPositionRepository  extends JpaRepository<BenefitPositio
 
     Optional<BenefitPosition> findByBenefit_IdAndPosition_PositionId(Long benefitId, Long positionId);
 
-
+    List<BenefitPosition> findAllByBenefit_IdAndPosition_PositionIdIn(Long benefitId, List<Long> positionIds);
 }

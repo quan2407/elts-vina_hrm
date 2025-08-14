@@ -20,9 +20,7 @@ import sep490.com.example.hrms_backend.service.BenefitRegistrationService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +38,8 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
 
     private final BenefitPositionRepository benefitPositionRepository;
 
+
+    //Tested
     @Transactional
     @Override
     public BenefitResponse searchBenefitByEmployee(Long employeeId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
@@ -76,6 +76,7 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
         return benefitResponse;
     }
 
+    //Tested
     @Override
     public BenefitRegistrationDTO registerBenefitForEmployee(Long benefitId, Long employeeId, String note) {
 //        //Tim kiem thong tin nhan vien (exception: 0 co nhan vien)
@@ -117,6 +118,7 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
         return null;
     }
 
+    //Tested
     @Override
     public void quickRegister(BenefitManualRegistrationRequest request) {
         List<String> keywords = request.getKeywords();
@@ -155,29 +157,30 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
             }
 
             // 3. Kiểm tra trùng đăng ký
+            //update to commit
             if (benefitRegistrationRepository.existsByBenefitPositionAndEmployee(benefitPosition, employee)) {
                 failed.add(keyword + " (đã đăng ký)");
                 continue;
             }
 
-            // 6. Tính toán thay đổi basic_salary nếu cần
-            BigDecimal currentSalary = employee.getBasicSalary() != null ? employee.getBasicSalary() : BigDecimal.ZERO;
-
-            if ("PHU_CAP".equals(benefitType)) {
-                if (formulaType == FormulaType.AMOUNT) {
-                    currentSalary = currentSalary.add(formulaValue);
-                } else if (formulaType == FormulaType.PERCENTAGE) {
-                    currentSalary = currentSalary.add(currentSalary.multiply(formulaValue).divide(BigDecimal.valueOf(100)));
-                }
-            } else if ("KHAU_TRU".equals(benefitType)) {
-                if (formulaType == FormulaType.AMOUNT) {
-                    currentSalary = currentSalary.subtract(formulaValue);
-                } else if (formulaType == FormulaType.PERCENTAGE) {
-                    currentSalary = currentSalary.subtract(currentSalary.multiply(formulaValue).divide(BigDecimal.valueOf(100)));
-                }
-            }
+//            // 6. Tính toán thay đổi basic_salary nếu cần
+//            BigDecimal currentSalary = employee.getBasicSalary() != null ? employee.getBasicSalary() : BigDecimal.ZERO;
+//
+//            if ("PHU_CAP".equals(benefitType)) {
+//                if (formulaType == FormulaType.AMOUNT) {
+//                    currentSalary = currentSalary.add(formulaValue);
+//                } else if (formulaType == FormulaType.PERCENTAGE) {
+//                    currentSalary = currentSalary.add(currentSalary.multiply(formulaValue).divide(BigDecimal.valueOf(100)));
+//                }
+//            } else if ("KHAU_TRU".equals(benefitType)) {
+//                if (formulaType == FormulaType.AMOUNT) {
+//                    currentSalary = currentSalary.subtract(formulaValue);
+//                } else if (formulaType == FormulaType.PERCENTAGE) {
+//                    currentSalary = currentSalary.subtract(currentSalary.multiply(formulaValue).divide(BigDecimal.valueOf(100)));
+//                }
+//            }
             // SU_KIEN: Không thay đổi
-            employee.setBasicSalary(currentSalary);
+//            employee.setBasicSalary(currentSalary);
 
             // 4. Đăng ký
             BenefitRegistration registration = new BenefitRegistration();
@@ -195,6 +198,7 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
         }
 }
 
+    //Tested
     @Override
     public List<EmployeeBasicDetailResponse> searchUnregisteredEmployees(Long benefitId, Long positionId, String keyword) {
         // 1. Tìm BenefitPosition theo benefitId và positionId
@@ -229,6 +233,7 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
 
     }
 
+    //Tested
     @Transactional
     @Override
     public void unRegister(Long benefitId, Long positionId, Long employeeId) {
@@ -240,5 +245,98 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
         benefitRegistrationRepository.deleteByBenefitPositionIdAndEmployeeId(benefitPositionId, employeeId);
 
 
+    }
+
+    //Tested
+    @Transactional
+    @Override
+    public void quickRegisterAll(BenefitMultiPositionRequestDTO request) {
+        Long benefitId = request.getBenefitId();
+        List<Long> positionIds = request.getPositionIds();
+
+        List<BenefitPosition> benefitPositions = benefitPositionRepository
+                .findAllByBenefit_IdAndPosition_PositionIdIn(benefitId, positionIds);
+        if (benefitPositions.isEmpty()) {
+            throw new RuntimeException("Không tìm thấy BenefitPosition phù hợp với benefitId và positionIds.");
+        }
+
+        boolean hasEmployees = false;
+
+        for (BenefitPosition bp : benefitPositions) {
+            Long positionId = bp.getPosition().getPositionId();
+
+            List<Employee> employees = employeeRepository.findAllByPosition_PositionId(positionId);
+
+            if (!employees.isEmpty()) {
+                hasEmployees = true;
+            }
+
+            List<Long> registeredIds = benefitRegistrationRepository
+                    .findEmployeeIdsByBenefitPositionId(bp.getId());
+            Set<Long> registeredSet = new HashSet<>(registeredIds);
+
+            List<BenefitRegistration> batch = new ArrayList<>();
+            for (Employee employee : employees) {
+                Long empId = employee.getEmployeeId();
+                if (registeredSet.contains(empId)) continue;
+
+                BenefitRegistration registration = new BenefitRegistration();
+                registration.setBenefitPosition(bp);
+                registration.setEmployee(employee);
+                registration.setIsRegister(true);
+                registration.setRegisteredAt(LocalDateTime.now());
+
+                batch.add(registration);
+            }
+
+            if (!batch.isEmpty()) {
+                benefitRegistrationRepository.saveAll(batch);
+            }
+        }
+
+        if (!hasEmployees) {
+            throw new RuntimeException("Không tìm thấy nhân viên nào cho các position.");
+        }
+    }
+
+
+    @Transactional
+    @Override
+    public int unRegisterMany(Long benefitId, Long positionId, List<Long> employeeIds) {
+        if (employeeIds == null || employeeIds.isEmpty()) {
+            return 0;
+        }
+
+        BenefitPosition benefitPosition = benefitPositionRepository
+                .findByBenefit_IdAndPosition_PositionId(benefitId, positionId)
+                .orElseThrow(() -> new HRMSAPIException("Không tìm thấy benefitPosition"));
+
+        Long benefitPositionId = benefitPosition.getId();
+
+        List<Long> sanitizedIds = employeeIds.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        if (sanitizedIds.isEmpty()) {
+            return 0;
+        }
+
+        return benefitRegistrationRepository
+                .deleteByBenefitPosition_IdAndEmployee_EmployeeIdIn(benefitPositionId, sanitizedIds);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PositionRegistrationStatsDTO getRegistrationStats(Long benefitId, Long positionId) {
+        BenefitPosition bp = benefitPositionRepository
+                .findByBenefit_IdAndPosition_PositionId(benefitId, positionId)
+                .orElseThrow(() -> new HRMSAPIException("Không tìm thấy BenefitPosition"));
+
+        long totalEmployees = employeeRepository.countByPosition_PositionId(positionId);
+
+        long totalRegistered = benefitRegistrationRepository.countByBenefitPosition_Id(bp.getId());
+
+        return new PositionRegistrationStatsDTO(benefitId, positionId, totalEmployees, totalRegistered);
     }
 }

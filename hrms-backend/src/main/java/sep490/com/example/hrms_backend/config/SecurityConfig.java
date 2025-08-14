@@ -1,6 +1,6 @@
 package sep490.com.example.hrms_backend.config;
 
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -27,7 +27,6 @@ import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
-@AllArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
@@ -35,6 +34,21 @@ public class SecurityConfig {
     private final PermissionFilter permissionFilter;
     private final JwtTokenProvider jwtTokenProvider;
 
+    // ✅ Đọc origin từ file cấu hình hoặc biến môi trường
+    @Value("${frontend.origin:http://localhost:5173}")
+    private String frontendOrigin;
+
+    public SecurityConfig(
+            JwtAuthenticationEntryPoint authenticationEntryPoint,
+            UserDetailsService userDetailsService,
+            PermissionFilter permissionFilter,
+            JwtTokenProvider jwtTokenProvider
+    ) {
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.userDetailsService = userDetailsService;
+        this.permissionFilter = permissionFilter;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
@@ -65,13 +79,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/recruitment/{id:\\d+}").permitAll()
                         .anyRequest().authenticated()
                 )
-
-                .exceptionHandling(
-                        exception -> exception.authenticationEntryPoint(authenticationEntryPoint)
-                )
-                .sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                );
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(permissionFilter, JwtAuthenticationFilter.class);
@@ -82,7 +91,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of(frontendOrigin)); // 👈 tự động lấy theo môi trường
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

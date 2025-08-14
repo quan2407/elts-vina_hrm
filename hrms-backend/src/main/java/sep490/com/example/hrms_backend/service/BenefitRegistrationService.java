@@ -1,9 +1,9 @@
 package sep490.com.example.hrms_backend.service;
 
-import sep490.com.example.hrms_backend.dto.benefit.BenefitRegistrationDTO;
-import sep490.com.example.hrms_backend.dto.benefit.BenefitManualRegistrationRequest;
-import sep490.com.example.hrms_backend.dto.benefit.BenefitResponse;
-import sep490.com.example.hrms_backend.dto.benefit.EmployeeBasicDetailResponse;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.stereotype.Service;
+import sep490.com.example.hrms_backend.dto.benefit.*;
 
 import java.util.List;
 
@@ -17,4 +17,10 @@ public interface BenefitRegistrationService {
     List<EmployeeBasicDetailResponse> searchUnregisteredEmployees(Long benefitId, Long positionId, String keyword);
 
     void unRegister(Long benefitId, Long positionId, Long employeeId);
+
+    void quickRegisterAll(BenefitMultiPositionRequestDTO request);
+
+    int unRegisterMany(Long benefitId, Long positionId, @NotNull @NotEmpty List<Long> employeeIds);
+
+    PositionRegistrationStatsDTO getRegistrationStats(Long benefitId, Long positionId);
 }

@@ -9,7 +9,10 @@ ALTER TABLE employee MODIFY COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0;
 
 DELETE FROM application_approval_step;
 DELETE FROM application;
+DELETE FROM application_type;
 DELETE FROM account_request;
+DELETE FROM salary_benefit;
+ALTER TABLE salary_benefit AUTO_INCREMENT = 1;
 DELETE FROM salary;
 ALTER TABLE salary AUTO_INCREMENT = 1;
 DELETE FROM attendance_record;
@@ -40,6 +43,7 @@ ALTER TABLE permission AUTO_INCREMENT = 1;
 ALTER TABLE role_permission AUTO_INCREMENT = 1;
 ALTER TABLE application_approval_step AUTO_INCREMENT = 1;
 ALTER TABLE application AUTO_INCREMENT = 1;
+ALTER TABLE application_type AUTO_INCREMENT = 1;
 ALTER TABLE account_request AUTO_INCREMENT = 1;
 ALTER TABLE attendance_record AUTO_INCREMENT = 1;
 ALTER TABLE benefit_position AUTO_INCREMENT = 1;
@@ -626,6 +630,20 @@ INSERT INTO employee (
  8, 19,
  8000000, 120000, 250000, 550000, 50000);
 
+INSERT INTO employee (
+    employee_id, employee_code, employee_name, gender, dob,
+    place_of_birth, origin_place, nationality, citizen_id,
+    citizen_issue_date, citizen_expiry_date, citizen_issue_place,
+    address, image, start_work_at, end_work_at, phone_number, email,
+    department_id, position_id,
+    basic_salary, allowance_phone, allowance_meal, allowance_attendance, allowance_transport
+) VALUES
+(51, 'ELTSXC0010', 'Ngô Văn C', 'NAM', '1980-12-12',
+ NULL, NULL, 'Vietnam', '01283273421',
+ '2005-01-01', '2025-01-01', 'Hà Nội',
+ NULL, NULL, '2010-01-01', '2025-12-31', '09237223642', 'user51@example.com',
+ 6, 15,
+ 8000000, 120000, 250000, 550000, 50000);
 
 
 INSERT INTO account (account_id, username, password_hash, email, is_active, created_at, updated_at, last_login_at, login_attempts, must_change_password, employee_id, role_id) VALUES
@@ -692,7 +710,13 @@ INSERT INTO account (
 (50, 'hrmanager', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy',
  'truongphonghr@example.com', true, NOW(), NOW(),
  NULL, 5, false, 50, 8);
-
+INSERT INTO account (
+    account_id, username, password_hash, email, is_active, created_at, updated_at,
+    last_login_at, login_attempts, must_change_password, employee_id, role_id
+) VALUES
+(51, 'user51', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy',
+ 'user51@example.com', true, NOW(), NOW(),
+ NULL, 5, false, 51, 6);
 
 
 
@@ -805,29 +829,135 @@ MODIFY COLUMN created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6);
 ALTER TABLE benefit
 MODIFY COLUMN updated_at TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
 
-INSERT INTO benefit(title, description, end_date, is_active, max_participants, start_date, benefit_type, detail, default_formula_type, default_formula_value) VALUES
+
+INSERT INTO benefit(title, description, is_active,  benefit_type, detail, default_formula_type, default_formula_value) VALUES
 -- PHU_CAP
-('điện thoại', 'Hỗ trợ tiền điện thoại hàng tháng cho nhân viên liên lạc công việc.', '2025-12-31', 1, 200, '2025-06-29', 'PHU_CAP', 'Áp dụng cho tất cả nhân viên làm việc chính thức.', 'AMOUNT', 100000),
-('nhà ở', 'Hỗ trợ tiền nhà ở cho nhân viên làm việc xa nhà.', '2025-12-31', 1, 200, '2025-06-29', 'PHU_CAP', 'Áp dụng cho nhân viên ở các tỉnh lên thành phố làm việc.', 'AMOUNT', 200000),
-('chuyên cần', 'Thưởng chuyên cần hàng tháng cho nhân viên đi làm đầy đủ.', '2025-12-31', 1, 200, '2025-06-29', 'PHU_CAP', 'Áp dụng khi không có ngày nghỉ/đi trễ/thẻ quẹt thiếu.', 'AMOUNT', 500000),
-('đi lại', 'Hỗ trợ chi phí đi lại cho nhân viên.', '2025-12-31', 1, 200, '2025-06-29', 'PHU_CAP', 'Áp dụng theo khoảng cách từ nhà đến công ty.', 'AMOUNT', 50000),
+('điện thoại', 'Hỗ trợ tiền điện thoại hàng tháng cho nhân viên liên lạc công việc.', 1, 'PHU_CAP', 'Áp dụng cho tất cả nhân viên làm việc chính thức.', 'AMOUNT', 100000),
+('nhà ở', 'Hỗ trợ tiền nhà ở cho nhân viên làm việc xa nhà.', 1,  'PHU_CAP', 'Áp dụng cho nhân viên ở các tỉnh lên thành phố làm việc.', 'AMOUNT', 200000),
+('chuyên cần', 'Thưởng chuyên cần hàng tháng cho nhân viên đi làm đầy đủ.',  1,  'PHU_CAP', 'Áp dụng khi không có ngày nghỉ/đi trễ/thẻ quẹt thiếu.', 'AMOUNT', 500000),
+('đi lại', 'Hỗ trợ chi phí đi lại cho nhân viên.',  1,  'PHU_CAP', 'Áp dụng theo khoảng cách từ nhà đến công ty.', 'AMOUNT', 50000),
 
 -- KHAU_TRU
-('BHYT', 'Khấu trừ bảo hiểm y tế theo quy định.', '2025-12-31', 1, 200, '2025-06-29', 'KHAU_TRU', 'Khấu trừ vào lương theo tỷ lệ quy định.', 'PERCENTAGE', 8.0),
-('BHXH', 'Khấu trừ bảo hiểm xã hội theo quy định.', '2025-12-31', 1, 200, '2025-06-29', 'KHAU_TRU', 'Khấu trừ vào lương theo tỷ lệ quy định.', 'PERCENTAGE', 1.5),
-('BHTN', 'Khấu trừ bảo hiểm thất nghiệp theo quy định.', '2025-12-31', 1, 200, '2025-06-29', 'KHAU_TRU', 'Khấu trừ vào lương theo tỷ lệ quy định.', 'PERCENTAGE', 1.0),
-('Đoàn phí', 'Khấu trừ đoàn phí hàng tháng.', '2025-12-31', 1, 200, '2025-06-29', 'KHAU_TRU', 'Áp dụng cho nhân viên thuộc công đoàn.', 'AMOUNT', 50000);
+('BHYT', 'Khấu trừ bảo hiểm y tế theo quy định.', 1,  'KHAU_TRU', 'Khấu trừ vào lương theo tỷ lệ quy định.', 'PERCENTAGE', 8.0),
+('BHXH', 'Khấu trừ bảo hiểm xã hội theo quy định.', 1,  'KHAU_TRU', 'Khấu trừ vào lương theo tỷ lệ quy định.', 'PERCENTAGE', 1.5),
+('BHTN', 'Khấu trừ bảo hiểm thất nghiệp theo quy định.',  1,  'KHAU_TRU', 'Khấu trừ vào lương theo tỷ lệ quy định.', 'PERCENTAGE', 1.0),
+('Đoàn phí', 'Khấu trừ đoàn phí hàng tháng.',  1,  'KHAU_TRU', 'Áp dụng cho nhân viên thuộc công đoàn.', 'AMOUNT', 50000);
 
 
 
 INSERT INTO benefit_position (benefit_id, position_id, formula_value, formula_type)
 VALUES
-(1, 3, 500000, 'AMOUNT'),
-(1, 6, 10.0, 'PERCENTAGE');
+(1, 1, 100000, 'AMOUNT'),
+(1, 2, 100000, 'AMOUNT'),
+(1, 3, 100000, 'AMOUNT'),
+(1, 6, 100000, 'AMOUNT'),
+(1, 7, 100000, 'AMOUNT'),
+(1, 10, 200000, 'AMOUNT'),
+(1, 11, 200000, 'AMOUNT'),
+(1, 12, 200000, 'AMOUNT'),
+(1, 15, 150000, 'AMOUNT'),
+(1, 17, 150000, 'AMOUNT'),
+(1, 18, 150000, 'AMOUNT'),
+(1, 19, 150000, 'AMOUNT'),
+
+(2, 1, 200000, 'AMOUNT'),
+(2, 2, 200000, 'AMOUNT'),
+(2, 3, 200000, 'AMOUNT'),
+(2, 6, 200000, 'AMOUNT'),
+(2, 7, 200000, 'AMOUNT'),
+(2, 10, 400000, 'AMOUNT'),
+(2, 11, 400000, 'AMOUNT'),
+(2, 12, 400000, 'AMOUNT'),
+(2, 15, 300000, 'AMOUNT'),
+(2, 17, 300000, 'AMOUNT'),
+(2, 18, 300000, 'AMOUNT'),
+(2, 19, 300000, 'AMOUNT'),
+
+(3, 1, 500000, 'AMOUNT'),
+(3, 2, 500000, 'AMOUNT'),
+(3, 3, 500000, 'AMOUNT'),
+(3, 6, 500000, 'AMOUNT'),
+(3, 7, 500000, 'AMOUNT'),
+(3, 10, 1000000, 'AMOUNT'),
+(3, 11, 1000000, 'AMOUNT'),
+(3, 12, 1000000, 'AMOUNT'),
+(3, 15, 750000, 'AMOUNT'),
+(3, 17, 750000, 'AMOUNT'),
+(3, 18, 750000, 'AMOUNT'),
+(3, 19, 750000, 'AMOUNT'),
+
+(4, 1, 50000, 'AMOUNT'),
+(4, 2, 50000, 'AMOUNT'),
+(4, 3, 50000, 'AMOUNT'),
+(4, 6, 50000, 'AMOUNT'),
+(4, 7, 50000, 'AMOUNT'),
+(4, 10, 100000, 'AMOUNT'),
+(4, 11, 100000, 'AMOUNT'),
+(4, 12, 100000, 'AMOUNT'),
+(4, 15, 75000, 'AMOUNT'),
+(4, 17, 75000, 'AMOUNT'),
+(4, 18, 75000, 'AMOUNT'),
+(4, 19, 75000, 'AMOUNT'),
+
+(5, 1, 8.0, 'PERCENTAGE'),
+(5, 2, 8.0, 'PERCENTAGE'),
+(5, 3, 8.0, 'PERCENTAGE'),
+(5, 6, 8.0, 'PERCENTAGE'),
+(5, 7, 8.0, 'PERCENTAGE'),
+(5, 10, 16.0, 'PERCENTAGE'),
+(5, 11, 16.0, 'PERCENTAGE'),
+(5, 12, 16.0, 'PERCENTAGE'),
+(5, 15, 12.0, 'PERCENTAGE'),
+(5, 17, 12.0, 'PERCENTAGE'),
+(5, 18, 12.0, 'PERCENTAGE'),
+(5, 19, 12.0, 'PERCENTAGE'),
+
+(6, 1, 1.5, 'PERCENTAGE'),
+(6, 2, 1.5, 'PERCENTAGE'),
+(6, 3, 1.5, 'PERCENTAGE'),
+(6, 6, 1.5, 'PERCENTAGE'),
+(6, 7, 1.5, 'PERCENTAGE'),
+(6, 10, 3.0, 'PERCENTAGE'),
+(6, 11, 3.0, 'PERCENTAGE'),
+(6, 12, 3.0, 'PERCENTAGE'),
+(6, 15, 2.3, 'PERCENTAGE'),
+(6, 17, 2.3, 'PERCENTAGE'),
+(6, 18, 2.3, 'PERCENTAGE'),
+(6, 19, 2.3, 'PERCENTAGE'),
+
+(7, 1, 1.0, 'PERCENTAGE'),
+(7, 2, 1.0, 'PERCENTAGE'),
+(7, 3, 1.0, 'PERCENTAGE'),
+(7, 6, 1.0, 'PERCENTAGE'),
+(7, 7, 1.0, 'PERCENTAGE'),
+(7, 10, 2.0, 'PERCENTAGE'),
+(7, 11, 2.0, 'PERCENTAGE'),
+(7, 12, 2.0, 'PERCENTAGE'),
+(7, 15, 1.5, 'PERCENTAGE'),
+(7, 17, 1.5, 'PERCENTAGE'),
+(7, 18, 1.5, 'PERCENTAGE'),
+(7, 19, 1.5, 'PERCENTAGE'),
+
+(8, 1, 50000, 'AMOUNT'),
+(8, 2, 50000, 'AMOUNT'),
+(8, 3, 50000, 'AMOUNT'),
+(8, 6, 50000, 'AMOUNT'),
+(8, 7, 50000, 'AMOUNT'),
+(8, 10, 100000, 'AMOUNT'),
+(8, 11, 100000, 'AMOUNT'),
+(8, 12, 100000, 'AMOUNT'),
+(8, 15, 75000, 'AMOUNT'),
+(8, 17, 75000, 'AMOUNT'),
+(8, 18, 75000, 'AMOUNT'),
+(8, 19, 75000, 'AMOUNT');
+  
+
+
 
 INSERT INTO benefit_registrations (is_register, registered_at, benefit_position_id, employee_id)
 VALUES
 (true,  NOW(), 1, 1);
+
 
 
 

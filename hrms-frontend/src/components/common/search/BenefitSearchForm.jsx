@@ -10,6 +10,7 @@ import { Button, Divider, Select, Space } from 'antd';
 import { ConfigProvider } from 'antd';
 import viVN from 'antd/locale/vi_VN';
 import dayjs from 'dayjs';
+import '../../../styles/BenefitSearchForm.css'
 
 const QuickFilters = ({ onQuickFilter }) => {
     return (
@@ -57,82 +58,92 @@ const BenefitSearchForm = ({ onSearch }) => {
     };
 
     return (
-
         <ConfigProvider locale={viVN}>
-            {/*<QuickFilters*/}
-            {/*    onQuickFilter={(quickFilter) => {*/}
-            {/*        onSearch(quickFilter);*/}
-            {/*    }}*/}
-            {/*/>*/}
             <ProForm
                 formRef={formRef}
-                submitter={{
-                    render: (_, dom) => (
-                        <div style={{ textAlign: 'right' }}>
-                            {dom}
-                            <Button
-                                style={{ marginLeft: 8 }}
-                                onClick={() => {
-                                    formRef.current?.resetFields();  // reset toàn bộ form
-                                    onSearch({});                    // gửi filter rỗng lên cha
-                                }}
-                            >
-                                Xem toàn bộ phúc lợi
-                            </Button>
-
-                        </div>
-                    ),
-                }}
+                submitter={false}
+                grid
                 layout="vertical"
+                rowProps={{ gutter: [16, 8], wrap: false, align: 'top' }}
                 onFinish={handleFinish}
+                className="benefit-search-form"   // ⬅ để scope CSS
             >
                 <ProFormText
+                    colProps={{ xs: 24, lg: 4 }}
                     name="title"
                     label="Tiêu đề"
                     placeholder="Nhập tiêu đề"
-                    fieldProps={{
-                        style: { width: '50%' }, // hoặc 600, 700 px
-                    }}
+                    fieldProps={{ size: 'large' }}   // ⬅ to hơn theo AntD
                 />
+
                 <ProFormText
+                    colProps={{ xs: 24, lg: 4 }}
                     name="description"
                     label="Mô tả"
                     placeholder="Nhập mô tả"
-                    fieldProps={{
-                    style: { width: '50%' }, // hoặc 600, 700 px
-                }}/>
-                <ProForm.Group>
-                    <ProFormSelect
-                        name="benefitType"
-                        label="Loại phúc lợi"
-                        options={[
-                            { label: 'Sự Kiện', value: "SU_KIEN" },
-                            { label: 'Phụ cấp', value: "PHU_CAP" },
-                            { label: 'Khấu trừ', value: 'KHAU_TRU' }
-                        ]}
-                        allowClear
-                        placeholder="Chọn loại phúc lợi"
-                    />
-                    <ProFormDateRangePicker name="dateRange" label="Ngày bắt đầu - Ngày kết thúc" />
-                </ProForm.Group>
+                    fieldProps={{ size: 'large' }}
+                />
 
-                <ProForm.Group>
-                    <ProFormSelect
-                        name="isActive"
-                        label="Trạng thái"
-                        options={[
-                            { label: 'Đang hoạt động', value: true },
-                            { label: 'Ngừng hoạt động', value: false },
-                        ]}
-                        allowClear
-                        placeholder="Chọn trạng thái"
-                    />
-                    <ProFormDigitRange name="maxParticipants" label="Số lượng người tham gia" separator="~" />
-                </ProForm.Group>
+                <ProFormSelect
+                    colProps={{ xs: 24, lg: 4 }}
+                    name="benefitType"
+                    label="Loại phúc lợi"
+                    options={[
+                        { label: 'Sự kiện', value: 'SU_KIEN' },
+                        { label: 'Phụ cấp', value: 'PHU_CAP' },
+                        { label: 'Khấu trừ', value: 'KHAU_TRU' },
+                    ]}
+                    allowClear
+                    placeholder="Chọn loại phúc lợi"
+                    fieldProps={{ size: 'large' }}
+                />
 
+                <ProFormSelect
+                    colProps={{ xs: 24, lg: 4 }}
+                    name="isActive"
+                    label="Trạng thái"
+                    options={[
+                        { label: 'Đang hoạt động', value: true },
+                        { label: 'Ngừng hoạt động', value: false },
+                    ]}
+                    allowClear
+                    placeholder="Chọn trạng thái"
+                    fieldProps={{ size: 'large' }}
+                />
 
+                <ProForm.Item
+                    label=" " colon={false}
+                    colProps={{ xs: 24, lg: 8 }}
+                    style={{ marginBottom: 0, paddingTop: 2 }}
+                >
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            gap: 10,
+                            whiteSpace: 'nowrap',
+                        }}
+                    >
+                        <Button size="large" onClick={() => formRef.current?.resetFields()}>
+                            Làm lại
+                        </Button>
+                        <Button size="large" type="primary" htmlType="submit">
+                            Gửi đi
+                        </Button>
+                        <Button
+                            size="large"
+                            onClick={() => {
+                                formRef.current?.resetFields();
+                                onSearch({});
+                            }}
+                        >
+                            Xem toàn bộ phúc lợi
+                        </Button>
+                    </div>
+                </ProForm.Item>
             </ProForm>
-            <Divider style={{ margin: '16px 0' }} />
+
+
         </ConfigProvider>
     );
 };

@@ -16,7 +16,8 @@ public class SalaryDTO {
     private String employeeCode;
     private String employeeName;
     private String positionName;
-
+    private String departmentName;
+    private String lineName;
     private BigDecimal basicSalary;
     private Float workingDays;
     private BigDecimal productionSalary;

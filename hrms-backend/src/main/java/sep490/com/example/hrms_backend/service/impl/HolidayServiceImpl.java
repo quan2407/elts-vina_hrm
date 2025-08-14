@@ -18,6 +18,7 @@ public class HolidayServiceImpl implements HolidayService {
 
     private final HolidayRepository holidayRepository;
 
+    //tested
     @Override
     public List<HolidayDTO> getAllHolidays() {
         return holidayRepository.findAll().stream()
@@ -26,6 +27,7 @@ public class HolidayServiceImpl implements HolidayService {
                 .collect(Collectors.toList());
     }
 
+    //tested
     @Override
     public HolidayDTO createHoliday(HolidayDTO holidayDTO) {
         Holiday holiday = HolidayMapper.mapToEntity(holidayDTO);
@@ -34,6 +36,7 @@ public class HolidayServiceImpl implements HolidayService {
         return HolidayMapper.mapToDTO(holiday);
     }
 
+    //tested
     @Override
     public HolidayDTO getHolidayById(Long id) {
         Holiday holiday = holidayRepository.findByIdAndIsDeletedFalse(id)
@@ -41,6 +44,7 @@ public class HolidayServiceImpl implements HolidayService {
         return HolidayMapper.mapToDTO(holiday);
     }
 
+    //tested
     @Override
     public HolidayDTO updateHoliday(Long id, HolidayDTO holidayDTO) {
         Holiday holiday = holidayRepository.findByIdAndIsDeletedFalse(id)
@@ -50,6 +54,7 @@ public class HolidayServiceImpl implements HolidayService {
         return HolidayMapper.mapToDTO(holiday);
     }
 
+    //tested
     @Override
     public void softDeleteHoliday(Long id) {
         Holiday holiday = holidayRepository.findById(id)
@@ -58,6 +63,7 @@ public class HolidayServiceImpl implements HolidayService {
         holidayRepository.save(holiday);
     }
 
+    //tested
     @Override
     public boolean isHoliday(LocalDate date) {
         boolean isOneTimeHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(date);
