@@ -7,7 +7,6 @@ public enum NotificationType {
     APPROVAL,
     //Lịch phỏng vấn
     INTERVIEW_SCHEDULE,
-
     //Lịch làm việc
     SHIFT_CHANGED
 }
