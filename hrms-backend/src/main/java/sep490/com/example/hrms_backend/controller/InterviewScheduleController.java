@@ -37,7 +37,8 @@ public class InterviewScheduleController {
 
     @GetMapping
     public ResponseEntity<?> getAllInterviewSchedule() {
-        List<InterviewScheduleDTO> interviewScheduleDTOList = interviewScheduleService.getAllInterviewSchedule();
+       Long employeeId = currentUserUtils.getCurrentEmployeeId();
+        List<InterviewScheduleDTO> interviewScheduleDTOList = interviewScheduleService.getAllInterviewSchedule(employeeId);
         if (interviewScheduleDTOList != null && !interviewScheduleDTOList.isEmpty()) {
             return new ResponseEntity<>(interviewScheduleDTOList, HttpStatus.OK);
         }
