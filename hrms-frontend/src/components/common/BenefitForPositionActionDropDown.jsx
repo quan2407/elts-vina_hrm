@@ -13,14 +13,14 @@ const BenefitForPositionActionDropDown = ({ benefitType,onView, onEdit, onDelete
         {
             key: 'details',
             icon: <UnorderedListOutlined />,
-            label: `Áp dụng cho nhân viên ở vị trí ${positionName}`,
+            label: `Xem danh sách nhân viên đăng kí`,
         },
         ...(benefitType !== "SU_KIEN"
             ? [
                 {
                     key: 'edit',
                     icon: <EditOutlined />,
-                    label: `Cập nhật giá trị lương cho ${positionName}`,
+                    label: `Cập nhật giá trị phúc lợi cho ${positionName}`,
                 },
             ]
             : []),

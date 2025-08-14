@@ -4,11 +4,10 @@ import benefitService from "../services/benefitService.js";
 import Paging from "./common/Paging.jsx";
 import BenefitForPositionActionDropDown from "./common/BenefitForPositionActionDropDown.jsx";
 import BenefitPositionUpdateModal from "./modals/benefit/BenefitPositionUpdateModal.jsx";
-import { Modal, message, Checkbox, Button, Input } from "antd";
+import { Modal, message, Checkbox, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 
 const BenefitByPositionHeader = ({ isMultiSelectMode }) => {
-    // Giữ cột trống đầu tiên để khớp với ô checkbox/ô trống ở hàng
     const headers = ["", "Id", "Tên vị trí", "Giá trị tính vào lương", "Đăng ký", "Chức năng"];
     return (
         <div className="employee-table-header">
@@ -28,7 +27,7 @@ const BenefitByPositionTableRow = ({
                                        isSelected,
                                        onSelectChange,
                                        isFull,
-                                       reloadFlag, // NEW: để refetch stats khi cần
+                                       stats, // NEW: nhận stats từ bảng
                                    }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
@@ -52,29 +51,6 @@ const BenefitByPositionTableRow = ({
         navigate(`/benefits-management/benefit/${benefit.id}/position/${benefit.positions.positionId}`);
     };
 
-    // NEW: fetch stats đăng ký
-    const [stats, setStats] = useState(null);
-    const [statsLoading, setStatsLoading] = useState(true);
-
-    useEffect(() => {
-        let alive = true;
-        setStatsLoading(true);
-        benefitService
-            .getRegistrationStats(benefit.id, benefit.positions.positionId)
-            .then((res) => {
-                if (!alive) return;
-                setStats(res.data);
-            })
-            .catch((err) => {
-                console.error("Lỗi lấy stats:", err);
-                setStats(null);
-            })
-            .finally(() => alive && setStatsLoading(false));
-        return () => {
-            alive = false;
-        };
-    }, [benefit.id, benefit.positions.positionId, reloadFlag]); // refetch khi reloadFlag đổi
-
     return (
         <div className="employee-table-row">
             <div className="employee-table-cell">
@@ -83,10 +59,7 @@ const BenefitByPositionTableRow = ({
                         {isFull ? (
                             <span>full</span>
                         ) : (
-                            <Checkbox
-                                checked={isSelected}
-                                onChange={(e) => onSelectChange(rowKey, e.target.checked)}
-                            />
+                            <Checkbox checked={isSelected} onChange={(e) => onSelectChange(rowKey, e.target.checked)} />
                         )}
                     </>
                 )}
@@ -109,9 +82,8 @@ const BenefitByPositionTableRow = ({
                 )}
             </div>
 
-            {/* NEW: cột Đăng ký */}
             <div className="employee-table-cell">
-                {statsLoading ? "..." : stats ? `${stats.totalRegistered}/${stats.totalEmployees}` : "—"}
+                {stats ? `${stats.totalRegistered}/${stats.totalEmployees}` : "..."}
             </div>
 
             <div className="employee-table-cell">
@@ -125,10 +97,7 @@ const BenefitByPositionTableRow = ({
                             title: "Bạn có chắc chắn muốn xóa?",
                             onOk: async () => {
                                 try {
-                                    await benefitService.unassignPositionsFromBenefit(
-                                        benefit.id,
-                                        benefit.positions.positionId
-                                    );
+                                    await benefitService.unassignPositionsFromBenefit(benefit.id, benefit.positions.positionId);
                                     message.success("Đã xóa thành công!");
                                     onUpdateSuccess();
                                 } catch {
@@ -151,22 +120,30 @@ const BenefitByPositionTableRow = ({
     );
 };
 
-function BenefitForPositionTable({ benefitId, reloadFlag, isMultiSelectMode, onReload }) {
-    const [benefits, setBenefits] = useState([]); // Dữ liệu gốc từ API
-    const [filteredBenefits, setFilteredBenefits] = useState([]); // Dữ liệu sau khi lọc (flatMap thành danh sách positions)
+function BenefitForPositionTable({
+                                     benefitId,
+                                     reloadFlag,
+                                     isMultiSelectMode,
+                                     onReload,
+                                     searchTerm,
+                                     registrationFilter, // NEW
+                                 }) {
+    const [benefits, setBenefits] = useState([]);
+    const [filteredBenefits, setFilteredBenefits] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [pageNumber, setPageNumber] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [totalElements, setTotalElements] = useState(0);
-    const [searchTerm, setSearchTerm] = useState(""); // Từ khóa tìm kiếm
-    const [selectedRows, setSelectedRows] = useState([]); // Trạng thái cho các hàng được chọn
+    const [selectedRows, setSelectedRows] = useState([]);
     const [selectableKeys, setSelectableKeys] = useState([]);
     const [positionFullMap, setPositionFullMap] = useState({});
 
-    const reloadData = () => {
-        fetchData();
-    };
+    // NEW: statsMap cho mọi positionId
+    const [statsMap, setStatsMap] = useState({});
+    const [statsLoading, setStatsLoading] = useState(false);
+
+    const reloadData = () => fetchData();
 
     const handleSelectChange = (rowKey, checked) => {
         setSelectedRows((prev) => (checked ? [...prev, rowKey] : prev.filter((key) => key !== rowKey)));
@@ -197,6 +174,68 @@ function BenefitForPositionTable({ benefitId, reloadFlag, isMultiSelectMode, onR
         });
     };
 
+    const fetchData = () => {
+        if (!benefitId) {
+            console.warn("❗ benefitId chưa có, không gọi API");
+            return;
+        }
+        setError(null);
+        setLoading(true);
+
+        benefitService
+            .getPositionRegisterationDetail({}, benefitId)
+            .then((res) => {
+                const data = res.data.content || res.data;
+                setBenefits(data);
+                setTotalElements(res.data.totalElements || data.length || 0);
+            })
+            .catch((err) => {
+                console.error("Lỗi khi lấy dữ liệu phúc lợi:", err);
+                setError("Không thể lấy dữ liệu phúc lợi tương ứng");
+            })
+            .finally(() => setLoading(false));
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, [benefitId, reloadFlag]);
+
+    // NEW: sau khi có benefits, fetch toàn bộ stats cho từng position
+    useEffect(() => {
+        const allPositions = benefits.flatMap((b) => b.positions.map((p) => p.positionId));
+        if (allPositions.length === 0) {
+            setStatsMap({});
+            return;
+        }
+        let alive = true;
+        setStatsLoading(true);
+
+        Promise.all(
+            allPositions.map((pid) =>
+                benefitService
+                    .getRegistrationStats(parseInt(benefitId), pid)
+                    .then((res) => ({ pid, stats: res.data }))
+                    .catch(() => ({ pid, stats: null }))
+            )
+        )
+            .then((pairs) => {
+                if (!alive) return;
+                const map = pairs.reduce((acc, { pid, stats }) => {
+                    acc[pid] = stats;
+                    return acc;
+                }, {});
+                setStatsMap(map);
+            })
+            .finally(() => {
+                if (alive) setStatsLoading(false);
+            });
+
+        return () => {
+            alive = false;
+        };
+    }, [benefits, benefitId]);
+
+    // Giữ logic kiểm tra isFull cho multi-select (giữ nguyên như trước)
     useEffect(() => {
         if (isMultiSelectMode) {
             const allPositions = benefits.flatMap((b) => b.positions.map((p) => p.positionId));
@@ -231,32 +270,7 @@ function BenefitForPositionTable({ benefitId, reloadFlag, isMultiSelectMode, onR
         }
     }, [isMultiSelectMode, benefitId, benefits]);
 
-    const fetchData = () => {
-        if (!benefitId) {
-            console.warn("❗ benefitId chưa có, không gọi API");
-            return;
-        }
-        setError(null);
-        setLoading(true);
-
-        benefitService
-            .getPositionRegisterationDetail({}, benefitId)
-            .then((res) => {
-                setBenefits(res.data.content || res.data);
-                setTotalElements(res.data.totalElements || res.data.length || 0);
-            })
-            .catch((err) => {
-                console.error("Lỗi khi lấy dữ liệu phúc lợi:", err);
-                setError("Không thể lấy dữ liệu phúc lợi tương ứng");
-            })
-            .finally(() => setLoading(false));
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, [benefitId, reloadFlag]);
-
-    // Lọc + phân trang client-side
+    // Filter + paginate (client-side) using searchTerm & registrationFilter
     useEffect(() => {
         const allPositions = benefits.flatMap((benefit) =>
             benefit.positions.map((position) => ({
@@ -267,30 +281,30 @@ function BenefitForPositionTable({ benefitId, reloadFlag, isMultiSelectMode, onR
             }))
         );
 
-        const filtered = allPositions.filter((item) =>
-            item.positions.positionName.toLowerCase().includes(searchTerm.toLowerCase())
+        const byName = allPositions.filter((item) =>
+            item.positions.positionName.toLowerCase().includes((searchTerm || "").toLowerCase())
         );
 
-        setFilteredBenefits(filtered);
-        setTotalElements(filtered.length);
+        const byRegistration = byName.filter((item) => {
+            if (registrationFilter === "ALL") return true;
+            const s = statsMap[item.positions.positionId];
+            if (!s) return registrationFilter === "ALL"; // khi stats chưa về, tạm giữ lại
+            const { totalRegistered, totalEmployees } = s;
+            if (registrationFilter === "FULL") return totalRegistered === totalEmployees && totalEmployees > 0;
+            if (registrationFilter === "NONE") return totalRegistered === 0 && totalEmployees > 0;
+            if (registrationFilter === "PARTIAL") return totalRegistered > 0 && totalRegistered < totalEmployees;
+            return true;
+        });
+
+        setFilteredBenefits(byRegistration);
+        setTotalElements(byRegistration.length);
         setPageNumber(1);
-    }, [searchTerm, benefits]);
+    }, [searchTerm, registrationFilter, benefits, statsMap]);
 
     const currentPageData = filteredBenefits.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
 
     return (
         <div className="employee-table-wrapper">
-            <div style={{ marginBottom: 16 }}>
-                <Input
-                    placeholder="Tìm kiếm theo tên vị trí"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ width: 300 }}
-                />
-            </div>
-
-            <BenefitByPositionHeader isMultiSelectMode={isMultiSelectMode} />
-
             {isMultiSelectMode && (
                 <div style={{ marginBottom: 16 }}>
                     <Button onClick={handleSelectAll} disabled={selectableKeys.length === 0} style={{ marginRight: 8 }}>
@@ -304,6 +318,9 @@ function BenefitForPositionTable({ benefitId, reloadFlag, isMultiSelectMode, onR
                     </Button>
                 </div>
             )}
+            <BenefitByPositionHeader isMultiSelectMode={isMultiSelectMode} />
+
+
 
             <div className="employee-table">
                 {loading && <p>Đang tải...</p>}
@@ -321,7 +338,7 @@ function BenefitForPositionTable({ benefitId, reloadFlag, isMultiSelectMode, onR
                             isSelected={selectedRows.includes(`${benefitItem.id}-${benefitItem.positions.positionId}`)}
                             onSelectChange={handleSelectChange}
                             isFull={positionFullMap[benefitItem.positions.positionId] || false}
-                            reloadFlag={reloadFlag} // NEW: truyền xuống
+                            stats={statsMap[benefitItem.positions.positionId]} // NEW
                         />
                     ))}
             </div>

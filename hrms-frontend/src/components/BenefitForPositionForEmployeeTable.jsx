@@ -12,8 +12,8 @@ const BenefitForPositionForEmployeeTableHeader = ({ sortConfig, onSort, bulkMode
         { label: "Id", key: "id" },
         { label: "Tên nhân viên", key: "name" },
         { label: "Email", key: "email" },
-        { label: "Lương cơ bản", key: "salary" },
-        { label: "Ngày đăng kí", key: "date" },
+        { label: "Lương cơ bản", key: "salary", align: "center" },
+        { label: "Ngày đăng kí", key: "date", align: "center" },
         { label: "Vị trí", key: "position" },
         { label: "Chức năng", key: null }
     ];
@@ -35,7 +35,7 @@ const BenefitForPositionForEmployeeTableHeader = ({ sortConfig, onSort, bulkMode
                 alignItems: "center",
             }}
         >
-            {headers.map(({ label, key }, idx) => (
+            {headers.map(({ label, key, align }, idx) => (
                 <div
                     className="employee-header-cell"
                     key={`${label}-${idx}`}
@@ -47,19 +47,21 @@ const BenefitForPositionForEmployeeTableHeader = ({ sortConfig, onSort, bulkMode
                         justifyContent: "center",
                         gap: "4px",
                         padding: "8px",
+                        textAlign: align || "left",
                     }}
                 >
                     <span>{label}</span>
                     {key && getSortSymbol(key) && (
                         <span style={{ fontSize: "12px", color: "black" }}>
-              {getSortSymbol(key)}
-            </span>
+                            {getSortSymbol(key)}
+                        </span>
                     )}
                 </div>
             ))}
         </div>
     );
 };
+
 
 /** ROW */
 const BenefitForPositionForEmployeeTableRow = ({
