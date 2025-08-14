@@ -1,7 +1,6 @@
 package sep490.com.example.hrms_backend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -13,8 +12,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import sep490.com.example.hrms_backend.enums.BenefitType;
 import sep490.com.example.hrms_backend.enums.FormulaType;
+
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -56,10 +55,6 @@ public class Benefit {
     @Enumerated(EnumType.STRING)
     @Column(name = "default_formula_type")
     private FormulaType defaultFormulaType;
-
-
-
-
 
 
     @Column(name = "is_active")

@@ -238,7 +238,7 @@ public class AttendanceRecordServiceImplTest {
         when(holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(any(LocalDate.class))).thenReturn(false);
 
         // Act
-        Page<AttendanceMonthlyViewDTO> result = attendanceRecordService.getMonthlyAttendance(month, year, 0, 10, null);
+        Page<AttendanceMonthlyViewDTO> result = attendanceRecordService.getMonthlyAttendance(month, year, 0, 10, null,1l,2l,3l);
 
         // Assert
         assertNotNull(result);
@@ -273,7 +273,7 @@ public class AttendanceRecordServiceImplTest {
         when(holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(any(LocalDate.class))).thenReturn(false);
 
         // Act
-        Page<AttendanceMonthlyViewDTO> result = attendanceRecordService.getMonthlyAttendance(month, year, 0, 10, search);
+        Page<AttendanceMonthlyViewDTO> result = attendanceRecordService.getMonthlyAttendance(month, year, 0, 10, search,1l,2l,3l);
 
         // Assert
         assertNotNull(result);
