@@ -399,26 +399,24 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         Long departmentId = employee.getDepartment().getDepartmentId();
 
         Optional<WorkSchedule> scheduleOpt = (lineId != null)
-                ? workScheduleRepository.findByDepartment_DepartmentIdAndLine_LineIdAndMonthAndYear(departmentId, lineId, month, year)
-                : workScheduleRepository.findByDepartment_DepartmentIdAndLineIsNullAndMonthAndYear(departmentId, month, year);
+                ? workScheduleRepository.findByDepartment_DepartmentIdAndLine_LineIdAndMonthAndYearAndIsAcceptedTrue(departmentId, lineId, month, year)
+                : workScheduleRepository.findByDepartment_DepartmentIdAndLineIsNullAndMonthAndYearAndIsAcceptedTrue(departmentId, month, year);
 
         WorkSchedule schedule = scheduleOpt.orElseThrow(() ->
-                new HRMSAPIException(HttpStatus.NOT_FOUND, "Không có lịch làm việc cho tháng này"));
+                new HRMSAPIException(HttpStatus.NOT_FOUND, "Không có lịch làm việc đã được duyệt cho tháng này"));
 
-        List<WorkScheduleDetail> details = schedule.getWorkScheduleDetails();
-
-        return details.stream()
-                .map(detail -> {
-                    return EmployeeWorkScheduleDTO.builder()
-                            .date(detail.getDateWork())
-                            .startTime(detail.getStartTime())
-                            .endTime(detail.getEndTime())
-                            .isOvertime(Boolean.TRUE.equals(detail.getIsOvertime()))
-                            .lineName(schedule.getLine() != null ? schedule.getLine().getLineName() : null)
-                            .departmentName(schedule.getDepartment().getDepartmentName())
-                            .build();
-                }).toList();
+        return schedule.getWorkScheduleDetails().stream()
+                .map(detail -> EmployeeWorkScheduleDTO.builder()
+                        .date(detail.getDateWork())
+                        .startTime(detail.getStartTime())
+                        .endTime(detail.getEndTime())
+                        .isOvertime(Boolean.TRUE.equals(detail.getIsOvertime()))
+                        .lineName(schedule.getLine() != null ? schedule.getLine().getLineName() : null)
+                        .departmentName(schedule.getDepartment().getDepartmentName())
+                        .build()
+                ).toList();
     }
+
 
     @Override
     public void rejectSubmittedSchedule(int month, int year, String reason) {

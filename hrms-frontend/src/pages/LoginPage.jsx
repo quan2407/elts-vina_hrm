@@ -16,7 +16,6 @@ function LoginPage() {
     e.preventDefault();
     setErrorMessage("");
     setErrorFields({});
-
     try {
       const res = await authService.login({ usernameOrEmail: email, password });
       console.log("Login response:", res.data);
