@@ -4,7 +4,7 @@ import MainLayout from "../components/MainLayout";
 import "../styles/AttendanceMonthlyView.css";
 import departmentService from "../services/departmentService";
 import positionService from "../services/positionService";
-import { getAllLines } from "../services/linesService"; // bạn đã có
+import { getAllLines } from "../services/linesService";
 const SalaryMonthlyView = () => {
   const [salaries, setSalaries] = useState([]);
   const [month, setMonth] = useState(new Date().getMonth() + 1);
@@ -14,7 +14,7 @@ const SalaryMonthlyView = () => {
   const roles = JSON.parse(localStorage.getItem("role") || "[]");
   const isHrManager = roles.includes("ROLE_HR_MANAGER");
   const [page, setPage] = useState(0);
-  const [size] = useState(10);
+  const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   let debounceTimeout;
@@ -24,7 +24,6 @@ const SalaryMonthlyView = () => {
   const [departments, setDepartments] = useState([]);
   const [positions, setPositions] = useState([]);
   const [lines, setLines] = useState([]);
-
   // Gom tất cả loại phụ cấp và khấu trừ từ dữ liệu lương
   const allowanceTitles = Array.from(
     new Set(
@@ -74,9 +73,8 @@ const SalaryMonthlyView = () => {
   // 1) Lấy lương khi đổi tháng/năm/trang
   useEffect(() => {
     if (month && year) fetchSalaries();
-  }, [month, year, page]);
+  }, [month, year, page, size]);
 
-  // 2) Load danh mục lần đầu (departments/positions/lines)
   useEffect(() => {
     (async () => {
       try {
@@ -302,6 +300,24 @@ const SalaryMonthlyView = () => {
           </div>
         </div>
         <div className="attendance-controls">
+          <div className="page-size-control">
+            <label htmlFor="pageSize">Hiển thị</label>
+            <select
+              id="pageSize"
+              value={size}
+              onChange={(e) => {
+                const newSize = Number(e.target.value);
+                setSize(newSize);
+                setPage(0);
+              }}
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+            <span>/ trang</span>
+          </div>
           <div className="salary-filters">
             <input
               type="text"
@@ -309,7 +325,7 @@ const SalaryMonthlyView = () => {
               placeholder="Tìm mã hoặc tên nhân viên..."
               value={searchTerm}
               onChange={(e) => {
-                setSearchTerm(e.target.value); // Chỉ cập nhật giá trị searchTerm khi gõ
+                setSearchTerm(e.target.value);
               }}
             />
             <select
@@ -364,103 +380,103 @@ const SalaryMonthlyView = () => {
                 setPositionId(null);
                 setPage(0);
 
-                // Gọi API ngay với tham số “clear” thay vì chờ state cập nhật
                 fetchSalariesParams(month, year, 0, "", null, null, null);
               }}
             >
-              Reset
+              Xóa bộ lọc
             </button>
 
             <button
               onClick={() => {
-                setPage(0); // Reset to the first page when searching
-                fetchSalaries(); // Fetch data based on filters
+                setPage(0);
+                fetchSalaries();
               }}
             >
               Tìm kiếm
             </button>
           </div>
         </div>
+        <div className="attendance-table-area">
+          <div className="attendance-table-wrapper">
+            <table className="attendance-table">
+              <thead>
+                <tr>
+                  <th rowSpan="2">STT</th>
+                  <th rowSpan="2">Mã NV</th>
+                  <th rowSpan="2">Họ và Tên</th>
+                  <th rowSpan="2">Chức vụ</th>
+                  <th rowSpan="2">Lương cơ bản</th>
 
-        <div className="attendance-table-wrapper">
-          <table className="attendance-table">
-            <thead>
-              <tr>
-                <th rowSpan="2">STT</th>
-                <th rowSpan="2">Mã NV</th>
-                <th rowSpan="2">Họ và Tên</th>
-                <th rowSpan="2">Chức vụ</th>
-                <th rowSpan="2">Lương cơ bản</th>
+                  <th colSpan={allowanceTitles.length || 1}>Phụ cấp</th>
+                  <th colSpan="2">Lương sản xuất</th>
+                  <th colSpan="2">Lương thêm giờ</th>
 
-                <th colSpan={allowanceTitles.length || 1}>Phụ cấp</th>
-                <th colSpan="2">Lương sản xuất</th>
-                <th colSpan="2">Lương thêm giờ</th>
+                  <th colSpan={deductionTitles.length || 1}>
+                    Các khoản khấu trừ
+                  </th>
+                  <th rowSpan="2">Tổng trừ</th>
+                  <th rowSpan="2">Thực lãnh</th>
+                </tr>
+                <tr>
+                  {allowanceTitles.length > 0 ? (
+                    allowanceTitles.map((title) => <th key={title}>{title}</th>)
+                  ) : (
+                    <th>--</th>
+                  )}
+                  <th>Số công</th>
+                  <th>Tiền lương</th>
+                  <th>Số giờ</th>
+                  <th>Tiền lương</th>
+                  {deductionTitles.length > 0 ? (
+                    deductionTitles.map((title) => <th key={title}>{title}</th>)
+                  ) : (
+                    <th>--</th>
+                  )}
+                </tr>
+              </thead>
 
-                <th colSpan={deductionTitles.length || 1}>
-                  Các khoản khấu trừ
-                </th>
-                <th rowSpan="2">Tổng trừ</th>
-                <th rowSpan="2">Thực lãnh</th>
-              </tr>
-              <tr>
-                {allowanceTitles.length > 0 ? (
-                  allowanceTitles.map((title) => <th key={title}>{title}</th>)
-                ) : (
-                  <th>--</th>
-                )}
-                <th>Số công</th>
-                <th>Tiền lương</th>
-                <th>Số giờ</th>
-                <th>Tiền lương</th>
-                {deductionTitles.length > 0 ? (
-                  deductionTitles.map((title) => <th key={title}>{title}</th>)
-                ) : (
-                  <th>--</th>
-                )}
-              </tr>
-            </thead>
+              <tbody>
+                {salaries.map((emp, index) => {
+                  const benefitMap = {};
+                  emp.appliedBenefits.forEach((b) => {
+                    benefitMap[b.title] = b.amount;
+                  });
 
-            <tbody>
-              {salaries.map((emp, index) => {
-                const benefitMap = {};
-                emp.appliedBenefits.forEach((b) => {
-                  benefitMap[b.title] = b.amount;
-                });
+                  return (
+                    <tr key={emp.employeeCode}>
+                      <td>{index + 1}</td>
+                      <td>{emp.employeeCode}</td>
+                      <td>{emp.employeeName}</td>
+                      <td>{emp.positionName || "--"}</td>
+                      <td>{emp.basicSalary?.toLocaleString("vi-VN")}</td>
 
-                return (
-                  <tr key={emp.employeeCode}>
-                    <td>{index + 1}</td>
-                    <td>{emp.employeeCode}</td>
-                    <td>{emp.employeeName}</td>
-                    <td>{emp.positionName || "--"}</td>
-                    <td>{emp.basicSalary?.toLocaleString("vi-VN")}</td>
+                      {allowanceTitles.map((title) => (
+                        <td key={title}>
+                          {(benefitMap[title] || 0).toLocaleString("vi-VN")}
+                        </td>
+                      ))}
 
-                    {allowanceTitles.map((title) => (
-                      <td key={title}>
-                        {(benefitMap[title] || 0).toLocaleString("vi-VN")}
+                      <td>{emp.workingDays}</td>
+                      <td>{emp.productionSalary?.toLocaleString("vi-VN")}</td>
+                      <td>{emp.overtimeHours}</td>
+                      <td>{emp.overtimeSalary?.toLocaleString("vi-VN")}</td>
+
+                      {deductionTitles.map((title) => (
+                        <td key={title}>
+                          {(benefitMap[title] || 0).toLocaleString("vi-VN")}
+                        </td>
+                      ))}
+
+                      <td>{emp.totalDeduction?.toLocaleString("vi-VN")}</td>
+                      <td className="highlight-bold">
+                        {emp.totalIncome?.toLocaleString("vi-VN")}
                       </td>
-                    ))}
-
-                    <td>{emp.workingDays}</td>
-                    <td>{emp.productionSalary?.toLocaleString("vi-VN")}</td>
-                    <td>{emp.overtimeHours}</td>
-                    <td>{emp.overtimeSalary?.toLocaleString("vi-VN")}</td>
-
-                    {deductionTitles.map((title) => (
-                      <td key={title}>
-                        {(benefitMap[title] || 0).toLocaleString("vi-VN")}
-                      </td>
-                    ))}
-
-                    <td>{emp.totalDeduction?.toLocaleString("vi-VN")}</td>
-                    <td className="highlight-bold">
-                      {emp.totalIncome?.toLocaleString("vi-VN")}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
           <div className="attendance-pagination-container">
             <button
               className="attendance-pagination-btn"

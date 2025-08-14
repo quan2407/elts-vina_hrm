@@ -31,7 +31,7 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
   const [leaveCellMeta, setLeaveCellMeta] = useState({});
   const [validationErrors, setValidationErrors] = useState({});
   const [page, setPage] = useState(0);
-  const [size] = useState(10);
+  const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [importModalOpen, setImportModalOpen] = useState(false);
@@ -40,7 +40,7 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
   const today = new Date();
   const params = new URLSearchParams(location.search);
   const empId = params.get("focusEmployee");
-  const focusDate = params.get("focusDate"); // yyyy-MM-dd
+  const focusDate = params.get("focusDate");
   const targetCellId =
     empId && focusDate ? `attendance-cell-${empId}-${focusDate}` : null;
   console.log("🔍 targetCellId:", targetCellId);
@@ -184,7 +184,6 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
         const res = await attendanceService.getAvailableMonths();
         setAvailableMonths(res.data);
 
-        // ✅ Nếu có focusDate trên URL → parse ra year & month
         const focusDate = params.get("focusDate");
         let defaultMonth = res.data[0].month;
         let defaultYear = res.data[0].year;
@@ -212,7 +211,7 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
     if (month && year) {
       fetchAttendance();
     }
-  }, [month, year, page]);
+  }, [month, year, page, size]);
 
   const fetchAttendance = async () => {
     try {
@@ -316,8 +315,6 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
         setTimeout(tryScroll, 200);
       }
     };
-
-    // Delay đầu tiên sau khi render toàn bộ bảng
     setTimeout(tryScroll, 500);
   }, [data, targetCellId]);
 
@@ -325,111 +322,7 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
     <MainLayout>
       <div className="attendance-container">
         <div className="attendance-controls">
-          {/* Các nút hành động */}
-          <div className="attendance-actions">
-            <div className="leave-code-popover-wrapper">
-              <button
-                className="leave-code-toggle-btn"
-                onClick={() =>
-                  document
-                    .getElementById("leave-code-popover")
-                    .classList.toggle("show")
-                }
-              >
-                🛈 Ghi chú mã nghỉ
-              </button>
-              <div
-                id="leave-code-popover"
-                className="leave-code-popover"
-              >
-                <div className="leave-code-columns">
-                  <ul>
-                    <li>
-                      <strong>KL</strong>: Nghỉ không lương
-                    </li>
-                    <li>
-                      <strong>KH</strong>: Kết hôn
-                    </li>
-                    <li>
-                      <strong>CKH</strong>: Con kết hôn
-                    </li>
-                  </ul>
-                  <ul>
-                    <li>
-                      <strong>NT</strong>: Nghỉ tang
-                    </li>
-                    <li>
-                      <strong>P</strong>: Nghỉ phép
-                    </li>
-                    <li>
-                      <strong>P_2</strong>: Nghỉ phép nửa ngày
-                    </li>
-                  </ul>
-                  <ul>
-                    <li>
-                      <strong>NTS</strong>: Nghỉ thai sản
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <button
-              className="generate-salary-btn"
-              onClick={handleGenerateSalary}
-            >
-              Tạo bảng lương
-            </button>
-            <button
-              className="generate-salary-btn"
-              style={{ backgroundColor: "#2563eb", marginLeft: "8px" }}
-              onClick={async () => {
-                if (!month || !year) {
-                  alert("Vui lòng chọn tháng và năm trước khi xuất báo cáo.");
-                  return;
-                }
-
-                try {
-                  const response =
-                    await attendanceService.exportAttendanceToExcel(
-                      month,
-                      year
-                    );
-                  const blob = new Blob([response.data], {
-                    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                  });
-
-                  const url = window.URL.createObjectURL(blob);
-                  const link = document.createElement("a");
-                  link.href = url;
-                  link.setAttribute(
-                    "download",
-                    `baocao_chamcong_thang_${month
-                      .toString()
-                      .padStart(2, "0")}_${year}.xlsx`
-                  );
-                  document.body.appendChild(link);
-                  link.click();
-                  link.remove();
-                } catch (error) {
-                  console.error("Xuất Excel thất bại:", error);
-                  alert("Không thể xuất báo cáo chấm công.");
-                }
-              }}
-            >
-              Xuất Excel
-            </button>
-            <button
-              className="generate-salary-btn"
-              style={{ backgroundColor: "#22c55e", marginLeft: "8px" }}
-              onClick={() => setImportModalOpen(true)}
-            >
-              Import Excel
-            </button>
-          </div>
-
-          {/* Chuyển bộ lọc tháng/năm xuống dưới */}
-          <div className="attendance-filters">
+          <div className="salary-filters">
             <select
               value={month || ""}
               onChange={(e) => {
@@ -481,70 +374,180 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
             </select>
           </div>
 
-          {/* Di chuyển các bộ lọc còn lại xuống dưới */}
-          <div className="attendance-filters">
+          <div className="salary-actions">
+            <div className="leave-code-popover-wrapper">
+              <button
+                className="leave-code-toggle-btn"
+                onClick={() =>
+                  document
+                    .getElementById("leave-code-popover")
+                    ?.classList.toggle("show")
+                }
+              >
+                🛈 Ghi chú mã nghỉ
+              </button>
+              <div
+                id="leave-code-popover"
+                className="leave-code-popover"
+              >
+                <div className="leave-code-columns">
+                  <ul>
+                    <li>
+                      <strong>KL</strong>: Nghỉ không lương
+                    </li>
+                    <li>
+                      <strong>KH</strong>: Kết hôn
+                    </li>
+                    <li>
+                      <strong>CKH</strong>: Con kết hôn
+                    </li>
+                  </ul>
+                  <ul>
+                    <li>
+                      <strong>NT</strong>: Nghỉ tang
+                    </li>
+                    <li>
+                      <strong>P</strong>: Nghỉ phép
+                    </li>
+                    <li>
+                      <strong>P_2</strong>: Nghỉ phép nửa ngày
+                    </li>
+                  </ul>
+                  <ul>
+                    <li>
+                      <strong>NTS</strong>: Nghỉ thai sản
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <button
+              className="btn-update"
+              onClick={handleGenerateSalary}
+            >
+              Tạo bảng lương
+            </button>
+
+            <button
+              className="btn-update"
+              style={{ backgroundColor: "#2563eb" }}
+              onClick={async () => {
+                if (!month || !year) {
+                  alert("Vui lòng chọn tháng và năm trước khi xuất báo cáo.");
+                  return;
+                }
+                try {
+                  const res = await attendanceService.exportAttendanceToExcel(
+                    month,
+                    year
+                  );
+                  const blob = new Blob([res.data], {
+                    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                  });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `baocao_chamcong_thang_${String(month).padStart(
+                    2,
+                    "0"
+                  )}_${year}.xlsx`;
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                } catch (e) {
+                  console.error(e);
+                  alert("Không thể xuất báo cáo chấm công.");
+                }
+              }}
+            >
+              Xuất Excel
+            </button>
+
+            <button
+              className="btn-update"
+              style={{ backgroundColor: "#22c55e" }}
+              onClick={() => setImportModalOpen(true)}
+            >
+              Import Excel
+            </button>
+          </div>
+        </div>
+
+        <div className="attendance-controls">
+          <div className="page-size-control">
+            <label htmlFor="pageSize">Hiển thị</label>
+            <select
+              id="pageSize"
+              value={size}
+              onChange={(e) => {
+                setSize(Number(e.target.value));
+                setPage(0);
+              }}
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+            <span>/ trang</span>
+          </div>
+
+          <div className="salary-filters">
             <input
               type="text"
-              className="attendance-filter-input"
+              className="attendance-search-input"
               placeholder="Tìm mã hoặc tên nhân viên..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
 
-            {/* Bộ lọc Department */}
             <select
-              className="attendance-filter-select"
-              value={departmentId || ""}
+              value={departmentId ?? ""}
               onChange={(e) => setDepartmentId(e.target.value)}
             >
               <option value="">-- Chọn Bộ Phận --</option>
-              {departments.map((department) => (
+              {departments.map((d) => (
                 <option
-                  key={department.id}
-                  value={department.id}
+                  key={d.id}
+                  value={d.id}
                 >
-                  {department.name}
+                  {d.name}
                 </option>
               ))}
             </select>
 
-            {/* Bộ lọc Line */}
             <select
-              className="attendance-filter-select"
-              value={lineId || ""}
+              value={lineId ?? ""}
               onChange={(e) => setLineId(e.target.value)}
             >
               <option value="">-- Chọn Chuyền --</option>
-              {lines.map((line) => (
+              {lines.map((l) => (
                 <option
-                  key={line.id}
-                  value={line.id}
+                  key={l.id}
+                  value={l.id}
                 >
-                  {line.name}
+                  {l.name}
                 </option>
               ))}
             </select>
 
-            {/* Bộ lọc Position */}
             <select
-              className="attendance-filter-select"
-              value={positionId || ""}
+              value={positionId ?? ""}
               onChange={(e) => setPositionId(e.target.value)}
             >
               <option value="">-- Chọn Chức Vụ --</option>
-              {positions.map((position) => (
+              {positions.map((p) => (
                 <option
-                  key={position.id}
-                  value={position.id}
+                  key={p.id}
+                  value={p.id}
                 >
-                  {position.name}
+                  {p.name}
                 </option>
               ))}
             </select>
 
-            {/* Nút Reset */}
             <button
-              className="attendance-filter-btn reset-btn"
               onClick={() => {
                 setSearchTerm("");
                 setDepartmentId(null);
@@ -554,12 +557,10 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
                 fetchAttendanceParams(month, year, 0, "", null, null, null);
               }}
             >
-              Reset
+              Xóa bộ lọc
             </button>
 
-            {/* Nút Tìm kiếm */}
             <button
-              className="attendance-filter-btn search-btn"
               onClick={() => {
                 setPage(0);
                 fetchAttendance();

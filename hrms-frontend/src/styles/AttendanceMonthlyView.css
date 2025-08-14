@@ -1,6 +1,8 @@
 .attendance-container {
   padding: 1rem;
   background-color: #e5f0fd;
+  height: calc(100vh - 120px);
+  overflow: hidden;
 }
 
 .attendance-controls {
@@ -19,18 +21,17 @@
   gap: 12px;
   flex-wrap: wrap;
 }
-/* Giữ nguyên kích thước cho filter input/select */
 .salary-filters select,
 .salary-filters input {
-  width: 200px; /* hoặc giá trị bạn muốn */
-  min-width: 200px; /* đảm bảo không co nhỏ hơn */
+  width: 200px;
+  min-width: 200px;
   box-sizing: border-box;
 }
 
 .salary-filters button {
-  min-width: 90px; /* Để nút Reset/Tìm kiếm không co lại */
+  min-width: 90px;
 }
-/* Kích thước đồng đều cho input/select filter */
+
 .attendance-filter-input,
 .attendance-filter-select {
   width: 200px;
@@ -65,7 +66,7 @@
 }
 
 .attendance-filter-btn.reset-btn {
-  background-color: #e5e7eb;
+  background-color: red;
   color: #111;
 }
 
@@ -86,11 +87,49 @@
   margin: 0;
 }
 
+.attendance-container {
+  padding: 1rem;
+  background-color: #e5f0fd;
+  height: calc(100vh - 120px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.attendance-table-area {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .attendance-table-wrapper {
-  overflow-x: auto;
-  max-width: 100%;
   overflow: auto;
-  max-height: 1000px;
+  scrollbar-gutter: stable both-edges;
+}
+
+.attendance-pagination-container {
+  flex: 0 0 auto;
+  padding: 10px 0;
+  background: #e5f0fd;
+  border-top: 1px solid #dbeafe;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.attendance-table thead tr:first-child th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #dbeafe;
+}
+.attendance-table thead tr:nth-child(2) th {
+  position: sticky;
+  top: 38px;
+  z-index: 2;
+  background: #d1fae5;
 }
 
 .attendance-table {
@@ -120,16 +159,6 @@
 .attendance-table thead th {
   position: sticky;
   top: 0;
-  z-index: 2;
-}
-
-.attendance-table thead tr:first-child th {
-  top: 0;
-  z-index: 3;
-}
-
-.attendance-table thead tr:nth-child(2) th {
-  top: 38px; /* hoặc đúng chiều cao của dòng header 1 */
   z-index: 2;
 }
 

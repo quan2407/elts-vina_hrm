@@ -119,7 +119,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        // Lấy danh sách nhân viên đã lọc + phân trang ở DB
         Page<Employee> employeePage = employeeRepository.findActiveByFilters(
                 (search == null || search.isBlank()) ? null : search.trim(),
                 departmentId, positionId, lineId, pageable);
@@ -129,7 +128,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
             return new PageImpl<>(List.of(), pageable, employeePage.getTotalElements());
         }
 
-        // Lấy bản ghi chấm công chỉ cho các nhân viên trên TRANG hiện tại
         List<Long> empIds = employees.stream().map(Employee::getEmployeeId).toList();
         List<AttendanceRecord> records = attendanceRecordRepository
                 .findByMonthYearAndEmpIds(month, year, empIds);
@@ -137,7 +135,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         Map<Long, List<AttendanceRecord>> byEmp = records.stream()
                 .collect(Collectors.groupingBy(r -> r.getEmployee().getEmployeeId()));
 
-        // Build DTO (giữ nguyên logic cũ)
         List<AttendanceMonthlyViewDTO> dtoList = new ArrayList<>();
         for (Employee emp : employees) {
             AttendanceMonthlyViewDTO dto = AttendanceMonthlyViewDTO.builder()
@@ -411,7 +408,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                 LocalDate date = dateTime.toLocalDate();
                 LocalTime time = dateTime.toLocalTime();
 
-                // ❌ Skip nếu không đúng ngày
                 if (!date.equals(targetDate)) continue;
 
                 String key = employeeCode + "_" + date;
@@ -422,7 +418,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                 dateMap.putIfAbsent(key, date);
             }
 
-            // ✅ Gán giờ vào – ra theo log
             for (String key : timeMap.keySet()) {
                 Employee emp = employeeMap.get(key);
                 LocalDate date = dateMap.get(key);
@@ -432,7 +427,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
                 AttendanceRecord record = attendanceRecordRepository.findByEmployeeAndDate(emp, date).orElse(null);
                 if (record == null) {
-                    System.err.println("⚠ Không có bảng công cho ngày " + date + ", nhân viên " + emp.getEmployeeCode());
+                    System.err.println("Không có bảng công cho ngày " + date + ", nhân viên " + emp.getEmployeeCode());
                     continue;
                 }
 
@@ -441,7 +436,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                     record.setCheckOutTime(null);
                     updateLeaveCode(record.getId(), new LeaveCodeUpdateDTO("KL", "dayShift"));
                     attendanceRecordRepository.save(record);
-                    System.out.println("❗ 1 log: Gán KL cho " + emp.getEmployeeCode());
+                    System.out.println("Gán KL cho " + emp.getEmployeeCode());
                     continue;
                 }
 
@@ -469,19 +464,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
                 attendanceRecordRepository.save(record);
                 System.out.println("✔ Đã cập nhật cho: " + emp.getEmployeeCode() + " ngày " + date);
-            }
-
-            // 🔍 Gán KL cho các nhân viên không có log nào
-            List<AttendanceRecord> allRecords = attendanceRecordRepository.findByDate(targetDate);
-            for (AttendanceRecord record : allRecords) {
-                String key = record.getEmployee().getEmployeeCode() + "_" + targetDate;
-                if (!timeMap.containsKey(key)) {
-                    record.setCheckInTime(null);
-                    record.setCheckOutTime(null);
-                    updateLeaveCode(record.getId(), new LeaveCodeUpdateDTO("KL", "dayShift"));
-                    attendanceRecordRepository.save(record);
-                    System.out.println("⚠ Không có log: Gán KL cho " + record.getEmployee().getEmployeeCode());
-                }
             }
 
         } catch (Exception e) {
