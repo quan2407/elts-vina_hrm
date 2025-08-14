@@ -54,9 +54,11 @@ const benefitService = {
             `/hr/benefits/multi-un-register/benefit/${benefitId}/position/${positionId}`,
             {
                 data: payload,
-                headers: { 'Content-Type': 'application/json' } 
+                headers: { 'Content-Type': 'application/json' }
             }
         ),
+
+    getRegistrationStats: (benefitId,positionId) => axiosClient.get(`/hr/benefit/${benefitId}/position/${positionId}/stats`),
     changeStatus: (benefitId) => axiosClient.patch(`benefit/${benefitId}`),
     getByKeyword: (keyword) => axiosClient.get(`/benefit/keyword/${keyword}`)
 }

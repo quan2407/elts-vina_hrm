@@ -21,4 +21,6 @@ public interface BenefitRegistrationService {
     void quickRegisterAll(BenefitMultiPositionRequestDTO request);
 
     int unRegisterMany(Long benefitId, Long positionId, @NotNull @NotEmpty List<Long> employeeIds);
+
+    PositionRegistrationStatsDTO getRegistrationStats(Long benefitId, Long positionId);
 }

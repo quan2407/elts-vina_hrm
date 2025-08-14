@@ -50,5 +50,14 @@ public interface BenefitRegistrationRepository extends JpaRepository<BenefitRegi
 
 
     int deleteByBenefitPosition_IdAndEmployee_EmployeeIdIn(Long benefitPositionId, Collection<Long> employeeIds);
+
+    @Query("""
+    select br.employee.employeeId
+    from BenefitRegistration br
+    where br.benefitPosition.id = :benefitPositionId
+""")
+    List<Long> findEmployeeIdsByBenefitPositionId(@Param("benefitPositionId") Long benefitPositionId);
+
+    long countByBenefitPosition_Id(Long id);
 }
 

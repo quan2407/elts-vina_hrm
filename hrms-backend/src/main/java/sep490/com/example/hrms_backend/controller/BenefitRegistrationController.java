@@ -98,4 +98,13 @@ public class BenefitRegistrationController {
         }
     }
 
+    @GetMapping("/hr/benefit/{benefitId}/position/{positionId}/stats")
+    public ResponseEntity<PositionRegistrationStatsDTO> getStats(
+            @PathVariable Long benefitId,
+            @PathVariable Long positionId
+    ) {
+        PositionRegistrationStatsDTO stats = benefitRegistrationService.getRegistrationStats(benefitId, positionId);
+        return ResponseEntity.ok(stats);
+    }
+
 }

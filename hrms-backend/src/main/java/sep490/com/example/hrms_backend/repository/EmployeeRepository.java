@@ -102,4 +102,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Page<Employee> findByIsDeletedFalseAndEmployeeCodeContainingIgnoreCaseOrEmployeeNameContainingIgnoreCase(String search, String search1, Pageable pageable);
 
     List<Employee> findAllByDepartment_Positions_PositionId(Long positionId);
+
+    List<Employee> findAllByPosition_PositionId(Long positionId);
+
+    long countByPosition_PositionId(Long positionId);
 }
