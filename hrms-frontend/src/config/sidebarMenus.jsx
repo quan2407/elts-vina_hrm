@@ -338,7 +338,17 @@ export const employeeMenus = [
         stroke={isActive ? "#4f46e5" : "white"}
       />
     ),
-  },
+  },  
+  {
+    text: "Danh sách phỏng vấn",
+    path: "/interviews-management",
+    icon: (isActive) => (
+      <Briefcase
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  }
 ];
 export const hrManagerMenus = [
   ...hrMenus,
