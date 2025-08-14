@@ -221,3 +221,10 @@
   justify-content: flex-start;  /* căn trái */
   margin-bottom: 12px;
 }
+
+.employee-table-header .employee-header-cell:nth-child(4),
+.employee-table-header .employee-header-cell:nth-child(5),
+.employee-table .employee-table-cell:nth-child(4),
+.employee-table .employee-table-cell:nth-child(5) {
+  text-align: center !important;
+}

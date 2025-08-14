@@ -3,7 +3,7 @@ import MainLayout from "../components/MainLayout";
 import BenefitHrTable from "../components/BenefitHrTable";
 // import "../styles/ManagementLayout.css";
 import "../styles/EmployeeTable.css";
-import { Button, Modal, message } from "antd";
+import { Button, Modal, message, Input } from "antd";
 import Breadcrumb from "../components/Breadcrumb";
 import { useEffect, useState } from "react";
 import benefitService from "../services/benefitService.js";
@@ -119,11 +119,24 @@ function BenefitForPositionForEmployee() {
                         />
                         <Button
                             type={bulkMode ? "default" : "primary"}
+                            style={{
+                                borderRadius: 14,
+                                padding: '23px 20px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 16,
+                                cursor: 'pointer',
+                                boxShadow: '11px 4px 14px 0px rgba(0, 0, 0, 0.12)',
+
+                                border: 'none',
+                                fontWeight: 600,
+                                fontSize: '18px',
+                            }}
                             danger={!bulkMode}
                             onClick={toggleBulkMode}
                             title={bulkMode ? "Thoát chế độ chọn nhiều" : "Bật chế độ chọn nhiều để xóa"}
                         >
-                            {bulkMode ? "Thoát chế độ chọn" : "Xóa nhiều"}
+                            {bulkMode ? "Thoát chế độ chọn" : "Hủy áp dụng nhiều nhân viên"}
                         </Button>
                     </div>
                 </div>
@@ -131,8 +144,10 @@ function BenefitForPositionForEmployee() {
                 <Breadcrumb paths={breadcrumbPaths} />
 
                 {/* NEW: Search box đặt ở đây */}
-                <div style={{ margin: "12px 0 8px", display: "flex", gap: 12 }}>
-                    <input
+                <div style={{ display: "flex", gap: 12, alignItems: "center", margin: "16px 0 8px 0", flexWrap: "wrap" }}>
+                    <Input
+                        allowClear
+                        size="large"
                         type="text"
                         placeholder="Tìm theo tên hoặc email..."
                         value={searchText}
