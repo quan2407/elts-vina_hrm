@@ -262,7 +262,7 @@ function App() {
             <Route
               path="/add-interview/:id"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_EMPLOYEE"]}>
                   <InterviewCreate />
                 </ProtectedRoute>
               }
@@ -271,7 +271,7 @@ function App() {
             <Route
               path="/interviews-management"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_EMPLOYEE"]}>
                   <InterviewManagement />
                 </ProtectedRoute>
               }
@@ -280,7 +280,7 @@ function App() {
             <Route
               path="/interviews-management/:id"
               element={
-                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_EMPLOYEE"]}>
                   <InterviewDetail />
                 </ProtectedRoute>
               }
