@@ -106,5 +106,5 @@ public class BenefitRegistrationController {
         PositionRegistrationStatsDTO stats = benefitRegistrationService.getRegistrationStats(benefitId, positionId);
         return ResponseEntity.ok(stats);
     }
-
+    
 }
