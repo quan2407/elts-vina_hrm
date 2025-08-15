@@ -35,7 +35,7 @@ function WorkScheduleManagement() {
   const handleDepartmentChange = (deptId) => {
     departmentService
       .getLinesByDepartment(deptId)
-      .then((res) => setLines(res.data)); // ❌ không thêm phần tử "-- Không chọn --"
+      .then((res) => setLines(res.data));
   };
 
   const handleSubmit = () => {
@@ -78,7 +78,7 @@ function WorkScheduleManagement() {
     if (departments.length > 0) {
       departmentService
         .getLinesByDepartment(departments[0].departmentId)
-        .then((res) => setLines(res.data)); // ❌ không thêm phần tử "-- Không chọn --"
+        .then((res) => setLines(res.data));
     }
   }, [departments]);
 
