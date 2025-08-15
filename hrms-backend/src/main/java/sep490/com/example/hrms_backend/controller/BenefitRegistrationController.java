@@ -1,14 +1,12 @@
 package sep490.com.example.hrms_backend.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import sep490.com.example.hrms_backend.config.AppConstants;
-import sep490.com.example.hrms_backend.dto.benefit.BenefitManualRegistrationRequest;
-import sep490.com.example.hrms_backend.dto.benefit.BenefitResponse;
-import sep490.com.example.hrms_backend.dto.benefit.EmployeeBasicDetailResponse;
+import sep490.com.example.hrms_backend.dto.benefit.*;
 import sep490.com.example.hrms_backend.service.BenefitRegistrationService;
 import sep490.com.example.hrms_backend.service.BenefitService;
 
@@ -24,15 +22,15 @@ public class BenefitRegistrationController {
     private final BenefitService benefitService;
 
     //1. get benefit by employee
-    @GetMapping("/employees/{employeeId}")
-    public ResponseEntity<BenefitResponse> getBenefitByEmployee(@PathVariable Long employeeId, @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false)Integer pageNumber,
-                                                                @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
-                                                                @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
-                                                                @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIRECTION, required = false) String sortOrder){
-
-        BenefitResponse benefitResponse = benefitRegistrationService.searchBenefitByEmployee(employeeId, pageNumber, pageSize, sortBy, sortOrder);
-        return new ResponseEntity<>(benefitResponse, HttpStatus.FOUND );
-    }
+//    @GetMapping("/employees/{employeeId}")
+//    public ResponseEntity<BenefitResponse> getBenefitByEmployee(@PathVariable Long employeeId, @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false)Integer pageNumber,
+//                                                                @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+//                                                                @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
+//                                                                @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIRECTION, required = false) String sortOrder){
+//
+//        BenefitResponse benefitResponse = benefitRegistrationService.searchBenefitByEmployee(employeeId, pageNumber, pageSize, sortBy, sortOrder);
+//        return new ResponseEntity<>(benefitResponse, HttpStatus.FOUND );
+//    }
 
 
 
@@ -62,6 +60,20 @@ public class BenefitRegistrationController {
         return ResponseEntity.ok("Un-register successfully");
     }
 
+    @DeleteMapping("/hr/benefits/multi-un-register/benefit/{benefitId}/position/{positionId}")
+    public ResponseEntity<UnregisterManyResponse> unRegisterMany(
+            @PathVariable Long benefitId,
+            @PathVariable Long positionId,
+            @RequestBody @Valid UnregisterManyRequest request
+    ) {
+        int deleted = benefitRegistrationService.unRegisterMany(benefitId, positionId, request.getEmployeeIds());
+        UnregisterManyResponse resp = new UnregisterManyResponse(
+                request.getEmployeeIds() != null ? request.getEmployeeIds().size() : 0,
+                deleted
+        );
+        return ResponseEntity.ok(resp);
+    }
+
     @PreAuthorize("hasAnyRole( 'HR')")
     @GetMapping("/hr/benefits/search-unregistered")
     public ResponseEntity<List<EmployeeBasicDetailResponse>> searchUnregisteredEmployees(
@@ -73,6 +85,26 @@ public class BenefitRegistrationController {
                 .searchUnregisteredEmployees(benefitId, positionId, keyword);
 
         return ResponseEntity.ok(result);
+    }
+
+    @PreAuthorize("hasAnyRole( 'HR')")
+    @PostMapping("/hr/benefits/quick-register-all")
+    public ResponseEntity<?> quickRegisterAll(@RequestBody BenefitMultiPositionRequestDTO request) {
+        try {
+            benefitRegistrationService.quickRegisterAll(request);
+            return ResponseEntity.ok("Đăng ký thành công");
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        }
+    }
+
+    @GetMapping("/hr/benefit/{benefitId}/position/{positionId}/stats")
+    public ResponseEntity<PositionRegistrationStatsDTO> getStats(
+            @PathVariable Long benefitId,
+            @PathVariable Long positionId
+    ) {
+        PositionRegistrationStatsDTO stats = benefitRegistrationService.getRegistrationStats(benefitId, positionId);
+        return ResponseEntity.ok(stats);
     }
 
 }

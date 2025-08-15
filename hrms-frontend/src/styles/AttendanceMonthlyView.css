@@ -1,6 +1,8 @@
 .attendance-container {
   padding: 1rem;
   background-color: #e5f0fd;
+  height: calc(100vh - 120px);
+  overflow: hidden;
 }
 
 .attendance-controls {
@@ -13,10 +15,62 @@
   margin-top: 1rem;
 }
 
-.attendance-filters {
+.attendance-filters,
+.salary-filters {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+}
+.salary-filters select,
+.salary-filters input {
+  width: 200px;
+  min-width: 200px;
+  box-sizing: border-box;
+}
+
+.salary-filters button {
+  min-width: 90px;
+}
+
+.attendance-filter-input,
+.attendance-filter-select {
+  width: 200px;
+  min-width: 200px;
+  height: 38px;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.attendance-filter-btn {
+  min-width: 90px;
+  height: 38px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.attendance-filter-btn.search-btn {
+  background-color: #0f62fe;
+  color: white;
+}
+
+.attendance-filter-btn.search-btn:hover {
+  background-color: #0353e9;
+}
+
+.attendance-filter-btn.reset-btn {
+  background-color: red;
+  color: #111;
+}
+
+.attendance-filter-btn.reset-btn:hover {
+  background-color: #d1d5db;
 }
 
 .attendance-controls select {
@@ -32,11 +86,53 @@
   margin: 0;
 }
 
+.attendance-container {
+  padding: 1rem;
+  background-color: #e5f0fd;
+  height: calc(100vh - 120px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.attendance-table-area {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .attendance-table-wrapper {
-  overflow-x: auto;
-  max-width: 100%;
   overflow: auto;
-  max-height: 1000px;
+  max-width: 100%;
+  scrollbar-gutter: stable both-edges;
+  padding-right: 16px;
+  padding-bottom: 14px;
+  box-sizing: content-box;
+}
+
+.attendance-pagination-container {
+  flex: 0 0 auto;
+  padding: 10px 0;
+  background: #e5f0fd;
+  border-top: 1px solid #dbeafe;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.attendance-table thead tr:first-child th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #dbeafe;
+}
+.attendance-table thead tr:nth-child(2) th {
+  position: sticky;
+  top: 38px;
+  z-index: 2;
+  background: #d1fae5;
 }
 
 .attendance-table {
@@ -66,16 +162,6 @@
 .attendance-table thead th {
   position: sticky;
   top: 0;
-  z-index: 2;
-}
-
-.attendance-table thead tr:first-child th {
-  top: 0;
-  z-index: 3;
-}
-
-.attendance-table thead tr:nth-child(2) th {
-  top: 38px; /* hoặc đúng chiều cao của dòng header 1 */
   z-index: 2;
 }
 
