@@ -120,14 +120,14 @@ class LineServiceImplTest {
 
         LineDTO dto = service.getLineByLineId(1L);
         assertEquals(1L, dto.getId());
-        assertEquals("Line A", dto.getName());
+        assertEquals("Line1", dto.getName());
         assertNull(dto.getLeaderId());
     }
 
     @Test
     void getLineByLineId_withLeader_returnsLeaderId() {
         Employee leader = mkEmp(100L, "Leader");
-        Line line = mkLine(5L, "Line B", mkDept(2L, "D2"), leader);
+        Line line = mkLine(5L, "Line2", mkDept(2L, "D2"), leader);
         when(lineRepository.findById(5L)).thenReturn(Optional.of(line));
 
         LineDTO dto = service.getLineByLineId(5L);
