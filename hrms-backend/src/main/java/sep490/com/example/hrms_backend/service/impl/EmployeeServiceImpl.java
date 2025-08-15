@@ -327,11 +327,16 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         return EmployeeMapper.mapToEmployeeDetailDTO(employee);
     }
 
+    @Transactional
     @Override
     public void softDeleteEmployee(Long id) {
         Employee employee = employeeRepository.findByEmployeeIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new RuntimeException("Employee not found or already deleted"));
         employee.setDeleted(true);
+        if (benefitRegistrationRepository.existsByEmployee_EmployeeId(id)) {
+            benefitRegistrationRepository.deleteByEmployee_EmployeeId(id);
+        }
+
         employeeRepository.save(employee);
     }
 
