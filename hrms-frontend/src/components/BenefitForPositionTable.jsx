@@ -8,7 +8,7 @@ import { Modal, message, Checkbox, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 
 const BenefitByPositionHeader = ({ isMultiSelectMode }) => {
-    const headers = ["", "Id", "Tên vị trí", "Giá trị tính vào lương", "Đăng ký", "Chức năng"];
+    const headers = ["", "Id", "Tên vị trí", "Giá trị", "Số lượng đăng kí", "Chức năng"];
     return (
         <div className="employee-table-header">
             {headers.map((label, index) => (
@@ -71,14 +71,14 @@ const BenefitByPositionTableRow = ({
             <div className="employee-table-cell">
                 {benefit.benefit.benefitType === "PHU_CAP" ? (
                     benefit.positions.formulaType === "AMOUNT"
-                        ? `Lương cơ bản + ${Number(benefit.positions.formulaValue).toLocaleString("vi-VN")}đ`
-                        : `Lương cơ bản + ${Number(benefit.positions.formulaValue).toLocaleString("vi-VN")}%Lương cơ bản`
+                        ? `${Number(benefit.positions.formulaValue).toLocaleString("vi-VN")}đ`
+                        : ` ${Number(benefit.positions.formulaValue).toLocaleString("vi-VN")}%Lương cơ bản`
                 ) : benefit.benefit.benefitType === "KHAU_TRU" ? (
                     benefit.positions.formulaType === "AMOUNT"
-                        ? `Lương cơ bản - ${Number(benefit.positions.formulaValue).toLocaleString("vi-VN")}đ`
-                        : `Lương cơ bản - ${Number(benefit.positions.formulaValue).toLocaleString("vi-VN")}%Lương cơ bản`
+                        ? `${Number(benefit.positions.formulaValue).toLocaleString("vi-VN")}đ`
+                        : ` ${Number(benefit.positions.formulaValue).toLocaleString("vi-VN")}%Lương cơ bản`
                 ) : (
-                    "không ảnh hưởng vào lương cơ bản"
+                    "0"
                 )}
             </div>
 
