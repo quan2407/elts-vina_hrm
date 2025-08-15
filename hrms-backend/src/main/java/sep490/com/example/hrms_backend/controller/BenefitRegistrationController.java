@@ -1,13 +1,12 @@
 package sep490.com.example.hrms_backend.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import sep490.com.example.hrms_backend.dto.benefit.BenefitManualRegistrationRequest;
-import sep490.com.example.hrms_backend.dto.benefit.BenefitMultiPositionRequestDTO;
-import sep490.com.example.hrms_backend.dto.benefit.EmployeeBasicDetailResponse;
+import sep490.com.example.hrms_backend.dto.benefit.*;
 import sep490.com.example.hrms_backend.service.BenefitRegistrationService;
 import sep490.com.example.hrms_backend.service.BenefitService;
 
@@ -61,6 +60,20 @@ public class BenefitRegistrationController {
         return ResponseEntity.ok("Un-register successfully");
     }
 
+    @DeleteMapping("/hr/benefits/multi-un-register/benefit/{benefitId}/position/{positionId}")
+    public ResponseEntity<UnregisterManyResponse> unRegisterMany(
+            @PathVariable Long benefitId,
+            @PathVariable Long positionId,
+            @RequestBody @Valid UnregisterManyRequest request
+    ) {
+        int deleted = benefitRegistrationService.unRegisterMany(benefitId, positionId, request.getEmployeeIds());
+        UnregisterManyResponse resp = new UnregisterManyResponse(
+                request.getEmployeeIds() != null ? request.getEmployeeIds().size() : 0,
+                deleted
+        );
+        return ResponseEntity.ok(resp);
+    }
+
     @PreAuthorize("hasAnyRole( 'HR')")
     @GetMapping("/hr/benefits/search-unregistered")
     public ResponseEntity<List<EmployeeBasicDetailResponse>> searchUnregisteredEmployees(
@@ -83,6 +96,15 @@ public class BenefitRegistrationController {
         } catch (RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
+    }
+
+    @GetMapping("/hr/benefit/{benefitId}/position/{positionId}/stats")
+    public ResponseEntity<PositionRegistrationStatsDTO> getStats(
+            @PathVariable Long benefitId,
+            @PathVariable Long positionId
+    ) {
+        PositionRegistrationStatsDTO stats = benefitRegistrationService.getRegistrationStats(benefitId, positionId);
+        return ResponseEntity.ok(stats);
     }
 
 }

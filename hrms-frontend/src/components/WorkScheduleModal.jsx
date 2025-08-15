@@ -6,8 +6,7 @@ function WorkScheduleModal({
   onClose,
   onSave,
   data,
-  errorMessages = null,
-  submitting = false,
+  errorMessages = {},
 }) {
   const {
     departmentName,
@@ -45,10 +44,6 @@ function WorkScheduleModal({
       style={{ display: isOpen ? "flex" : "none" }}
     >
       <div className="work-schedule-modal-container">
-        {typeof errorMessages === "string" && (
-          <div className="error-banner">{errorMessages}</div>
-        )}
-
         <h2 className="work-schedule-modal-title">
           {!canEdit
             ? "Chi tiết lịch làm việc"
@@ -113,13 +108,9 @@ function WorkScheduleModal({
                   </option>
                 ))}
               </select>
-              {errorMessages &&
-                typeof errorMessages === "object" &&
-                errorMessages.endTime && (
-                  <div className="error-message">
-                    {errorMessages.endTime[0]}
-                  </div>
-                )}
+              {errorMessages.endTime && (
+                <div className="error-message">{errorMessages.endTime[0]}</div>
+              )}
             </div>
           </>
         )}
@@ -129,9 +120,8 @@ function WorkScheduleModal({
             <button
               className="work-schedule-modal-save-btn"
               onClick={onSave}
-              disabled={submitting}
             >
-              {submitting ? "Đang lưu..." : "Lưu"}
+              Lưu
             </button>
           )}
 

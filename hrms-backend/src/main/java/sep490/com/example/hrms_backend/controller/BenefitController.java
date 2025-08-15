@@ -56,15 +56,14 @@ public class BenefitController {
                                                          @RequestParam(name = "title", required = false) String title,
                                                          @RequestParam(name = "description", required = false) String description,
                                                          @RequestParam(name = "isActive", required = false) Boolean isActive,
-                                                         @RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                                                         @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-                                                         @RequestParam(name = "minParticipants", required = false) Integer minParticipants,
-                                                         @RequestParam(name = "maxParticipants", required = false) Integer maxParticipants,
+
+
+
                                                               @RequestParam(name="benefitType", required = false) BenefitType benefitType
     ){
         String username = currentUserUtils.getCurrentUsername();
 
-        BenefitResponse benefitResponse = benefitService.getAllBenefitsForHr(username, pageNumber, pageSize, sortBy, sortOrder, title, description, isActive, startDate, endDate, minParticipants, maxParticipants, benefitType);
+        BenefitResponse benefitResponse = benefitService.getAllBenefitsForHr(username, pageNumber, pageSize, sortBy, sortOrder, title, description, isActive, benefitType);
         return new ResponseEntity<>(benefitResponse, HttpStatus.OK  );
     }
 

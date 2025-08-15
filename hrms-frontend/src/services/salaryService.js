@@ -1,9 +1,27 @@
 import axiosClient from "./axiosClient";
 
 const salaryService = {
-  getMonthlySalaries: (month, year, page = 0, size = 10, search = "") =>
+  getMonthlySalaries: (
+    month,
+    year,
+    page = 0,
+    size = 10,
+    search = "",
+    departmentId = null,
+    positionId = null,
+    lineId = null
+  ) =>
     axiosClient.get("/salaries", {
-      params: { month, year, page, size, search },
+      params: {
+        month,
+        year,
+        page,
+        size,
+        search,
+        departmentId,
+        positionId,
+        lineId,
+      },
     }),
 
   regenerateMonthlySalaries: (month, year) => {

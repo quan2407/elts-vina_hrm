@@ -21,7 +21,12 @@ public class SalaryMapper {
                 .positionName(salary.getEmployee().getPosition() != null
                         ? salary.getEmployee().getPosition().getPositionName()
                         : null)
-
+                .departmentName(salary.getEmployee().getDepartment() != null
+                        ? salary.getEmployee().getDepartment().getDepartmentName()
+                        : null)  // Thêm phòng ban
+                .lineName(salary.getEmployee().getLine() != null
+                        ? salary.getEmployee().getLine().getLineName()
+                        : null)  // Thêm chuyền
                 .basicSalary(salary.getBasicSalary())
                 .workingDays(salary.getWorkingDays())
                 .productionSalary(salary.getProductionSalary())
@@ -31,7 +36,6 @@ public class SalaryMapper {
                 .totalIncome(salary.getTotalIncome())
                 .salaryMonth(salary.getSalaryMonth())
                 .locked(salary.isLocked())
-
                 .appliedBenefits(benefitDTOs)
                 .build();
     }
@@ -44,3 +48,4 @@ public class SalaryMapper {
                 .build();
     }
 }
+

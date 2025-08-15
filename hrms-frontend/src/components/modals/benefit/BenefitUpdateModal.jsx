@@ -14,9 +14,6 @@ const UpdateProgramModal = ({ open, onCancel, onSubmit, initialData }) => {
             form.setFieldsValue({
                 title: initialData.title,
                 description: initialData.description,
-                startDate: dayjs(initialData.startDate),
-                endDate: dayjs(initialData.endDate),
-                maxParticipants: initialData.maxParticipants,
                 detail: initialData.detail || ''
             });
         }
@@ -28,8 +25,6 @@ const UpdateProgramModal = ({ open, onCancel, onSubmit, initialData }) => {
             .then(values => {
                 onSubmit({
                     ...values,
-                    startDate: values.startDate.format('YYYY-MM-DD'),
-                    endDate: values.endDate.format('YYYY-MM-DD'),
                 });
                 form.resetFields();
             })
@@ -67,29 +62,10 @@ const UpdateProgramModal = ({ open, onCancel, onSubmit, initialData }) => {
                     <TextArea rows={3} placeholder="Nhập mô tả" />
                 </Form.Item>
 
-                <Form.Item
-                    name="startDate"
-                    label="Ngày bắt đầu"
-                    rules={[{ required: true, message: 'Vui lòng chọn ngày bắt đầu!' }]}
-                >
-                    <DatePicker style={{ width: '100%' }} />
-                </Form.Item>
 
-                <Form.Item
-                    name="endDate"
-                    label="Ngày kết thúc"
-                    rules={[{ required: true, message: 'Vui lòng chọn ngày kết thúc!' }]}
-                >
-                    <DatePicker style={{ width: '100%' }} />
-                </Form.Item>
 
-                <Form.Item
-                    name="maxParticipants"
-                    label="Số lượng người tham gia tối đa"
-                    rules={[{ required: true, message: 'Vui lòng nhập số lượng!' }]}
-                >
-                    <InputNumber min={1} style={{ width: '100%' }} />
-                </Form.Item>
+
+
 
                 <Form.Item
                     name="detail"
@@ -102,7 +78,7 @@ const UpdateProgramModal = ({ open, onCancel, onSubmit, initialData }) => {
                 <Form.Item
                     name="isActive"
                     label="Trạng thái hoạt động"
-                    valuePropName="checked" // ✅ Rất quan trọng với Switch
+                    valuePropName="checked"
                 >
                     <Switch
                         checkedChildren="Hoạt động"

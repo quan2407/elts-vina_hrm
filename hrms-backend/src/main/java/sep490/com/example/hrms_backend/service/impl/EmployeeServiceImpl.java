@@ -10,16 +10,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.*;
+import sep490.com.example.hrms_backend.dto.benefit.UpdateOriginalSalaryDTO;
 import sep490.com.example.hrms_backend.entity.*;
+import sep490.com.example.hrms_backend.enums.BenefitType;
+import sep490.com.example.hrms_backend.enums.FormulaType;
 import sep490.com.example.hrms_backend.exception.DuplicateEntryException;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.mapper.EmployeeMapper;
 import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.AccountService;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -253,9 +257,6 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         if (employeeRepository.existsByEmail(dto.getEmail())) {
             throw new DuplicateEntryException("Email đã tồn tại trong hệ thống");
         }
-        if (employeeRepository.existsByPhoneNumber(dto.getPhoneNumber())) {
-            throw new DuplicateEntryException("Số điện thoại đã tồn tại trong hệ thống");
-        }
     }
 
     private void checkDuplicateFieldsForUpdate(EmployeeUpdateDTO dto, Long id, Employee employee) {
@@ -267,11 +268,6 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         if (!safeEquals(dto.getEmail(), employee.getEmail())) {
             if (employeeRepository.existsByEmailAndEmployeeIdNot(dto.getEmail(), id)) {
                 throw new DuplicateEntryException("Email đã tồn tại trong hệ thống");
-            }
-        }
-        if (!safeEquals(dto.getPhoneNumber(), employee.getPhoneNumber())) {
-            if (employeeRepository.existsByPhoneNumberAndEmployeeIdNot(dto.getPhoneNumber(), id)) {
-                throw new DuplicateEntryException("Số điện thoại đã tồn tại trong hệ thống");
             }
         }
     }

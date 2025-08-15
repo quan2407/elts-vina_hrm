@@ -13,6 +13,7 @@ import axiosClient from "../services/axiosClient";
 
 import { format } from "date-fns";
 import Swal from "sweetalert2";
+import SuccessModal from "../components/popup/SuccessModal";
 
 function EmployeeCreate() {
   const [employeeCode, setEmployeeCode] = useState("");
@@ -56,6 +57,19 @@ function EmployeeCreate() {
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [activeSection, setActiveSection] = useState("basic-info");
+  const [modal, setModal] = useState({
+    open: false,
+    title: "",
+    message: "",
+    type: "success", // "success" | "error"
+  });
+
+  const showSuccess = (title, message) =>
+    setModal({ open: true, title, message, type: "success" });
+
+  const showError = (title, message) =>
+    setModal({ open: true, title, message, type: "error" });
+
   const resetForm = () => {
     setEmployeeCode("");
     setFullName("");
@@ -85,7 +99,7 @@ function EmployeeCreate() {
   };
   const handleOcrExtract = async () => {
     if (!frontFile && !backFile) {
-      alert("Vui lòng chọn ít nhất 1 ảnh CCCD");
+      showError("OCR CCCD", "Vui lòng chọn ít nhất 1 ảnh CCCD");
       return;
     }
 
@@ -116,7 +130,7 @@ function EmployeeCreate() {
       setCccdFrontImage(data.cccdFrontImage || "");
       setCccdBackImage(data.cccdBackImage || "");
     } catch (err) {
-      alert(err?.response?.data?.message || "Lỗi OCR");
+      showError("OCR CCCD", err?.response?.data?.message || "Lỗi OCR");
     } finally {
       setOcrLoading(false);
     }
@@ -179,6 +193,7 @@ function EmployeeCreate() {
       alert("Tạo nhân viên thành công!");
       setErrors({});
       resetForm();
+      return true;
     } catch (err) {
       console.error("Lỗi tạo nhân viên:", err);
 
@@ -1110,6 +1125,15 @@ function EmployeeCreate() {
           </div>
         </div>
       </div>
+      {modal.open && (
+        <SuccessModal
+          title={modal.title}
+          message={modal.message}
+          type={modal.type}
+          onClose={() => setModal((m) => ({ ...m, open: false }))}
+        />
+      )}
+
       {showOcrModal && (
         <CCCDModal
           onClose={() => setShowOcrModal(false)}

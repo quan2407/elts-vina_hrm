@@ -1,5 +1,6 @@
 package sep490.com.example.hrms_backend.service.impl;
 
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -17,12 +18,15 @@ import sep490.com.example.hrms_backend.dto.benefit.PatchBenefitDTO;
 import sep490.com.example.hrms_backend.entity.Benefit;
 import sep490.com.example.hrms_backend.entity.BenefitPosition;
 import sep490.com.example.hrms_backend.entity.Employee;
+import sep490.com.example.hrms_backend.entity.Position;
 import sep490.com.example.hrms_backend.enums.BenefitType;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.mapper.BenefitMapper;
+import sep490.com.example.hrms_backend.repository.BenefitPositionRepository;
 import sep490.com.example.hrms_backend.repository.BenefitRepository;
 import sep490.com.example.hrms_backend.repository.EmployeeRepository;
+import sep490.com.example.hrms_backend.repository.PositionRepository;
 import sep490.com.example.hrms_backend.service.BenefitService;
 
 import java.time.LocalDate;
@@ -44,19 +48,19 @@ public class BenefitServiceImpl implements BenefitService {
 
     private final EmployeeRepository employeeRepository;
 
+    private final PositionRepository positionRepository;
+
+    private final BenefitPositionRepository benefitPositionRepository;
+
     //Tested
     @Transactional
     @Override
     public BenefitResponse getAllBenefitsForHr(String username, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder,
-                                               String title, String description, Boolean isActive, LocalDate startDate, LocalDate endDate, Integer minParticipants, Integer maxParticipants, BenefitType benefitType) {
+                                               String title, String description, Boolean isActive,  BenefitType benefitType) {
 
-        if (minParticipants != null && maxParticipants != null && minParticipants > maxParticipants) {
-            throw new HRMSAPIException("Số người tham gia tối thiểu không được lớn hơn số người tham gia tối đa.");
-        }
 
-        if (endDate != null && endDate.isBefore(startDate)) {
-            throw new HRMSAPIException("Ngày kết thúc phải lớn hơn ngày bắt đầu");
-        }
+
+
 
         // 1. Tao đoi tuong sap xep (theo field va huong sap xep: asc/desc)
         Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
@@ -91,24 +95,10 @@ public class BenefitServiceImpl implements BenefitService {
                 predicates.add(cb.equal(root.get("isActive"), isActive));
             }
 
-        //3.4. Loc tu startDate
-            if(startDate != null){
-                predicates.add(cb.greaterThanOrEqualTo(root.get("startDate"), startDate));
-            }
 
-        //3.5. Loc den endDate
-            if(endDate != null){
-                predicates.add(cb.lessThanOrEqualTo(root.get("endDate"), endDate));
-            }
 
         //3.6 Loc so nguoi tham gia >=
-            if(minParticipants != null){
-                predicates.add(cb.greaterThanOrEqualTo(root.get("maxParticipants"), minParticipants));
-            }
-            //3.7  Loc so nguoi tham gia <=
-            if(maxParticipants != null){
-                predicates.add(cb.lessThanOrEqualTo(root.get("maxParticipants"), maxParticipants));
-            }
+
 
             if(benefitType != null){
                 predicates.add(cb.equal(root.get("benefitType"), benefitType));
@@ -120,7 +110,6 @@ public class BenefitServiceImpl implements BenefitService {
 
         List<Benefit> benefits = benefitPage.getContent();
 
-//        System.out.println("🐞 DEBUG: Bắt đầu duyệt benefits");
 //        Benefit benefit = new Benefit();
 //        benefit.getBenefitPositions()
 //                .stream()
@@ -166,42 +155,59 @@ public class BenefitServiceImpl implements BenefitService {
     @Transactional
     @Override
     public BenefitDTO addBenefit(BenefitDTO benefitDTO) {
+        // Step 0: lấy danh sách nhân sự đang active để trả về số lượng (như logic cũ)
         List<Employee> employees = employeeRepository.findAllActive();
-        int employeeSize = employees.size();
 
-        //Step1: DTO -> Entiry
-
+        // Step 1: DTO -> Entity
         Benefit benefit = modelMapper.map(benefitDTO, Benefit.class);
 
+        // >>> NEW: set mặc định isActive = 1 cho Benefit
+        benefit.setIsActive(true); // nếu field là boolean: benefit.setIsActive(true);
 
-        if (benefit.getEndDate() != null && benefit.getEndDate().isBefore(benefit.getStartDate())) {
-            throw new HRMSAPIException("Ngày kết thúc phải lớn hơn ngày bắt đầu");
-        }
-
-
-
-        //Step2: check existed in DB
+        // Step 2: kiểm tra trùng tiêu đề
         Benefit benefitFromDb = benefitRepository.findByTitle(benefit.getTitle());
         if (benefitFromDb != null) {
             throw new HRMSAPIException("Phúc lợi với tiêu đề " + benefit.getTitle() + " đã tồn tại.");
         }
 
-        if(employeeSize < benefit.getMaxParticipants()){
-            throw new HRMSAPIException("Số người tham gia không thể lớn hơn số nhân viên công ty đang làm việc");
+        // Step 3: lưu Benefit mới
+        Benefit savedBenefit = benefitRepository.save(benefit);
+
+        // >>> NEW: Gắn tất cả Position hiện có vào Benefit vừa tạo
+        List<Position> positions = positionRepository.findAll();
+
+        if (!positions.isEmpty()) {
+            List<BenefitPosition> benefitPositions = positions.stream()
+                    // Tránh tạo trùng nếu vì lý do nào đó đã tồn tại
+                    .filter(position -> !benefitPositionRepository.existsByBenefitAndPosition(savedBenefit, position))
+                    .map(position -> {
+                        BenefitPosition bp = new BenefitPosition();
+                        bp.setBenefit(savedBenefit);
+                        bp.setPosition(position);
+
+                        // Gán các trường mặc định từ Benefit
+                        bp.setFormulaValue(savedBenefit.getDefaultFormulaValue());
+                        bp.setFormulaType(savedBenefit.getDefaultFormulaType());
+
+
+
+                        return bp;
+                    })
+                    .toList();
+
+            if (!benefitPositions.isEmpty()) {
+                benefitPositionRepository.saveAll(benefitPositions);
+            }
         }
+        // <<< END NEW
 
-
-        //Step3: if not existed => save benefit
-        Benefit savedCategory = benefitRepository.save(benefit);
-
-
-        //Step 4: return DTO
-
-        BenefitDTO updatedBenefitDTO = modelMapper.map(savedCategory, BenefitDTO.class);
-       updatedBenefitDTO.setNumberOfEmployee(employees.size());
-
+        // Step 4: trả về DTO
+        BenefitDTO updatedBenefitDTO = modelMapper.map(savedBenefit, BenefitDTO.class);
+        updatedBenefitDTO.setNumberOfEmployee(employees.size());
         return updatedBenefitDTO;
     }
+
+
 
     //Tested
     @Transactional
@@ -212,8 +218,6 @@ public class BenefitServiceImpl implements BenefitService {
                 .orElseThrow(() -> new HRMSAPIException("Benefit with id " + benefitId + " is not existed."));
 
         List<Employee> employees = employeeRepository.findAllActive();
-        int employeeSize = employees.size();
-
 
 
         //DTO--> model
@@ -224,28 +228,10 @@ public class BenefitServiceImpl implements BenefitService {
         if(benefit.getIsActive() != null){
             benefitFromDb.setIsActive(benefit.getIsActive());
         }
-        if (benefit.getEndDate() != null) {
-            // Lấy startDate từ DTO nếu có, nếu không thì lấy từ DB
-            LocalDate dateToCompare = (benefit.getStartDate() != null)
-                    ? benefit.getStartDate()
-                    : benefitFromDb.getStartDate();
 
-            if (benefit.getEndDate().isBefore(dateToCompare)) {
-                throw new HRMSAPIException("Ngày kết thúc phải lớn hơn ngày bắt đầu");
-            }
-            benefitFromDb.setEndDate(benefit.getEndDate());
-        }
 
-        if(benefit.getMaxParticipants() != null){
-            if(benefit.getMaxParticipants() > employeeSize || benefit.getMaxParticipants() < 0){
-                throw new HRMSAPIException("Số người tham gia không thể lớn hơn số nhân viên công ty đang làm việc");
-            }
-            benefitFromDb.setMaxParticipants(benefit.getMaxParticipants());
-        }
 
-        if(benefit.getStartDate() != null){
-            benefitFromDb.setStartDate(benefit.getStartDate());
-        }
+
 
         if(benefit.getDescription() != null){
             benefitFromDb.setDescription(benefit.getDescription());

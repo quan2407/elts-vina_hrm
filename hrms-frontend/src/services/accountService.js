@@ -13,6 +13,9 @@ const accountService = {
       params: { page, size },
     });
   },
+  getCurrentUser: () => {
+    return axiosClient.get("/me");
+  }
 };
 
 export default accountService;

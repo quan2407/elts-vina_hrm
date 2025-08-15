@@ -1,0 +1,60 @@
+/* ===== KÍCH THƯỚC CHUẨN CHO TẤT CẢ CÁC Ô ===== */
+.benefit-search-form .ant-input,
+.benefit-search-form .ant-input-affix-wrapper {
+    height: 48px !important;
+    padding: 0 14px;
+    font-size: 15px;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.benefit-search-form .ant-select-selector {
+    height: 48px !important;
+    padding: 0 14px !important;             /* giống Input */
+    border-radius: 8px !important;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;                     /* căn giữa theo trục dọc */
+}
+/* text/placeholder bên trong Select cao bằng Input */
+.benefit-search-form .ant-select-selection-item,
+.benefit-search-form .ant-select-selection-placeholder {
+    line-height: 46px !important;           /* 48 - 2px border */
+    font-size: 15px;
+}
+
+.benefit-search-form .ant-picker {
+    height: 48px !important;
+    padding: 0 14px !important;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+.benefit-search-form .ant-picker-input > input {
+    font-size: 15px;
+    height: 46px;                            /* tránh lệch viền */
+}
+
+.benefit-search-form .ant-input-number {
+    height: 48px !important;
+    border-radius: 8px;
+}
+.benefit-search-form .ant-input-number .ant-input-number-input {
+    height: 46px !important;
+    line-height: 46px !important;
+    padding: 0 14px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+/* Nút to để khớp chiều cao với các ô */
+.benefit-search-form .ant-btn {
+    height: 48px;
+    padding: 0 18px;
+    font-size: 14px;
+    border-radius: 8px;
+}
+
+/* Khoảng cách gọn gàng giữa các item */
+.benefit-search-form .ant-form-item {
+    margin-bottom: 10px;
+}

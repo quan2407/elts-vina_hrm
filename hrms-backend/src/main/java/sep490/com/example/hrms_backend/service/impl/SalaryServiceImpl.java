@@ -115,19 +115,15 @@ public class SalaryServiceImpl implements SalaryService {
 
 
             BigDecimal hourlyRate = employee.getBasicSalary()
-                    .divide(BigDecimal.valueOf(26 * 8), 2, RoundingMode.HALF_UP);
+                    .divide(BigDecimal.valueOf(26 * 8), 10, RoundingMode.HALF_UP);
 
+            BigDecimal productionSalary = hourlyRate.multiply(BigDecimal.valueOf(totalDayHours))
+                    .setScale(0, RoundingMode.CEILING);
 
-            BigDecimal productionSalary = hourlyRate.multiply(BigDecimal.valueOf(totalDayHours));
+            BigDecimal overtimeSalary = hourlyRate.multiply(BigDecimal.valueOf(otHours*2 + weekendHours * 2 + holidayHours * 3))
+                    .setScale(0, RoundingMode.CEILING);
 
-
-            BigDecimal overtimeSalary = hourlyRate.multiply(
-                    BigDecimal.valueOf(otHours*2 + weekendHours * 2 + holidayHours * 3)
-            );
-
-            // generateMonthlySalaries(...)
-            List<SalaryBenefit> benefitItems = generateSalaryBenefits(employee, null, month, year);
-
+            List<SalaryBenefit> benefitItems = generateSalaryBenefits(employee, null);
 
             BigDecimal totalAllowance = benefitItems.stream()
                     .filter(b -> b.getBenefitType() == BenefitType.PHU_CAP)
@@ -218,24 +214,49 @@ public class SalaryServiceImpl implements SalaryService {
         salaryRepository.saveAll(salaries);
     }
     @Override
-    public Page<SalaryDTO> getSalariesByMonth(int month, int year, int page, int size, String search) {
+    public Page<SalaryDTO> getSalariesByMonth(int month, int year, int page, int size, String search, Long departmentId, Long positionId, Long lineId) {
         LocalDate firstDay = LocalDate.of(year, month, 1);
         Pageable pageable = PageRequest.of(page, size);
 
-        List<Salary> all = salaryRepository.findBySalaryMonth(firstDay);
+        // Lấy tất cả các lương trong tháng
+        List<Salary> allSalaries = salaryRepository.findBySalaryMonth(firstDay);
 
         // Lọc theo mã hoặc tên nhân viên nếu có search
         if (search != null && !search.trim().isEmpty()) {
             String lower = search.trim().toLowerCase();
-            all = all.stream()
+            allSalaries = allSalaries.stream()
                     .filter(s -> s.getEmployee().getEmployeeCode().toLowerCase().contains(lower)
                             || s.getEmployee().getEmployeeName().toLowerCase().contains(lower))
-                    .toList();
+                    .collect(Collectors.toList());
         }
 
+        // Lọc theo departmentId, positionId, lineId
+        if (departmentId != null) {
+            allSalaries = allSalaries.stream()
+                    .filter(s -> s.getEmployee().getDepartment() != null &&
+                            s.getEmployee().getDepartment().getDepartmentId().equals(departmentId))
+                    .collect(Collectors.toList());
+        }
+
+        if (positionId != null) {
+            allSalaries = allSalaries.stream()
+                    .filter(s -> s.getEmployee().getPosition() != null &&
+                            s.getEmployee().getPosition().getPositionId().equals(positionId))
+                    .collect(Collectors.toList());
+        }
+
+        if (lineId != null) {
+            allSalaries = allSalaries.stream()
+                    .filter(s -> s.getEmployee().getLine() != null &&
+                            s.getEmployee().getLine().getLineId().equals(lineId))
+                    .collect(Collectors.toList());
+        }
+
+        // Lấy danh sách các benefit đang hoạt động
         List<Benefit> allBenefits = benefitService.getAllActive();
 
-        List<SalaryDTO> allDTOs = all.stream()
+        // Map các đối tượng Salary thành SalaryDTO và áp dụng full benefits
+        List<SalaryDTO> salaryDTOs = allSalaries.stream()
                 .map(salary -> {
                     SalaryDTO dto = SalaryMapper.mapToSalaryDTO(salary);
 
@@ -250,34 +271,37 @@ public class SalaryServiceImpl implements SalaryService {
                                                     .amount(BigDecimal.ZERO)
                                                     .build()
                                     ))
-                            .toList();
+                            .collect(Collectors.toList());
 
                     dto.setAppliedBenefits(fullBenefits);
                     return dto;
                 })
-                .toList();
+                .collect(Collectors.toList());
 
+        // Tính phân trang
         int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), allDTOs.size());
+        int end = Math.min((start + pageable.getPageSize()), salaryDTOs.size());
 
-        List<SalaryDTO> pagedContent = start >= allDTOs.size() ? List.of() : allDTOs.subList(start, end);
-        return new PageImpl<>(pagedContent, pageable, allDTOs.size());
+        List<SalaryDTO> pagedContent = start >= salaryDTOs.size() ? List.of() : salaryDTOs.subList(start, end);
+        return new PageImpl<>(pagedContent, pageable, salaryDTOs.size());
     }
+
 
     private BigDecimal calculateAmount(BigDecimal basic, BigDecimal value, FormulaType type) {
         if (value == null || type == null) return BigDecimal.ZERO;
         return switch (type) {
             case AMOUNT -> value;
-            case PERCENTAGE -> basic.multiply(value).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+            case PERCENTAGE -> {
+                BigDecimal result = basic.multiply(value)
+                        .divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP);
+                yield result.setScale(0, RoundingMode.CEILING);
+            }
+
         };
     }
-    // SalaryServiceImpl.java
-    private List<SalaryBenefit> generateSalaryBenefits(Employee employee, Salary salary, int month, int year) {
+    private List<SalaryBenefit> generateSalaryBenefits(Employee employee, Salary salary) {
         List<BenefitRegistration> regs = benefitRegistrationRepository.findByEmployee(employee);
         List<SalaryBenefit> result = new ArrayList<>();
-
-        long klCount = countKLInMonth(employee.getEmployeeId(), month, year);
-        BigDecimal penalty = penaltyPercentByKL(klCount);
 
         for (BenefitRegistration reg : regs) {
             if (!Boolean.TRUE.equals(reg.getIsRegister())) continue;
@@ -285,66 +309,21 @@ public class SalaryServiceImpl implements SalaryService {
             var bp = reg.getBenefitPosition();
             var benefit = bp.getBenefit();
 
-            BigDecimal baseAmount = calculateAmount(
+            BigDecimal amount = calculateAmount(
                     employee.getBasicSalary(),
-                    bp.getFormulaValue() != null ? bp.getFormulaValue() : benefit.getDefaultFormulaValue(),
-                    bp.getFormulaType()  != null ? bp.getFormulaType()  : benefit.getDefaultFormulaType()
+                    bp.getFormulaValue(),
+                    bp.getFormulaType()
             );
-
-            BigDecimal finalAmount = baseAmount;
-
-            if ("chuyên cần".equalsIgnoreCase(benefit.getTitle())) {
-                finalAmount = applyPenalty(baseAmount, penalty);
-            }
 
             result.add(SalaryBenefit.builder()
                     .salary(salary)
                     .benefitType(benefit.getBenefitType())
                     .benefitTitle(benefit.getTitle())
-                    .amount(finalAmount != null ? finalAmount : BigDecimal.ZERO)
+                    .amount(amount)
                     .build());
         }
+
         return result;
-    }
-
-// SalaryServiceImpl.java
-
-    private long countKLInMonth(Long employeeId, int month, int year) {
-        List<AttendanceRecord> records =
-                attendanceRecordRepository.findByEmployee_EmployeeIdAndMonthAndYear(employeeId, month, year);
-
-        long kl = 0;
-        for (AttendanceRecord r : records) {
-            if ("KL".equalsIgnoreCase(safe(r.getDayShift()))) kl++;
-            if ("KL".equalsIgnoreCase(safe(r.getOtShift()))) kl++;
-            if ("KL".equalsIgnoreCase(safe(r.getWeekendShift()))) kl++;
-            if ("KL".equalsIgnoreCase(safe(r.getHolidayShift()))) kl++;
-        }
-        return kl;
-    }
-
-    private String safe(String s) { return s == null ? "" : s.trim(); }
-// SalaryServiceImpl.java
-
-    private BigDecimal penaltyPercentByKL(long klCount) {
-        if (klCount <= 0) return BigDecimal.ZERO;
-        return switch ((int) klCount) {
-            case 1 -> BigDecimal.valueOf(10);
-            case 2 -> BigDecimal.valueOf(20);
-            case 3 -> BigDecimal.valueOf(50);
-            case 4 -> BigDecimal.valueOf(75);
-            default -> BigDecimal.valueOf(100);
-        };
-    }
-
-    private BigDecimal applyPenalty(BigDecimal base, BigDecimal penaltyPercent) {
-        if (base == null || base.signum() == 0) return BigDecimal.ZERO;
-        if (penaltyPercent.compareTo(BigDecimal.ZERO) <= 0) return base;
-        if (penaltyPercent.compareTo(BigDecimal.valueOf(100)) >= 0) return BigDecimal.ZERO;
-
-        BigDecimal keepRate = BigDecimal.ONE.subtract(
-                penaltyPercent.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
-        return base.multiply(keepRate).setScale(0, RoundingMode.HALF_UP);
     }
 
 }

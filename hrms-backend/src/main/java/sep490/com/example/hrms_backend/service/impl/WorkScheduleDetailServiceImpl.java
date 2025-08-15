@@ -57,12 +57,7 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
                 .build();
 
 
-        int extra = computeOvertimeMinutes(dto.getDateWork(), dto.getStartTime(), dto.getEndTime());
-        ensureMonthlyCap(schedule.getId(), extra, null);
-
         WorkScheduleDetail saved = workScheduleDetailRepository.save(entity);
-        recalcForSchedule(schedule.getId());
-
 
 
         return WorkScheduleDetailResponseDTO.builder()
@@ -167,15 +162,6 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
                         .build());
             }
 
-            Integer cap = null, used = null, remain = null;
-            Double remainHours = null;
-            if (sampleSchedule != null) {
-                cap = sampleSchedule.getMonthlyOtCapMinutes();
-                used = sampleSchedule.getMonthlyOtUsedMinutes();
-                remain = sampleSchedule.getMonthlyOtRemainingMinutes();
-                remainHours = sampleSchedule.getMonthlyOtRemainingHours();
-            }
-
             departmentMap.get(dept.getDepartmentId()).getLines().add(LineWorkScheduleViewDTO.builder()
                     .lineId(line.getLineId())
                     .lineName(line.getLineName())
@@ -183,14 +169,7 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
                     .isSubmitted(sampleSchedule != null && sampleSchedule.isSubmitted())
                     .isAccepted(sampleSchedule != null && sampleSchedule.isAccepted())
                     .rejectReason(sampleSchedule != null ? sampleSchedule.getRejectReason() : null)
-
-                    // ==== NEW: OT tháng ====
-                    .monthlyOtCapMinutes(cap)
-                    .monthlyOtUsedMinutes(used)
-                    .monthlyOtRemainingMinutes(remain)
-                    .monthlyOtRemainingHours(remainHours)
                     .build());
-
         }
 
         for (Department dept : allDepartments) {
@@ -233,15 +212,6 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
                         .build());
             }
 
-            Integer cap = null, used = null, remain = null;
-            Double remainHours = null;
-            if (sampleSchedule != null) {
-                cap = sampleSchedule.getMonthlyOtCapMinutes();
-                used = sampleSchedule.getMonthlyOtUsedMinutes();
-                remain = sampleSchedule.getMonthlyOtRemainingMinutes();
-                remainHours = sampleSchedule.getMonthlyOtRemainingHours();
-            }
-
             departmentMap.put(dept.getDepartmentId(), DepartmentWorkScheduleViewDTO.builder()
                     .departmentId(dept.getDepartmentId())
                     .departmentName(dept.getDepartmentName())
@@ -252,15 +222,8 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
                             .isSubmitted(sampleSchedule != null && sampleSchedule.isSubmitted())
                             .isAccepted(sampleSchedule != null && sampleSchedule.isAccepted())
                             .rejectReason(sampleSchedule != null ? sampleSchedule.getRejectReason() : null)
-
-                            // ==== NEW: OT tháng ====
-                            .monthlyOtCapMinutes(cap)
-                            .monthlyOtUsedMinutes(used)
-                            .monthlyOtRemainingMinutes(remain)
-                            .monthlyOtRemainingHours(remainHours)
                             .build()))
                     .build());
-
         }
 
         return new ArrayList<>(departmentMap.values());
@@ -277,15 +240,12 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
         boolean isLate = dto.getEndTime().isAfter(LocalTime.of(17, 0));
         boolean isOvertime = isHoliday || isWeekend || isLate;
 
-        int extra = computeOvertimeMinutes(detail.getDateWork(), dto.getStartTime(), dto.getEndTime());
-        ensureMonthlyCap(detail.getWorkSchedule().getId(), extra, detail.getId());
         detail.setStartTime(dto.getStartTime());
         detail.setEndTime(dto.getEndTime());
         detail.setIsOvertime(isOvertime);
 
         WorkScheduleDetail saved = workScheduleDetailRepository.save(detail);
         WorkSchedule schedule = saved.getWorkSchedule();
-        recalcForSchedule(saved.getWorkSchedule().getId());
 
         return WorkScheduleDetailResponseDTO.builder()
                 .id(saved.getId())
@@ -307,72 +267,7 @@ public class WorkScheduleDetailServiceImpl implements WorkScheduleDetailService 
         WorkScheduleDetail detail = workScheduleDetailRepository.findById(id)
                 .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "Không tìm thấy chi tiết lịch làm việc"));
 
-        WorkSchedule ws = detail.getWorkSchedule();
         workScheduleDetailRepository.delete(detail);
-        recalcForSchedule(ws.getId());
-
-
-    }
-    private int minutesBetween(LocalTime from, LocalTime to) {
-        int a = from.toSecondOfDay();
-        int b = to.toSecondOfDay();
-        if (b < a) b += 24 * 3600;
-        return (b - a) / 60;
-    }
-
-    private int computeOvertimeMinutes(WorkScheduleDetail d) {
-        LocalDate date = d.getDateWork();
-        LocalTime start = d.getStartTime();
-        LocalTime end = d.getEndTime();
-
-        boolean isHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(date);
-        boolean isWeekend = date.getDayOfWeek() == DayOfWeek.SUNDAY;
-
-        if (isHoliday || isWeekend) return minutesBetween(start, end);
-        LocalTime standardEnd = LocalTime.of(17, 0);
-        if (end.isAfter(standardEnd)) return minutesBetween(standardEnd, end);
-        return 0;
-    }
-
-    private void recalcForSchedule(Long scheduleId) {
-        WorkSchedule s = workScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "WorkSchedule không tồn tại"));
-        List<WorkScheduleDetail> details = workScheduleDetailRepository.findByWorkSchedule_Id(scheduleId);
-        int used = details.stream().mapToInt(this::computeOvertimeMinutes).sum();
-        s.setMonthlyOtUsedMinutes(used);
-        workScheduleRepository.save(s);
-    }
-    private int computeOvertimeMinutes(LocalDate date, LocalTime start, LocalTime end) {
-        boolean isHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(date);
-        boolean isWeekend = date.getDayOfWeek() == DayOfWeek.SUNDAY;
-
-        if (isHoliday || isWeekend) return minutesBetween(start, end);
-        LocalTime standardEnd = LocalTime.of(17, 0);
-        if (end.isAfter(standardEnd)) return minutesBetween(standardEnd, end);
-        return 0;
-    }
-    private void ensureMonthlyCap(Long scheduleId, int extraMinutes, Long excludeDetailIdIfAny) {
-        WorkSchedule s = workScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "WorkSchedule không tồn tại"));
-
-        // tổng OT hiện tại (trừ bản ghi đang update nếu có)
-        List<WorkScheduleDetail> details = workScheduleDetailRepository.findByWorkSchedule_Id(scheduleId);
-        int current = details.stream()
-                .filter(d -> excludeDetailIdIfAny == null || !Objects.equals(d.getId(), excludeDetailIdIfAny))
-                .mapToInt(this::computeOvertimeMinutes)
-                .sum();
-
-        int cap = Optional.ofNullable(s.getMonthlyOtCapMinutes()).orElse(2400); // 40h
-        int prospective = current + extraMinutes;
-
-        if (prospective > cap) {
-            int remain = Math.max(0, cap - current);
-            double remainHours = Math.round((remain / 60.0) * 10) / 10.0;
-            throw new HRMSAPIException(
-                    HttpStatus.BAD_REQUEST,
-                    "Vượt trần OT tháng (40h). Còn lại: " + remainHours + "h"
-            );
-        }
     }
 
 }

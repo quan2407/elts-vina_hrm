@@ -18,5 +18,6 @@ public interface PositionRepository extends JpaRepository<Position, Long> {
     List<Position> findByPositionIdNotIn(List<Long> ids);
 
     Position findByPositionName(String x);
-
+    @Query("SELECT p FROM Position p ORDER BY p.positionName ASC")
+    List<Position> findAllOrdered();
 }

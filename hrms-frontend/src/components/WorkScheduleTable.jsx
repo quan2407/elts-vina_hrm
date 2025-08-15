@@ -6,13 +6,7 @@ import "../styles/WorkScheduleTable.css";
 import { useSearchParams } from "react-router-dom";
 
 const weekdays = ["CN", "Th 2", "Th 3", "Th 4", "Th 5", "Th 6", "Th 7"];
-const toHourLabel = (h) => {
-  if (h == null) return "";
-  const v = Math.round(Number(h) * 10) / 10;
-  return Number.isFinite(v)
-    ? `${v % 1 === 0 ? v.toFixed(0) : v.toFixed(1)}h`
-    : "";
-};
+
 function WorkScheduleTable({
   month,
   year,
@@ -34,15 +28,7 @@ function WorkScheduleTable({
   const [data, setData] = useState([]);
   const [selectedDeptId, setSelectedDeptId] = useState(null);
   const [selectedLineId, setSelectedLineId] = useState(null);
-  const [modalError, setModalError] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
-
-  const pickErrMsg = (err) =>
-    err?.response?.data?.message ||
-    err?.response?.data ||
-    err?.message ||
-    "Có lỗi xảy ra. Vui lòng thử lại.";
-
+  const [errorMessage, setErrorMessage] = useState("");
   const [workType, setWorkType] = useState("normal");
   const [availableMonths, setAvailableMonths] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -63,12 +49,6 @@ function WorkScheduleTable({
   )}`;
 
   console.log("📆 FIXED todayIso:", todayIso);
-
-  const isHr = (name) => (name || "").toLowerCase().includes("nhân sự");
-
-  const filteredData = React.useMemo(() => {
-    return data.filter((dept) => !isHr(dept.departmentName));
-  }, [data]);
 
   const getTotalMonthValue = (m, y) => y * 12 + m;
   const handleDelete = (id) => {
@@ -372,11 +352,10 @@ function WorkScheduleTable({
       setEndTime("17:00");
       setSelectedDetailId(null);
     }
-    setModalError(null);
     setModalOpen(true);
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (endTime <= startTime) {
       alert("Giờ kết thúc phải sau giờ bắt đầu.");
       return;
@@ -397,26 +376,24 @@ function WorkScheduleTable({
         })
       : workScheduleService
           .resolveWorkScheduleId(selectedDeptId, selectedLineId, selectedDate)
-          .then((res) =>
-            workScheduleService.createWorkScheduleDetail({
-              ...payload,
-              workScheduleId: res.data,
-            })
-          );
+          .then((res) => {
+            const newPayload = { ...payload, workScheduleId: res.data };
+            return workScheduleService.createWorkScheduleDetail(newPayload);
+          });
 
-    setSubmitting(true);
-    setModalError(null);
-
-    try {
-      await savePromise;
-      setModalOpen(false);
-      fetchDataAndStatus(month, year);
-    } catch (err) {
-      console.error("Lỗi thêm/cập nhật lịch làm việc:", err);
-      setModalError(pickErrMsg(err)); // có thể là string (VD: vượt 40h) hoặc object (VD: { endTime: [...] })
-    } finally {
-      setSubmitting(false);
-    }
+    savePromise
+      .then(() => {
+        setModalOpen(false);
+        fetchDataAndStatus(month, year);
+        setErrorMessage("");
+      })
+      .catch((err) => {
+        if (err.response?.status === 400 && err.response.data) {
+          setErrorMessage(err.response.data);
+        } else {
+          console.error("Lỗi thêm/cập nhật lịch làm việc:", err);
+        }
+      });
   };
 
   return (
@@ -521,7 +498,7 @@ function WorkScheduleTable({
               Chuyền
             </div>
 
-            {filteredData.map((dept) =>
+            {data.map((dept) =>
               dept.lines.map((line, idx) => (
                 <React.Fragment key={`${dept.departmentId}-${idx}`}>
                   {idx === 0 && (
@@ -538,25 +515,7 @@ function WorkScheduleTable({
                     data-linename={line.lineName}
                     data-deptname={dept.departmentName}
                   >
-                    <div className="line-title">{line.lineName || <i></i>}</div>
-
-                    {line?.monthlyOtRemainingHours != null && (
-                      <div
-                        className="work-schedule-ot-remaining"
-                        title={
-                          line?.monthlyOtUsedMinutes != null &&
-                          line?.monthlyOtCapMinutes != null
-                            ? `Đã dùng: ${(
-                                line.monthlyOtUsedMinutes / 60
-                              ).toFixed(1)}h / Trần: ${(
-                                line.monthlyOtCapMinutes / 60
-                              ).toFixed(0)}h`
-                            : undefined
-                        }
-                      >
-                        OT còn: {toHourLabel(line.monthlyOtRemainingHours)}
-                      </div>
-                    )}
+                    {line.lineName || <i></i>}
                   </div>
                 </React.Fragment>
               ))
@@ -591,7 +550,7 @@ function WorkScheduleTable({
                 </div>
               ))}
 
-              {filteredData.map((dept) =>
+              {data.map((dept) =>
                 dept.lines.map((line, idx) =>
                   line.workDetails.map((detail, i) => {
                     const isOvertime =
@@ -673,6 +632,7 @@ function WorkScheduleTable({
           endTime,
           workType,
           setWorkType,
+
           onChange: (field, value) => {
             if (field === "startTime") setStartTime(value);
             if (field === "endTime") setEndTime(value);
@@ -692,8 +652,7 @@ function WorkScheduleTable({
           onDelete: handleDelete,
           canEdit: canEditModal,
         }}
-        errorMessages={modalError}
-        submitting={submitting}
+        errorMessages={errorMessage}
       />
     </div>
   );

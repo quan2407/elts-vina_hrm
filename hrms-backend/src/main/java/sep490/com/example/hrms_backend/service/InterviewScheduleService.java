@@ -109,8 +109,13 @@ public class InterviewScheduleService {
     }
 
 
-    public List<InterviewScheduleDTO> getAllInterviewSchedule() {
-        return InterviewScheduleMapper.maptoInterviewcheduleDTOList(interviewScheduleRepository.findAll());
+    public List<InterviewScheduleDTO> getAllInterviewSchedule(Long empId) {
+        Employee e = employeeRepository.findById(empId).orElse(null);
+        if(e.getPosition().getPositionName().equalsIgnoreCase("HR")){
+        return InterviewScheduleMapper.maptoInterviewcheduleDTOList(interviewScheduleRepository.findAll());}
+        else {
+            return InterviewScheduleMapper.maptoInterviewcheduleDTOList(interviewScheduleRepository.findByInterviewer_EmployeeId(empId));
+        }
     }
 
     private void sendInterviewEmail(String to, String cc, String username, LocalDateTime interviewTime) {

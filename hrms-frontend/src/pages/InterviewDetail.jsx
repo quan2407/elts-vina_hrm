@@ -14,7 +14,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import employeeService from "../services/employeeService";
 import SuccessModal from "../components/popup/SuccessModal";
-
+import accountService from "../services/accountService";
 import dayjs from "dayjs";
 
 
@@ -31,6 +31,7 @@ function InterviewDetail() {
     const [activeSection, setActiveSection] = useState("basic-info");
     const [successModal, setSuccessModal] = useState(false);
     const [failModal, setFailModal] = useState(false);
+    const [isHR, setIsHR] = useState(false);
     const isDisabled = status === "COMPLETED";
 
     useEffect(() => {
@@ -45,6 +46,26 @@ function InterviewDetail() {
         };
         fetchInterview();
     }, [id]);
+
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            try {
+                const res = await accountService.getCurrentUser();
+                const currentUser = res?.data ?? res; // an toàn nếu service chưa trả data thuần
+
+                console.log("Current user:", currentUser.positionName);
+                if (currentUser.positionName === "HR" || currentUser.positionName === "HR Manager") {
+                    setIsHR(true);
+                } else {
+                    setIsHR(false);
+                }
+            }
+            catch (error) {
+                console.error("Lỗi khi lấy thông tin người dùng hiện tại:", error);
+            }
+        };
+        fetchCurrentUser();
+    }, []);
 
     useEffect(() => {
         if (interview) {
@@ -365,7 +386,7 @@ function InterviewDetail() {
                                             onChange={(newValue) => setScheduleAt(newValue)}
                                             customInput={<CustomInput />}
                                             format="DD/MM/YYYY HH:mm"
-                                            disabled={isDisabled}
+                                            disabled={isDisabled || !isHR}
                                             ampm={true}
                                             slotProps={{
                                                 textField: {
@@ -421,7 +442,7 @@ function InterviewDetail() {
                                             setInterviewerId(value === "" ? null : Number(value));
                                         }}
 
-                                        disabled={isDisabled}
+                                        disabled={isDisabled || !isHR}
                                     >
                                         <option value="">-- Chọn người phỏng vấn --</option>
                                         {interviewers.map((p) => (

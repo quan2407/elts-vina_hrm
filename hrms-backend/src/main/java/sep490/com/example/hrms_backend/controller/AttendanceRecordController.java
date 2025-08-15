@@ -37,10 +37,19 @@ public class AttendanceRecordController {
             @RequestParam int year,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String search
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long departmentId,
+            @RequestParam(required = false) Long positionId,
+            @RequestParam(required = false) Long lineId
     ) {
-        return ResponseEntity.ok(attendanceRecordService.getMonthlyAttendance(month, year, page, size, search));
+        return ResponseEntity.ok(
+                attendanceRecordService.getMonthlyAttendance(
+                        month, year, page, size, search, departmentId, positionId, lineId
+                )
+        );
     }
+
+
 
 
     @GetMapping("/employee")

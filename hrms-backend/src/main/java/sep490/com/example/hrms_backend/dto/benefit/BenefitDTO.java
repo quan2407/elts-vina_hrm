@@ -28,17 +28,11 @@ public class BenefitDTO {
 
     private String description;
 
-    @NotNull(message = "Không được để trống ngày bắt đầu")
-    private LocalDate startDate;
 
-    @NotNull(message = "Không được để trống ngày kết thúc")
-    private LocalDate endDate;
 
-    @NotNull(message = "Không được để trống số lượng đăng kí tối đa")
-    @Min(value = 1, message = "Số lượng đăng kí tối thiểu phải là 1")
-    private Integer maxParticipants;
 
-    @NotNull(message = "Không được để trống trạng thái hoạt động")
+
+
     private Boolean isActive;
 
     private Integer numberOfEmployee;

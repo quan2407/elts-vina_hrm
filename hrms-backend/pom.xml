@@ -181,7 +181,7 @@
 							<version>1.5.5.Final</version>
 						</path>
 					</annotationProcessorPaths>
-                    <compilerArgs>--enable-preview</compilerArgs>
+<!--                    <compilerArgs>&#45;&#45;enable-preview</compilerArgs>-->
                 </configuration>
             </plugin>
 

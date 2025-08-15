@@ -28,7 +28,7 @@ const BenefitCreateModal = ({onCreated}) => {
         try {
             const values = await form.validateFields();
 
-            const [startDate, endDate] = values.dateRange;
+
 
             const payload = {
                 title: values.title,
@@ -36,10 +36,6 @@ const BenefitCreateModal = ({onCreated}) => {
                 benefitType: values.benefitType,
                 defaultFormulaType: values.formulaType,
                 defaultFormulaValue: values.formulaValue,
-                startDate: startDate.format('YYYY-MM-DD'),
-                endDate: endDate.format('YYYY-MM-DD'),
-                maxParticipants: values.maxParticipants,
-                isActive: values.isActive,
                 detail: values.detail || ''
             };
 
@@ -89,12 +85,20 @@ const BenefitCreateModal = ({onCreated}) => {
                 icon={<PlusOutlined />}
                 onClick={() => setOpen(true)}
                 style={{
-                    backgroundColor: '#388e3c',
+                    borderRadius: 14,
+                    padding: '23px 20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 16,
+                    cursor: 'pointer',
+                    boxShadow: '11px 4px 14px 0px rgba(0, 0, 0, 0.12)',
+                    backgroundColor: '#3f861e',
                     border: 'none',
-                    borderRadius: 20,
                     fontWeight: 600,
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                    fontSize: '18px',
+                    color: '#fff'
                 }}
+
             >
                 Tạo phúc lợi
             </Button>
@@ -174,32 +178,9 @@ const BenefitCreateModal = ({onCreated}) => {
                         </Form.Item>
                     )}
 
-                    <Form.Item
-                        label="Ngày bắt đầu - Ngày kết thúc"
-                        name="dateRange"
-                        rules={[{ required: true, message: 'Chọn khoảng ngày' }]}
-                    >
-                        <RangePicker format="DD/MM/YYYY" style={{ width: '100%' }} />
-                    </Form.Item>
 
-                    <Form.Item
-                        label="Số lượng người tham gia tối đa"
-                        name="maxParticipants"
-                        rules={[{ required: true, message: 'Nhập số lượng tối đa' }]}
-                    >
-                        <InputNumber min={1} style={{ width: '100%' }} />
-                    </Form.Item>
 
-                    <Form.Item
-                        label="Trạng thái"
-                        name="isActive"
-                        rules={[{ required: true, message: 'Chọn trạng thái' }]}
-                    >
-                        <Select placeholder="Chọn trạng thái">
-                            <Select.Option value={true}>Hoạt động</Select.Option>
-                            <Select.Option value={false}>Ngưng hoạt động</Select.Option>
-                        </Select>
-                    </Form.Item>
+
 
                     <Form.Item label="Đặc tả chi tiết" name="detail">
                         <Input.TextArea rows={3} placeholder="Nhập đặc tả (không bắt buộc)" />

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { usePermissions } from "../contexts/PermissionContext";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { LogOut, ChevronDown, ChevronUp } from "lucide-react";
 import {
   systemMenus,
   hrMenus,
@@ -19,7 +19,7 @@ import employeeService from "../services/employeeService";
 function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [openMenu, setOpenMenu] = useState("");
+  const [openMenu, setOpenMenu] = useState(""); // Track open submenu
   const { hasPermission, loading } = usePermissions();
 
   const token = localStorage.getItem("accessToken");
@@ -27,10 +27,12 @@ function Sidebar() {
   const [employeeName, setEmployeeName] = useState("Loading...");
 
   useEffect(() => {
-    const timeout = setTimeout(() => setDelayPassed(true), 300);
+    const timeout = setTimeout(() => {
+      setDelayPassed(true);
+    }, 300); // ⏱️ delay 300ms (có thể chỉnh 500-1000ms nếu cần)
+
     return () => clearTimeout(timeout);
   }, []);
-
   useEffect(() => {
     const fetchEmployeeName = async () => {
       try {
@@ -41,13 +43,19 @@ function Sidebar() {
         setEmployeeName("Unknown");
       }
     };
-    if (token) fetchEmployeeName();
+
+    if (token) {
+      fetchEmployeeName();
+    }
   }, [token]);
 
+  let username = "Mock User";
   let roles = [];
+
   if (token) {
     try {
       const decoded = jwtDecode(token);
+      username = decoded.sub || "Unknown";
       roles = decoded.roles
         ? decoded.roles.map((r) => r.replace("ROLE_", "").toUpperCase())
         : [];
@@ -55,35 +63,35 @@ function Sidebar() {
       console.error("Invalid token", err);
     }
   }
-
   let menus;
-  if (roles.includes("PMC")) menus = pmcMenus;
-  else if (roles.includes("HR")) menus = hrMenus;
-  else if (roles.includes("HR_MANAGER")) menus = hrManagerMenus;
-  else if (roles.includes("LINE_LEADER")) menus = lineLeaderMenus;
-  else if (roles.includes("PRODUCTION_MANAGER")) menus = productionManagerMenus;
-  else if (roles.includes("CANTEEN")) menus = canteenMenus;
-  else if (roles.includes("EMPLOYEE")) menus = employeeMenus;
-  else menus = systemMenus;
-
-  const closeOffcanvasIfOpen = () => {
-    const el = document.getElementById("sidebarOffcanvas");
-    // bootstrap bundle đã gắn vào global (window.bootstrap)
-    const off = window.bootstrap?.Offcanvas.getInstance(el);
-    if (off) off.hide();
-  };
-
+  if (roles.includes("PMC")) {
+    menus = pmcMenus;
+  } else if (roles.includes("HR")) {
+    menus = hrMenus;
+  } else if (roles.includes("HR_MANAGER")) {
+    menus = hrManagerMenus;
+  } else if (roles.includes("LINE_LEADER")) {
+    menus = lineLeaderMenus;
+  } else if (roles.includes("PRODUCTION_MANAGER")) {
+    menus = productionManagerMenus;
+  } else if (roles.includes("CANTEEN")) {
+    menus = canteenMenus;
+  } else if (roles.includes("EMPLOYEE")) {
+    menus = employeeMenus;
+  } else {
+    menus = systemMenus;
+  }
   const handleMenuClick = (item) => {
+    console.log("Clicked:", item.text);
     if (item.children) {
-      setOpenMenu((prev) => (prev === item.text ? "" : item.text));
+      setOpenMenu(openMenu === item.text ? "" : item.text);
     } else {
       navigate(item.path);
-      closeOffcanvasIfOpen();
     }
   };
 
-  const MenuContent = () => (
-    <>
+  return (
+    <div className="sidebar">
       <div className="user-profile">
         <img
           className="profile-image"
@@ -98,11 +106,12 @@ function Sidebar() {
 
       <div className="features-section">
         {!delayPassed || loading ? (
-          <div className="loading-message text-white-50 px-3">Đang tải menu...</div>
+          <div className="loading-message">Đang tải menu...</div>
         ) : (
           menus.map((item, index) => {
             const allowed =
-              !item.apiPath || hasPermission(item.apiPath, item.method || "GET");
+              !item.apiPath ||
+              hasPermission(item.apiPath, item.method || "GET");
             if (!allowed) return null;
 
             const isActive =
@@ -127,9 +136,15 @@ function Sidebar() {
                   {item.children && (
                     <div className="nav-icon">
                       {isSubOpen ? (
-                        <ChevronUp size={16} stroke="white" />
+                        <ChevronUp
+                          size={16}
+                          stroke="white"
+                        />
                       ) : (
-                        <ChevronDown size={16} stroke="white" />
+                        <ChevronDown
+                          size={16}
+                          stroke="white"
+                        />
                       )}
                     </div>
                   )}
@@ -140,9 +155,7 @@ function Sidebar() {
                   )}
                 </div>
 
-                {/* Submenu: chỉ render khi đang mở */}
                 {item.children &&
-                  isSubOpen &&
                   item.children
                     .filter(
                       (child) =>
@@ -155,7 +168,7 @@ function Sidebar() {
                         className={`nav-item ${
                           location.pathname === child.path ? "active" : ""
                         }`}
-                        onClick={() => handleMenuClick(child)}
+                        onClick={() => navigate(child.path)}
                       >
                         <div className="nav-text">{child.text}</div>
                       </div>
@@ -165,42 +178,7 @@ function Sidebar() {
           })
         )}
       </div>
-    </>
-  );
-
-  return (
-    <>
-      {/* Sidebar cố định (desktop) */}
-      <div className="sidebar d-none d-md-flex flex-column">
-        <MenuContent />
-      </div>
-
-      {/* Offcanvas (mobile) */}
-      <div
-        className="offcanvas offcanvas-start d-md-none sidebar-offcanvas"
-        tabIndex="-1"
-        id="sidebarOffcanvas"
-        aria-labelledby="sidebarOffcanvasLabel"
-      >
-        <div className="offcanvas-header">
-          <h5 className="offcanvas-title text-dark" id="sidebarOffcanvasLabel">
-            Menu
-          </h5>
-          <button
-            type="button"
-            className="btn-close"
-            data-bs-dismiss="offcanvas"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div className="offcanvas-body p-0">
-          {/* Dùng lại style .sidebar bên trong offcanvas, nhưng position static */}
-          <div className="sidebar bg-black h-100 position-static w-100">
-            <MenuContent />
-          </div>
-        </div>
-      </div>
-    </>
+    </div>
   );
 }
 

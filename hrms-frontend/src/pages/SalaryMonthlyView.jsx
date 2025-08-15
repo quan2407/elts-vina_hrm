@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import salaryService from "../services/salaryService";
 import MainLayout from "../components/MainLayout";
 import "../styles/AttendanceMonthlyView.css";
+import departmentService from "../services/departmentService";
+import positionService from "../services/positionService";
+import { getAllLines } from "../services/linesService";
+import SuccessModal from "../components/popup/SuccessModal";
 
 const SalaryMonthlyView = () => {
   const [salaries, setSalaries] = useState([]);
@@ -12,11 +16,16 @@ const SalaryMonthlyView = () => {
   const roles = JSON.parse(localStorage.getItem("role") || "[]");
   const isHrManager = roles.includes("ROLE_HR_MANAGER");
   const [page, setPage] = useState(0);
-  const [size] = useState(10);
+  const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   let debounceTimeout;
-  // Gom tất cả loại phụ cấp và khấu trừ từ dữ liệu lương
+  const [departmentId, setDepartmentId] = useState(null);
+  const [positionId, setPositionId] = useState(null);
+  const [lineId, setLineId] = useState(null);
+  const [departments, setDepartments] = useState([]);
+  const [positions, setPositions] = useState([]);
+  const [lines, setLines] = useState([]);
   const allowanceTitles = Array.from(
     new Set(
       salaries
@@ -25,6 +34,18 @@ const SalaryMonthlyView = () => {
         .map((b) => b.title)
     )
   );
+  const [modal, setModal] = useState({
+    open: false,
+    title: "",
+    message: "",
+    type: "success", // "success" | "error"
+  });
+
+  const showSuccess = (title, message) =>
+    setModal({ open: true, title, message, type: "success" });
+
+  const showError = (title, message) =>
+    setModal({ open: true, title, message, type: "error" });
 
   const deductionTitles = Array.from(
     new Set(
@@ -42,7 +63,10 @@ const SalaryMonthlyView = () => {
         year,
         page,
         size,
-        searchTerm
+        searchTerm,
+        departmentId,
+        positionId,
+        lineId
       );
       setSalaries(res.data.content);
       setTotalPages(res.data.totalPages);
@@ -51,17 +75,80 @@ const SalaryMonthlyView = () => {
       console.error("Lỗi khi tải dữ liệu lương:", err);
     }
   };
-  useEffect(() => {
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(() => {
-      fetchSalaries();
-    }, 100);
-    return () => clearTimeout(debounceTimeout);
-  }, [searchTerm]);
+  // useEffect(() => {
+  //   clearTimeout(debounceTimeout);
+  //   debounceTimeout = setTimeout(() => {
+  //     fetchSalaries();
+  //   }, 100);
+  //   return () => clearTimeout(debounceTimeout);
+  // }, [searchTerm]);
 
+  // 1) Lấy lương khi đổi tháng/năm/trang
   useEffect(() => {
     if (month && year) fetchSalaries();
-  }, [month, year, page]);
+  }, [month, year, page, size]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const depRes = await departmentService.getAllDepartments();
+        setDepartments(depRes.data || []);
+
+        const posRes = await positionService.getAll();
+        setPositions(posRes.data || []);
+
+        const lineRes = await getAllLines();
+        setLines(lineRes || []);
+      } catch (e) {
+        console.error("Load danh mục lỗi:", e);
+      }
+    })();
+  }, []);
+
+  // 3) Khi đổi department => reload positions/lines, reset positionId/lineId
+  useEffect(() => {
+    (async () => {
+      try {
+        if (departmentId) {
+          const [posByDep, lineByDep] = await Promise.all([
+            departmentService.getPositionsByDepartment(departmentId),
+            departmentService.getLinesByDepartment(departmentId),
+          ]);
+          setPositions(posByDep.data || []);
+          setLines(lineByDep.data || []);
+        } else {
+          const posRes = await positionService.getAll();
+          setPositions(posRes.data || []);
+          const lineRes = await getAllLines();
+          setLines(lineRes || []);
+        }
+        setPositionId(null);
+        setLineId(null);
+      } catch (e) {
+        console.error("Load positions/lines theo department lỗi:", e);
+      }
+    })();
+  }, [departmentId]);
+
+  const fetchSalariesParams = async (m, y, p, q, depId, posId, liId) => {
+    try {
+      const res = await salaryService.getMonthlySalaries(
+        m,
+        y,
+        p,
+        size,
+        q,
+        depId,
+        posId,
+        liId
+      );
+      setSalaries(res.data.content);
+      setTotalPages(res.data.totalPages);
+      setIsLocked(res.data.content.length > 0 && res.data.content[0].locked);
+    } catch (err) {
+      console.error("Lỗi khi tải dữ liệu lương:", err);
+    }
+  };
 
   useEffect(() => {
     const fetchAvailableMonths = async () => {
@@ -90,12 +177,11 @@ const SalaryMonthlyView = () => {
 
     fetchAvailableMonths();
   }, []);
-
   return (
     <MainLayout>
       <div className="attendance-container">
         <div className="attendance-controls">
-          <div className="attendance-filters">
+          <div className="salary-filters">
             <select
               value={month}
               onChange={(e) => setMonth(Number(e.target.value))}
@@ -142,10 +228,16 @@ const SalaryMonthlyView = () => {
                   try {
                     await salaryService.regenerateMonthlySalaries(month, year);
                     await fetchSalaries();
-                    alert("Đã cập nhật bảng lương thành công!");
+                    showSuccess(
+                      "Cập nhật bảng lương",
+                      "Đã cập nhật bảng lương thành công!"
+                    );
                   } catch (err) {
                     console.error("Lỗi khi cập nhật bảng lương:", err);
-                    alert("Cập nhật bảng lương thất bại!");
+                    showError(
+                      "Cập nhật bảng lương",
+                      "Cập nhật bảng lương thất bại!"
+                    );
                   }
                 }
               }}
@@ -168,13 +260,17 @@ const SalaryMonthlyView = () => {
                         !isLocked
                       );
                       await fetchSalaries();
-                      alert(
+                      showSuccess(
+                        "Trạng thái chốt lương",
                         isLocked
                           ? "Đã mở khóa bảng lương."
                           : "Đã chốt bảng lương."
                       );
                     } catch (err) {
-                      alert("Lỗi khi cập nhật trạng thái chốt lương!");
+                      showError(
+                        "Trạng thái chốt lương",
+                        "Lỗi khi cập nhật trạng thái chốt lương!"
+                      );
                     }
                   }
                 }}
@@ -192,9 +288,13 @@ const SalaryMonthlyView = () => {
               }}
               onClick={async () => {
                 if (!month || !year) {
-                  alert("Vui lòng chọn tháng và năm.");
+                  showError(
+                    "Xuất báo cáo lương",
+                    "Vui lòng chọn tháng và năm."
+                  );
                   return;
                 }
+
                 try {
                   const response = await salaryService.exportMonthlySalaries(
                     month,
@@ -218,7 +318,10 @@ const SalaryMonthlyView = () => {
                   link.remove();
                 } catch (err) {
                   console.error("Export lương thất bại:", err);
-                  alert("Không thể xuất báo cáo lương.");
+                  showError(
+                    "Xuất báo cáo lương",
+                    "Không thể xuất báo cáo lương."
+                  );
                 }
               }}
             >
@@ -226,9 +329,26 @@ const SalaryMonthlyView = () => {
             </button>
           </div>
         </div>
-
-        <div className="attendance-table-wrapper">
-          <div className="attendance-search-wrapper">
+        <div className="attendance-controls">
+          <div className="page-size-control">
+            <label htmlFor="pageSize">Hiển thị</label>
+            <select
+              id="pageSize"
+              value={size}
+              onChange={(e) => {
+                const newSize = Number(e.target.value);
+                setSize(newSize);
+                setPage(0);
+              }}
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+            <span>/ trang</span>
+          </div>
+          <div className="salary-filters">
             <input
               type="text"
               className="attendance-search-input"
@@ -236,89 +356,157 @@ const SalaryMonthlyView = () => {
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
-                setPage(0);
               }}
             />
+            <select
+              value={departmentId ?? ""}
+              onChange={(e) => setDepartmentId(e.target.value)}
+            >
+              <option value="">-- Chọn Bộ Phận --</option>
+              {departments.map((department) => (
+                <option
+                  key={department.id}
+                  value={department.id}
+                >
+                  {department.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={lineId ?? ""}
+              onChange={(e) => setLineId(e.target.value)}
+            >
+              <option value="">-- Chọn Chuyền --</option>
+              {lines.map((line) => (
+                <option
+                  key={line.id}
+                  value={line.id}
+                >
+                  {line.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={positionId ?? ""}
+              onChange={(e) => setPositionId(e.target.value)}
+            >
+              <option value="">-- Chọn Chức Vụ --</option>
+              {positions.map((position) => (
+                <option
+                  key={position.id}
+                  value={position.id}
+                >
+                  {position.name}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={() => {
+                setSearchTerm("");
+                setDepartmentId(null);
+                setLineId(null);
+                setPositionId(null);
+                setPage(0);
+
+                fetchSalariesParams(month, year, 0, "", null, null, null);
+              }}
+            >
+              Xóa bộ lọc
+            </button>
+
+            <button
+              onClick={() => {
+                setPage(0);
+                fetchSalaries();
+              }}
+            >
+              Tìm kiếm
+            </button>
           </div>
+        </div>
+        <div className="attendance-table-area">
+          <div className="attendance-table-wrapper">
+            <table className="attendance-table">
+              <thead>
+                <tr>
+                  <th rowSpan="2">STT</th>
+                  <th rowSpan="2">Mã NV</th>
+                  <th rowSpan="2">Họ và Tên</th>
+                  <th rowSpan="2">Chức vụ</th>
+                  <th rowSpan="2">Lương cơ bản</th>
 
-          <table className="attendance-table">
-            <thead>
-              <tr>
-                <th rowSpan="2">STT</th>
-                <th rowSpan="2">Mã NV</th>
-                <th rowSpan="2">Họ và Tên</th>
-                <th rowSpan="2">Chức vụ</th>
-                <th rowSpan="2">Lương cơ bản</th>
+                  <th colSpan={allowanceTitles.length || 1}>Phụ cấp</th>
+                  <th colSpan="2">Lương sản xuất</th>
+                  <th colSpan="2">Lương thêm giờ</th>
 
-                <th colSpan={allowanceTitles.length || 1}>Phụ cấp</th>
-                <th colSpan="2">Lương sản xuất</th>
-                <th colSpan="2">Lương thêm giờ</th>
+                  <th colSpan={deductionTitles.length || 1}>
+                    Các khoản khấu trừ
+                  </th>
+                  <th rowSpan="2">Tổng trừ</th>
+                  <th rowSpan="2">Thực lãnh</th>
+                </tr>
+                <tr>
+                  {allowanceTitles.length > 0 ? (
+                    allowanceTitles.map((title) => <th key={title}>{title}</th>)
+                  ) : (
+                    <th>--</th>
+                  )}
+                  <th>Số công</th>
+                  <th>Tiền lương</th>
+                  <th>Số giờ</th>
+                  <th>Tiền lương</th>
+                  {deductionTitles.length > 0 ? (
+                    deductionTitles.map((title) => <th key={title}>{title}</th>)
+                  ) : (
+                    <th>--</th>
+                  )}
+                </tr>
+              </thead>
 
-                <th colSpan={deductionTitles.length || 1}>
-                  Các khoản khấu trừ
-                </th>
-                <th rowSpan="2">Tổng trừ</th>
-                <th rowSpan="2">Thực lãnh</th>
-              </tr>
-              <tr>
-                {allowanceTitles.length > 0 ? (
-                  allowanceTitles.map((title) => <th key={title}>{title}</th>)
-                ) : (
-                  <th>--</th>
-                )}
-                <th>Số công</th>
-                <th>Tiền lương</th>
-                <th>Số giờ</th>
-                <th>Tiền lương</th>
-                {deductionTitles.length > 0 ? (
-                  deductionTitles.map((title) => <th key={title}>{title}</th>)
-                ) : (
-                  <th>--</th>
-                )}
-              </tr>
-            </thead>
+              <tbody>
+                {salaries.map((emp, index) => {
+                  const benefitMap = {};
+                  emp.appliedBenefits.forEach((b) => {
+                    benefitMap[b.title] = b.amount;
+                  });
 
-            <tbody>
-              {salaries.map((emp, index) => {
-                const benefitMap = {};
-                emp.appliedBenefits.forEach((b) => {
-                  benefitMap[b.title] = b.amount;
-                });
+                  return (
+                    <tr key={emp.employeeCode}>
+                      <td>{index + 1}</td>
+                      <td>{emp.employeeCode}</td>
+                      <td>{emp.employeeName}</td>
+                      <td>{emp.positionName || "--"}</td>
+                      <td>{emp.basicSalary?.toLocaleString("vi-VN")}</td>
 
-                return (
-                  <tr key={emp.employeeCode}>
-                    <td>{index + 1}</td>
-                    <td>{emp.employeeCode}</td>
-                    <td>{emp.employeeName}</td>
-                    <td>{emp.positionName || "--"}</td>
-                    <td>{emp.basicSalary?.toLocaleString("vi-VN")}</td>
+                      {allowanceTitles.map((title) => (
+                        <td key={title}>
+                          {(benefitMap[title] || 0).toLocaleString("vi-VN")}
+                        </td>
+                      ))}
 
-                    {allowanceTitles.map((title) => (
-                      <td key={title}>
-                        {(benefitMap[title] || 0).toLocaleString("vi-VN")}
+                      <td>{emp.workingDays}</td>
+                      <td>{emp.productionSalary?.toLocaleString("vi-VN")}</td>
+                      <td>{emp.overtimeHours}</td>
+                      <td>{emp.overtimeSalary?.toLocaleString("vi-VN")}</td>
+
+                      {deductionTitles.map((title) => (
+                        <td key={title}>
+                          {(benefitMap[title] || 0).toLocaleString("vi-VN")}
+                        </td>
+                      ))}
+
+                      <td>{emp.totalDeduction?.toLocaleString("vi-VN")}</td>
+                      <td className="highlight-bold">
+                        {emp.totalIncome?.toLocaleString("vi-VN")}
                       </td>
-                    ))}
-
-                    <td>{emp.workingDays}</td>
-                    <td>{emp.productionSalary?.toLocaleString("vi-VN")}</td>
-                    <td>{emp.overtimeHours}</td>
-                    <td>{emp.overtimeSalary?.toLocaleString("vi-VN")}</td>
-
-                    {deductionTitles.map((title) => (
-                      <td key={title}>
-                        {(benefitMap[title] || 0).toLocaleString("vi-VN")}
-                      </td>
-                    ))}
-
-                    <td>{emp.totalDeduction?.toLocaleString("vi-VN")}</td>
-                    <td className="highlight-bold">
-                      {emp.totalIncome?.toLocaleString("vi-VN")}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
           <div className="attendance-pagination-container">
             <button
               className="attendance-pagination-btn"
@@ -364,6 +552,14 @@ const SalaryMonthlyView = () => {
           </div>
         </div>
       </div>
+      {modal.open && (
+        <SuccessModal
+          title={modal.title}
+          message={modal.message}
+          type={modal.type}
+          onClose={() => setModal((m) => ({ ...m, open: false }))}
+        />
+      )}
     </MainLayout>
   );
 };

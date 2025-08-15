@@ -54,17 +54,15 @@ public class BenefitPositionServiceImpl implements BenefitPositionService {
     @Transactional
     @Override
     public void unassignPositionFromBenefit(Long benefitId, Long positionId) {
-        Benefit benefit = benefitRepository.findById(benefitId)
-                .orElseThrow(() -> new RuntimeException("Phúc lợi không tồn tại"));
+        // Tìm BenefitPosition tương ứng
+        BenefitPosition bp = benefitPositionRepository
+                .findByBenefit_IdAndPosition_PositionId(benefitId, positionId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy BenefitPosition cho benefitId & positionId"));
 
-        Position position = positionRepository.findById(positionId)
-                .orElseThrow(() -> new RuntimeException("Vị trí không tồn tại"));
+        // Xoá toàn bộ đăng ký của nhân viên tại BenefitPosition này
+        benefitRegistrationRepository.deleteByBenefitPosition_Id(bp.getId());
 
-        if (!benefitPositionRepository.existsByBenefitAndPosition(benefit, position)) {
-            throw new RuntimeException("Vị trí này chưa được gán cho phúc lợi này.");
-        }
-
-        benefitPositionRepository.deleteByBenefitAndPosition(benefit, position);
+        // KHÔNG xoá BenefitPosition
     }
 
     @Transactional
