@@ -1,20 +1,50 @@
+# server:
+#   port: ${PORT:8080}   # Render sẽ đặt PORT động, local mặc định 8080
+
+# spring:
+#   application:
+#     name: hrms-backend
+#   datasource:
+#     url: jdbc:mysql://${MYSQLHOST:${DB_HOST}}:${MYSQLPORT:${DB_PORT}}/${MYSQLDATABASE:${DB_NAME}}?useSSL=true&requireSSL=true&serverTimezone=UTC&allowPublicKeyRetrieval=true
+#     username: hrms
+#     password: wvqHOdOYsbkdLVNcMRvtDwIavSwFPZjQ
+#   jpa:
+#     hibernate:
+#       ddl-auto: none
+#     open-in-view: false
+#     properties:
+#       hibernate.format_sql: true
+#       hibernate.dialect: org.hibernate.dialect.MySQLDialect
+
+# logging:
+#   level:
+#     root: INFO
+#     sep490.com.example.hrms_backend: DEBUG
+
+# management:
+#   endpoints:
+#     web.exposure.include: health,info
+
 server:
-  port: ${PORT:8080}   # Render sẽ đặt PORT động, local mặc định 8080
+  port: ${PORT:8080}
 
 spring:
   application:
     name: hrms-backend
+
   datasource:
-    url: jdbc:mysql://root:wvqHOdOYsbkdLVNcMRvtDwIavSwFPZjQ@mysql.railway.internal:3306/railway
-    username: hrms
-    password: wvqHOdOYsbkdLVNcMRvtDwIavSwFPZjQ
+    url: jdbc:mysql://${MYSQLHOST:crossover.proxy.rlwy.net}:${MYSQLPORT:27067}/${MYSQLDATABASE:railway}?useSSL=true&requireSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${MYSQLUSER:root}
+    password: ${MYSQLPASSWORD:wvqHOdOYsbkdLVNcMRvtDwIavSwFPZjQ}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: none
     open-in-view: false
     properties:
       hibernate.format_sql: true
-      hibernate.dialect: org.hibernate.dialect.MySQLDialect
+      hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
 
 logging:
   level:
@@ -23,4 +53,7 @@ logging:
 
 management:
   endpoints:
-    web.exposure.include: health,info
+    web:
+      exposure:
+        include: health,info
+
