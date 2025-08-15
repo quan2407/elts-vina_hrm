@@ -93,7 +93,6 @@ function BenefitForPosition() {
                         Quản lý {benefit ? benefit.title : ""}
                     </h1>
 
-                    {/* ✅ Hiển thị loại phúc lợi với tiếng Việt */}
                     <span
                         style={{
                             display: "inline-block",
@@ -121,7 +120,6 @@ function BenefitForPosition() {
 
                 <Breadcrumb paths={breadcrumbPaths} />
 
-                {/* 🔎 Tìm kiếm + Lọc theo vị trí + Lọc theo trạng thái đăng ký */}
                 <div style={{ display: "flex", gap: 12, alignItems: "center", margin: "16px 0 8px 0", flexWrap: "wrap" }}>
                     <Input
                         allowClear
