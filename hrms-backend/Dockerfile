@@ -1,5 +1,5 @@
 # -------- Build stage --------
-FROM maven:3.9.8-eclipse-temurin-21 AS build
+FROM maven:3.9.8-eclipse-temurin-17 AS build
 WORKDIR /app
 COPY pom.xml .
 RUN mvn -q -DskipTests dependency:go-offline
@@ -7,7 +7,7 @@ COPY src ./src
 RUN mvn -DskipTests package
 
 # -------- Run stage --------
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 ENV JAVA_OPTS=""
 ENV PORT=8080
