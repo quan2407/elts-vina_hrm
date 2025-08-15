@@ -5,9 +5,9 @@ spring:
   application:
     name: hrms-backend
   datasource:
-    url: jdbc:mysql://localhost:3306/hrms?serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&useSSL=false
+    url: jdbc:mysql://root:wvqHOdOYsbkdLVNcMRvtDwIavSwFPZjQ@mysql.railway.internal:3306/railway
     username: hrms
-    password: hrms
+    password: wvqHOdOYsbkdLVNcMRvtDwIavSwFPZjQ
   jpa:
     hibernate:
       ddl-auto: none
