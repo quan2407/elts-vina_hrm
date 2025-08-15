@@ -333,7 +333,7 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
                 .findByBenefit_IdAndPosition_PositionId(benefitId, positionId)
                 .orElseThrow(() -> new HRMSAPIException("Không tìm thấy BenefitPosition"));
 
-        long totalEmployees = employeeRepository.countByPosition_PositionId(positionId);
+        long totalEmployees = employeeRepository.countByPosition_PositionIdAndIsDeletedFalse(positionId);
 
         long totalRegistered = benefitRegistrationRepository.countByBenefitPosition_Id(bp.getId());
 

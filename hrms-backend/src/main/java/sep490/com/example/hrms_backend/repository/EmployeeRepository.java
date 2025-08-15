@@ -124,4 +124,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
             @Param("lineId") Long lineId,
             Pageable pageable);
 
+    long countByPosition_PositionIdAndIsDeletedFalse(Long positionId);
 }
