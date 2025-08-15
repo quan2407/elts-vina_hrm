@@ -162,6 +162,5 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Position",
                 allRoles
         );
-
     }
 }
