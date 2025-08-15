@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.InterviewScheduleDTO;
+import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.service.InterviewScheduleService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
@@ -37,7 +38,8 @@ public class InterviewScheduleController {
 
     @GetMapping
     public ResponseEntity<?> getAllInterviewSchedule() {
-        List<InterviewScheduleDTO> interviewScheduleDTOList = interviewScheduleService.getAllInterviewSchedule();
+        Long empId = currentUserUtils.getCurrentEmployeeId();
+        List<InterviewScheduleDTO> interviewScheduleDTOList = interviewScheduleService.getAllInterviewSchedule(empId);
         if (interviewScheduleDTOList != null && !interviewScheduleDTOList.isEmpty()) {
             return new ResponseEntity<>(interviewScheduleDTOList, HttpStatus.OK);
         }

@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { jwtDecode } from "jwt-decode";
 import { Bell, ChevronDown, User, Key, HelpCircle, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Header.css";
-import { getNotifications, markNotificationAsRead } from "../services/notificationService";
-
+import {
+  getNotifications,
+  markNotificationAsRead,
+} from "../services/notificationService";
+import notificationLinks from "../constants/notificationLinks.jsx";
 
 function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -13,30 +16,35 @@ function Header() {
   const [notifications, setNotifications] = useState([]);
   const [notificationFilter, setNotificationFilter] = useState("all");
   const [showAllNotifications, setShowAllNotifications] = useState(false);
+  const [username, setUsername] = useState("Unknown");
 
   const navigate = useNavigate();
 
-  // Decode token to get username
-  const token = localStorage.getItem("accessToken");
-  let username = "Unknown";
+  // Decode token once
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) return;
 
-  const filteredNotifications = notifications.filter((n) =>
-    notificationFilter === "all" ? true : !n.isRead
-  );
-
-  const visibleNotifications = showAllNotifications
-    ? filteredNotifications
-    : filteredNotifications.slice(0, 5);
-
-
-  if (token) {
     try {
       const decoded = jwtDecode(token);
-      username = decoded.sub || "Unknown";
+      setUsername(decoded?.sub || "Unknown");
     } catch (err) {
       console.error("Invalid token", err);
     }
-  }
+  }, []);
+
+  const filteredNotifications = useMemo(() => {
+    return notifications.filter((n) =>
+      notificationFilter === "all" ? true : !n.isRead
+    );
+  }, [notifications, notificationFilter]);
+
+  const visibleNotifications = useMemo(() => {
+    return showAllNotifications
+      ? filteredNotifications
+      : filteredNotifications.slice(0, 5);
+  }, [filteredNotifications, showAllNotifications]);
+
 
   const handleSignOut = () => {
     localStorage.removeItem("accessToken");
@@ -53,16 +61,22 @@ function Header() {
     setIsDropdownOpen(false);
   };
 
-  const fetchNotifications = async () => {
-    try {
-      const response = await getNotifications();
-      setNotifications(response);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-    }
-  };
-
-  const handleNotificationClick = async (id) => {
+const fetchNotifications = async () => {
+  try {
+    const response = await getNotifications();
+    const withLinks = (response || []).map((n) => {
+      const t = n.type?.code || n.type?.name || n.type || n.notificationType;
+      return {
+        ...n,
+        link: notificationLinks[t] || n.link || null,
+      };
+    });
+    setNotifications(withLinks);
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+  }
+};
+  const handleNotificationClick = async (id, link) => {
     try {
       await markNotificationAsRead(id);
       setNotifications((prev) =>
@@ -70,6 +84,7 @@ function Header() {
           noti.id === id ? { ...noti, isRead: true } : noti
         )
       );
+      if (link) navigate(link);
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
@@ -86,80 +101,120 @@ function Header() {
     return `${Math.floor(diff / 86400)} ngày trước`;
   }
 
+  // Đóng dropdown khi click ra ngoài (dùng mousedown để tránh flicker)
+  const profileRef = useRef(null);
+  const notificationAreaRef = useRef(null);
 
   useEffect(() => {
-    fetchNotifications();
+    const onClickOutside = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setIsProfileOpen(false);
+      }
+      if (
+        notificationAreaRef.current &&
+        !notificationAreaRef.current.contains(e.target)
+      ) {
+        setIsNotificationOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+
   }, []);
 
   return (
     <div className="header">
-      <div></div>
-      <div className="header-actions">
-        <div
-          className="action-button"
-          onClick={() => setIsNotificationDropdownOpen(!isNotificationDropdownOpen)}
-        >
-          <Bell
-            size={20}
-            stroke="#000"
-          />
-          {notifications.some((n) => !n.isRead) && (
-            <div className="notification-badge">
-              {notifications.filter((n) => !n.isRead).length}
+      <button
+        className="btn btn-outline-secondary d-md-none"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#sidebarOffcanvas"
+        aria-controls="sidebarOffcanvas"
+      >
+        ☰
+      </button>
+
+      <div className="header-actions ms-auto">
+        <div className="notification-area" ref={notificationAreaRef}>
+          <div
+            className="action-button position-relative"
+            onClick={() => setIsNotificationOpen((s) => !s)}
+            aria-label="Thông báo"
+          >
+            <Bell size={20} stroke="#000" />
+            {notifications.some((n) => !n.isRead) && (
+              <div className="notification-badge">
+                {notifications.filter((n) => !n.isRead).length}
+              </div>
+            )}
+          </div>
+
+          {isNotificationOpen && (
+            <div
+              className="notification-dropdown"
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              <div className="notification-header">
+                <span>Thông báo</span>
+              </div>
+
+              <div className="notification-tabs">
+                <button
+                  className={notificationFilter === "all" ? "active" : ""}
+                  onClick={() => setNotificationFilter("all")}
+                >
+                  Tất cả
+                </button>
+                <button
+                  className={notificationFilter === "unread" ? "active" : ""}
+                  onClick={() => setNotificationFilter("unread")}
+                >
+                  Chưa đọc
+                </button>
+              </div>
+
+              <div className="notification-list">
+                {filteredNotifications.length === 0 ? (
+                  <div className="notification-empty">
+                    Không có thông báo nào
+                  </div>
+                ) : (
+                  visibleNotifications.map((noti) => (
+                    <div
+                      key={noti.id}
+                      className={`notification-item ${
+                        !noti.isRead ? "unread" : ""
+                      }`}
+                      onClick={() =>
+                        handleNotificationClick(noti.id, noti.link)
+                      }
+                      style={{ cursor: "pointer" }}
+                    >
+                      <div className="notification-icon">
+                        <Bell size={18} />
+                      </div>
+                      <div className="notification-content">
+                        <div className="notification-text">{noti.content}</div>
+                        <div className="notification-time">
+                          {formatRelativeTime(noti.createdAt)}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="notification-footer">
+                {!showAllNotifications && filteredNotifications.length > 5 && (
+                  <button onClick={() => setShowAllNotifications(true)}>
+                    Xem thông báo trước đó
+                  </button>
+                )}
+              </div>
             </div>
           )}
-
         </div>
-        {isNotificationDropdownOpen && (
-          <div className="notification-dropdown">
-            <div className="notification-header">
-              <span>Thông báo</span>
-            </div>
-            <div className="notification-tabs">
-              <button
-                className={notificationFilter === "all" ? "active" : ""}
-                onClick={() => setNotificationFilter("all")}
-              >
-                Tất cả
-              </button>
-              <button
-                className={notificationFilter === "unread" ? "active" : ""}
-                onClick={() => setNotificationFilter("unread")}
-              >
-                Chưa đọc
-              </button>
-            </div>
-            <div className="notification-list">
-              {filteredNotifications.length === 0 ? (
-                <div className="notification-empty">Không có thông báo nào</div>
-              ) : (
-                visibleNotifications.map((noti, index) => (
-                  <div
-                    className={`notification-item ${!noti.isRead ? 'unread' : ''}`}
-                    key={index}
 
-                    onClick={() => handleNotificationClick(noti.id)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <div className="notification-icon">
-                      <Bell size={18} />
-                    </div>
-                    <div className="notification-content">
-                      <div className="notification-text">{noti.content}</div>
-                      <div className="notification-time">{formatRelativeTime(noti.createdAt)}</div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-            <div className="notification-footer">
-              {!showAllNotifications && filteredNotifications.length > 5 && (
-                <button onClick={() => setShowAllNotifications(true)}>Xem thông báo trước đó</button>
-              )}
-            </div>
-
-          </div>
-        )}
 
 
         <div
@@ -178,8 +233,9 @@ function Header() {
           />
         </div>
 
-        {isDropdownOpen && (
-          <div className="profile-dropdown">
+        {isProfileOpen && (
+          <div className="profile-dropdown" onMouseDown={(e) => e.stopPropagation()}>
+
             <div className="profile-info">
               <div className="profile-name">{username}</div>
             </div>

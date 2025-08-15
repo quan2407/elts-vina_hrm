@@ -259,40 +259,41 @@ function App() {
                             }
                         />
 
-                        <Route
-                            path="/add-interview/:id"
-                            element={
-                                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                                    <InterviewCreate />
-                                </ProtectedRoute>
-                            }
-                        />
+            <Route
+              path="/add-interview/:id"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_EMPLOYEE"]}>
+                  <InterviewCreate />
+                </ProtectedRoute>
+              }
+            />
 
-                        <Route
-                            path="/interviews-management"
-                            element={
-                                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                                    <InterviewManagement />
-                                </ProtectedRoute>
-                            }
-                        />
+            <Route
+              path="/interviews-management"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_EMPLOYEE"]}>
+                  <InterviewManagement />
+                </ProtectedRoute>
+              }
+            />
 
-                        <Route
-                            path="/interviews-management/:id"
-                            element={
-                                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                                    <InterviewDetail />
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route
-                            path="/salary-monthly"
-                            element={
-                                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
-                                    <SalaryMonthlyView />
-                                </ProtectedRoute>
-                            }
-                        />
+            <Route
+              path="/interviews-management/:id"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_EMPLOYEE"]}>
+                  <InterviewDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/salary-monthly"
+              element={
+                <ProtectedRoute allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER"]}>
+                  <SalaryMonthlyView />
+                </ProtectedRoute>
+              }
+            />
+
 
                         <Route
                             path="/unauthorized"

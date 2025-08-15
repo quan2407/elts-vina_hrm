@@ -6,7 +6,8 @@ UPDATE employee SET line_id = NULL;
 UPDATE `lines` SET leader_id = NULL;
 ALTER TABLE employee MODIFY COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0;
 
-
+DELETE FROM notification;
+ALTER TABLE notification AUTO_INCREMENT = 1;
 DELETE FROM application_approval_step;
 DELETE FROM application;
 DELETE FROM application_type;
@@ -329,6 +330,11 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 -- HR_MANAGER (role_id = 8)
 INSERT INTO role_permission (role_id, permission_id) VALUES
 (8, 61), (8, 62), (8, 63), (8, 64), (8, 65), (8, 66), (8, 67);
+
+-- EMPLOYEE (role_id = 6)
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(6, 61), (6, 62), (6, 63), (6, 65), (6, 66), (6, 67);
+
 -- Module: Line
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 (68, 'GET', '/api/lines/*/department', 'Lấy phòng ban theo chuyền', 'Line'),
