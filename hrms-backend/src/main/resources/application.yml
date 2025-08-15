@@ -1,19 +1,20 @@
 server:
-  port: ${PORT:8080}   # Render đặt PORT động
+  port: ${PORT:8080}   # Render sẽ đặt PORT động, local mặc định 8080
 
 spring:
   application:
     name: hrms-backend
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/hrms}
-    username: ${DATABASE_USER:postgres}
-    password: ${DATABASE_PASSWORD:postgres}
+    url: jdbc:mysql://localhost:3306/hrms?serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&useSSL=false
+    username: hrms
+    password: hrms
   jpa:
     hibernate:
       ddl-auto: none
     open-in-view: false
     properties:
       hibernate.format_sql: true
+      hibernate.dialect: org.hibernate.dialect.MySQLDialect
 
 logging:
   level:
