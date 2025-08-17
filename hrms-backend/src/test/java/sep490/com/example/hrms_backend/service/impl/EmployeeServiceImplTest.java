@@ -73,7 +73,6 @@ class EmployeeServiceImplTest {
         // Arrange
         String username = "johndoe";
         setAuthenticatedUsername(username);
-
         Employee existing = new Employee();
         existing.setEmployeeId(10L);
         existing.setEmployeeName("Old Name");
