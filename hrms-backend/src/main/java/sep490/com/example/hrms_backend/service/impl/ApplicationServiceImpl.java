@@ -21,6 +21,9 @@ import sep490.com.example.hrms_backend.service.AttendanceRecordService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 import sep490.com.example.hrms_backend.validation.ApplicationValidator;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -418,6 +421,39 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .collect(Collectors.toList());
 
         return new PageImpl<>(dtos, pageRequest, steps.getTotalElements());
+    }
+    @Override
+    @Transactional
+    public void deleteApplication(Long id, Long employeeId) {
+        Application app = applicationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Application", "id", id));
+
+        if (!app.getEmployee().getEmployeeId().equals(employeeId)) {
+            throw new RuntimeException("Bạn không có quyền xoá đơn này");
+        }
+
+        if (!(app.getStatus() == ApplicationStatus.PENDING_MANAGER_APPROVAL
+                || app.getStatus() == ApplicationStatus.MANAGER_REJECTED
+                || app.getStatus() == ApplicationStatus.HR_REJECTED)) {
+            throw new RuntimeException("Chỉ được xoá khi đơn đang chờ duyệt hoặc đã bị từ chối");
+        }
+
+        deleteIfExists(app.getAttachmentPath());
+        if (app.getApprovalSteps() != null && !app.getApprovalSteps().isEmpty()) {
+            approvalStepRepository.deleteAll(app.getApprovalSteps());
+        }
+
+        applicationRepository.delete(app);
+    }
+
+    private void deleteIfExists(String filePath) {
+        try {
+            if (filePath == null || filePath.isBlank()) return;
+            Path p = Paths.get(filePath);
+            Files.deleteIfExists(p);
+        } catch (Exception ignore) {
+            // có thể log nếu muốn
+        }
     }
 
 
