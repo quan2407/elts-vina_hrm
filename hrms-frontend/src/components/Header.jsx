@@ -58,21 +58,21 @@ function Header() {
     setIsProfileOpen(false);
   };
 
-const fetchNotifications = async () => {
-  try {
-    const response = await getNotifications();
-    const withLinks = (response || []).map((n) => {
-      const t = n.type?.code || n.type?.name || n.type || n.notificationType;
-      return {
-        ...n,
-        link: notificationLinks[t] || n.link || null,
-      };
-    });
-    setNotifications(withLinks);
-  } catch (error) {
-    console.error("Error fetching notifications:", error);
-  }
-};
+  const fetchNotifications = async () => {
+    try {
+      const response = await getNotifications();
+      const withLinks = (response || []).map((n) => {
+        const t = n.type?.code || n.type?.name || n.type || n.notificationType;
+        return {
+          ...n,
+          link: notificationLinks[t] || n.link || null,
+        };
+      });
+      setNotifications(withLinks);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
   const handleNotificationClick = async (id, link) => {
     try {
       await markNotificationAsRead(id);
@@ -132,13 +132,19 @@ const fetchNotifications = async () => {
       </button>
 
       <div className="header-actions ms-auto">
-        <div className="notification-area" ref={notificationAreaRef}>
+        <div
+          className="notification-area"
+          ref={notificationAreaRef}
+        >
           <div
             className="action-button position-relative"
             onClick={() => setIsNotificationOpen((s) => !s)}
             aria-label="Thông báo"
           >
-            <Bell size={20} stroke="#000" />
+            <Bell
+              size={20}
+              stroke="#000"
+            />
             {notifications.some((n) => !n.isRead) && (
               <div className="notification-badge">
                 {notifications.filter((n) => !n.isRead).length}
@@ -229,6 +235,7 @@ const fetchNotifications = async () => {
 
         {isProfileOpen && (
           <div className="profile-dropdown" onMouseDown={(e) => e.stopPropagation()}>
+
             <div className="profile-info">
               <div className="profile-name">{username}</div>
             </div>

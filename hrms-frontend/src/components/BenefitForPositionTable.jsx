@@ -8,7 +8,7 @@ import { Modal, message, Checkbox, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 
 const BenefitByPositionHeader = ({ isMultiSelectMode }) => {
-    const headers = ["", "Id", "Tên vị trí", "Giá trị tính vào lương", "Đăng ký", "Chức năng"];
+    const headers = ["", "Id", "Tên vị trí", "Giá trị", "Số lượng đăng kí", "Chức năng"];
     return (
         <div className="employee-table-header">
             {headers.map((label, index) => (
@@ -27,7 +27,7 @@ const BenefitByPositionTableRow = ({
                                        isSelected,
                                        onSelectChange,
                                        isFull,
-                                       stats, // NEW: nhận stats từ bảng
+                                       stats,
                                    }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
@@ -71,14 +71,14 @@ const BenefitByPositionTableRow = ({
             <div className="employee-table-cell">
                 {benefit.benefit.benefitType === "PHU_CAP" ? (
                     benefit.positions.formulaType === "AMOUNT"
-                        ? `Lương cơ bản + ${Number(benefit.positions.formulaValue).toLocaleString("vi-VN")}đ`
-                        : `Lương cơ bản + ${Number(benefit.positions.formulaValue).toLocaleString("vi-VN")}%Lương cơ bản`
+                        ? `${Number(benefit.positions.formulaValue).toLocaleString("vi-VN")}đ`
+                        : ` ${Number(benefit.positions.formulaValue).toLocaleString("vi-VN")}%Lương cơ bản`
                 ) : benefit.benefit.benefitType === "KHAU_TRU" ? (
                     benefit.positions.formulaType === "AMOUNT"
-                        ? `Lương cơ bản - ${Number(benefit.positions.formulaValue).toLocaleString("vi-VN")}đ`
-                        : `Lương cơ bản - ${Number(benefit.positions.formulaValue).toLocaleString("vi-VN")}%Lương cơ bản`
+                        ? `${Number(benefit.positions.formulaValue).toLocaleString("vi-VN")}đ`
+                        : ` ${Number(benefit.positions.formulaValue).toLocaleString("vi-VN")}%Lương cơ bản`
                 ) : (
-                    "không ảnh hưởng vào lương cơ bản"
+                    "0"
                 )}
             </div>
 
@@ -125,8 +125,10 @@ function BenefitForPositionTable({
                                      reloadFlag,
                                      isMultiSelectMode,
                                      onReload,
-                                     searchTerm,
-                                     registrationFilter, // NEW
+                                     searchTerm,           // tìm kiếm theo tên vị trí (text)
+                                     registrationFilter,   // filter theo trạng thái đăng ký
+                                     positionFilter,       // filter theo vị trí (Select)
+                                     onPositionsLoaded,    // gửi danh sách vị trí lên cha để hiển thị Select
                                  }) {
     const [benefits, setBenefits] = useState([]);
     const [filteredBenefits, setFilteredBenefits] = useState([]);
@@ -139,11 +141,18 @@ function BenefitForPositionTable({
     const [selectableKeys, setSelectableKeys] = useState([]);
     const [positionFullMap, setPositionFullMap] = useState({});
 
-    // NEW: statsMap cho mọi positionId
+    // Thống kê đăng ký theo positionId
     const [statsMap, setStatsMap] = useState({});
     const [statsLoading, setStatsLoading] = useState(false);
 
     const reloadData = () => fetchData();
+
+    const normalizePositions = (b) => {
+        if (!b) return [];
+        if (Array.isArray(b.positions)) return b.positions;
+        if (b.positions && typeof b.positions === "object") return [b.positions];
+        return [];
+    };
 
     const handleSelectChange = (rowKey, checked) => {
         setSelectedRows((prev) => (checked ? [...prev, rowKey] : prev.filter((key) => key !== rowKey)));
@@ -186,8 +195,8 @@ function BenefitForPositionTable({
             .getPositionRegisterationDetail({}, benefitId)
             .then((res) => {
                 const data = res.data.content || res.data;
-                setBenefits(data);
-                setTotalElements(res.data.totalElements || data.length || 0);
+                setBenefits(data || []);
+                setTotalElements(res.data?.totalElements ?? (data?.length || 0));
             })
             .catch((err) => {
                 console.error("Lỗi khi lấy dữ liệu phúc lợi:", err);
@@ -200,9 +209,16 @@ function BenefitForPositionTable({
         fetchData();
     }, [benefitId, reloadFlag]);
 
-    // NEW: sau khi có benefits, fetch toàn bộ stats cho từng position
     useEffect(() => {
-        const allPositions = benefits.flatMap((b) => b.positions.map((p) => p.positionId));
+        const allPairs = (benefits || []).flatMap((b) =>
+            normalizePositions(b).map((p) => [p.positionId, { id: p.positionId, name: p.positionName }])
+        );
+        const uniquePositions = Array.from(new Map(allPairs).values());
+        onPositionsLoaded?.(uniquePositions);
+    }, [benefits, onPositionsLoaded]);
+
+    useEffect(() => {
+        const allPositions = benefits.flatMap((b) => normalizePositions(b).map((p) => p.positionId));
         if (allPositions.length === 0) {
             setStatsMap({});
             return;
@@ -235,10 +251,9 @@ function BenefitForPositionTable({
         };
     }, [benefits, benefitId]);
 
-    // Giữ logic kiểm tra isFull cho multi-select (giữ nguyên như trước)
     useEffect(() => {
         if (isMultiSelectMode) {
-            const allPositions = benefits.flatMap((b) => b.positions.map((p) => p.positionId));
+            const allPositions = benefits.flatMap((b) => normalizePositions(b).map((p) => p.positionId));
             if (allPositions.length === 0) return;
 
             Promise.all(
@@ -270,10 +285,9 @@ function BenefitForPositionTable({
         }
     }, [isMultiSelectMode, benefitId, benefits]);
 
-    // Filter + paginate (client-side) using searchTerm & registrationFilter
     useEffect(() => {
-        const allPositions = benefits.flatMap((benefit) =>
-            benefit.positions.map((position) => ({
+        const allRows = benefits.flatMap((benefit) =>
+            normalizePositions(benefit).map((position) => ({
                 id: benefit.id,
                 positionId: position.positionId,
                 positions: position,
@@ -281,14 +295,21 @@ function BenefitForPositionTable({
             }))
         );
 
-        const byName = allPositions.filter((item) =>
-            item.positions.positionName.toLowerCase().includes((searchTerm || "").toLowerCase())
+        // 1) Tên vị trí
+        const byName = allRows.filter((item) =>
+            item.positions.positionName?.toLowerCase?.().includes((searchTerm || "").toLowerCase())
         );
 
-        const byRegistration = byName.filter((item) => {
+        // 2) Theo vị trí đã chọn
+        const byPosition = positionFilter
+            ? byName.filter((item) => String(item.positionId) === String(positionFilter))
+            : byName;
+
+        // 3) Trạng thái đăng ký
+        const byRegistration = byPosition.filter((item) => {
             if (registrationFilter === "ALL") return true;
             const s = statsMap[item.positions.positionId];
-            if (!s) return registrationFilter === "ALL"; // khi stats chưa về, tạm giữ lại
+            if (!s) return registrationFilter === "ALL";
             const { totalRegistered, totalEmployees } = s;
             if (registrationFilter === "FULL") return totalRegistered === totalEmployees && totalEmployees > 0;
             if (registrationFilter === "NONE") return totalRegistered === 0 && totalEmployees > 0;
@@ -299,7 +320,7 @@ function BenefitForPositionTable({
         setFilteredBenefits(byRegistration);
         setTotalElements(byRegistration.length);
         setPageNumber(1);
-    }, [searchTerm, registrationFilter, benefits, statsMap]);
+    }, [searchTerm, positionFilter, registrationFilter, benefits, statsMap]);
 
     const currentPageData = filteredBenefits.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
 
@@ -318,9 +339,8 @@ function BenefitForPositionTable({
                     </Button>
                 </div>
             )}
+
             <BenefitByPositionHeader isMultiSelectMode={isMultiSelectMode} />
-
-
 
             <div className="employee-table">
                 {loading && <p>Đang tải...</p>}
@@ -338,7 +358,7 @@ function BenefitForPositionTable({
                             isSelected={selectedRows.includes(`${benefitItem.id}-${benefitItem.positions.positionId}`)}
                             onSelectChange={handleSelectChange}
                             isFull={positionFullMap[benefitItem.positions.positionId] || false}
-                            stats={statsMap[benefitItem.positions.positionId]} // NEW
+                            stats={statsMap[benefitItem.positions.positionId]}
                         />
                     ))}
             </div>

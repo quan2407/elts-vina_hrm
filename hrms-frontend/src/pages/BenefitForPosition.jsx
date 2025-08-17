@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import MainLayout from "../components/MainLayout";
 import BenefitForPositionTable from "../components/BenefitForPositionTable.jsx";
 import Breadcrumb from "../components/Breadcrumb";
-import { Button, Input, Select } from "antd"; // NEW: Select
+import { Button, Input, Select } from "antd";
 import { CheckSquareOutlined } from "@ant-design/icons";
 import benefitService from "../services/benefitService.js";
 import { useParams } from "react-router-dom";
@@ -15,9 +15,11 @@ function BenefitForPosition() {
     const [reloadFlag, setReloadFlag] = useState(false);
     const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
 
-    // Search & Filter (moved up)
+    // 🔎 Search & Filters
     const [searchTerm, setSearchTerm] = useState("");
-    const [registrationFilter, setRegistrationFilter] = useState("ALL"); // NEW
+    const [registrationFilter, setRegistrationFilter] = useState("ALL");
+    const [selectedPositionId, setSelectedPositionId] = useState(undefined);
+    const [positionOptions, setPositionOptions] = useState([]); // {id, name}
 
     const handleReload = () => setReloadFlag((prev) => !prev);
 
@@ -73,12 +75,39 @@ function BenefitForPosition() {
             color: "#fff",
         };
 
+    // Hàm map benefitType sang tiếng Việt
+    const getBenefitTypeLabel = (type) => {
+        const mapping = {
+            PHU_CAP: "Phụ cấp",
+            KHAU_TRU: "Khấu trừ",
+            SU_KIEN: "Sự kiện",
+        };
+        return mapping[type] || "...";
+    };
+
     return (
         <MainLayout>
             <div className="content-wrapper">
-                <div className="page-header">
-                    <h1 className="page-title">Quản lý {benefit ? benefit.title : ""}</h1>
-                    <div className="page-actions">
+                <div className="page-header" style={{ alignItems: "center", gap: 16 }}>
+                    <h1 className="page-title" style={{ marginBottom: 0 }}>
+                        Quản lý {benefit ? benefit.title : ""}
+                    </h1>
+
+                    <span
+                        style={{
+                            display: "inline-block",
+                            padding: "6px 12px",
+                            borderRadius: 8,
+                            background: "#f6ffed",
+                            border: "1px solid #b7eb8f",
+                            color: "#389e0d",
+                            fontWeight: 600,
+                        }}
+                    >
+            Loại phúc lợi: {getBenefitTypeLabel(benefit?.benefitType || benefit?.beneiftType)}
+          </span>
+
+                    <div className="page-actions" style={{ marginLeft: "auto" }}>
                         <Button
                             icon={<CheckSquareOutlined style={{ color: isMultiSelectMode ? "#3f861e" : "#fff" }} />}
                             onClick={() => setIsMultiSelectMode(!isMultiSelectMode)}
@@ -91,7 +120,6 @@ function BenefitForPosition() {
 
                 <Breadcrumb paths={breadcrumbPaths} />
 
-                {/* Search + Filter */}
                 <div style={{ display: "flex", gap: 12, alignItems: "center", margin: "16px 0 8px 0", flexWrap: "wrap" }}>
                     <Input
                         allowClear
@@ -99,8 +127,19 @@ function BenefitForPosition() {
                         placeholder="Tìm kiếm theo tên vị trí"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        style={{ width: 560, maxWidth: "100%" }}
+                        style={{ width: 360, maxWidth: "100%" }}
                     />
+
+                    <Select
+                        allowClear
+                        size="large"
+                        placeholder="Lọc theo vị trí"
+                        value={selectedPositionId}
+                        onChange={setSelectedPositionId}
+                        style={{ width: 360, maxWidth: "100%" }}
+                        options={positionOptions.map((p) => ({ label: p.name, value: String(p.id) }))}
+                    />
+
                     <Select
                         size="large"
                         value={registrationFilter}
@@ -121,7 +160,9 @@ function BenefitForPosition() {
                     isMultiSelectMode={isMultiSelectMode}
                     onReload={handleReload}
                     searchTerm={searchTerm}
-                    registrationFilter={registrationFilter} // NEW
+                    registrationFilter={registrationFilter}
+                    positionFilter={selectedPositionId}
+                    onPositionsLoaded={setPositionOptions}
                 />
             </div>
         </MainLayout>

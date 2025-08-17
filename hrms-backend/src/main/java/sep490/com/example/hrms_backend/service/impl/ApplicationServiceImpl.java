@@ -21,6 +21,9 @@ import sep490.com.example.hrms_backend.service.AttendanceRecordService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 import sep490.com.example.hrms_backend.validation.ApplicationValidator;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,8 +68,6 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
-
-        // Xác định người tạo đơn
         Long creatorId = currentUserUtils.getCurrentEmployeeId();
         Employee creator = employeeRepository.findById(creatorId)
                 .orElseThrow(() -> new RuntimeException("Người tạo không tồn tại"));
@@ -87,7 +88,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .note("HR tạo và duyệt đơn")
                     .build();
 
-            applicationRepository.save(application); // ✅ Sau khi set status
+            applicationRepository.save(application);
             approvalStepRepository.save(step2);
             if (application.getCheckIn() != null && application.getCheckOut() != null) {
                 attendanceRecordRepository.findByEmployee_EmployeeIdAndDate(
@@ -118,20 +119,20 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .status(ApprovalStepStatus.PENDING)
                     .build();
 
-            applicationRepository.save(application); // ✅ Sau khi set status
+            applicationRepository.save(application);
             approvalStepRepository.save(step1);
             approvalStepRepository.save(step2);
 
         } else {
             application.setStatus(ApplicationStatus.PENDING_MANAGER_APPROVAL);
 
-            applicationRepository.save(application); // ✅ Sau khi set status
+            applicationRepository.save(application);
             ApplicationApprovalStep step1 = createInitialApprovalStep(application);
             approvalStepRepository.save(step1);
         }
 
         application.setUpdatedAt(LocalDateTime.now());
-        applicationRepository.save(application); // cập nhật lại nếu cần
+        applicationRepository.save(application);
     }
 
 
@@ -285,8 +286,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         Employee approver = employeeRepository.findById(approverId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin người duyệt"));
         step1.setApprover(approver);
-
-        // Ghi nhận kết quả xử lý
         step1.setStatus(request.isApproved() ? ApprovalStepStatus.APPROVED : ApprovalStepStatus.REJECTED);
         step1.setNote(request.getNote());
         step1.setApprovedAt(LocalDateTime.now());
@@ -310,7 +309,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         applicationRepository.save(app);
     }
 
-    //tested
     @Override
     public Page<ApplicationApprovalListItemDTO> getStep1Applications(ApplicationStatus status, PageRequest of) {
         Page<ApplicationApprovalStep> steps;
@@ -423,6 +421,39 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .collect(Collectors.toList());
 
         return new PageImpl<>(dtos, pageRequest, steps.getTotalElements());
+    }
+    @Override
+    @Transactional
+    public void deleteApplication(Long id, Long employeeId) {
+        Application app = applicationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Application", "id", id));
+
+        if (!app.getEmployee().getEmployeeId().equals(employeeId)) {
+            throw new RuntimeException("Bạn không có quyền xoá đơn này");
+        }
+
+        if (!(app.getStatus() == ApplicationStatus.PENDING_MANAGER_APPROVAL
+                || app.getStatus() == ApplicationStatus.MANAGER_REJECTED
+                || app.getStatus() == ApplicationStatus.HR_REJECTED)) {
+            throw new RuntimeException("Chỉ được xoá khi đơn đang chờ duyệt hoặc đã bị từ chối");
+        }
+
+        deleteIfExists(app.getAttachmentPath());
+        if (app.getApprovalSteps() != null && !app.getApprovalSteps().isEmpty()) {
+            approvalStepRepository.deleteAll(app.getApprovalSteps());
+        }
+
+        applicationRepository.delete(app);
+    }
+
+    private void deleteIfExists(String filePath) {
+        try {
+            if (filePath == null || filePath.isBlank()) return;
+            Path p = Paths.get(filePath);
+            Files.deleteIfExists(p);
+        } catch (Exception ignore) {
+            // có thể log nếu muốn
+        }
     }
 
 

@@ -10,20 +10,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.*;
-import sep490.com.example.hrms_backend.dto.benefit.UpdateOriginalSalaryDTO;
 import sep490.com.example.hrms_backend.entity.*;
-import sep490.com.example.hrms_backend.enums.BenefitType;
-import sep490.com.example.hrms_backend.enums.FormulaType;
 import sep490.com.example.hrms_backend.exception.DuplicateEntryException;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.mapper.EmployeeMapper;
 import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.AccountService;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -327,11 +323,16 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         return EmployeeMapper.mapToEmployeeDetailDTO(employee);
     }
 
+    @Transactional
     @Override
     public void softDeleteEmployee(Long id) {
         Employee employee = employeeRepository.findByEmployeeIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new RuntimeException("Employee not found or already deleted"));
         employee.setDeleted(true);
+        if (benefitRegistrationRepository.existsByEmployee_EmployeeId(id)) {
+            benefitRegistrationRepository.deleteByEmployee_EmployeeId(id);
+        }
+
         employeeRepository.save(employee);
     }
 

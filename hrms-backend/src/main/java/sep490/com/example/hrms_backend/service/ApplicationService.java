@@ -22,5 +22,6 @@ public interface ApplicationService {
     void approveStep2(Long applicationId, Long approverId, ApplicationApprovalRequestDTO request);
 
     Page<ApplicationApprovalListItemDTO> getStep2Applications(ApplicationStatus status, PageRequest pageRequest);
+    void deleteApplication(Long id, Long employeeId);
 
 }

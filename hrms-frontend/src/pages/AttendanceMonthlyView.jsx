@@ -495,6 +495,91 @@ const AttendanceMonthlyView = ({ readOnly = false }) => {
             >
               Import Excel
             </button>
+            {importModalOpen && (
+              <div className="import-popup-overlay">
+                <div className="import-popup-content">
+                  <h3>Nhập file chấm công Excel</h3>
+
+                  <div style={{ marginBottom: "12px" }}>
+                    <label style={{ marginRight: "8px" }}>
+                      Chọn ngày áp dụng:
+                    </label>
+                    <DatePicker
+                      selected={
+                        selectedDate
+                          ? parse(selectedDate, "dd-MM-yyyy", new Date())
+                          : null
+                      }
+                      onChange={(date) => {
+                        const day = String(date.getDate()).padStart(2, "0");
+                        const month = String(date.getMonth() + 1).padStart(
+                          2,
+                          "0"
+                        );
+                        const year = date.getFullYear();
+                        const formatted = `${day}-${month}-${year}`;
+                        setSelectedDate(formatted);
+                        console.log("Ngày được chọn:", formatted);
+                      }}
+                      dateFormat="dd-MM-yyyy"
+                      placeholderText="Chọn ngày áp dụng"
+                      minDate={new Date(year, month - 1, 1)}
+                      maxDate={
+                        new Date(new Date().setDate(new Date().getDate() - 1))
+                      }
+                      className="attendance-search-input"
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: "12px" }}>
+                    <label>Chọn file Excel (.xlsx): </label>
+                    <input
+                      type="file"
+                      accept=".xlsx"
+                      onChange={(e) => setFile(e.target.files[0])}
+                    />
+                  </div>
+
+                  <div className="import-popup-actions">
+                    <button
+                      onClick={() => {
+                        if (!selectedDate || !file) {
+                          alert("Vui lòng chọn ngày và file Excel.");
+                          return;
+                        }
+
+                        // ✅ Chuyển từ dd-MM-yyyy => yyyy-MM-dd
+                        const [day, month, year] = selectedDate.split("-");
+                        const apiFormattedDate = `${year}-${month}-${day}`;
+                        console.log("📤 Gửi API với ngày:", apiFormattedDate);
+
+                        handleImportAttendance(file, apiFormattedDate);
+                      }}
+                      style={{
+                        padding: "8px 14px",
+                        backgroundColor: "#22c55e",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      Import
+                    </button>
+                    <button
+                      onClick={() => setImportModalOpen(false)}
+                      style={{
+                        padding: "8px 14px",
+                        backgroundColor: "#ccc",
+                        border: "none",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      Hủy
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

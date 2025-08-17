@@ -61,5 +61,9 @@ public interface BenefitRegistrationRepository extends JpaRepository<BenefitRegi
     long countByBenefitPosition_Id(Long id);
 
     void deleteByBenefitPosition_Id(Long id);
+
+    void deleteByEmployee_EmployeeId(Long id);
+
+    boolean existsByEmployee_EmployeeId(Long id);
 }
 

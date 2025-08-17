@@ -3,7 +3,6 @@ package sep490.com.example.hrms_backend.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,16 +11,13 @@ import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.config.AppConstants;
 import sep490.com.example.hrms_backend.dto.PositionDTO;
 import sep490.com.example.hrms_backend.dto.benefit.*;
-import sep490.com.example.hrms_backend.entity.Benefit;
 import sep490.com.example.hrms_backend.enums.BenefitType;
-import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.security.CustomUserDetailsService;
 import sep490.com.example.hrms_backend.service.BenefitPositionService;
 import sep490.com.example.hrms_backend.service.BenefitService;
 import sep490.com.example.hrms_backend.service.PositionService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -46,8 +42,6 @@ public class BenefitController {
     private final CurrentUserUtils currentUserUtils;
 
 
-    //1.View Benefit (Employee, HR)
-    @PreAuthorize("hasAnyRole( 'HR')")
     @GetMapping("/hr/benefits")
     public ResponseEntity<BenefitResponse> getAllBenefitForHr(@RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false)Integer pageNumber,
                                                            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
@@ -67,7 +61,6 @@ public class BenefitController {
         return new ResponseEntity<>(benefitResponse, HttpStatus.OK  );
     }
 
-  @PreAuthorize("hasAnyRole( 'HR')")
     @GetMapping("/hr/benefits/{benefitId}")
     public ResponseEntity<BenefitResponse> getEmployeeAndPositionRegistrationByBenefitId(@PathVariable Long benefitId,
                                                                                          @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false)Integer pageNumber,
@@ -81,7 +74,6 @@ public class BenefitController {
     }
 
     //Get Employee By Position And Benefit
-    @PreAuthorize("hasAnyRole( 'HR')")
     @GetMapping("/hr/benefit/{benefitId}/position/{positionId}")
     public ResponseEntity<BenefitResponse> getEmployeeByPositionAndBenefit(@PathVariable Long benefitId, @PathVariable Long positionId,
                                                                            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false)Integer pageNumber,
@@ -99,7 +91,6 @@ public class BenefitController {
     }
 
 //get AvailablePosition
-@PreAuthorize("hasRole('HR')")
 @GetMapping("/hr/benefits/{benefitId}/available-positions")
 public ResponseEntity<List<PositionDTO>> getAvailablePositions(
         @PathVariable Long benefitId) {
@@ -149,7 +140,6 @@ public ResponseEntity<?> unassignPositionFromBenefit(@PathVariable Long benefitI
 
 
     //4. change the status Benefit (Active/InActive) (HR)
-    @PreAuthorize("hasAnyRole('HR')")
     @PatchMapping("/{benefitId}")
     public ResponseEntity<BenefitDTO> updateInactiveStatus(
             @PathVariable Long benefitId,
@@ -179,15 +169,9 @@ public ResponseEntity<?> unassignPositionFromBenefit(@PathVariable Long benefitI
         return new ResponseEntity<>(benefitDTO, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('HR')")
     @GetMapping("/hr/benefit/position/{positionId}")
     public ResponseEntity<PositionDTO> getPositionById(@PathVariable Long positionId) {
         PositionDTO positionDTO = positionService.getPositionById(positionId);
         return ResponseEntity.ok(positionDTO);
     }
-
-
-
-
-
 }
