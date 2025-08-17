@@ -25,6 +25,7 @@ function WorkScheduleTable({
   reloadTrigger,
   onRejectReasonChange = () => {},
   onNeedRevisionChange = () => {},
+  onHasDataChange = () => {},
 }) {
   const [searchParams] = useSearchParams();
   const focusDateParam = searchParams.get("focusDate"); // yyyy-MM-dd
@@ -152,6 +153,7 @@ function WorkScheduleTable({
       .getWorkScheduleByMonth(m, y)
       .then((res) => {
         setData(res.data);
+        onHasDataChange(Array.isArray(res.data) && res.data.length > 0);
         const allLines = res.data.flatMap((dept) => dept.lines);
         const anyNeedRevision = allLines.some(
           (line) => line.needRevision === true
@@ -194,6 +196,7 @@ function WorkScheduleTable({
       })
       .catch(() => {
         setData([]);
+        onHasDataChange(false);
         if (onStatusChange) onStatusChange("not-submitted");
       });
   };
