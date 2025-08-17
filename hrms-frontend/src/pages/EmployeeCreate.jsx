@@ -13,9 +13,11 @@ import axiosClient from "../services/axiosClient";
 
 import { format } from "date-fns";
 import Swal from "sweetalert2";
-import SuccessModal from "../components/popup/SuccessModal";
+
+import { useNavigate } from "react-router-dom";
 
 function EmployeeCreate() {
+  const navigate = useNavigate();
   const [employeeCode, setEmployeeCode] = useState("");
   const [fullName, setFullName] = useState("");
   const [gender, setGender] = useState("");
@@ -57,12 +59,6 @@ function EmployeeCreate() {
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [activeSection, setActiveSection] = useState("basic-info");
-  const [modal, setModal] = useState({
-    open: false,
-    title: "",
-    message: "",
-    type: "success", // "success" | "error"
-  });
 
   const showSuccess = (title, message) =>
     setModal({ open: true, title, message, type: "success" });
@@ -136,6 +132,7 @@ function EmployeeCreate() {
     }
   };
   const handleSubmit = async () => {
+    setErrors({});
     const formData = new FormData();
 
     // Duyệt từng trường và thêm vào formData
@@ -174,7 +171,15 @@ function EmployeeCreate() {
       "endWorkAt",
       endWorkAt ? format(endWorkAt, "yyyy-MM-dd") : ""
     );
-    formData.append("basicSalary", basicSalary?.trim() || "");
+    const bs = (basicSalary ?? "").toString().trim();
+    if (bs === "" || isNaN(Number(bs))) {
+      setErrors((p) => ({
+        ...p,
+        basicSalary: ["Lương cơ bản phải là số hợp lệ"],
+      }));
+      return false;
+    }
+    formData.append("basicSalary", bs);
     formData.append("departmentId", departmentId !== "" ? departmentId : "");
     formData.append("positionId", positionId !== "" ? positionId : "");
     formData.append("lineId", lineId !== "" ? lineId : "");
@@ -190,7 +195,6 @@ function EmployeeCreate() {
 
     try {
       await employeeService.createEmployee(formData);
-      alert("Tạo nhân viên thành công!");
       setErrors({});
       resetForm();
       return true;
@@ -237,6 +241,7 @@ function EmployeeCreate() {
       } else {
         alert("Không nhận được phản hồi từ server!");
       }
+      return false;
     }
   };
   const confirmSave = async () => {
@@ -265,7 +270,10 @@ function EmployeeCreate() {
           icon: "success",
           title: "Đã lưu thành công!",
           confirmButtonText: "OK",
+          allowOutsideClick: false,
+          allowEscapeKey: false,
         });
+        navigate("/employee-management", { replace: true });
       }
     }
   };
@@ -1112,6 +1120,7 @@ function EmployeeCreate() {
 
             <div className="employeedetail-form-actions">
               <button
+                type="button"
                 className="submit-button"
                 onClick={confirmSave}
               >
@@ -1125,14 +1134,6 @@ function EmployeeCreate() {
           </div>
         </div>
       </div>
-      {modal.open && (
-        <SuccessModal
-          title={modal.title}
-          message={modal.message}
-          type={modal.type}
-          onClose={() => setModal((m) => ({ ...m, open: false }))}
-        />
-      )}
 
       {showOcrModal && (
         <CCCDModal

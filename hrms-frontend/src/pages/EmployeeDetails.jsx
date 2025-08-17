@@ -98,6 +98,7 @@ function EmployeeDetails() {
     }
   };
   const handleSubmit = async () => {
+    setErrors({});
     const formData = new FormData();
 
     formData.append("employeeName", fullName);
@@ -136,8 +137,16 @@ function EmployeeDetails() {
       "endWorkAt",
       endWorkAt ? format(endWorkAt, "yyyy-MM-dd") : ""
     );
-    formData.append("basicSalary", basicSalary?.trim() || "");
 
+    const bs = (basicSalary ?? "").toString().trim();
+    if (bs === "" || isNaN(Number(bs))) {
+      setErrors((p) => ({
+        ...p,
+        basicSalary: ["Lương cơ bản phải là số hợp lệ"],
+      }));
+      return false;
+    }
+    formData.append("basicSalary", bs);
     if (frontFile) {
       formData.append("frontImageFile", frontFile);
     } else if (cccdFrontImage) {
@@ -153,6 +162,7 @@ function EmployeeDetails() {
     try {
       await employeeService.updateEmployee(Number(id), formData);
       setErrors({});
+      return true;
     } catch (err) {
       console.error("Lỗi tạo nhân viên:", err);
 
@@ -196,6 +206,7 @@ function EmployeeDetails() {
       } else {
         alert("Không nhận được phản hồi từ server!");
       }
+      return false;
     }
   };
   const confirmSave = async () => {
@@ -210,22 +221,26 @@ function EmployeeDetails() {
       cancelButtonColor: "#aaa",
     });
 
-    if (result.isConfirmed) {
-      Swal.fire({
-        title: "Đang lưu dữ liệu...",
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading(),
-      });
+    if (!result.isConfirmed) return;
 
-      const success = await handleSubmit();
-      Swal.close();
-      if (success) {
-        await Swal.fire({
-          icon: "success",
-          title: "Đã lưu thành công!",
-          confirmButtonText: "OK",
-        });
-      }
+    Swal.fire({
+      title: "Đang lưu dữ liệu...",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    const success = await handleSubmit();
+    Swal.close();
+
+    if (success) {
+      await Swal.fire({
+        icon: "success",
+        title: "Đã lưu thành công!",
+        confirmButtonText: "OK",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      });
+      navigate("/employee-management", { replace: true });
     }
   };
 
