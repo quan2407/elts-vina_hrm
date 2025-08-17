@@ -300,6 +300,72 @@ public class ApplicationServiceImplTest {
         verify(applicationRepository, times(1)).findByEmployee_EmployeeId(employeeId, pageable);
     }
 
+    @Test
+    @DisplayName("getApplicationsForEmployee - Có status nhưng không có kết quả -> trả về trang rỗng")
+    void getApplicationsForEmployee_WithStatus_NoResults_ReturnsEmptyPage() {
+        Long employeeId = 1L;
+        ApplicationStatus status = ApplicationStatus.PENDING_MANAGER_APPROVAL;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Page<Application> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+        when(applicationRepository.findByEmployee_EmployeeIdAndStatus(employeeId, status, pageable))
+                .thenReturn(emptyPage);
+
+        Page<ApplicationListItemDTO> result = applicationService.getApplicationsForEmployee(employeeId, status, pageable);
+
+        assertEquals(0, result.getTotalElements());
+        assertTrue(result.getContent().isEmpty());
+        verify(applicationRepository, times(1)).findByEmployee_EmployeeIdAndStatus(employeeId, status, pageable);
+        verify(applicationRepository, never()).findByEmployee_EmployeeId(anyLong(), any());
+    }
+
+    @Test
+    @DisplayName("getApplicationsForEmployee - Bảo toàn thông tin phân trang (page, size, total)")
+    void getApplicationsForEmployee_PaginationMetadata_Preserved() {
+        Long employeeId = 1L;
+        Pageable pageable = PageRequest.of(2, 5); // page=2, size=5
+        // total lớn hơn số phần tử trả về ở trang hiện tại
+        Page<Application> repoPage = new PageImpl<>(List.of(application), pageable, 23);
+
+        when(applicationRepository.findByEmployee_EmployeeId(employeeId, pageable)).thenReturn(repoPage);
+
+        Page<ApplicationListItemDTO> result = applicationService.getApplicationsForEmployee(employeeId, null, pageable);
+
+        assertEquals(23, result.getTotalElements());
+        assertEquals(2, result.getNumber());
+        assertEquals(5, result.getSize());
+        verify(applicationRepository, times(1)).findByEmployee_EmployeeId(employeeId, pageable);
+    }
+
+    @Test
+    @DisplayName("getApplicationsForEmployee - Map đúng và giữ nguyên thứ tự nhiều phần tử")
+    void getApplicationsForEmployee_WithMultipleResults_MapsAllAndKeepsOrder() {
+        Long employeeId = 1L;
+        ApplicationStatus status = ApplicationStatus.PENDING_MANAGER_APPROVAL;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Application app1 = application; // đã setup với title "Đơn xin nghỉ phép"
+        Application app2 = new Application();
+        app2.setId(101L);
+        app2.setTitle("Đơn xin đi muộn");
+        app2.setApplicationType(applicationType);
+        app2.setStatus(ApplicationStatus.PENDING_MANAGER_APPROVAL);
+        app2.setEmployee(employee);
+        app2.setCreatedAt(java.time.LocalDateTime.now());
+
+        Page<Application> repoPage = new PageImpl<>(List.of(app1, app2), pageable, 2);
+        when(applicationRepository.findByEmployee_EmployeeIdAndStatus(employeeId, status, pageable))
+                .thenReturn(repoPage);
+
+        Page<ApplicationListItemDTO> result = applicationService.getApplicationsForEmployee(employeeId, status, pageable);
+
+        assertEquals(2, result.getTotalElements());
+        assertEquals("Đơn xin nghỉ phép", result.getContent().get(0).getTitle());
+        assertEquals("Đơn xin đi muộn", result.getContent().get(1).getTitle());
+        verify(applicationRepository, times(1)).findByEmployee_EmployeeIdAndStatus(employeeId, status, pageable);
+    }
+
+
     //================================================================================
     // Test cho phương thức approveStep2
     //================================================================================
