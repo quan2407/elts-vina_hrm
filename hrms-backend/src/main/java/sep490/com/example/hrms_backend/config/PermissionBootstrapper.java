@@ -179,6 +179,11 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Position",
                 allRoles
         );
-
+        permissionRegistrationService.registerPermission(
+                "/api/applications/*/cancel",
+                "POST",
+                "Application",
+                allRoles
+        );
     }
 }

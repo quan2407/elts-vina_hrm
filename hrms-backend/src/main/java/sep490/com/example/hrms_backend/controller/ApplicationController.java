@@ -164,5 +164,11 @@ public class ApplicationController {
         applicationService.createApplication(dto, dto.getEmployeeId());
         return ResponseEntity.ok("Tạo đơn hộ thành công");
     }
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<String> cancelApplication(@PathVariable Long id) {
+        Long employeeId = currentUserUtils.getCurrentEmployeeId();
+        applicationService.deleteApplication(id, employeeId);
+        return ResponseEntity.ok("Đã huỷ (xoá) đơn thành công");
+    }
 
 }

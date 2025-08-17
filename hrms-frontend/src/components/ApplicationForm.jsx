@@ -201,7 +201,10 @@ function ApplicationForm({
       ) {
         setEndDate(newEnd);
       }
-
+      const toHHmm = (s) => (s ? s.slice(0, 5) : "");
+      setCheckIn(toHHmm(data.checkIn));
+      setCheckOut(toHHmm(data.checkOut));
+      setAttachmentPath(data.attachmentPath || null);
       if (leaveCode !== (data.leaveCode || ""))
         setLeaveCode(data.leaveCode || "");
       if (isHalfDay !== (data.isHalfDay || false))

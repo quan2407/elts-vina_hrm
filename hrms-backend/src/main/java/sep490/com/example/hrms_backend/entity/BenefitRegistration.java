@@ -18,7 +18,6 @@ import java.util.List;
 @Builder
 public class BenefitRegistration {
 
-    // 🧩 ====== THUỘC TÍNH (ATTRIBUTES) ======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

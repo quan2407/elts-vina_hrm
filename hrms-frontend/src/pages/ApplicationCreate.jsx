@@ -72,9 +72,6 @@ function ApplicationCreate() {
         await applicationService.createApplication(formData);
       }
 
-      await applicationService.createApplication(formData);
-
-      // Xác định route đích sau khi đóng modal
       let target = "";
       if (isCreateByAdmin) {
         if (roles.includes("ROLE_HR")) {
