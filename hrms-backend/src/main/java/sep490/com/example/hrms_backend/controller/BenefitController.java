@@ -47,7 +47,7 @@ public class BenefitController {
 
 
     //1.View Benefit (Employee, HR)
-    @PreAuthorize("hasAnyRole( 'HR', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole( 'HR')")
     @GetMapping("/hr/benefits")
     public ResponseEntity<BenefitResponse> getAllBenefitForHr(@RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false)Integer pageNumber,
                                                            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
@@ -67,7 +67,7 @@ public class BenefitController {
         return new ResponseEntity<>(benefitResponse, HttpStatus.OK  );
     }
 
-  @PreAuthorize("hasAnyRole( 'HR', 'HR_MANAGER')")
+  @PreAuthorize("hasAnyRole( 'HR')")
     @GetMapping("/hr/benefits/{benefitId}")
     public ResponseEntity<BenefitResponse> getEmployeeAndPositionRegistrationByBenefitId(@PathVariable Long benefitId,
                                                                                          @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false)Integer pageNumber,
@@ -81,7 +81,7 @@ public class BenefitController {
     }
 
     //Get Employee By Position And Benefit
-    @PreAuthorize("hasAnyRole( 'HR', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole( 'HR')")
     @GetMapping("/hr/benefit/{benefitId}/position/{positionId}")
     public ResponseEntity<BenefitResponse> getEmployeeByPositionAndBenefit(@PathVariable Long benefitId, @PathVariable Long positionId,
                                                                            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false)Integer pageNumber,
@@ -99,7 +99,7 @@ public class BenefitController {
     }
 
 //get AvailablePosition
-@PreAuthorize("hasRole('HR', 'HR_MANAGER')")
+@PreAuthorize("hasRole('HR')")
 @GetMapping("/hr/benefits/{benefitId}/available-positions")
 public ResponseEntity<List<PositionDTO>> getAvailablePositions(
         @PathVariable Long benefitId) {
@@ -139,7 +139,7 @@ public ResponseEntity<?> unassignPositionFromBenefit(@PathVariable Long benefitI
     }
 
 //  3. update Benefit (HR)
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('HR')")
     @PatchMapping("/hr/benefits/{benefitId}")
     public ResponseEntity<BenefitDTO> updateBenefit(@Valid @RequestBody PatchBenefitDTO benefitDTO, @PathVariable Long benefitId){
 
@@ -149,7 +149,7 @@ public ResponseEntity<?> unassignPositionFromBenefit(@PathVariable Long benefitI
 
 
     //4. change the status Benefit (Active/InActive) (HR)
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('HR')")
     @PatchMapping("/{benefitId}")
     public ResponseEntity<BenefitDTO> updateInactiveStatus(
             @PathVariable Long benefitId,
@@ -179,7 +179,7 @@ public ResponseEntity<?> unassignPositionFromBenefit(@PathVariable Long benefitI
         return new ResponseEntity<>(benefitDTO, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('HR', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('HR')")
     @GetMapping("/hr/benefit/position/{positionId}")
     public ResponseEntity<PositionDTO> getPositionById(@PathVariable Long positionId) {
         PositionDTO positionDTO = positionService.getPositionById(positionId);
