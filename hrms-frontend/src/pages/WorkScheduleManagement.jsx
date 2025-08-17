@@ -171,21 +171,11 @@ function WorkScheduleManagement() {
           month={month}
           year={year}
           onDepartmentChange={handleDepartmentChange}
-          onSubmit={(payload) => {
-            workScheduleService
-              .createCustomWorkSchedule(payload)
-              .then(() => {
-                showSuccess("Dải lịch theo khoảng", "Dải lịch thành công!");
-                setShowRangeModal(false);
-                setReloadTrigger((prev) => prev + 1);
-              })
-              .catch((err) => {
-                console.error("Dải lịch lỗi:", err);
-                showError(
-                  "Dải lịch theo khoảng",
-                  "Có lỗi xảy ra khi dải lịch."
-                );
-              });
+          onSubmit={async (payload) => {
+            await workScheduleService.createCustomWorkSchedule(payload);
+            alert("Dải lịch thành công!");
+            setShowRangeModal(false);
+            setReloadTrigger((prev) => prev + 1);
           }}
         />
 

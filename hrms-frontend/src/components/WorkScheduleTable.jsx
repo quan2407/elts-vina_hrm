@@ -7,6 +7,13 @@ import { useSearchParams } from "react-router-dom";
 
 const weekdays = ["CN", "Th 2", "Th 3", "Th 4", "Th 5", "Th 6", "Th 7"];
 
+const toHourLabel = (h) => {
+  if (h == null) return "";
+  const v = Math.round(Number(h) * 10) / 10;
+  if (!Number.isFinite(v)) return "";
+  return `${v % 1 === 0 ? v.toFixed(0) : v.toFixed(1)}h`;
+};
+
 function WorkScheduleTable({
   month,
   year,
@@ -28,7 +35,15 @@ function WorkScheduleTable({
   const [data, setData] = useState([]);
   const [selectedDeptId, setSelectedDeptId] = useState(null);
   const [selectedLineId, setSelectedLineId] = useState(null);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [modalError, setModalError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const pickErrMsg = (err) =>
+    err?.response?.data?.message ||
+    err?.response?.data ||
+    err?.message ||
+    "Có lỗi xảy ra. Vui lòng thử lại.";
+
   const [workType, setWorkType] = useState("normal");
   const [availableMonths, setAvailableMonths] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -41,16 +56,22 @@ function WorkScheduleTable({
   const [holidays, setHolidays] = useState([]);
   const [selectedDetailId, setSelectedDetailId] = useState(null);
   const [canEditModal, setCanEditModal] = useState(true);
+
   const pad = (n) => n.toString().padStart(2, "0");
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const todayIso = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(
     today.getDate()
   )}`;
-
   console.log("📆 FIXED todayIso:", todayIso);
 
   const getTotalMonthValue = (m, y) => y * 12 + m;
+
+  const filteredData = React.useMemo(() => {
+    const isHr = (name) => (name || "").toLowerCase().includes("nhân sự");
+    return data.filter((dept) => !isHr(dept.departmentName));
+  }, [data]);
+
   const handleDelete = (id) => {
     workScheduleService
       .deleteWorkScheduleDetail(id)
@@ -111,13 +132,11 @@ function WorkScheduleTable({
 
   const isMonthSelectable = (m, y) => {
     if (availableMonths.length === 0) return false;
-
     const totalMonth = getTotalMonthValue(m, y);
     const todayMonth = getTotalMonthValue(
       today.getMonth() + 1,
       today.getFullYear()
     );
-
     return (
       totalMonth >= todayMonth && // ✅ chặn tháng/năm quá khứ
       totalMonth <=
@@ -133,21 +152,19 @@ function WorkScheduleTable({
       .getWorkScheduleByMonth(m, y)
       .then((res) => {
         setData(res.data);
-
         const allLines = res.data.flatMap((dept) => dept.lines);
         const anyNeedRevision = allLines.some(
           (line) => line.needRevision === true
         );
         onNeedRevisionChange(anyNeedRevision);
+
         if (onStatusChange) {
           const allAccepted =
             allLines.length > 0 &&
             allLines.every((line) => String(line.accepted) === "true");
-
           const allSubmitted =
             allLines.length > 0 &&
             allLines.every((line) => String(line.submitted) === "true");
-
           const allRejected =
             allLines.length > 0 &&
             allLines.every(
@@ -167,6 +184,7 @@ function WorkScheduleTable({
           else if (allSubmitted) onStatusChange("submitted");
           else onStatusChange("not-submitted");
         }
+
         if (onRejectReasonChange) {
           const firstRejected = allLines.find(
             (line) => !line.accepted && !line.submitted && line.rejectReason
@@ -186,6 +204,8 @@ function WorkScheduleTable({
       .then(() => fetchDataAndStatus(month, year))
       .catch((err) => console.error("Lỗi tạo lịch làm việc:", err));
   };
+
+  // Auto-scroll đến line & ngày theo query params
   useEffect(() => {
     if (
       !departmentNameParam ||
@@ -199,7 +219,6 @@ function WorkScheduleTable({
     const timeout = setTimeout(() => {
       const decodedDept = decodeURIComponent(departmentNameParam);
       const decodedLine = decodeURIComponent(lineNameParam);
-
       const lineElements = document.querySelectorAll(
         ".work-schedule-line-name"
       );
@@ -207,17 +226,15 @@ function WorkScheduleTable({
       for (let el of lineElements) {
         const lineText = el.getAttribute("data-linename")?.trim();
         const deptText = el.getAttribute("data-deptname")?.trim();
-
         console.log("🔍 So sánh:", deptText, "-", lineText);
 
         if (lineText === decodedLine && deptText === decodedDept) {
           console.log("✅ Match:", deptText, lineText);
 
-          // Scroll dọc
-          el.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
+          // Scroll dọc tới line
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+
+          // Scroll ngang tới ngày
           const index = dates.findIndex((d) => d.iso === focusDateParam);
           if (index !== -1) {
             const scrollContainer = document.querySelector(
@@ -231,7 +248,6 @@ function WorkScheduleTable({
               });
             }
           }
-
           break;
         }
       }
@@ -240,10 +256,12 @@ function WorkScheduleTable({
     return () => clearTimeout(timeout);
   }, [departmentNameParam, lineNameParam, data, dates, focusDateParam]);
 
+  // Lấy ngày & holiday
   useEffect(() => {
     holidayService.getAllHolidays().then((res) => {
-      setHolidays(res.data);
+      setHolidays(res.data || []);
     });
+
     const numDays = new Date(year, month, 0).getDate();
     const tempDates = Array.from({ length: numDays }, (_, i) => {
       const dateObj = new Date(year, month - 1, i + 1);
@@ -263,9 +281,11 @@ function WorkScheduleTable({
 
     workScheduleService
       .getAvailableMonths()
-      .then((res) => setAvailableMonths(res.data))
+      .then((res) => setAvailableMonths(res.data || []))
       .catch((err) => console.error("Lỗi lấy danh sách tháng:", err));
   }, [month, year, reloadTrigger]);
+
+  // Recalc dates with holidays
   useEffect(() => {
     const numDays = new Date(year, month, 0).getDate();
     const tempDates = Array.from({ length: numDays }, (_, i) => {
@@ -273,21 +293,20 @@ function WorkScheduleTable({
       const isoDate = `${dateObj.getFullYear()}-${(dateObj.getMonth() + 1)
         .toString()
         .padStart(2, "0")}-${dateObj.getDate().toString().padStart(2, "0")}`;
-
       const isHoliday = holidays.some(
         (holiday) => isoDate >= holiday.startDate && isoDate <= holiday.endDate
       );
-
       return {
         full: dateObj.toLocaleDateString("vi-VN"),
         weekday: weekdays[dateObj.getDay()],
         isSunday: dateObj.getDay() === 0,
-        isHoliday: isHoliday,
+        isHoliday,
         iso: isoDate,
       };
     });
     setDates(tempDates);
   }, [month, year, holidays]);
+
   const handlePrevMonth = () => {
     const newMonth = month === 1 ? 12 : month - 1;
     const newYear = month === 1 ? year - 1 : year;
@@ -310,6 +329,7 @@ function WorkScheduleTable({
 
   const nextDisabled = !getNextAvailableMonth();
   const prevDisabled = !getPrevAvailableMonth();
+
   const handleOpenModal = (
     deptId,
     deptName,
@@ -339,23 +359,23 @@ function WorkScheduleTable({
       } else {
         setWorkType("custom");
       }
-
       setStartTime(start);
       setEndTime(end);
       setSelectedDetailId(detail.id);
       setCanEditModal(editable);
-
       console.log("Giờ làm việc:", start, "-", end);
     } else {
       setWorkType("normal");
       setStartTime("08:00");
       setEndTime("17:00");
       setSelectedDetailId(null);
+      setCanEditModal(true);
     }
+    setModalError(null);
     setModalOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (endTime <= startTime) {
       alert("Giờ kết thúc phải sau giờ bắt đầu.");
       return;
@@ -376,28 +396,31 @@ function WorkScheduleTable({
         })
       : workScheduleService
           .resolveWorkScheduleId(selectedDeptId, selectedLineId, selectedDate)
-          .then((res) => {
-            const newPayload = { ...payload, workScheduleId: res.data };
-            return workScheduleService.createWorkScheduleDetail(newPayload);
-          });
+          .then((res) =>
+            workScheduleService.createWorkScheduleDetail({
+              ...payload,
+              workScheduleId: res.data,
+            })
+          );
 
-    savePromise
-      .then(() => {
-        setModalOpen(false);
-        fetchDataAndStatus(month, year);
-        setErrorMessage("");
-      })
-      .catch((err) => {
-        if (err.response?.status === 400 && err.response.data) {
-          setErrorMessage(err.response.data);
-        } else {
-          console.error("Lỗi thêm/cập nhật lịch làm việc:", err);
-        }
-      });
+    setSubmitting(true);
+    setModalError(null);
+
+    try {
+      await savePromise;
+      setModalOpen(false);
+      fetchDataAndStatus(month, year);
+    } catch (err) {
+      console.error("Lỗi thêm/cập nhật lịch làm việc:", err);
+      setModalError(pickErrMsg(err)); // có thể là string (VD: vượt 40h) hoặc object (VD: { endTime: [...] })
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="work-schedule-container">
+      {/* Toolbar */}
       <div className="work-schedule-toolbar-wrapper">
         <div className="work-schedule-toolbar">
           <button
@@ -415,7 +438,7 @@ function WorkScheduleTable({
           <select
             value={month}
             onChange={(e) => {
-              const m = parseInt(e.target.value);
+              const m = parseInt(e.target.value, 10);
               if (isMonthSelectable(m, year)) {
                 setMonth(m);
                 if (onMonthYearChange) onMonthYearChange(m, year);
@@ -439,7 +462,7 @@ function WorkScheduleTable({
           <select
             value={year}
             onChange={(e) => {
-              const y = parseInt(e.target.value);
+              const y = parseInt(e.target.value, 10);
               if (isMonthSelectable(month, y)) {
                 setYear(y);
                 if (onMonthYearChange) onMonthYearChange(month, y);
@@ -474,6 +497,7 @@ function WorkScheduleTable({
         </div>
       </div>
 
+      {/* Body */}
       {data.length === 0 ? (
         <div className="work-schedule-empty">
           <p className="work-schedule-empty-text">
@@ -490,6 +514,7 @@ function WorkScheduleTable({
         </div>
       ) : (
         <div className="work-schedule-layout">
+          {/* Cột trái: phòng ban / chuyền */}
           <div className="work-schedule-left">
             <div className="work-schedule-header work-schedule-header-dept work-schedule-span-2">
               Phòng ban
@@ -498,7 +523,7 @@ function WorkScheduleTable({
               Chuyền
             </div>
 
-            {data.map((dept) =>
+            {filteredData.map((dept) =>
               dept.lines.map((line, idx) => (
                 <React.Fragment key={`${dept.departmentId}-${idx}`}>
                   {idx === 0 && (
@@ -510,24 +535,41 @@ function WorkScheduleTable({
                       {dept.departmentName}
                     </div>
                   )}
+
                   <div
                     className="work-schedule-cell work-schedule-line-name"
                     data-linename={line.lineName}
                     data-deptname={dept.departmentName}
                   >
-                    {line.lineName || <i></i>}
+                    <div className="line-title">{line.lineName || <i></i>}</div>
+                    {line?.monthlyOtRemainingHours != null && (
+                      <div
+                        className="work-schedule-ot-remaining"
+                        title={
+                          line?.monthlyOtUsedMinutes != null &&
+                          line?.monthlyOtCapMinutes != null
+                            ? `Đã dùng: ${(
+                                line.monthlyOtUsedMinutes / 60
+                              ).toFixed(1)}h / Trần: ${(
+                                line.monthlyOtCapMinutes / 60
+                              ).toFixed(0)}h`
+                            : undefined
+                        }
+                      >
+                        OT còn: {toHourLabel(line.monthlyOtRemainingHours)}
+                      </div>
+                    )}
                   </div>
                 </React.Fragment>
               ))
             )}
           </div>
 
+          {/* Phần phải: lưới ngày */}
           <div className="work-schedule-scroll">
             <div
               className="work-schedule-grid"
-              style={{
-                gridTemplateColumns: `repeat(${dates.length}, 100px)`,
-              }}
+              style={{ gridTemplateColumns: `repeat(${dates.length}, 100px)` }}
             >
               {dates.map((d, idx) => (
                 <div
@@ -539,6 +581,7 @@ function WorkScheduleTable({
                   {d.full}
                 </div>
               ))}
+
               {dates.map((d, idx) => (
                 <div
                   key={`weekday-${idx}`}
@@ -550,7 +593,7 @@ function WorkScheduleTable({
                 </div>
               ))}
 
-              {data.map((dept) =>
+              {filteredData.map((dept) =>
                 dept.lines.map((line, idx) =>
                   line.workDetails.map((detail, i) => {
                     const isOvertime =
@@ -559,6 +602,7 @@ function WorkScheduleTable({
                       dates[i]?.iso === focusDateParam &&
                       line.lineName === lineNameParam &&
                       dept.departmentName === departmentNameParam;
+
                     return (
                       <div
                         key={`${dept.departmentId}-${idx}-${i}`}
@@ -632,7 +676,6 @@ function WorkScheduleTable({
           endTime,
           workType,
           setWorkType,
-
           onChange: (field, value) => {
             if (field === "startTime") setStartTime(value);
             if (field === "endTime") setEndTime(value);
@@ -652,7 +695,8 @@ function WorkScheduleTable({
           onDelete: handleDelete,
           canEdit: canEditModal,
         }}
-        errorMessages={errorMessage}
+        errorMessages={modalError}
+        submitting={submitting}
       />
     </div>
   );
