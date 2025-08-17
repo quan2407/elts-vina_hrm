@@ -1,5 +1,6 @@
 package sep490.com.example.hrms_backend.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class HolidayController {
     }
 
     @PostMapping
-    public ResponseEntity<HolidayDTO> createHoliday(@RequestBody HolidayDTO holidayDTO) {
+    public ResponseEntity<HolidayDTO> createHoliday(@Valid @RequestBody HolidayDTO holidayDTO) {
         HolidayDTO createdHoliday = holidayService.createHoliday(holidayDTO);
         return ResponseEntity.ok(createdHoliday);
     }
@@ -45,7 +46,7 @@ public class HolidayController {
         return ResponseEntity.ok(holiday);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<HolidayDTO> updateHoliday(@PathVariable Long id, @RequestBody HolidayDTO holidayDTO) {
+    public ResponseEntity<HolidayDTO> updateHoliday(@PathVariable Long id,@Valid @RequestBody HolidayDTO holidayDTO) {
         HolidayDTO updatedHoliday = holidayService.updateHoliday(id, holidayDTO);
         return ResponseEntity.ok(updatedHoliday);
     }
