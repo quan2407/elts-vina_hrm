@@ -12,7 +12,9 @@ import sep490.com.example.hrms_backend.entity.BenefitPosition;
 import sep490.com.example.hrms_backend.entity.BenefitRegistration;
 import sep490.com.example.hrms_backend.entity.Employee;
 
+import java.util.Collection;
 import java.util.List;
+
 
 public interface BenefitRegistrationRepository extends JpaRepository<BenefitRegistration, Long> {
 
@@ -45,5 +47,19 @@ public interface BenefitRegistrationRepository extends JpaRepository<BenefitRegi
     @Modifying
     @Query("DELETE FROM BenefitRegistration br WHERE br.benefitPosition.id = :benefitPositionId AND br.employee.employeeId = :employeeId")
     void deleteByBenefitPositionIdAndEmployeeId(Long benefitPositionId, Long employeeId);
+
+
+    int deleteByBenefitPosition_IdAndEmployee_EmployeeIdIn(Long benefitPositionId, Collection<Long> employeeIds);
+
+    @Query("""
+    select br.employee.employeeId
+    from BenefitRegistration br
+    where br.benefitPosition.id = :benefitPositionId
+""")
+    List<Long> findEmployeeIdsByBenefitPositionId(@Param("benefitPositionId") Long benefitPositionId);
+
+    long countByBenefitPosition_Id(Long id);
+
+    void deleteByBenefitPosition_Id(Long id);
 }
 

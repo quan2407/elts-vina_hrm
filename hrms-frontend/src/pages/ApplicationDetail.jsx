@@ -4,11 +4,21 @@ import MainLayout from "../components/MainLayout";
 import applicationService from "../services/applicationService";
 import ApplicationForm from "../components/ApplicationForm";
 import { format } from "date-fns";
+import SuccessModal from "../components/popup/SuccessModal";
+
 function ApplicationDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState({
+    open: false,
+    title: "",
+    message: "",
+    type: "success", // "success" | "error"
+  });
+  const [formErrors, setFormErrors] = useState({});
+  const [nextRoute, setNextRoute] = useState("");
 
   useEffect(() => {
     applicationService
@@ -18,8 +28,14 @@ function ApplicationDetail() {
       })
       .catch((err) => {
         console.error("❌ Lỗi khi tải chi tiết đơn:", err);
-        alert("Không thể tải thông tin đơn.");
+        setModal({
+          open: true,
+          title: "Lỗi tải dữ liệu",
+          message: "Không thể tải thông tin đơn.",
+          type: "error",
+        });
       })
+
       .finally(() => {
         setLoading(false);
       });
@@ -58,11 +74,33 @@ function ApplicationDetail() {
 
     try {
       await applicationService.updateApplication(id, formData);
-      alert("✅ Cập nhật đơn thành công!");
-      navigate("/my-applications");
+      setNextRoute("/my-applications");
+      setModal({
+        open: true,
+        title: "Cập nhật đơn",
+        message: "Cập nhật đơn thành công!",
+        type: "success",
+      });
     } catch (err) {
       console.error("❌ Lỗi khi cập nhật đơn:", err);
-      alert("Có lỗi xảy ra khi cập nhật đơn.");
+      setModal({
+        open: true,
+        title: "Lỗi cập nhật",
+        message: "Có lỗi xảy ra khi cập nhật đơn.",
+        type: "error",
+      });
+      if (err.response?.data) {
+        const data = err.response.data;
+        if (typeof data === "object" && !Array.isArray(data)) {
+          setFormErrors(data);
+        } else if (data.message) {
+          setFormErrors({ general: data.message });
+        } else {
+          setFormErrors({ general: "Có lỗi xảy ra khi gửi đơn." });
+        }
+      } else {
+        setFormErrors({ general: "Có lỗi xảy ra khi gửi đơn." });
+      }
       throw err;
     }
   };
@@ -79,8 +117,20 @@ function ApplicationDetail() {
           data={data}
           onSubmit={handleUpdate}
           type={data.applicationTypeName === "Bù công" ? "makeup" : "leave"}
+          externalErrors={formErrors}
         />
       </div>
+      {modal.open && (
+        <SuccessModal
+          title={modal.title}
+          message={modal.message}
+          type={modal.type}
+          onClose={() => {
+            setModal((m) => ({ ...m, open: false }));
+            if (nextRoute) navigate(nextRoute);
+          }}
+        />
+      )}
     </MainLayout>
   );
 }

@@ -13,7 +13,7 @@ import java.util.List;
 
 @Service
 public interface BenefitService {
-    BenefitResponse getAllBenefitsForHr(String username, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder, String title, String description, Boolean isActive, LocalDate startDate, LocalDate endDate, Integer minParticipants, Integer maxParticipants, BenefitType benefitType);
+    BenefitResponse getAllBenefitsForHr(String username, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder, String title, String description, Boolean isActive,  BenefitType benefitType);
 
     BenefitDTO addBenefit(@Valid BenefitDTO benefitDTO);
 

@@ -37,6 +37,7 @@ public class HumanReportServiceImpl implements HumanReportService {
     @Autowired
     LineRepository lineRepository;
 
+    //tested
     @Override
     public Map<String, List<AttendanceMonthlyViewDTO>> getFullEmp(LocalDate date) {
 
@@ -66,6 +67,7 @@ public class HumanReportServiceImpl implements HumanReportService {
         return fullEmp;
     }
 
+    //tested
     @Override
     public Map<String, List<AttendanceMonthlyViewDTO>> getListEmpAbsent(LocalDate date) {
 
@@ -92,6 +94,7 @@ public class HumanReportServiceImpl implements HumanReportService {
         return absentEmp;
     }
 
+    //tested
     @Override
     public Map<String, List<AttendanceMonthlyViewDTO>> getListEmpAbsentKL(LocalDate date) {
 
@@ -118,6 +121,7 @@ public class HumanReportServiceImpl implements HumanReportService {
         return absentEmp;
     }
 
+    //tested
     @Override
     public ByteArrayInputStream exportHumanReportToExcel(LocalDate date) {
 

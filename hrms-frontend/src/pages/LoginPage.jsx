@@ -16,7 +16,6 @@ function LoginPage() {
     e.preventDefault();
     setErrorMessage("");
     setErrorFields({});
-
     try {
       const res = await authService.login({ usernameOrEmail: email, password });
       console.log("Login response:", res.data);
@@ -119,7 +118,7 @@ function LoginPage() {
             <input
               type="password"
               className="input-field password-input"
-              placeholder="Nhập mật khẩu của bạn (độ dài từ 4 - 50 ký tự)"
+              placeholder="Nhập mật khẩu của bạn (độ dài từ 8 - 50 ký tự)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />

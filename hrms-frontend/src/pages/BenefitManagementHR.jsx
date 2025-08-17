@@ -10,52 +10,49 @@ import Breadcrumb from "../components/Breadcrumb";
 import { useEffect, useState } from "react";
 import benefitService from "../services/benefitService.js";
 
+// NEW
+import BenefitSearchForm from "../components/common/search/BenefitSearchForm.jsx";
+
 function BenefitManagementHR() {
-  /**
-   * Represents the benefits associated with a specific entity or process.
-   * This variable is intended to hold information detailing the advantages,
-   * perks, or positive outcomes related to the context in which it is used.
-   */
-  // const [benefits, setBenefits] = useState([]);
-  // const fetchBenefits = async () => {
-  //   try {
-  //     const res = await benefitService.getAll();
-  //     setBenefits(res.data); // hoặc res nếu không có .data
-  //   } catch (err) {
-  //     console.error("Lỗi tải phúc lợi:", err);
-  //   }
-  // };
-  //
-  // useEffect(() => {
-  //   fetchBenefits().then(setBenefits);
-  // }, []);
-  const [reloadKey, setReloadKey] = useState(0);
+    const [reloadKey, setReloadKey] = useState(0);
 
+    // NEW: đưa filters lên cha
+    const [filters, setFilters] = useState({});
 
-    const breadcrumbPaths = [
-        { name: "Quản lý phúc lợi"}
+    const breadcrumbPaths = [{ name: "Quản lý phúc lợi" }];
 
-      ];
-  return (
-    <MainLayout>
-      <div className="content-wrapper">
-        <div className="page-header">
-          <h1 className="page-title">Quản lý phúc lợi</h1>
-          <div className="page-actions">
-              <BenefitCreateModal
-                  onCreated={() => setReloadKey(prev => prev + 1)}
-              />
-          </div>
-          </div>
-          <Breadcrumb paths={breadcrumbPaths} />
+    return (
+        <MainLayout>
+            <div className="content-wrapper">
+                <div className="page-header">
+                    <h1 className="page-title">Quản lý phúc lợi</h1>
+                    <div className="page-actions">
+                        <div className="page-actions" style={{ marginTop: '30px' }}>
+                            <BenefitCreateModal
+                                onCreated={() => setReloadKey(prev => prev + 1)}
+                            />
+                        </div>
+                    </div>
+                </div>
 
+                <Breadcrumb paths={breadcrumbPaths} />
 
-        <BenefitHrTable
-                        reloadKey={reloadKey}
-                        onForceReload={() => setReloadKey((prev) => prev + 1)}  />
-      </div>
-    </MainLayout>
-  );
+                {/* NEW: Form tìm kiếm ở đây */}
+                <BenefitSearchForm
+                    onSearch={(newFilters) => {
+                        setFilters(newFilters); // bảng sẽ tự reset page về 1 khi filters đổi
+                    }}
+                />
+
+                <BenefitHrTable
+                    reloadKey={reloadKey}
+                    onForceReload={() => setReloadKey((prev) => prev + 1)}
+                    // NEW: truyền filters xuống bảng
+                    filters={filters}
+                />
+            </div>
+        </MainLayout>
+    );
 }
 
 export default BenefitManagementHR;

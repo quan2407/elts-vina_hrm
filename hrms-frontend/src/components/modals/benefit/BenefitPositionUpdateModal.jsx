@@ -9,7 +9,7 @@ const UpdateProgramModal = ({ open, onCancel, onSubmit, initialData }) => {
     const [form] = Form.useForm();
 
     console.log("Đây là initialData", initialData)
-    // 🧠 Watch giá trị của formulaType
+
     const formulaType = Form.useWatch('formulaType', form);
 
 
