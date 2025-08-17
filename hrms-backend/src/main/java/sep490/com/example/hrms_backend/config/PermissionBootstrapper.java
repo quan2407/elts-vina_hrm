@@ -136,6 +136,11 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Employee",
                 allRoles
         );
+        permissionRegistrationService.registerPermission(
+                "/api/interview/non-Hr/*",
+                "PUT",
+                "Interview",
+                allRoles);
         permissionRegistrationService.registerPermission("/api/hr/benefits", "GET", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
         permissionRegistrationService.registerPermission("/api/hr/benefits/*", "GET", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
         permissionRegistrationService.registerPermission("/api/hr/benefit/*/position/*", "GET", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
