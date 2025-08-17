@@ -112,7 +112,6 @@ public class SalaryController {
                     .body(resource);
 
         } catch (Exception e) {
-            // Log chi tiết nếu dùng logger (khuyến nghị)
             e.printStackTrace();
             throw new RuntimeException("Lỗi khi xuất báo cáo lương: " + e.getMessage(), e);
         }

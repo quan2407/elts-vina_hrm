@@ -218,10 +218,8 @@ public class SalaryServiceImpl implements SalaryService {
         LocalDate firstDay = LocalDate.of(year, month, 1);
         Pageable pageable = PageRequest.of(page, size);
 
-        // Lấy tất cả các lương trong tháng
         List<Salary> allSalaries = salaryRepository.findBySalaryMonth(firstDay);
 
-        // Lọc theo mã hoặc tên nhân viên nếu có search
         if (search != null && !search.trim().isEmpty()) {
             String lower = search.trim().toLowerCase();
             allSalaries = allSalaries.stream()
@@ -230,7 +228,6 @@ public class SalaryServiceImpl implements SalaryService {
                     .collect(Collectors.toList());
         }
 
-        // Lọc theo departmentId, positionId, lineId
         if (departmentId != null) {
             allSalaries = allSalaries.stream()
                     .filter(s -> s.getEmployee().getDepartment() != null &&
@@ -252,10 +249,8 @@ public class SalaryServiceImpl implements SalaryService {
                     .collect(Collectors.toList());
         }
 
-        // Lấy danh sách các benefit đang hoạt động
         List<Benefit> allBenefits = benefitService.getAllActive();
 
-        // Map các đối tượng Salary thành SalaryDTO và áp dụng full benefits
         List<SalaryDTO> salaryDTOs = allSalaries.stream()
                 .map(salary -> {
                     SalaryDTO dto = SalaryMapper.mapToSalaryDTO(salary);

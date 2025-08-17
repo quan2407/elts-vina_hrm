@@ -29,7 +29,6 @@ public class AccountRequestServiceImpl implements AccountRequestService {
     private final AccountService accountService;
     private final CurrentUserUtils currentUserUtils;
 
-    //tested
     @Override
     @Transactional
     public void approveRequest(Long requestId) {
@@ -48,7 +47,6 @@ public class AccountRequestServiceImpl implements AccountRequestService {
         requestRepository.save(request);
     }
 
-    //tested
     @Override
     @Transactional
     public void rejectRequest(Long requestId) {
@@ -61,7 +59,6 @@ public class AccountRequestServiceImpl implements AccountRequestService {
         requestRepository.save(request);
     }
 
-    //tested
     @Override
     public Page<AccountRequestDTO> getRequestsByStatus(String status, int page, int size) {
         List<AccountRequest> requests;
@@ -83,7 +80,6 @@ public class AccountRequestServiceImpl implements AccountRequestService {
                 ))
                 .toList();
 
-        // Phân trang thủ công từ danh sách
         int start = Math.min(page * size, dtoList.size());
         int end = Math.min(start + size, dtoList.size());
         List<AccountRequestDTO> pageContent = dtoList.subList(start, end);
