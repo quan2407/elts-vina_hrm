@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { jwtDecode } from "jwt-decode";
-import { Bell, ChevronDown, User, Key, HelpCircle, LogOut } from "lucide-react";
+import { Bell, ChevronDown, User, Key, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Header.css";
 import {
@@ -10,9 +10,8 @@ import {
 import notificationLinks from "../constants/notificationLinks.jsx";
 
 function Header() {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] =
-    useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notificationFilter, setNotificationFilter] = useState("all");
   const [showAllNotifications, setShowAllNotifications] = useState(false);
@@ -24,7 +23,6 @@ function Header() {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) return;
-
     try {
       const decoded = jwtDecode(token);
       setUsername(decoded?.sub || "Unknown");
@@ -45,7 +43,6 @@ function Header() {
       : filteredNotifications.slice(0, 5);
   }, [filteredNotifications, showAllNotifications]);
 
-
   const handleSignOut = () => {
     localStorage.removeItem("accessToken");
     window.location.href = "/";
@@ -53,12 +50,12 @@ function Header() {
 
   const handleGoToProfile = () => {
     navigate("/profile");
-    setIsDropdownOpen(false);
+    setIsProfileOpen(false);
   };
 
   const handleChangePassword = () => {
     navigate("/change-password");
-    setIsDropdownOpen(false);
+    setIsProfileOpen(false);
   };
 
 const fetchNotifications = async () => {
@@ -80,9 +77,7 @@ const fetchNotifications = async () => {
     try {
       await markNotificationAsRead(id);
       setNotifications((prev) =>
-        prev.map((noti) =>
-          noti.id === id ? { ...noti, isRead: true } : noti
-        )
+        prev.map((noti) => (noti.id === id ? { ...noti, isRead: true } : noti))
       );
       if (link) navigate(link);
     } catch (error) {
@@ -97,9 +92,12 @@ const fetchNotifications = async () => {
     if (diff < 60) return `${diff} giây trước`;
     if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
     if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
-
     return `${Math.floor(diff / 86400)} ngày trước`;
   }
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   // Đóng dropdown khi click ra ngoài (dùng mousedown để tránh flicker)
   const profileRef = useRef(null);
@@ -119,7 +117,6 @@ const fetchNotifications = async () => {
     };
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
-
   }, []);
 
   return (
@@ -215,11 +212,11 @@ const fetchNotifications = async () => {
           )}
         </div>
 
-
-
+        {/* Hồ sơ */}
         <div
           className="header-profile"
-          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          ref={profileRef}
+          onClick={() => setIsProfileOpen((s) => !s)}
         >
           <img
             className="header-avatar"
@@ -227,36 +224,23 @@ const fetchNotifications = async () => {
             alt="User"
           />
           <span className="header-username">{username}</span>
-          <ChevronDown
-            size={16}
-            stroke="#000"
-          />
+          <ChevronDown size={16} stroke="#000" />
         </div>
 
         {isProfileOpen && (
           <div className="profile-dropdown" onMouseDown={(e) => e.stopPropagation()}>
-
             <div className="profile-info">
               <div className="profile-name">{username}</div>
             </div>
-            <div
-              className="profile-item"
-              onClick={handleGoToProfile}
-            >
+            <div className="profile-item" onClick={handleGoToProfile}>
               <User size={16} /> <span>Hồ sơ cá nhân</span>
             </div>
-            <div
-              className="profile-item"
-              onClick={handleChangePassword}
-            >
+            <div className="profile-item" onClick={handleChangePassword}>
               <Key size={16} /> <span>Đổi mật khẩu</span>
             </div>
 
             <div className="profile-divider"></div>
-            <div
-              className="profile-item profile-logout"
-              onClick={handleSignOut}
-            >
+            <div className="profile-item profile-logout" onClick={handleSignOut}>
               <LogOut size={16} /> <span>Đăng xuất</span>
             </div>
           </div>
