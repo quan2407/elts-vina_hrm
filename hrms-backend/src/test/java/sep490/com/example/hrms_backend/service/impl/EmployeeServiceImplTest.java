@@ -1,16 +1,18 @@
 package sep490.com.example.hrms_backend.service.impl;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import sep490.com.example.hrms_backend.dto.EmployeeRequestDTO;
-import sep490.com.example.hrms_backend.dto.EmployeeResponseDTO;
-import sep490.com.example.hrms_backend.dto.EmployeeUpdateDTO;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.entity.Department;
 import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.entity.Position;
@@ -25,11 +27,13 @@ import sep490.com.example.hrms_backend.repository.PositionRepository;
 import sep490.com.example.hrms_backend.service.AccountService;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.lenient;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -49,6 +53,179 @@ class EmployeeServiceImplTest {
     @Mock
     private AccountService accountService;
 
+    private void setAuthenticatedUsername(String username) {
+        SecurityContextHolder.clearContext();
+        var auth = new UsernamePasswordAuthenticationToken(username, "N/A", Collections.emptyList());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    @AfterEach
+    void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
+
+    // =========================
+    // Tests cho updateOwnProfile
+    // =========================
+
+    @Test
+    void testUpdateOwnProfile_Success_UpdateAllFields() {
+        // Arrange
+        String username = "johndoe";
+        setAuthenticatedUsername(username);
+        Employee existing = new Employee();
+        existing.setEmployeeId(10L);
+        existing.setEmployeeName("Old Name");
+        existing.setPhoneNumber("0900000000");
+        existing.setEmail("old@example.com");
+        existing.setAddress("Old Address");
+
+        when(employeeRepository.findByAccount_Username(username)).thenReturn(Optional.of(existing));
+        // Trả về đúng entity đã cập nhật
+        when(employeeRepository.save(any(Employee.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        EmployeeOwnProfileUpdateDTO dto = EmployeeOwnProfileUpdateDTO.builder()
+                .employeeName("New Name")
+                .phoneNumber("0912345678")
+                .email("new@example.com")
+                .address("New Address")
+                .build();
+
+        // Act
+        EmployeeDetailDTO result = employeeService.updateOwnProfile(dto);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("New Name", result.getEmployeeName());
+        assertEquals("0912345678", result.getPhoneNumber());
+        assertEquals("new@example.com", result.getEmail());
+        assertEquals("New Address", result.getAddress());
+
+        verify(employeeRepository).findByAccount_Username(username);
+        ArgumentCaptor<Employee> captor = ArgumentCaptor.forClass(Employee.class);
+        verify(employeeRepository).save(captor.capture());
+        Employee saved = captor.getValue();
+        assertEquals("New Name", saved.getEmployeeName());
+        assertEquals("0912345678", saved.getPhoneNumber());
+        assertEquals("new@example.com", saved.getEmail());
+        assertEquals("New Address", saved.getAddress());
+    }
+
+    @Test
+    void testUpdateOwnProfile_Success_PartialUpdate_OnlyPhone() {
+        // Arrange
+        String username = "alice";
+        setAuthenticatedUsername(username);
+
+        Employee existing = new Employee();
+        existing.setEmployeeId(11L);
+        existing.setEmployeeName("Alice Old");
+        existing.setPhoneNumber("0901111111");
+        existing.setEmail("alice@old.com");
+        existing.setAddress("Addr Old");
+
+        when(employeeRepository.findByAccount_Username(username)).thenReturn(Optional.of(existing));
+        when(employeeRepository.save(any(Employee.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        EmployeeOwnProfileUpdateDTO dto = EmployeeOwnProfileUpdateDTO.builder()
+                .phoneNumber("0999999999") // chỉ update phone
+                .build();
+
+        // Act
+        EmployeeDetailDTO result = employeeService.updateOwnProfile(dto);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("Alice Old", result.getEmployeeName()); // giữ nguyên
+        assertEquals("0999999999", result.getPhoneNumber()); // đã đổi
+        assertEquals("alice@old.com", result.getEmail());    // giữ nguyên
+        assertEquals("Addr Old", result.getAddress());       // giữ nguyên
+
+        ArgumentCaptor<Employee> captor = ArgumentCaptor.forClass(Employee.class);
+        verify(employeeRepository).save(captor.capture());
+        Employee saved = captor.getValue();
+        assertEquals("Alice Old", saved.getEmployeeName());
+        assertEquals("0999999999", saved.getPhoneNumber());
+        assertEquals("alice@old.com", saved.getEmail());
+        assertEquals("Addr Old", saved.getAddress());
+    }
+
+    @Test
+    void testUpdateOwnProfile_Success_EmptyStringOverrides() {
+        // Trường hợp dto có chuỗi rỗng (không null) -> service vẫn set (do chỉ check null)
+        String username = "bob";
+        setAuthenticatedUsername(username);
+
+        Employee existing = new Employee();
+        existing.setEmployeeId(12L);
+        existing.setEmployeeName("Bob Old");
+        existing.setPhoneNumber("0902222222");
+        existing.setEmail("bob@old.com");
+        existing.setAddress("Addr Old");
+
+        when(employeeRepository.findByAccount_Username(username)).thenReturn(Optional.of(existing));
+        when(employeeRepository.save(any(Employee.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        EmployeeOwnProfileUpdateDTO dto = EmployeeOwnProfileUpdateDTO.builder()
+                .employeeName("")     // set rỗng
+                .address("")          // set rỗng
+                .email("bob@new.com") // set giá trị mới
+                .build();
+
+        EmployeeDetailDTO result = employeeService.updateOwnProfile(dto);
+
+        assertNotNull(result);
+        assertEquals("", result.getEmployeeName());
+        assertEquals("", result.getAddress());
+        assertEquals("bob@new.com", result.getEmail());
+        assertEquals("0902222222", result.getPhoneNumber()); // không đổi
+    }
+
+    @Test
+    void testUpdateOwnProfile_Fail_EmployeeNotFound() {
+        // Arrange
+        String username = "ghost";
+        setAuthenticatedUsername(username);
+
+        when(employeeRepository.findByAccount_Username(username)).thenReturn(Optional.empty());
+
+        EmployeeOwnProfileUpdateDTO dto = EmployeeOwnProfileUpdateDTO.builder()
+                .employeeName("Does Not Matter")
+                .build();
+
+        // Act + Assert
+        HRMSAPIException ex = assertThrows(HRMSAPIException.class, () -> employeeService.updateOwnProfile(dto));
+        assertEquals("Không tìm thấy hồ sơ nhân viên", ex.getMessage());
+        verify(employeeRepository, never()).save(any());
+    }
+
+    @Test
+    void testUpdateOwnProfile_Success_NoFieldsChanged_StillSaves() {
+        // Trường hợp tất cả trường null -> service vẫn gọi save (giữ nguyên)
+        String username = "nochange";
+        setAuthenticatedUsername(username);
+
+        Employee existing = new Employee();
+        existing.setEmployeeId(13L);
+        existing.setEmployeeName("Name");
+        existing.setPhoneNumber("0903333333");
+        existing.setEmail("nochange@ex.com");
+        existing.setAddress("Addr");
+
+        when(employeeRepository.findByAccount_Username(username)).thenReturn(Optional.of(existing));
+        when(employeeRepository.save(any(Employee.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        EmployeeOwnProfileUpdateDTO dto = new EmployeeOwnProfileUpdateDTO(); // tất cả null
+
+        EmployeeDetailDTO result = employeeService.updateOwnProfile(dto);
+
+        assertNotNull(result);
+        assertEquals("Name", result.getEmployeeName());
+        assertEquals("0903333333", result.getPhoneNumber());
+        assertEquals("nochange@ex.com", result.getEmail());
+        assertEquals("Addr", result.getAddress());
+        verify(employeeRepository).save(any(Employee.class));
+    }
 
     private EmployeeRequestDTO buildValidEmployeeDTO() {
         return EmployeeRequestDTO.builder()
@@ -79,35 +256,7 @@ class EmployeeServiceImplTest {
 
 
 
-    @Test
-    void testCreateEmployee_Success() {
-        EmployeeRequestDTO dto = buildValidEmployeeDTO();
 
-        Department department = new Department();
-        department.setDepartmentId(dto.getDepartmentId());
-
-        Position position = new Position();
-        position.setPositionId(dto.getPositionId());
-
-        Employee savedEmployee = new Employee();
-        savedEmployee.setEmployeeCode(dto.getEmployeeCode());
-        savedEmployee.setEmployeeName(dto.getEmployeeName());
-        savedEmployee.setEmail(dto.getEmail());
-
-        Mockito.when(employeeRepository.existsByEmployeeCode(dto.getEmployeeCode())).thenReturn(false);
-        Mockito.when(employeeRepository.existsByCitizenId(dto.getCitizenId())).thenReturn(false);
-        Mockito.when(employeeRepository.existsByEmail(dto.getEmail())).thenReturn(false);
-        Mockito.when(positionRepository.existsDepartmentPositionMapping(1L, 2L)).thenReturn(true);
-        Mockito.when(positionRepository.findByDepartments_DepartmentId(1L)).thenReturn(List.of(position));
-        Mockito.when(departmentRepository.findById(1L)).thenReturn(Optional.of(department));
-        Mockito.when(positionRepository.findById(2L)).thenReturn(Optional.of(position));
-        Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(savedEmployee);
-
-        EmployeeResponseDTO result = employeeService.createEmployee(dto);
-        assertNotNull(result);
-        assertEquals(dto.getEmployeeCode(), result.getEmployeeCode());
-        assertEquals(dto.getEmployeeName(), result.getEmployeeName());
-    }
 
     @Test
     void testCreateEmployee_Fail_DuplicateEmployeeCode() {

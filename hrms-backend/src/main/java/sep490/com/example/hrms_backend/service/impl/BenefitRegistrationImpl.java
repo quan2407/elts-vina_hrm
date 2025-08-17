@@ -213,11 +213,9 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
         List<Employee> employees;
         if (keyword != null && !keyword.trim().isEmpty()) {
             String likeKeyword = "%" + keyword.toLowerCase() + "%";
-//            employees = employeeRepository
-//                    .searchByPositionAndKeyword(positionId, keyword.trim().toLowerCase());
-            employees = employeeRepository.searchByPositionAndKeyword(positionId, likeKeyword);
+            employees = employeeRepository.searchByPositionAndKeywordAndNotDeleted(positionId, likeKeyword);
         } else {
-            employees = employeeRepository.findByPosition_PositionId(positionId);
+            employees = employeeRepository.findByPosition_PositionIdAndNotDeleted(positionId);
         }
 
         // 3. Lấy danh sách employeeId đã đăng ký rồi (với isRegister = true)
