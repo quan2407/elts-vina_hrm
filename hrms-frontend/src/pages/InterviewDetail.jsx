@@ -6,7 +6,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { vi } from "date-fns/locale";
 import { Save } from "lucide-react";
 import "../styles/EmployeeDetails.css";
-import { editInterview } from "../services/interviewScheduleService";
+import { editInterview, editInterview2 } from "../services/interviewScheduleService";
 import { getInterviewById } from "../services/interviewScheduleService";
 import departmentService from "../services/departmentService";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -113,9 +113,16 @@ function InterviewDetail() {
         console.log(" Payload gửi đi:", payload);
 
         try {
-            await editInterview(payload, id);
-            setSuccessModal(true);
-            setErrors({});
+            if (isHR) {
+                await editInterview(payload, id);
+                setSuccessModal(true);
+                setErrors({});
+            } else {
+                await editInterview2(payload, id);
+                setSuccessModal(true);
+                setErrors({});
+            }
+
 
         } catch (err) {
 

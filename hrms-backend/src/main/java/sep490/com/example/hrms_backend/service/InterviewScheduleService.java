@@ -11,6 +11,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.InterviewScheduleDTO;
+import sep490.com.example.hrms_backend.dto.InterviewScheduleDTO2;
 import sep490.com.example.hrms_backend.entity.*;
 import sep490.com.example.hrms_backend.enums.CandidateStatus;
 import sep490.com.example.hrms_backend.enums.InterviewResult;
@@ -197,5 +198,20 @@ public class InterviewScheduleService {
         InterviewSchedule interviewSchedule = interviewScheduleRepository.findById(id).orElse(null);
         interviewSchedule.setResult(InterviewResult.valueOf(result));
         interviewScheduleRepository.save(interviewSchedule);
+    }
+
+    public InterviewScheduleDTO editInterview2(Long id, @Valid InterviewScheduleDTO2 interviewScheduleDTO) {
+        InterviewSchedule interviewSchedule = interviewScheduleRepository.findById(id).orElse(null);
+
+        interviewSchedule.setStatus(interviewScheduleDTO.getStatus());
+        interviewSchedule.setFeedback(interviewScheduleDTO.getFeedback());
+
+        Employee employee = employeeRepository.findById(interviewScheduleDTO.getInterviewerId()).orElse(null);
+
+        interviewSchedule.setInterviewer(employee);
+        InterviewSchedule savedInterviewSchedule = interviewScheduleRepository.save(interviewSchedule);
+
+
+        return InterviewScheduleMapper.mapToInterviewScheduleDTO(savedInterviewSchedule);
     }
 }

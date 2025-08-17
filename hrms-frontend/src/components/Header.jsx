@@ -230,38 +230,24 @@ function Header() {
             alt="User"
           />
           <span className="header-username">{username}</span>
-          <ChevronDown
-            size={16}
-            stroke="#000"
-          />
+          <ChevronDown size={16} stroke="#000" />
         </div>
 
         {isProfileOpen && (
-          <div
-            className="profile-dropdown"
-            onMouseDown={(e) => e.stopPropagation()}
-          >
+          <div className="profile-dropdown" onMouseDown={(e) => e.stopPropagation()}>
+
             <div className="profile-info">
               <div className="profile-name">{username}</div>
             </div>
-            <div
-              className="profile-item"
-              onClick={handleGoToProfile}
-            >
+            <div className="profile-item" onClick={handleGoToProfile}>
               <User size={16} /> <span>Hồ sơ cá nhân</span>
             </div>
-            <div
-              className="profile-item"
-              onClick={handleChangePassword}
-            >
+            <div className="profile-item" onClick={handleChangePassword}>
               <Key size={16} /> <span>Đổi mật khẩu</span>
             </div>
 
             <div className="profile-divider"></div>
-            <div
-              className="profile-item profile-logout"
-              onClick={handleSignOut}
-            >
+            <div className="profile-item profile-logout" onClick={handleSignOut}>
               <LogOut size={16} /> <span>Đăng xuất</span>
             </div>
           </div>
