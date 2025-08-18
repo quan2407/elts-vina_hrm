@@ -13,6 +13,7 @@ import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.repository.EmployeeRepository;
 import sep490.com.example.hrms_backend.service.EmployeeService;
 import sep490.com.example.hrms_backend.dto.benefit.EmployeeBasicDetailResponse;
+import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -27,6 +28,7 @@ import java.util.List;
 public class EmployeeController {
 
     private final EmployeeService employeeService;
+    private final CurrentUserUtils currentUserUtils;
 
     @GetMapping
     public ResponseEntity<Page<EmployeeResponseDTO>> getAllEmployees(
@@ -37,7 +39,6 @@ public class EmployeeController {
         Page<EmployeeResponseDTO> employees = employeeService.getAllEmployees(page, size, search);
         return ResponseEntity.ok(employees);
     }
-
 
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -63,6 +64,7 @@ public class EmployeeController {
         EmployeeResponseDTO createdEmployee = employeeService.createEmployee(dto);
         return ResponseEntity.ok(createdEmployee);
     }
+
     private String saveFile(MultipartFile file, String prefix) throws IOException {
         String folder = "uploads/cccd/";
         String filename = prefix + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
@@ -124,6 +126,7 @@ public class EmployeeController {
         String nextCode = employeeService.getNextEmployeeCode();
         return ResponseEntity.ok(nextCode);
     }
+
     @GetMapping("/next-code/{positionId}")
     public ResponseEntity<String> getNextEmployeeCodeByPosition(@PathVariable Long positionId) {
         String nextCode = employeeService.getNextEmployeeCodeByPosition(positionId);
@@ -175,7 +178,8 @@ public class EmployeeController {
     public ResponseEntity<?> addEmployeesToLine(
             @PathVariable Long lineId,
             @RequestBody List<Long> employeeIds) {
-        employeeService.addEmployeesToLine(lineId, employeeIds);
+        Long senderId = currentUserUtils.getCurrentEmployeeId();
+        employeeService.addEmployeesToLine(lineId, employeeIds, senderId);
         return ResponseEntity.ok("Thêm thành công");
     }
 

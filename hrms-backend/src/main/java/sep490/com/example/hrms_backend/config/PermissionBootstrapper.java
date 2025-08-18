@@ -185,5 +185,12 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Application",
                 allRoles
         );
+        permissionRegistrationService.registerPermission(
+                "/api/employees/add-to-line/*",
+                "PUT",
+                "Employee",
+                List.of("ROLE_PMC")
+
+        );
     }
 }

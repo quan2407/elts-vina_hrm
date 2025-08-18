@@ -8,6 +8,6 @@ public enum NotificationType {
     //Lịch phỏng vấn
     INTERVIEW_SCHEDULE,
 
-    //Lịch làm việc
+    LINE_CHANGED, //Lịch làm việc
     SHIFT_CHANGED
 }

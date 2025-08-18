@@ -53,6 +53,11 @@ public class NotificationServiceImpl implements NotificationService {
                 title = "Cập nhật lịch làm việc";
                 content = "Nhân viên " + sender.getEmployee().getEmployeeName() + " vừa cập nhật lịch làm việc";
                 break;
+
+            case LINE_CHANGED:
+                title = "Chuyển line làm việc";
+                content = "Nhân viên " + recipients.getEmployee().getEmployeeName() + " vừa được điều chuyển line làm việc";
+                break;
             default:
                 title = "Thông báo mới";
                 content = "Bạn có một thông báo mới từ hệ thống.";
