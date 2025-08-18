@@ -41,7 +41,7 @@ public class NotificationServiceImpl implements NotificationService {
                 break;
             case APPROVAL:
                 title = "Yêu cầu duyệt đơn mới";
-                content = "Nhân viên " + sender.getEmployee().getEmployeeName() + " vừa gửi đơn.";
+                content = "Nhân viên " + sender.getEmployee().getEmployeeName() + " vừa gửi đơn mới.";
                 break;
 
             case INTERVIEW_SCHEDULE:
