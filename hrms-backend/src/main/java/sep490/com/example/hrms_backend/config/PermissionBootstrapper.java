@@ -190,7 +190,6 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "PUT",
                 "Employee",
                 List.of("ROLE_PMC")
-
         );
     }
 }
