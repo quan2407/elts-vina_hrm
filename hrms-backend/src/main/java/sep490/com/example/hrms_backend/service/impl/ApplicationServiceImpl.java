@@ -455,7 +455,4 @@ public class ApplicationServiceImpl implements ApplicationService {
             // có thể log nếu muốn
         }
     }
-
-
-
 }

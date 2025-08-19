@@ -760,12 +760,9 @@ function EmployeeCreate() {
                   )}
                 </div>
               </div>
-              {/* Dân tộc & Tôn giáo */}
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">
-                    Dân tộc<span className="required-star">*</span>
-                  </div>
+                  <div className="employeedetail-input-label">Dân tộc</div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -781,9 +778,7 @@ function EmployeeCreate() {
                 </div>
 
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">
-                    Tôn giáo<span className="required-star">*</span>
-                  </div>
+                  <div className="employeedetail-input-label">Tôn giáo</div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -799,7 +794,6 @@ function EmployeeCreate() {
                 </div>
               </div>
 
-              {/* Nơi ở hiện nay & Trình độ văn hóa */}
               <div className="employeedetail-form-row">
                 <div
                   className="employeedetail-input-group"
@@ -823,7 +817,7 @@ function EmployeeCreate() {
                 </div>
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Trình độ văn hóa<span className="required-star">*</span>
+                    Trình độ văn hóa
                   </div>
                   <input
                     className="employeedetail-input-field"
@@ -840,12 +834,10 @@ function EmployeeCreate() {
                   )}
                 </div>
               </div>
-
-              {/* Trình độ chuyên môn & Ngoại ngữ */}
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Trình độ chuyên môn<span className="required-star">*</span>
+                    Trình độ chuyên môn
                   </div>
                   <input
                     className="employeedetail-input-field"
@@ -880,7 +872,6 @@ function EmployeeCreate() {
                 </div>
               </div>
 
-              {/* Loại hình đào tạo & Chuyên ngành đào tạo */}
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
@@ -903,7 +894,7 @@ function EmployeeCreate() {
 
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Chuyên ngành đào tạo<span className="required-star">*</span>
+                    Chuyên ngành đào tạo
                   </div>
                   <input
                     className="employeedetail-input-field"
@@ -925,14 +916,12 @@ function EmployeeCreate() {
               id="contact-info"
               className="employeedetail-contact-information"
             >
-              <div className="employeedetail-form-title">
-                Thông tin liên hệ<span className="required-star">*</span>
-              </div>
+              <div className="employeedetail-form-title">Thông tin liên hệ</div>
 
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Số điện thoại
+                    Số điện thoại<span className="required-star">*</span>
                   </div>
                   <input
                     className="employeedetail-input-field"

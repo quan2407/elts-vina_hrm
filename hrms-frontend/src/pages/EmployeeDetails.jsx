@@ -802,7 +802,7 @@ function EmployeeDetails() {
 
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Trình độ văn hóa<span className="required-star">*</span>
+                    Trình độ văn hóa
                   </div>
                   <input
                     className="employeedetail-input-field"
@@ -821,9 +821,7 @@ function EmployeeDetails() {
 
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">
-                    Dân tộc<span className="required-star">*</span>
-                  </div>
+                  <div className="employeedetail-input-label">Dân tộc</div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -838,9 +836,7 @@ function EmployeeDetails() {
                   )}
                 </div>
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">
-                    Tôn giáo<span className="required-star">*</span>
-                  </div>
+                  <div className="employeedetail-input-label">Tôn giáo</div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -859,7 +855,7 @@ function EmployeeDetails() {
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Trình độ chuyên môn<span className="required-star">*</span>
+                    Trình độ chuyên môn
                   </div>
                   <input
                     className="employeedetail-input-field"
@@ -911,7 +907,7 @@ function EmployeeDetails() {
                 </div>
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Chuyên ngành đào tạo<span className="required-star">*</span>
+                    Chuyên ngành đào tạo
                   </div>
                   <input
                     className="employeedetail-input-field"
