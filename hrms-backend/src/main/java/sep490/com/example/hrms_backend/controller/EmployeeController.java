@@ -12,7 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.repository.EmployeeRepository;
 import sep490.com.example.hrms_backend.service.EmployeeService;
-import sep490.com.example.hrms_backend.dto.benefit.EmployeeBasicDetailResponse;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -32,11 +31,16 @@ public class EmployeeController {
     public ResponseEntity<Page<EmployeeResponseDTO>> getAllEmployees(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String search
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long departmentId,
+            @RequestParam(required = false) Long positionId,
+            @RequestParam(required = false) Long lineId
     ) {
-        Page<EmployeeResponseDTO> employees = employeeService.getAllEmployees(page, size, search);
+        Page<EmployeeResponseDTO> employees =
+                employeeService.getAllEmployees(page, size, search, departmentId, positionId, lineId);
         return ResponseEntity.ok(employees);
     }
+
 
 
 
