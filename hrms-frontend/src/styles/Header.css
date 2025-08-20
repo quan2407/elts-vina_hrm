@@ -9,7 +9,7 @@
   margin-bottom: 16px;
   position: sticky;
   top: 0;
-  z-index: 1030; /* below sidebar (1040) so the offcanvas sits above */
+  z-index: 1030; /* dưới sidebar (1040) để offcanvas nổi lên */
 }
 
 .header-actions { display: flex; gap: 16px; align-items: center; position: relative; }

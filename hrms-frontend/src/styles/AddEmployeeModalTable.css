@@ -1,0 +1,130 @@
+/* ===== (Optional) Wrapper nếu dùng riêng ===== */
+.aem-employee-table-wrapper {
+  max-width: 100%;
+  background-color: #fff;
+  border-radius: 24px;
+  padding: 20px;
+  font-family: "Product Sans", sans-serif;
+  overflow-x: hidden;
+}
+
+/* ===== Table ===== */
+.aem-employee-table {
+  width: 100%;
+}
+
+/* ===== Header & Row as Grid (7 cột) =====
+  1 Chọn | 2 Mã NV | 3 Họ tên | 4 Chuyền | 5 Giới tính | 6 Phòng ban | 7 Vị trí
+*/
+.aem-employee-table-header,
+.aem-employee-table-row {
+  display: grid;
+  grid-template-columns:
+    48px                                 /* 1 Chọn */
+    minmax(110px, 0.9fr)                 /* 2 Mã NV */
+    minmax(180px, 1.4fr)                 /* 3 Họ tên */
+    minmax(120px, 1.1fr)                 /* 4 Chuyền */
+    minmax(100px, 0.9fr)                 /* 5 Giới tính */
+    minmax(170px, 1.2fr)                 /* 6 Phòng ban */
+    minmax(150px, 1.1fr);                /* 7 Vị trí */
+  gap: 10px;
+  padding: 12px 20px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.aem-employee-header-cell {
+  color: #000;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aem-employee-table-cell {
+  color: #000;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===== Empty state ===== */
+.aem-employee-table-empty {
+  padding: 12px 20px;
+  text-align: center;
+}
+
+/* ===== Checkbox & Bulk (nếu dùng) ===== */
+.aem-bulk-checkbox {
+  transform: scale(1.4);
+  transform-origin: center;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.aem-checkbox-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.aem-bulk-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 12px;
+}
+
+/* Căn giữa thêm cho cột 4,5 (nếu muốn) */
+.aem-employee-table-header .aem-employee-header-cell:nth-child(4),
+.aem-employee-table-header .aem-employee-header-cell:nth-child(5),
+.aem-employee-table .aem-employee-table-cell:nth-child(4),
+.aem-employee-table .aem-employee-table-cell:nth-child(5) {
+  text-align: center !important;
+}
+
+/* ===== Responsive: ≤992px Ẩn cột 6–7 để tránh tràn ===== */
+@media (max-width: 992px) {
+  .aem-employee-table-header,
+  .aem-employee-table-row {
+    grid-template-columns:
+      40px
+      minmax(90px, 1fr)
+      minmax(160px, 1.2fr)
+      minmax(110px, 1fr)
+      minmax(100px, 0.9fr); /* còn 5 cột: Chọn, Mã, Họ tên, Chuyền, Giới tính */
+  }
+
+  .aem-employee-table-header .aem-employee-header-cell:nth-child(6),
+  .aem-employee-table-header .aem-employee-header-cell:nth-child(7),
+  .aem-employee-table-row .aem-employee-table-cell:nth-child(6),
+  .aem-employee-table-row .aem-employee-table-cell:nth-child(7) {
+    display: none;
+  }
+}
+
+/* ===== Responsive: ≤576px Ẩn thêm cột 5, còn 4 cột cốt lõi ===== */
+@media (max-width: 576px) {
+  .aem-employee-table-header,
+  .aem-employee-table-row {
+    grid-template-columns:
+      36px
+      minmax(80px, 1fr)
+      minmax(140px, 1.3fr)
+      minmax(90px, 0.9fr); /* Chọn, Mã, Họ tên, Chuyền */
+  }
+
+  .aem-employee-table-header .aem-employee-header-cell:nth-child(5),
+  .aem-employee-table-row .aem-employee-table-cell:nth-child(5) {
+    display: none;
+  }
+}

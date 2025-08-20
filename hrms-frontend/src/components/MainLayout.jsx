@@ -7,10 +7,7 @@ import "../styles/MainLayout.css";
 const MainLayout = ({ children }) => {
 return (
 <div className="layout-container d-flex">
-{/* Sidebar renders both desktop fixed and mobile offcanvas */}
 <Sidebar />
-
-
 <main className="main-content flex-grow-1 d-flex flex-column">
 <Header />
 <div className="content-wrapper flex-grow-1">{children}</div>
