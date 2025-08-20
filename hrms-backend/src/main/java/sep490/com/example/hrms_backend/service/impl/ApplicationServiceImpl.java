@@ -78,7 +78,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 ? creator.getPosition().getPositionName().toLowerCase()
                 : "";
 
-        if (position.contains("hr")) {
+        if (position.contains("hr") || position.contains("trưởng phòng nhân sự") || position.contains("hr_manager")) {
             application.setStatus(ApplicationStatus.HR_APPROVED);
 
             ApplicationApprovalStep step2 = ApplicationApprovalStep.builder()

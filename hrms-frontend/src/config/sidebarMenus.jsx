@@ -13,7 +13,6 @@ import {
   ClipboardPlus,
 } from "lucide-react";
 
-
 export const systemMenus = [
   {
     text: "Danh sách tài khoản",
@@ -190,6 +189,17 @@ export const hrMenus = [
       />
     ),
   },
+  {
+    text: "Màn hình nhân viên",
+    path: "/my-work-schedule",
+    viewAs: "employee",
+    icon: (isActive) => (
+      <ClipboardPlus
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
 ];
 export const pmcMenus = [
   {
@@ -209,6 +219,17 @@ export const pmcMenus = [
     apiPath: "/api/lines",
     icon: (isActive) => (
       <Rows4
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
+  {
+    text: "Màn hình nhân viên",
+    path: "/my-work-schedule",
+    viewAs: "employee",
+    icon: (isActive) => (
+      <ClipboardPlus
         size={20}
         stroke={isActive ? "#4f46e5" : "white"}
       />
@@ -294,6 +315,17 @@ export const productionManagerMenus = [
       />
     ),
   },
+  {
+    text: "Màn hình nhân viên",
+    path: "/my-work-schedule",
+    viewAs: "employee",
+    icon: (isActive) => (
+      <ClipboardPlus
+        size={20}
+        stroke={isActive ? "#4f46e5" : "white"}
+      />
+    ),
+  },
 ];
 export const canteenMenus = [];
 export const employeeMenus = [
@@ -339,7 +371,7 @@ export const employeeMenus = [
         stroke={isActive ? "#4f46e5" : "white"}
       />
     ),
-  },  
+  },
   {
     text: "Danh sách phỏng vấn",
     path: "/interviews-management",
@@ -349,7 +381,7 @@ export const employeeMenus = [
         stroke={isActive ? "#4f46e5" : "white"}
       />
     ),
-  }
+  },
 ];
 export const hrManagerMenus = [
   ...hrMenus,

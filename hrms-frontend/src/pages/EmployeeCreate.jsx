@@ -59,7 +59,16 @@ function EmployeeCreate() {
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [activeSection, setActiveSection] = useState("basic-info");
+  const normalizeVN = (s) =>
+    (s || "")
+      .toString()
+      .trim()
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "")
+      .toLowerCase();
 
+  const isHiddenPosition = (name) =>
+    normalizeVN(name) === normalizeVN("Tổ Trưởng");
   const showSuccess = (title, message) =>
     setModal({ open: true, title, message, type: "success" });
 
@@ -354,8 +363,20 @@ function EmployeeCreate() {
             departmentService.getPositionsByDepartment(departmentId),
             departmentService.getLinesByDepartment(departmentId),
           ]);
-          setPositions(posRes.data);
-          setLines(lineRes.data);
+
+          const raw = posRes.data || [];
+          // 🔥 LỌC BỎ "Tổ trưởng" TRƯỚC KHI SET STATE
+          const filtered = raw.filter((p) => !isHiddenPosition(p.name));
+          setPositions(filtered);
+          setLines(lineRes.data || []);
+
+          // Nếu giá trị đang chọn không còn trong list (hoặc là "Tổ trưởng"), reset
+          if (
+            positionId &&
+            !filtered.some((p) => String(p.id) === String(positionId))
+          ) {
+            setPositionId("");
+          }
         } catch (err) {
           console.error("Lỗi load vị trí hoặc line:", err);
         }
@@ -364,8 +385,9 @@ function EmployeeCreate() {
     } else {
       setPositions([]);
       setLines([]);
+      setPositionId("");
     }
-  }, [departmentId]);
+  }, [departmentId, positionId]);
 
   const isClickScrolling = useRef(false);
 

@@ -1,4 +1,3 @@
-// pages/ResetPasswordRequestsPage.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import authService from "../services/authService";
 import departmentService from "../services/departmentService";
@@ -16,32 +15,21 @@ const STATUS_OPTIONS = [
 ];
 
 function ResetPasswordRequestsPage() {
-  // data
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [processingKey, setProcessingKey] = useState(null); // dùng email làm key
-
-  // pagination
+  const [processingKey, setProcessingKey] = useState(null);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
-
-  // filters
-  const [searchTerm, setSearchTerm] = useState(""); // tìm theo mã/tên
+  const [searchTerm, setSearchTerm] = useState("");
   const [departmentId, setDepartmentId] = useState(null);
   const [positionId, setPositionId] = useState(null);
   const [lineId, setLineId] = useState(null);
   const [status, setStatus] = useState("all");
-
-  // danh mục (để chọn lọc)
   const [departments, setDepartments] = useState([]);
   const [positions, setPositions] = useState([]);
   const [lines, setLines] = useState([]);
-
-  // lưới cột: Mã NV | Nhân viên | Chức vụ | Phòng ban | Chuyền | Thời gian | Trạng thái | Hành động
   const gridCols = "1.1fr 1.4fr 1.8fr 1fr 1fr 1fr 1.2fr 1fr 1.2fr";
-
-  // tải danh mục ban đầu
   useEffect(() => {
     (async () => {
       try {
@@ -58,8 +46,6 @@ function ResetPasswordRequestsPage() {
       }
     })();
   }, []);
-
-  // khi đổi bộ phận → reload position/line theo bộ phận
   useEffect(() => {
     (async () => {
       try {
@@ -83,8 +69,6 @@ function ResetPasswordRequestsPage() {
       }
     })();
   }, [departmentId]);
-
-  // map id → name để gọi filter name-based
   const departmentName = useMemo(() => {
     if (!departmentId) return undefined;
     const d = departments.find((x) => x.id === departmentId);
@@ -103,7 +87,6 @@ function ResetPasswordRequestsPage() {
     return l?.name;
   }, [lineId, lines]);
 
-  // fetch list
   const fetchRequests = async (
     targetPage = page,
     targetSize = size,
@@ -136,8 +119,6 @@ function ResetPasswordRequestsPage() {
       setLoading(false);
     }
   };
-
-  // clear filters
   const handleClearFilters = () => {
     setSearchTerm("");
     setDepartmentId(null);
@@ -155,13 +136,9 @@ function ResetPasswordRequestsPage() {
     fetchRequests(0, size, cleared);
   };
 
-  // auto refetch theo trang/size
   useEffect(() => {
     fetchRequests(page, size);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, size]);
-
-  // pagination numbers
   const pageNumbers = useMemo(() => {
     const range = [];
     const max = 5;
@@ -172,8 +149,6 @@ function ResetPasswordRequestsPage() {
     for (let i = start; i < end; i++) range.push(i);
     return range;
   }, [page, totalPages]);
-
-  // approve
   const handleApprove = async (email) => {
     if (!window.confirm(`Xác nhận duyệt reset mật khẩu cho: ${email}?`)) return;
     try {
@@ -217,8 +192,6 @@ function ResetPasswordRequestsPage() {
             <span>/ trang</span>
           </div>
         </div>
-
-        {/* Filter bar giống trang tạo tài khoản */}
         <div
           className="employee-search-wrapper"
           style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
@@ -238,7 +211,6 @@ function ResetPasswordRequestsPage() {
           />
 
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {/* Status */}
             <select
               value={status}
               onChange={(e) => {
@@ -254,8 +226,6 @@ function ResetPasswordRequestsPage() {
                 </option>
               ))}
             </select>
-
-            {/* Department */}
             <select
               value={departmentId ?? ""}
               onChange={(e) =>
@@ -272,8 +242,6 @@ function ResetPasswordRequestsPage() {
                 </option>
               ))}
             </select>
-
-            {/* Line */}
             <select
               value={lineId ?? ""}
               onChange={(e) =>
@@ -290,8 +258,6 @@ function ResetPasswordRequestsPage() {
                 </option>
               ))}
             </select>
-
-            {/* Position */}
             <select
               value={positionId ?? ""}
               onChange={(e) =>
@@ -320,8 +286,6 @@ function ResetPasswordRequestsPage() {
             </button>
           </div>
         </div>
-
-        {/* Table */}
         <div className="reset-request-table-container">
           <div
             className="reset-request-table-header"

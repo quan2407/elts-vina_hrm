@@ -136,8 +136,8 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 
 -- HR, HR_MANAGER: xem chi tiết, xem và duyệt bước 2
 INSERT INTO role_permission (role_id, permission_id) VALUES 
-(2, 11), (2, 15), (2, 16), -- HR
-(8, 11), (8, 15), (8, 16); -- HR_MANAGER
+(2, 11), (2, 15), (2, 16),(2,9), -- HR
+(8, 11), (8, 15), (8, 16),(8,9); -- HR_MANAGER
 -- Module: Attendance 
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
 (17, 'GET', '/api/attendances/view-by-month', 'Xem bảng công theo tháng', 'Attendance '),
@@ -339,6 +339,14 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 INSERT INTO role_permission (role_id, permission_id) VALUES
 (6, 61), (6, 62), (6, 63), (6, 65), (6, 66), (6, 67);
 
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(3, 61), (3, 62), (3, 63), (3, 65), (3, 66), (3, 67);
+
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(4, 61), (4, 62), (4, 63), (4, 65), (4, 66), (4, 67);
+
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(7, 61), (7, 62), (7, 63), (7, 65), (7, 66), (7, 67);
 -- Module: Line
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 (68, 'GET', '/api/lines/*/department', 'Lấy phòng ban theo chuyền', 'Line'),
@@ -400,6 +408,8 @@ INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 INSERT INTO role_permission (role_id, permission_id) VALUES
 (2, 77), (2, 78), (2, 79), (2, 80), (2, 82),
 (8, 77), (8, 78), (8, 79), (8, 80), (8, 82);
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(2, 81),(8,81),(7,81),(4,81),(4,80),(7,80);
 
 -- EMPLOYEE được xem lương của mình và danh sách tháng
 INSERT INTO role_permission (role_id, permission_id) VALUES
@@ -422,7 +432,8 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 -- PMC (7): tạo, dải, gửi
 INSERT INTO role_permission (role_id, permission_id) VALUES
 (7, 83), (7, 84), (7, 85), (7, 86), (7, 90);
-
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(7, 88), (2,88),(8,88),(2,85),(8,85);
 -- PRODUCTION_MANAGER (4): duyệt, từ chối, yêu cầu sửa
 INSERT INTO role_permission (role_id, permission_id) VALUES
 (4, 85), (4, 87), (4, 88), (4, 89), (4, 91);
