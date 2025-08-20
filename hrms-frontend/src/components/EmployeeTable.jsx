@@ -51,50 +51,6 @@ function EmployeeTable({
           </div>
         ))}
       </div>
-
-      <div className="employee-pagination-container">
-        <button
-          className="employee-pagination-btn"
-          onClick={() => onPageChange(0)}
-          disabled={page === 0}
-        >
-          «
-        </button>
-        <button
-          className="employee-pagination-btn"
-          onClick={() => onPageChange(page - 1)}
-          disabled={page === 0}
-        >
-          ‹
-        </button>
-
-        {Array.from({ length: totalPages }).map((_, p) => (
-          <button
-            key={p}
-            onClick={() => onPageChange(p)}
-            className={`employee-pagination-btn ${
-              p === page ? "employee-pagination-active" : ""
-            }`}
-          >
-            {p + 1}
-          </button>
-        ))}
-
-        <button
-          className="employee-pagination-btn"
-          onClick={() => onPageChange(page + 1)}
-          disabled={page === totalPages - 1}
-        >
-          ›
-        </button>
-        <button
-          className="employee-pagination-btn"
-          onClick={() => onPageChange(totalPages - 1)}
-          disabled={page === totalPages - 1}
-        >
-          »
-        </button>
-      </div>
     </div>
   );
 }

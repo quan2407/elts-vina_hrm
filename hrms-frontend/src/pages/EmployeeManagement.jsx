@@ -116,21 +116,37 @@ function EmployeeManagement() {
       <div className="content-wrapper">
         <div className="page-header">
           <h1 className="page-title">Danh sách nhân viên</h1>
-
-          <div className="page-actions">
+          <div
+            className="page-actions"
+            style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
+          >
             <button
-              className="add-button"
-              style={{ height: "55px" }}
+              type="button"
               onClick={handleCreate}
+              style={{
+                padding: "10px 20px",
+                fontSize: "16px",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
             >
-              <span className="export-text">Thêm nhân viên</span>
+              Thêm nhân viên
             </button>
+
             <button
-              className="export-button"
-              style={{ height: "55px" }}
+              type="button"
               onClick={handleExport}
+              style={{
+                padding: "10px 20px",
+                fontSize: "16px",
+                borderRadius: "6px",
+                cursor: "pointer",
+                backgroundColor: "#28a745", // xanh lá
+                color: "#fff",
+                border: "none",
+              }}
             >
-              <span className="export-text">Export</span>
+              Export
             </button>
           </div>
         </div>
@@ -261,6 +277,49 @@ function EmployeeManagement() {
           onPageChange={setPage}
           onRowClick={(id) => navigate(`/employees/${id}`)}
         />
+        <div className="employee-pagination-container">
+          <button
+            className="employee-pagination-btn"
+            onClick={() => setPage(0)}
+            disabled={page === 0}
+          >
+            «
+          </button>
+          <button
+            className="employee-pagination-btn"
+            onClick={() => setPage(page - 1)}
+            disabled={page === 0}
+          >
+            ‹
+          </button>
+
+          {Array.from({ length: totalPages }).map((_, p) => (
+            <button
+              key={p}
+              onClick={() => setPage(p)}
+              className={`employee-pagination-btn ${
+                p === page ? "employee-pagination-active" : ""
+              }`}
+            >
+              {p + 1}
+            </button>
+          ))}
+
+          <button
+            className="employee-pagination-btn"
+            onClick={() => setPage(page + 1)}
+            disabled={page === totalPages - 1}
+          >
+            ›
+          </button>
+          <button
+            className="employee-pagination-btn"
+            onClick={() => setPage(totalPages - 1)}
+            disabled={page === totalPages - 1}
+          >
+            »
+          </button>
+        </div>
       </div>
     </MainLayout>
   );
