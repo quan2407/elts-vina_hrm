@@ -1,9 +1,7 @@
-.modal-overlay {
+/* ===== Overlay & Modal Box ===== */
+.aem-modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
@@ -11,64 +9,74 @@
   z-index: 1000;
 }
 
-.modal-box.large {
-  background-color: white;
+.aem-modal-box.large {
+  background-color: #fff;
   border-radius: 12px;
   padding: 24px 32px;
-  min-width: 1200px;
+  /* Không ép min-width để tránh tràn ngang */
+  width: min(100%, 1200px);
   max-height: 85vh;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
+  overflow: hidden; /* phần bảng cuộn bên trong container riêng */
   display: flex;
   flex-direction: column;
 }
 
-.sticky-title {
+.aem-modal-title {
   font-size: 24px;
-  font-weight: bold;
+  font-weight: 700;
   margin-bottom: 16px;
+}
+
+.aem-sticky-title {
   position: sticky;
   top: 0;
-  background: white;
+  background: #fff;
   z-index: 10;
 }
 
-.search-bar-wrapper {
+/* ===== Search Bar ===== */
+.aem-search-bar-wrapper {
   display: flex;
   justify-content: flex-start;
 }
 
-.employee-table-container {
-  overflow-x: auto;
+/* ===== Table Container (scroll dọc, KHÔNG ngang) ===== */
+.aem-employee-table-container {
   overflow-y: auto;
+  overflow-x: hidden;       /* quan trọng: không tạo scroll ngang */
   max-height: 55vh;
   margin-top: 12px;
+  -webkit-overflow-scrolling: touch;
 }
 
-.employee-table {
-  min-width: 1400px;
+/* ===== Table Root ===== */
+.aem-employee-table {
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.modal-actions {
+/* ===== Actions ===== */
+.aem-modal-actions {
   display: flex;
   justify-content: center;
   gap: 16px;
   margin-top: 24px;
 }
 
-.btn-confirm {
+.aem-btn-confirm {
   background-color: #2e7d32;
-  color: white;
-  font-weight: bold;
+  color: #fff;
+  font-weight: 700;
   border: none;
   padding: 8px 18px;
   border-radius: 8px;
   cursor: pointer;
 }
 
-.btn-cancel {
+.aem-btn-cancel {
   background-color: #e70c0c;
-  color: #ffffff;
+  color: #fff;
   font-weight: 500;
   border: none;
   padding: 8px 18px;
