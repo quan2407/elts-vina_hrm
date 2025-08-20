@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sep490.com.example.hrms_backend.dto.AccountResponseDTO;
 import sep490.com.example.hrms_backend.dto.ChangePasswordRequest;
+import sep490.com.example.hrms_backend.dto.PasswordResetRequestDTO;
 import sep490.com.example.hrms_backend.entity.Account;
 import sep490.com.example.hrms_backend.entity.Employee;
 import sep490.com.example.hrms_backend.entity.PasswordResetRequest;
@@ -30,9 +31,7 @@ import sep490.com.example.hrms_backend.service.AccountService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,18 +44,76 @@ public class AccountServiceImpl implements AccountService {
     private final PasswordResetRequestRepository passwordResetRequestRepository;
 
     @Override
-    public Page<PasswordResetRequest> getPendingResetRequests(int page, int size) {
-        List<PasswordResetRequest> allPending = passwordResetRequestRepository.findAll().stream()
-                .filter(r -> !r.isApproved())
-                .sorted(Comparator.comparing(PasswordResetRequest::getRequestedAt).reversed())
-                .collect(Collectors.toList());
+    public Page<PasswordResetRequestDTO> getRequestsByFilter(
+            String status,
+            int page,
+            int size,
+            String search,
+            String departmentName,
+            String positionName,
+            String lineName
+    ) {
+        List<PasswordResetRequest> all = passwordResetRequestRepository.findAll();
 
-        int start = Math.min(page * size, allPending.size());
-        int end = Math.min(start + size, allPending.size());
-        List<PasswordResetRequest> pageContent = allPending.subList(start, end);
+        String st = (status == null) ? "all" : status.toLowerCase();
+        List<PasswordResetRequest> byStatus = switch (st) {
+            case "approved" -> all.stream()
+                    .filter(PasswordResetRequest::isApproved)
+                    .toList();
+            case "rejected" -> all.stream()
+                    .filter(r -> !r.isApproved() && r.getApprovedAt() != null)
+                    .toList();
+            case "pending" -> all.stream()
+                    .filter(r -> r.getApprovedAt() == null)
+                    .toList();
+            default -> all;
+        };
 
-        return new PageImpl<>(pageContent, PageRequest.of(page, size), allPending.size());
+        String q = (search == null || search.isBlank()) ? null : search.trim().toLowerCase();
+        List<PasswordResetRequest> filtered = byStatus.stream()
+                .filter(r -> {
+                    if (q != null) {
+                        boolean byCode = r.getEmployeeCode() != null && r.getEmployeeCode().toLowerCase().contains(q);
+                        boolean byName = r.getEmployeeName() != null && r.getEmployeeName().toLowerCase().contains(q);
+                        if (!(byCode || byName)) return false;
+                    }
+                    if (departmentName != null && !departmentName.equals(r.getDepartmentName())) return false;
+                    if (positionName != null && !positionName.equals(r.getPositionName())) return false;
+                    if (lineName != null && !lineName.equals(r.getLineName())) return false;
+                    return true;
+                })
+                // requestedAt desc, null xuống cuối
+                .sorted((a, b) -> {
+                    var va = a.getRequestedAt();
+                    var vb = b.getRequestedAt();
+                    if (va == null && vb == null) return 0;
+                    if (va == null) return 1;
+                    if (vb == null) return -1;
+                    return vb.compareTo(va);
+                })
+                .toList();
+        List<PasswordResetRequestDTO> dtoList = filtered.stream()
+                .map(req -> PasswordResetRequestDTO.builder()
+                        .id(req.getId())
+                        .employeeId(req.getEmployeeId())
+                        .employeeCode(req.getEmployeeCode())
+                        .employeeName(req.getEmployeeName())
+                        .departmentName(req.getDepartmentName())
+                        .positionName(req.getPositionName())
+                        .lineName(req.getLineName())
+                        .email(req.getEmail())
+                        .requestedAt(req.getRequestedAt())
+                        .approved(req.isApproved())
+                        .build())
+                .toList();
+
+        int start = Math.min(page * size, dtoList.size());
+        int end = Math.min(start + size, dtoList.size());
+        List<PasswordResetRequestDTO> pageContent = dtoList.subList(start, end);
+
+        return new PageImpl<>(pageContent, PageRequest.of(page, size), dtoList.size());
     }
+
 
 
     @Override
@@ -183,14 +240,36 @@ public class AccountServiceImpl implements AccountService {
             throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Yêu cầu reset mật khẩu đã tồn tại và đang chờ duyệt");
         }
 
+        Employee emp = account.getEmployee(); // có thể null, cần check
+
         PasswordResetRequest request = PasswordResetRequest.builder()
                 .email(email)
                 .approved(false)
                 .requestedAt(LocalDateTime.now())
+
+                // ▼▼ SNAPSHOT nhân viên (không FK) ▼▼
+                .employeeId(emp != null ? emp.getEmployeeId() : null)
+                .employeeCode(emp != null ? emp.getEmployeeCode() : null)
+                .employeeName(emp != null ? emp.getEmployeeName() : null)
+                .departmentName(
+                        (emp != null && emp.getDepartment() != null)
+                                ? emp.getDepartment().getDepartmentName() : null
+                )
+                .positionName(
+                        (emp != null && emp.getPosition() != null)
+                                ? emp.getPosition().getPositionName() : null
+                )
+                .lineName(
+                        (emp != null && emp.getLine() != null)
+                                ? emp.getLine().getLineName() : null
+                )
+                // ▲▲ SNAPSHOT ▲▲
+
                 .build();
 
         passwordResetRequestRepository.save(request);
     }
+
     @Override
     @Transactional
     public void approveResetPassword(String email) {

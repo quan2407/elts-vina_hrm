@@ -18,8 +18,8 @@ public class AccountRequestController {
     public ResponseEntity<Page<AccountRequestDTO>> getRequests(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "all") String status,      // all | pending | approved | rejected
-            @RequestParam(required = false) String search,           // mã NV hoặc tên NV
+            @RequestParam(defaultValue = "all") String status,
+            @RequestParam(required = false) String search,
             @RequestParam(required = false) Long departmentId,
             @RequestParam(required = false) Long positionId,
             @RequestParam(required = false) Long lineId

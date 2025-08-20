@@ -170,7 +170,13 @@ INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 UPDATE permission
 SET method = 'PUT'
 WHERE permission_id = 24;
-
+INSERT INTO role_permission (role_id, permission_id) VALUES 
+(1,25),
+(2,25),                     -- HR
+(3,25),                     -- LINE_LEADER
+(4,25),                     -- PRODUCTION_MANAGER
+(6,25),                     -- EMPLOYEE
+(7,25);                     -- PMC
 -- Gán permission:
 INSERT INTO role_permission (role_id, permission_id) VALUES 
 (1,24),(1,26),(1,27),       -- ADMIN
@@ -351,6 +357,8 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 -- PMC (7)
 INSERT INTO role_permission (role_id, permission_id) VALUES
 (7, 68), (7, 69), (7, 70), (7, 71);
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(1, 68), (1, 69), (1, 70), (1, 71);
 -- Module: OCR
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 (72, 'POST', '/api/ocr/scan-cccd', 'Scan CCCD bằng OCR', 'OCR'),

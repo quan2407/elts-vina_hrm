@@ -59,7 +59,6 @@ public class AccountRequestServiceImpl implements AccountRequestService {
         requestRepository.save(request);
     }
 
-    // AccountRequestServiceImpl.java
     @Override
     public Page<AccountRequestDTO> getRequestsByStatus(
             String status,
@@ -107,7 +106,7 @@ public class AccountRequestServiceImpl implements AccountRequestService {
                     }
                     return true;
                 })
-                // --- Sort requestedAt DESC, nulls last ---
+
                 .sorted((a, b) -> {
                     var va = a.getRequestedAt();
                     var vb = b.getRequestedAt();
