@@ -100,15 +100,22 @@ function Header() {
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
+  const openMobileSidebar = () => {
+    const el = document.getElementById("sidebarOffcanvas");
+    if (!el) return;
+    if (typeof window !== "undefined" && window.bootstrap) {
+      const instance = window.bootstrap.Offcanvas.getOrCreateInstance(el);
+      instance.show();
+    }
+  };
+
   return (
     <header className="header">
       {/* Toggle for mobile: opens offcanvas sidebar */}
       <button
         className="btn btn-outline-secondary d-md-none"
         type="button"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#sidebarOffcanvas"
-        aria-controls="sidebarOffcanvas"
+        onClick={openMobileSidebar}
       >
         ☰
       </button>

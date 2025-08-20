@@ -69,11 +69,8 @@ function Sidebar() {
   const closeOffcanvasIfOpen = () => {
     const el = document.getElementById("sidebarOffcanvas");
     if (!el) return;
-    // Requires Bootstrap JS loaded globally
-    // eslint-disable-next-line no-undef
-    if (typeof bootstrap !== "undefined") {
-      // eslint-disable-next-line no-undef
-      const instance = bootstrap.Offcanvas.getInstance(el) || new bootstrap.Offcanvas(el);
+    if (typeof window !== "undefined" && window.bootstrap) {
+      const instance = window.bootstrap.Offcanvas.getInstance(el) || window.bootstrap.Offcanvas.getOrCreateInstance(el);
       instance.hide();
     }
   };
@@ -152,38 +149,51 @@ function Sidebar() {
   return (
     <>
       {/* Desktop fixed sidebar */}
-      <aside className="sidebar d-none d-md-flex flex-column">
-        <div className="user-profile">
-          <img
-            className="profile-image"
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/8020efea94b33e133d3f1c7ace70ab7dcdce7dee?placeholderIfAbsent=true"
-            alt="Profile"
-          />
-          <div className="user-name">{employeeName}</div>
-          <div className="user-role">{roles.join(", ") || "UNKNOWN"}</div>
+      <aside className="sidebar d-none d-md-flex">
+        <div className="sidebar-inner">
+          <div className="sidebar-top">
+            <div className="user-profile">
+              <img
+                className="profile-image"
+                src="https://cdn.builder.io/api/v1/image/assets/TEMP/8020efea94b33e133d3f1c7ace70ab7dcdce7dee?placeholderIfAbsent=true"
+                alt="Profile"
+              />
+              <div className="user-name">{employeeName}</div>
+              <div className="user-role">{roles.join(", ") || "UNKNOWN"}</div>
+            </div>
+            <div className="section-title">Menu</div>
+          </div>
+          <div className="menu-scroll">{renderMenuList(false)}</div>
         </div>
-        <div className="section-title">Menu</div>
-        {renderMenuList(false)}
       </aside>
 
       {/* Mobile offcanvas sidebar */}
-      <div className="offcanvas offcanvas-start d-md-none" tabIndex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
+      <div
+        className="offcanvas offcanvas-start d-md-none"
+        tabIndex="-1"
+        id="sidebarOffcanvas"
+        aria-labelledby="sidebarOffcanvasLabel"
+      >
         <div className="offcanvas-header">
           <h5 className="offcanvas-title" id="sidebarOffcanvasLabel">Menu</h5>
           <button type="button" className="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div className="offcanvas-body p-0">
-          <div className="user-profile">
-            <img
-              className="profile-image"
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/8020efea94b33e133d3f1c7ace70ab7dcdce7dee?placeholderIfAbsent=true"
-              alt="Profile"
-            />
-            <div className="user-name">{employeeName}</div>
-            <div className="user-role">{roles.join(", ") || "UNKNOWN"}</div>
+          <div className="offcanvas-inner">
+            <div className="sidebar-top">
+              <div className="user-profile">
+                <img
+                  className="profile-image"
+                  src="https://cdn.builder.io/api/v1/image/assets/TEMP/8020efea94b33e133d3f1c7ace70ab7dcdce7dee?placeholderIfAbsent=true"
+                  alt="Profile"
+                />
+                <div className="user-name">{employeeName}</div>
+                <div className="user-role">{roles.join(", ") || "UNKNOWN"}</div>
+              </div>
+              <div className="section-title">Menu</div>
+            </div>
+            <div className="menu-scroll">{renderMenuList(true)}</div>
           </div>
-          <div className="section-title">Menu</div>
-          {renderMenuList(true)}
         </div>
       </div>
     </>

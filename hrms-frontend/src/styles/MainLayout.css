@@ -4,10 +4,9 @@
   background-color: #e3edf9;
 }
 
-/* On md and up, reserve space for the fixed sidebar */
 @media (min-width: 768px) {
   .main-content {
-    margin-left: 250px; /* width of .sidebar */
+    margin-left: 250px; 
   }
 }
 
