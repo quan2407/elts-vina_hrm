@@ -1,7 +1,7 @@
 .sidebar {
   width: 250px;
   min-height: 100vh;
-  background-color: #000;
+  background-color: #fc923b;
   position: fixed;
   top: 0;
   left: 0;
@@ -93,7 +93,7 @@
 .notification-badge { position: absolute; top: 0; right: 0; transform: translate(50%, -50%); width: 16px; height: 16px; border-radius: 50%; background: red; color: white; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 
 /* Offcanvas dùng layout tương tự */
-.offcanvas.offcanvas-start { width: 250px; background-color: #000; }
+.offcanvas.offcanvas-start { width: 250px; background-color: #fc923b; }
 .offcanvas .offcanvas-header { color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); }
 .offcanvas .offcanvas-title { color: #fff; }
 .offcanvas .btn-close { filter: invert(1); }

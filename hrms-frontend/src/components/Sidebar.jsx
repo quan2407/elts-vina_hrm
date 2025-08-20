@@ -155,7 +155,7 @@ function Sidebar() {
             <div className="user-profile">
               <img
                 className="profile-image"
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/8020efea94b33e133d3f1c7ace70ab7dcdce7dee?placeholderIfAbsent=true"
+                src="https://cdn2.fptshop.com.vn/small/avatar_trang_1_cd729c335b.jpg"
                 alt="Profile"
               />
               <div className="user-name">{employeeName}</div>
@@ -175,7 +175,6 @@ function Sidebar() {
         aria-labelledby="sidebarOffcanvasLabel"
       >
         <div className="offcanvas-header">
-          <h5 className="offcanvas-title" id="sidebarOffcanvasLabel">Menu</h5>
           <button type="button" className="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div className="offcanvas-body p-0">
@@ -184,7 +183,7 @@ function Sidebar() {
               <div className="user-profile">
                 <img
                   className="profile-image"
-                  src="https://cdn.builder.io/api/v1/image/assets/TEMP/8020efea94b33e133d3f1c7ace70ab7dcdce7dee?placeholderIfAbsent=true"
+                  src="https://cdn2.fptshop.com.vn/small/avatar_trang_1_cd729c335b.jpg"
                   alt="Profile"
                 />
                 <div className="user-name">{employeeName}</div>

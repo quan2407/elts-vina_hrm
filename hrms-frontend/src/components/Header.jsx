@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import { Bell, ChevronDown, User, Key, LogOut } from "lucide-react";
+import { Bell, ChevronDown, User, Key, LogOut , CircleUser } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Header.css";
 import { getNotifications, markNotificationAsRead } from "../services/notificationService";
 import notificationLinks from "../constants/notificationLinks.jsx";
+import { Offcanvas } from "bootstrap";
 
 function Header() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -100,14 +101,13 @@ function Header() {
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
-  const openMobileSidebar = () => {
-    const el = document.getElementById("sidebarOffcanvas");
-    if (!el) return;
-    if (typeof window !== "undefined" && window.bootstrap) {
-      const instance = window.bootstrap.Offcanvas.getOrCreateInstance(el);
-      instance.show();
-    }
-  };
+const openMobileSidebar = () => {
+  const el = document.getElementById("sidebarOffcanvas");
+  if (!el) return;
+  let instance = Offcanvas.getInstance(el);
+  if (!instance) instance = new Offcanvas(el);
+  instance.show();
+};
 
   return (
     <header className="header">
@@ -184,7 +184,7 @@ function Header() {
 
         {/* Profile */}
         <div className="header-profile" ref={profileRef} onClick={() => setIsProfileOpen((s) => !s)}>
-          <img className="header-avatar" src="https://i.pravatar.cc/40" alt="User" />
+              <CircleUser className="header-avatar" alt="User" size={20} />
           <span className="header-username">{username}</span>
           <ChevronDown size={16} stroke="#000" />
         </div>
