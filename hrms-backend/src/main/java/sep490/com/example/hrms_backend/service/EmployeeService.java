@@ -22,7 +22,7 @@ public interface EmployeeService {
     List<EmployeeResponseDTO> getEmployeesNotInLine(Long lineId, String search);
     List<EmployeeResponseDTO> getEmployeeByLineId(Long id);
 
-    void addEmployeesToLine(Long lineId, List<Long> employeeIds);
+    void addEmployeesToLine(Long lineId, List<Long> employeeIds, Long senderId);
     String getNextEmployeeCodeByPosition(Long positionId);
 
     String getNextEmployeeCode();

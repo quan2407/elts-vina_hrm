@@ -18,6 +18,7 @@ import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.ApplicationService;
 import sep490.com.example.hrms_backend.service.AttendanceRecordService;
+import sep490.com.example.hrms_backend.service.NotificationService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 import sep490.com.example.hrms_backend.validation.ApplicationValidator;
 
@@ -40,6 +41,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final AttendanceRecordService attendanceRecordService;
     private final ApplicationValidator applicationValidator;
+    private final NotificationService notificationService;
 
     //tested
     @Override
@@ -89,6 +91,9 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .build();
 
             applicationRepository.save(application);
+
+
+
             approvalStepRepository.save(step2);
             if (application.getCheckIn() != null && application.getCheckOut() != null) {
                 attendanceRecordRepository.findByEmployee_EmployeeIdAndDate(
@@ -145,6 +150,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .status(ApprovalStepStatus.PENDING)
                 .build();
     }
+
     //tested
     @Override
     public Page<ApplicationListItemDTO> getApplicationsForEmployee(Long employeeId, ApplicationStatus status, Pageable pageable) {
@@ -332,6 +338,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         return new PageImpl<>(dtos, of, steps.getTotalElements());
     }
+
     private ApplicationApprovalListItemDTO toApprovalListItemDTO(Application app) {
         Employee emp = app.getEmployee();
         return ApplicationApprovalListItemDTO.builder()
@@ -422,6 +429,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         return new PageImpl<>(dtos, pageRequest, steps.getTotalElements());
     }
+
     @Override
     @Transactional
     public void deleteApplication(Long id, Long employeeId) {
@@ -455,4 +463,5 @@ public class ApplicationServiceImpl implements ApplicationService {
             // có thể log nếu muốn
         }
     }
+
 }

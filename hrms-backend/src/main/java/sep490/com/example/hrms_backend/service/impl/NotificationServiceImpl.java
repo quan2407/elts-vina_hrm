@@ -41,7 +41,7 @@ public class NotificationServiceImpl implements NotificationService {
                 break;
             case APPROVAL:
                 title = "Yêu cầu duyệt đơn mới";
-                content = "Nhân viên " + sender.getEmployee().getEmployeeName() + " vừa gửi đơn.";
+                content = "Nhân viên " + sender.getEmployee().getEmployeeName() + " vừa gửi đơn mới.";
                 break;
 
             case INTERVIEW_SCHEDULE:
@@ -52,6 +52,16 @@ public class NotificationServiceImpl implements NotificationService {
             case SHIFT_CHANGED:
                 title = "Cập nhật lịch làm việc";
                 content = "Nhân viên " + sender.getEmployee().getEmployeeName() + " vừa cập nhật lịch làm việc";
+                break;
+
+            case LINE_CHANGED:
+                title = "Chuyển line làm việc";
+                content = "Nhân viên " + recipients.getEmployee().getEmployeeName() + " vừa được điều chuyển line làm việc";
+                break;
+
+            case LEADER_CHANGE:
+                title = "Bổ nhiệm tổ trưởng mới";
+                content = "Nhân viên " + recipients.getEmployee().getEmployeeName() + " vừa được bổ nhiệm làm tổ trưởng";
                 break;
             default:
                 title = "Thông báo mới";
