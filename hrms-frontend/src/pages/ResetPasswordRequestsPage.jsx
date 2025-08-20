@@ -243,14 +243,6 @@ function ResetPasswordRequestsPage() {
               value={status}
               onChange={(e) => {
                 setStatus(e.target.value);
-                setPage(0);
-                fetchRequests(0, size, {
-                  status: e.target.value,
-                  search: searchTerm || undefined,
-                  departmentName,
-                  positionName,
-                  lineName,
-                });
               }}
             >
               {STATUS_OPTIONS.map((s) => (
