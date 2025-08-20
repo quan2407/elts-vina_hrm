@@ -46,24 +46,53 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     NotificationService notificationService;
 
     @Override
-    public Page<EmployeeResponseDTO> getAllEmployees(int page, int size, String search) {
+    public Page<EmployeeResponseDTO> getAllEmployees(int page, int size, String search,
+                                                     Long departmentId, Long positionId, Long lineId) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Employee> employeePage;
+
+        List<Employee> all = employeeRepository.findByIsDeletedFalse();
 
         if (search != null && !search.trim().isEmpty()) {
-            employeePage = employeeRepository
-                    .findByIsDeletedFalseAndEmployeeCodeContainingIgnoreCaseOrEmployeeNameContainingIgnoreCase(
-                            search, search, pageable);
-        } else {
-            employeePage = employeeRepository.findByIsDeletedFalse(pageable);
+            String lower = search.trim().toLowerCase();
+            all = all.stream()
+                    .filter(e ->
+                            (e.getEmployeeCode() != null && e.getEmployeeCode().toLowerCase().contains(lower)) ||
+                                    (e.getEmployeeName() != null && e.getEmployeeName().toLowerCase().contains(lower)))
+                    .toList();
         }
 
-        List<EmployeeResponseDTO> dtos = employeePage.getContent().stream()
+        if (departmentId != null) {
+            all = all.stream()
+                    .filter(e -> e.getDepartment() != null &&
+                            departmentId.equals(e.getDepartment().getDepartmentId()))
+                    .toList();
+        }
+
+        if (positionId != null) {
+            all = all.stream()
+                    .filter(e -> e.getPosition() != null &&
+                            positionId.equals(e.getPosition().getPositionId()))
+                    .toList();
+        }
+
+        if (lineId != null) {
+            all = all.stream()
+                    .filter(e -> e.getLine() != null &&
+                            lineId.equals(e.getLine().getLineId()))
+                    .toList();
+        }
+
+        List<EmployeeResponseDTO> dtos = all.stream()
                 .map(EmployeeMapper::mapToEmployeeResponseDTO)
                 .toList();
 
-        return new PageImpl<>(dtos, pageable, employeePage.getTotalElements());
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), dtos.size());
+        List<EmployeeResponseDTO> content = start >= dtos.size() ? List.of() : dtos.subList(start, end);
+
+        return new PageImpl<>(content, pageable, dtos.size());
     }
+
 
     @Override
     public String getNextEmployeeCode() {

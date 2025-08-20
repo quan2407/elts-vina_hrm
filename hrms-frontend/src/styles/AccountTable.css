@@ -4,15 +4,27 @@
   flex: 1;
   background-color: #fff;
   width: 100%;
-  overflow-x: auto;
+  overflow-x: auto; /* cho phép kéo ngang khi hẹp */
   box-sizing: border-box;
 }
 
-/* ---------- Grid layout ---------- */
+/* ---------- Grid layout (11 cột) ---------- */
+/* Dùng minmax để cột co giãn hợp lý trên màn nhỏ */
 .account-table-header,
 .account-table-row {
   display: grid;
-  grid-template-columns: 1.5fr 2.5fr 2fr 1fr 2fr 3fr;
+  grid-template-columns:
+    minmax(140px, 1.1fr) /* Tên đăng nhập */
+    minmax(110px, 0.8fr) /* Mã NV */
+    minmax(150px, 1fr) /* Tên NV */
+    minmax(130px, 0.9fr) /* Chức vụ */
+    minmax(140px, 1fr) /* Phòng ban */
+    minmax(120px, 0.8fr) /* Chuyền */
+    minmax(200px, 1.2fr) /* Email */
+    minmax(110px, 0.7fr) /* Vai trò */
+    minmax(110px, 0.7fr) /* Kích hoạt */
+    minmax(160px, 1fr) /* Đăng nhập lần cuối */
+    minmax(200px, 1.2fr); /* Hành động */
   gap: 10px;
   width: 100%;
   padding: 18px 30px;
@@ -23,138 +35,72 @@
 /* ---------- Text styles ---------- */
 .account-header-cell {
   color: #000;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   text-align: center;
+  line-height: 1.2;
 }
 
 .account-table-cell {
   color: #000;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 400;
   text-align: center;
   word-break: break-word;
   white-space: normal;
 }
 
-.username-column {
+/* canh trái cho các cột dữ liệu dạng text dài */
+.username-column,
+.code-column,
+.name-column,
+.position-column,
+.dept-column,
+.line-column,
+.email-column {
   text-align: left;
 }
 
-/* ---------- Actions dropdown ---------- */
-.account-actions-wrapper {
+/* ---------- Actions ---------- */
+.account-action-buttons-wrapper {
   display: flex;
   justify-content: center;
-  position: relative;
-}
-
-.account-actions-button {
-  border-radius: 6px;
-  padding: 14px 23px;
-  display: flex;
   align-items: center;
   gap: 8px;
-  cursor: pointer;
-  box-shadow: 11px 4px 14px 0px rgba(0, 0, 0, 0.12);
-  background-color: #253d90;
+  flex-wrap: wrap; /* cho phép xuống dòng nếu hẹp */
 }
 
-.account-actions-text {
-  color: #fff;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.account-actions-dropdown {
-  width: 14px;
-  height: 15px;
-  fill: #fff;
-}
-
-.account-dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border-radius: 8px;
-  padding: 0;
-  margin-top: 8px;
-  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-  z-index: 10;
-  width: 159px;
-  background-color: #253d90;
-}
-
-.account-dropdown-item {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
-  padding: 17px 28px;
-  text-align: center;
-  cursor: pointer;
-}
-
-.account-dropdown-divider {
-  height: 2px;
-  border-radius: 8px;
-  margin: 0;
-  background-color: #fff;
-}
-
-/* ---------- Responsive tweaks ---------- */
-@media (max-width: 991px) {
-  .account-table-header,
-  .account-table-row {
-    grid-template-columns: 1.5fr 2.5fr 2fr 1fr 1.5fr 1.8fr;
-    font-size: 16px;
-  }
-}
-
-@media (max-width: 640px) {
-  .account-table-header,
-  .account-table-row {
-    grid-template-columns: 1.5fr 2.5fr 2fr 1fr 1.5fr 1.8fr;
-
-    font-size: 14px;
-  }
-
-  .account-actions-button {
-    padding: 8px 16px;
-  }
-}
 .account-table-action-btn {
-  padding: 10px 16px;
-  margin: 0 4px;
+  padding: 8px 12px;
+  margin: 0 2px;
   border: none;
   border-radius: 6px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   color: white;
-  min-width: 200px;
+  min-width: 110px; /* giảm từ 200px để không đẩy vỡ layout */
   transition: background-color 0.2s ease;
 }
 
 .account-table-active-btn {
-  background-color: #28a745; /* xanh lá */
+  background-color: #28a745;
 }
-
 .account-table-active-btn:hover {
   background-color: #218838;
 }
-
 .account-table-deactive-btn {
-  background-color: #dc3545; /* đỏ */
+  background-color: #dc3545;
 }
-
 .account-table-deactive-btn:hover {
   background-color: #c82333;
 }
-
 .account-table-action-btn:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
+
+/* ---------- Pagination ---------- */
 .account-pagination-container {
   display: flex;
   justify-content: center;
@@ -163,7 +109,6 @@
   gap: 6px;
   flex-wrap: wrap;
 }
-
 .account-pagination-btn {
   padding: 6px 10px;
   font-size: 14px;
@@ -176,21 +121,53 @@
   color: #111;
   font-weight: 500;
 }
-
 .account-pagination-btn:disabled {
   color: #aaa;
   cursor: not-allowed;
 }
-
 .account-pagination-active {
   background-color: #3b82f6;
   color: white;
   font-weight: bold;
   border-color: #3b82f6;
 }
-.account-action-buttons-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px; /* khoảng cách giữa 2 nút */
+
+/* ---------- Responsive ---------- */
+/* Tablet: thu nhỏ cột hành động & ngày đăng nhập chút */
+@media (max-width: 991px) {
+  .account-header-cell {
+    font-size: 16px;
+  }
+  .account-table-cell {
+    font-size: 15px;
+  }
+  .account-table-header,
+  .account-table-row {
+    grid-template-columns:
+      minmax(130px, 1fr)
+      minmax(100px, 0.8fr)
+      minmax(140px, 1fr)
+      minmax(120px, 0.9fr)
+      minmax(130px, 0.9fr)
+      minmax(110px, 0.8fr)
+      minmax(180px, 1.1fr)
+      minmax(100px, 0.7fr)
+      minmax(90px, 0.6fr)
+      minmax(140px, 0.9fr)
+      minmax(170px, 1fr);
+  }
+}
+
+/* Mobile nhỏ: ưu tiên scroll ngang thay vì bóp chữ */
+@media (max-width: 640px) {
+  .account-header-cell {
+    font-size: 14px;
+  }
+  .account-table-cell {
+    font-size: 14px;
+  }
+  .account-table-action-btn {
+    min-width: 100px;
+    padding: 6px 10px;
+  }
 }

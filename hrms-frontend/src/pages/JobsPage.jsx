@@ -5,15 +5,8 @@ import HeaderRecruitment from "../components/HeaderRecruitment";
 import FooterRecruitment from "../components/FooterRecruitment";
 import { getAllRecruitments } from "../services/recruitmentService";
 
-function removeVietnameseTones(str) {
-  return str
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/Đ/g, "D");
-}
-
 const formatDate = (isoDate) => {
+  if (!isoDate) return "";
   const date = new Date(isoDate);
   return date.toLocaleDateString("vi-VN");
 };
@@ -30,7 +23,6 @@ const JobCard = ({
   <div
     className="job-card"
     style={{ backgroundColor: "#eeeeee" }}
-
   >
     <div className="job-ref">
       {formatDate(createAt)} - {formatDate(expiredAt)}
@@ -38,11 +30,23 @@ const JobCard = ({
     <div className="job-title">{title}</div>
 
     {benefits && benefits.trim() !== "" && (
-      <div className="job-location"><b>Quyền lợi công việc: </b>{benefits}</div>
+      <div className="job-location">
+        <b>Quyền lợi công việc: </b>
+        {benefits}
+      </div>
     )}
-    <div className="job-salary"><b>Mức lương: </b>{salary}</div>
-    <div className="job-description"><b>Mô tả công việc: </b>{description}</div>
-    <div className="job-arrow-button" onClick={onClick}>
+    <div className="job-salary">
+      <b>Mức lương: </b>
+      {salary}
+    </div>
+    <div className="job-description">
+      <b>Mô tả công việc: </b>
+      {description}
+    </div>
+    <div
+      className="job-arrow-button"
+      onClick={onClick}
+    >
       <svg
         width="31"
         height="31"
@@ -62,36 +66,55 @@ const JobCard = ({
 
 const JobsPage = () => {
   const navigate = useNavigate();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [jobs, setJobs] = useState([]);
-  const [filteredJobs, setFilteredJobs] = useState([]);
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const data = await getAllRecruitments();
-        setJobs(data.filter(job => job.status === "OPEN"));
-        setFilteredJobs(data.filter(job => job.status === "OPEN"));
-      } catch (error) {
-        console.error("Lỗi khi load danh sách công việc:", error);
-      }
-    };
-    fetchJobs();
-  }, []);
+  const fetchJobs = async (targetPage = page, targetSize = size) => {
+    try {
+      const res = await getAllRecruitments(
+        targetPage,
+        targetSize,
+        searchTerm,
+        "createAt",
+        "desc"
+      );
+      // chỉ hiển thị job OPEN ở BE thì tốt nhất; tạm thời lọc ở FE theo content đã phân trang
+      const content = (res?.content || []).filter((j) => j.status === "OPEN");
+      setJobs(content);
+      setTotalPages(res?.totalPages || 0);
+    } catch (error) {
+      console.error("Lỗi khi load danh sách công việc:", error);
+      setJobs([]);
+      setTotalPages(0);
+    }
+  };
 
+  // lần đầu và khi đổi trang
   useEffect(() => {
-    const normalizedSearch = removeVietnameseTones(searchTerm.toLowerCase());
-    const filtered = jobs.filter(
-      (job) =>
-        removeVietnameseTones(job.title.toLowerCase()).includes(
-          normalizedSearch
-        ) ||
-        removeVietnameseTones(job.jobDescription.toLowerCase()).includes(
-          normalizedSearch
-        )
-    );
-    setFilteredJobs(filtered);
-  }, [searchTerm, jobs]);
+    fetchJobs(page, size);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
+  // đổi size -> về trang 0
+  useEffect(() => {
+    setPage(0);
+    fetchJobs(0, size);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [size]);
+
+  // đổi search -> về trang 0
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setPage(0);
+      fetchJobs(0, size);
+    }, 300); // debounce nhẹ để đỡ spam API
+    return () => clearTimeout(handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm]);
 
   const handleViewDetails = (jobId) => {
     navigate(`/jobs/${jobId}`);
@@ -109,8 +132,20 @@ const JobsPage = () => {
             className="search-input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setPage(0);
+                fetchJobs(0, size);
+              }
+            }}
           />
-          <div className="search-button">
+          <div
+            className="search-button"
+            onClick={() => {
+              setPage(0);
+              fetchJobs(0, size);
+            }}
+          >
             <svg
               width="46"
               height="46"
@@ -130,8 +165,8 @@ const JobsPage = () => {
 
       <main className="jobs-listing">
         <div className="jobs-container">
-          {filteredJobs.length > 0 ? (
-            filteredJobs.map((job) => (
+          {jobs.length > 0 ? (
+            jobs.map((job) => (
               <JobCard
                 key={job.recruitmentId}
                 createAt={job.createAt}
@@ -151,6 +186,54 @@ const JobsPage = () => {
               Không có công việc nào phù hợp với tìm kiếm của bạn.
             </div>
           )}
+        </div>
+
+        {/* Pagination dưới danh sách */}
+        <div
+          className="employee-pagination-container"
+          style={{ marginTop: 16 }}
+        >
+          <button
+            className="employee-pagination-btn"
+            onClick={() => setPage(0)}
+            disabled={page === 0}
+          >
+            «
+          </button>
+          <button
+            className="employee-pagination-btn"
+            onClick={() => setPage(page - 1)}
+            disabled={page === 0}
+          >
+            ‹
+          </button>
+
+          {Array.from({ length: totalPages }).map((_, p) => (
+            <button
+              key={p}
+              onClick={() => setPage(p)}
+              className={`employee-pagination-btn ${
+                p === page ? "employee-pagination-active" : ""
+              }`}
+            >
+              {p + 1}
+            </button>
+          ))}
+
+          <button
+            className="employee-pagination-btn"
+            onClick={() => setPage(page + 1)}
+            disabled={page === totalPages - 1 || totalPages === 0}
+          >
+            ›
+          </button>
+          <button
+            className="employee-pagination-btn"
+            onClick={() => setPage(totalPages - 1)}
+            disabled={page === totalPages - 1 || totalPages === 0}
+          >
+            »
+          </button>
         </div>
       </main>
 

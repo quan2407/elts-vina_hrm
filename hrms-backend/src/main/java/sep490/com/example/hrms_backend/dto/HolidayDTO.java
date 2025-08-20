@@ -1,5 +1,6 @@
 package sep490.com.example.hrms_backend.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,9 @@ import java.time.LocalDate;
 public class HolidayDTO {
 
     private Long id;
+    @NotNull(message = "Vui lòng chọn ngày bắt đầu")
     private LocalDate startDate;
+    @NotNull(message = "Vui lòng chọn ngày kết thúc")
     private LocalDate endDate;
     private String name;
     private boolean recurring;

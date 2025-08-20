@@ -9,9 +9,11 @@ function AddHolidayModal({ isOpen, onClose, onSuccess, editId = null }) {
     endDate: "",
     recurring: false,
   });
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchHoliday = async () => {
+      setErrors({});
       if (editId) {
         try {
           const res = await holidayService.getHolidayById(editId);
@@ -38,10 +40,28 @@ function AddHolidayModal({ isOpen, onClose, onSuccess, editId = null }) {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const eMap = {};
+    if (!formData.name?.trim()) eMap.name = ["Vui lòng nhập tên ngày nghỉ"];
+    if (!formData.startDate) eMap.startDate = ["Vui lòng chọn ngày bắt đầu"];
+    if (!formData.endDate) eMap.endDate = ["Vui lòng chọn ngày kết thúc"];
+    if (
+      formData.startDate &&
+      formData.endDate &&
+      formData.endDate < formData.startDate
+    ) {
+      eMap.endDate = ["Ngày kết thúc không được nhỏ hơn ngày bắt đầu"];
+    }
+    if (Object.keys(eMap).length) {
+      setErrors(eMap);
+      return;
+    }
+
     try {
       if (editId) {
         await holidayService.updateHoliday(editId, formData);
@@ -50,8 +70,18 @@ function AddHolidayModal({ isOpen, onClose, onSuccess, editId = null }) {
       }
       onSuccess();
     } catch (err) {
-      alert("Lỗi khi lưu ngày nghỉ!");
-      console.error(err);
+      const data = err?.response?.data;
+      const mapped = (data && (data.errors || data)) || {
+        global: ["Không thể lưu ngày nghỉ"],
+      };
+
+      if (typeof mapped === "string") {
+        setErrors({ global: [mapped] });
+      } else if (data?.message && !mapped.global) {
+        setErrors({ ...mapped, global: [data.message] });
+      } else {
+        setErrors(mapped);
+      }
     }
   };
 
@@ -60,6 +90,11 @@ function AddHolidayModal({ isOpen, onClose, onSuccess, editId = null }) {
   return (
     <div className="holiday-modal-overlay">
       <div className="holiday-modal">
+        {errors.global && (
+          <div className="error-message">
+            {[].concat(errors.global).join(", ")}
+          </div>
+        )}
         <h2>{editId ? "Cập nhật ngày nghỉ" : "Thêm ngày nghỉ"}</h2>
         <form onSubmit={handleSubmit}>
           <label>
@@ -69,9 +104,11 @@ function AddHolidayModal({ isOpen, onClose, onSuccess, editId = null }) {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              required
             />
           </label>
+          {errors.name && (
+            <div className="error-message">{errors.name.join(", ")}</div>
+          )}
           <label>
             Từ ngày:
             <input
@@ -79,9 +116,11 @@ function AddHolidayModal({ isOpen, onClose, onSuccess, editId = null }) {
               name="startDate"
               value={formData.startDate}
               onChange={handleChange}
-              required
             />
           </label>
+          {errors.startDate && (
+            <div className="error-message">{errors.startDate.join(", ")}</div>
+          )}
           <label>
             Đến ngày:
             <input
@@ -89,9 +128,12 @@ function AddHolidayModal({ isOpen, onClose, onSuccess, editId = null }) {
               name="endDate"
               value={formData.endDate}
               onChange={handleChange}
-              required
             />
+            {errors.endDate && (
+              <div className="error-message">{errors.endDate.join(", ")}</div>
+            )}
           </label>
+
           <label className="checkbox-label">
             <input
               type="checkbox"
@@ -101,6 +143,9 @@ function AddHolidayModal({ isOpen, onClose, onSuccess, editId = null }) {
             />
             Lặp lại hàng năm
           </label>
+          {errors.recurring && (
+            <div className="error-message">{errors.recurring.join(", ")}</div>
+          )}
           <div className="modal-actions">
             <button
               type="submit"

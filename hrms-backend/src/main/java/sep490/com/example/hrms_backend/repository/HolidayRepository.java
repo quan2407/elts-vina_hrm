@@ -24,4 +24,15 @@ public interface HolidayRepository extends JpaRepository<Holiday, Long> {
     Optional<Holiday> findByIdAndIsDeletedFalse(Long id);
 
 
+    boolean existsByIsDeletedFalseAndIsRecurringFalseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+            LocalDate newEnd, LocalDate newStart
+    );
+
+    boolean existsByIdNotAndIsDeletedFalseAndIsRecurringFalseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+            Long id, LocalDate newEnd, LocalDate newStart
+    );
+
+    List<Holiday> findAllByIsDeletedFalseAndIsRecurringTrue();
+
+    List<Holiday> findAllByIsDeletedFalseAndIsRecurringFalse();
 }

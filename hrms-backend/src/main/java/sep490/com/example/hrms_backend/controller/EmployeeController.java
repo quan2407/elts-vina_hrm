@@ -15,6 +15,7 @@ import sep490.com.example.hrms_backend.service.EmployeeService;
 import sep490.com.example.hrms_backend.dto.benefit.EmployeeBasicDetailResponse;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,12 +35,15 @@ public class EmployeeController {
     public ResponseEntity<Page<EmployeeResponseDTO>> getAllEmployees(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String search
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long departmentId,
+            @RequestParam(required = false) Long positionId,
+            @RequestParam(required = false) Long lineId
     ) {
-        Page<EmployeeResponseDTO> employees = employeeService.getAllEmployees(page, size, search);
+        Page<EmployeeResponseDTO> employees =
+                employeeService.getAllEmployees(page, size, search, departmentId, positionId, lineId);
         return ResponseEntity.ok(employees);
     }
-
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<EmployeeResponseDTO> createEmployee(
