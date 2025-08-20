@@ -60,13 +60,65 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public Page<AccountResponseDTO> getAllAccounts(int page, int size) {
+    public Page<AccountResponseDTO> getAllAccounts(int page, int size,
+                                                   String search,
+                                                   Long departmentId,
+                                                   Long positionId,
+                                                   Long lineId,
+                                                   String role) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Account> accountPage = accountRepository.findAll(pageable);
 
-        return accountPage.map(account ->
-                AccountMapper.mapToAccountResponseDTO(account, new AccountResponseDTO())
-        );
+        List<Account> all = accountRepository.findAll();
+        if (search != null && !search.trim().isEmpty()) {
+            String q = search.trim().toLowerCase();
+            all = all.stream().filter(a -> {
+                Employee e = a.getEmployee();
+                boolean m3 = e != null && e.getEmployeeCode() != null && e.getEmployeeCode().toLowerCase().contains(q);
+                boolean m4 = e != null && e.getEmployeeName() != null && e.getEmployeeName().toLowerCase().contains(q);
+                return m3 || m4;
+            }).toList();
+        }
+
+        if (departmentId != null) {
+            all = all.stream().filter(a ->
+                    a.getEmployee() != null &&
+                            a.getEmployee().getDepartment() != null &&
+                            departmentId.equals(a.getEmployee().getDepartment().getDepartmentId())
+            ).toList();
+        }
+
+        if (positionId != null) {
+            all = all.stream().filter(a ->
+                    a.getEmployee() != null &&
+                            a.getEmployee().getPosition() != null &&
+                            positionId.equals(a.getEmployee().getPosition().getPositionId())
+            ).toList();
+        }
+        if (lineId != null) {
+            all = all.stream().filter(a ->
+                    a.getEmployee() != null &&
+                            a.getEmployee().getLine() != null &&
+                            lineId.equals(a.getEmployee().getLine().getLineId())
+            ).toList();
+        }
+        if (role != null && !role.isBlank()) {
+            String normalized = role.trim().toUpperCase();
+            if (!normalized.startsWith("ROLE_")) normalized = "ROLE_" + normalized; // cho phép truyền "EMPLOYEE"
+            final String want = normalized;
+            all = all.stream().filter(a ->
+                    a.getRole() != null && want.equals(a.getRole().getRoleName())
+            ).toList();
+        }
+        List<AccountResponseDTO> dtos = all.stream()
+                .map(acc -> AccountMapper.mapToAccountResponseDTO(acc, new AccountResponseDTO()))
+                .toList();
+
+        // phân trang thủ công (giống EmployeeServiceImpl)
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), dtos.size());
+        List<AccountResponseDTO> content = start >= dtos.size() ? List.of() : dtos.subList(start, end);
+
+        return new PageImpl<>(content, pageable, dtos.size());
     }
 
 

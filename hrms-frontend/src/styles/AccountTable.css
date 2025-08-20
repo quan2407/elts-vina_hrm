@@ -4,27 +4,25 @@
   flex: 1;
   background-color: #fff;
   width: 100%;
-  overflow-x: auto; /* cho phép kéo ngang khi hẹp */
+  overflow-x: auto;
   box-sizing: border-box;
 }
 
-/* ---------- Grid layout (11 cột) ---------- */
-/* Dùng minmax để cột co giãn hợp lý trên màn nhỏ */
 .account-table-header,
 .account-table-row {
   display: grid;
   grid-template-columns:
-    minmax(140px, 1.1fr) /* Tên đăng nhập */
-    minmax(110px, 0.8fr) /* Mã NV */
-    minmax(150px, 1fr) /* Tên NV */
-    minmax(130px, 0.9fr) /* Chức vụ */
-    minmax(140px, 1fr) /* Phòng ban */
-    minmax(120px, 0.8fr) /* Chuyền */
-    minmax(200px, 1.2fr) /* Email */
-    minmax(110px, 0.7fr) /* Vai trò */
-    minmax(110px, 0.7fr) /* Kích hoạt */
-    minmax(160px, 1fr) /* Đăng nhập lần cuối */
-    minmax(200px, 1.2fr); /* Hành động */
+    minmax(140px, 1.1fr)
+    minmax(110px, 0.8fr)
+    minmax(150px, 1fr)
+    minmax(130px, 0.9fr)
+    minmax(140px, 1fr)
+    minmax(120px, 0.8fr)
+    minmax(200px, 1.2fr)
+    minmax(110px, 0.7fr)
+    minmax(110px, 0.7fr)
+    minmax(160px, 1fr)
+    minmax(200px, 1.2fr);
   gap: 10px;
   width: 100%;
   padding: 18px 30px;
@@ -32,7 +30,6 @@
   margin-bottom: 20px;
 }
 
-/* ---------- Text styles ---------- */
 .account-header-cell {
   color: #000;
   font-size: 18px;
@@ -49,8 +46,6 @@
   word-break: break-word;
   white-space: normal;
 }
-
-/* canh trái cho các cột dữ liệu dạng text dài */
 .username-column,
 .code-column,
 .name-column,
@@ -61,13 +56,12 @@
   text-align: left;
 }
 
-/* ---------- Actions ---------- */
 .account-action-buttons-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap; /* cho phép xuống dòng nếu hẹp */
+  flex-wrap: wrap;
 }
 
 .account-table-action-btn {
@@ -79,7 +73,7 @@
   font-weight: 600;
   cursor: pointer;
   color: white;
-  min-width: 110px; /* giảm từ 200px để không đẩy vỡ layout */
+  min-width: 110px;
   transition: background-color 0.2s ease;
 }
 
@@ -100,7 +94,6 @@
   cursor: not-allowed;
 }
 
-/* ---------- Pagination ---------- */
 .account-pagination-container {
   display: flex;
   justify-content: center;
@@ -131,9 +124,6 @@
   font-weight: bold;
   border-color: #3b82f6;
 }
-
-/* ---------- Responsive ---------- */
-/* Tablet: thu nhỏ cột hành động & ngày đăng nhập chút */
 @media (max-width: 991px) {
   .account-header-cell {
     font-size: 16px;
@@ -157,8 +147,6 @@
       minmax(170px, 1fr);
   }
 }
-
-/* Mobile nhỏ: ưu tiên scroll ngang thay vì bóp chữ */
 @media (max-width: 640px) {
   .account-header-cell {
     font-size: 14px;
