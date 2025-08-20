@@ -8,7 +8,12 @@ import sep490.com.example.hrms_backend.entity.PasswordResetRequest;
 
 public interface AccountService {
 
-    Page<AccountResponseDTO> getAllAccounts(int page, int size);
+    Page<AccountResponseDTO> getAllAccounts(int page, int size,
+                                            String search,
+                                            Long departmentId,
+                                            Long positionId,
+                                            Long lineId,
+                                            String role);
     void createAutoAccountForEmployee(Employee employee);
     void resetPasswordByEmail(String email);
     void changePassword(ChangePasswordRequest dto);

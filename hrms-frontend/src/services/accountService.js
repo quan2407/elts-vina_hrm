@@ -1,8 +1,10 @@
 import axiosClient from "./axiosClient";
 
 const accountService = {
-  getAllAccounts: (page = 0, size = 10) => {
-    return axiosClient.get("/accounts", { params: { page, size } });
+  getAllAccounts: (page = 0, size = 10, filters = {}) => {
+    return axiosClient.get("/accounts", {
+      params: { page, size, ...filters },
+    });
   },
 
   toggleAccountStatus: (id) => {
