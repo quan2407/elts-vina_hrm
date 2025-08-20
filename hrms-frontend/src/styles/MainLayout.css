@@ -1,22 +1,24 @@
 .layout-container {
-  display: flex;
   min-height: 100vh;
   font-family: "Product Sans", sans-serif;
   background-color: #e3edf9;
 }
 
+/* On md and up, reserve space for the fixed sidebar */
+@media (min-width: 768px) {
+  .main-content {
+    margin-left: 250px; /* width of .sidebar */
+  }
+}
+
 .main-content {
-  margin-left: 250px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
   padding: 0;
   overflow-x: hidden;
 }
 
 .content-wrapper {
-  flex: 1;
   padding: 20px 50px;
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
