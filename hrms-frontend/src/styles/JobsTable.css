@@ -46,26 +46,3 @@
   white-space: normal;
 }
 
-
-.viewdetail-button {
-  width: 200px;
-  background-color: #5a48ff;
-  color: #fff;
-  padding: 6px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  margin: 0 2.5px;
-}
-
-.viewcandidate-button {
-  width: 200px;
-  background-color: #26f78e;
-  color: #fff;
-  padding: 6px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  margin: 0 2.5px;
-
-}
