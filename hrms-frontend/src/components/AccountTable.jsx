@@ -69,7 +69,9 @@ function AccountTable({ accounts, loading, onToggleStatus }) {
               {acc.isActive ? "Yes" : "No"}
             </div>
             <div className="account-table-cell login-column">
-              {acc.lastLoginAt || "-"}
+              {acc.lastLoginAt
+                ? new Date(acc.lastLoginAt).toLocaleString("vi-VN")
+                : "-"}
             </div>
             <div className="account-table-cell actions-column">
               <div className="account-action-buttons-wrapper">
