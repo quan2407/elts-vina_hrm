@@ -81,6 +81,11 @@ export const hrMenus = [
   {
     text: "Quản lý nhân viên",
     path: "/employee-management",
+    pathsToMatch: [
+      "/employee-management",
+      "/employee-create",
+      "/employees/:id",
+    ],
     apiPath: "/api/employees",
     icon: (isActive) => (
       <Users
@@ -92,6 +97,13 @@ export const hrMenus = [
   {
     text: "Tuyển dụng",
     path: "/jobs-management",
+    pathsToMatch: [
+      "/jobs-management",
+      "/recruitment-create",
+      "candidates-management/:jobId",
+      "/jobsdetail-management/:jobId",
+      "/add-interview/:id",
+    ],
     apiPath: "/api/recruitment",
     icon: (isActive) => (
       <Briefcase
@@ -103,6 +115,7 @@ export const hrMenus = [
   {
     text: "Danh sách line",
     path: "/line-management",
+    pathsToMatch: ["/employee/line-hr/:id", "/line-management"],
     apiPath: "/api/lines",
     icon: (isActive) => (
       <Rows4
@@ -114,6 +127,11 @@ export const hrMenus = [
   {
     text: "Quản lý phúc lợi ",
     path: "/benefits-management",
+    pathsToMatch: [
+      "/benefits-management/benefit/:benefitId",
+      "/benefits-management/benefit/:benefitId/position/:positionId",
+      "/benefits-management",
+    ],
     icon: (isActive) => (
       <Gift
         size={20}
@@ -124,6 +142,7 @@ export const hrMenus = [
   {
     text: "Quản lý ngày nghỉ",
     path: "/holiday-management",
+    pathsToMatch: ["/holiday-management"],
     apiPath: "/api/employees",
     icon: (isActive) => (
       <CalendarCheck
@@ -136,6 +155,7 @@ export const hrMenus = [
   {
     text: "Danh sách phỏng vấn",
     path: "/interviews-management",
+    pathsToMatch: ["/interviews-management", "/interviews-management/:id"],
     apiPath: "/api/recruitment",
     icon: (isActive) => (
       <Briefcase
@@ -147,6 +167,7 @@ export const hrMenus = [
   {
     text: "Bảng công tháng",
     path: "/attendance-monthly",
+    pathsToMatch: ["/attendance-monthly"],
     apiPath: "/api/attendances/view-by-month",
     icon: (isActive) => (
       <LayoutDashboard
@@ -158,6 +179,7 @@ export const hrMenus = [
   {
     text: "Bảng lương tháng",
     path: "/salary-monthly",
+    pathsToMatch: ["/salary-monthly"],
     apiPath: "/api/salaries",
     icon: (isActive) => (
       <Wallet
@@ -170,7 +192,7 @@ export const hrMenus = [
     text: "Lịch sản xuất",
     path: "/work-schedule-view-hr",
     apiPath: "/api/work-schedule-details/view-by-month",
-
+    pathsToMatch: ["/work-schedule-view-hr"],
     icon: (isActive) => (
       <CalendarCheck
         size={20}
@@ -181,6 +203,11 @@ export const hrMenus = [
   {
     text: "Duyệt đơn",
     path: "/applications/approvals/hr",
+    pathsToMatch: [
+      "/applications/approvals/hr",
+      "/create-application",
+      "/applications/:id",
+    ],
     apiPath: "/api/applications/step-2",
     icon: (isActive) => (
       <Briefcase
@@ -216,6 +243,7 @@ export const pmcMenus = [
   {
     text: "Danh sách line",
     path: "/line-management",
+    pathsToMatch: ["/line-management", "/employee/line/:id"],
     apiPath: "/api/lines",
     icon: (isActive) => (
       <Rows4
@@ -240,6 +268,7 @@ export const lineLeaderMenus = [
   {
     text: "Lịch làm việc của tôi",
     path: "/my-work-schedule",
+    pathsToMatch: ["/my-work-schedule", "/create-application"],
     apiPath: "/api/work-schedules/employee-view",
     icon: (isActive) => (
       <CalendarCheck
@@ -250,6 +279,7 @@ export const lineLeaderMenus = [
   },
   {
     text: "Bảng công tháng",
+    pathsToMatch: ["/my-attendance-monthly", "/create-application"],
     path: "/my-attendance-monthly",
     icon: (isActive) => (
       <LayoutDashboard
@@ -272,6 +302,7 @@ export const lineLeaderMenus = [
   {
     text: "Đơn từ của tôi",
     path: "/my-applications",
+    pathsToMatch: ["/my-applications", "/applications/:id"],
     apiPath: "/api/applications/me",
     icon: (isActive) => (
       <Briefcase
@@ -307,6 +338,11 @@ export const productionManagerMenus = [
   {
     text: "Duyệt đơn",
     path: "/applications/approvals/manager",
+    pathsToMatch: [
+      "/applications/approvals/manager",
+      "/create-application",
+      "/applications/:id",
+    ],
     apiPath: "/api/applications/step-1",
     icon: (isActive) => (
       <Briefcase
@@ -332,6 +368,7 @@ export const employeeMenus = [
   {
     text: "Lịch làm việc của tôi",
     path: "/my-work-schedule",
+    pathsToMatch: ["/my-work-schedule", "/create-application"],
     apiPath: "/api/work-schedules/employee-view",
     icon: (isActive) => (
       <CalendarCheck
@@ -343,6 +380,7 @@ export const employeeMenus = [
   {
     text: "Bảng công tháng",
     path: "/my-attendance-monthly",
+    pathsToMatch: ["/my-attendance-monthly", "/create-application"],
     icon: (isActive) => (
       <LayoutDashboard
         size={20}
@@ -364,6 +402,7 @@ export const employeeMenus = [
   {
     text: "Đơn từ của tôi",
     path: "/my-applications",
+    pathsToMatch: ["/my-applications", "/applications/:id"],
     apiPath: "/api/applications/me",
     icon: (isActive) => (
       <Briefcase
@@ -383,16 +422,4 @@ export const employeeMenus = [
     ),
   },
 ];
-export const hrManagerMenus = [
-  ...hrMenus,
-  {
-    text: "Phê duyệt đặc biệt",
-    path: "/special-approvals",
-    icon: (isActive) => (
-      <Target
-        size={20}
-        stroke={isActive ? "#4f46e5" : "white"}
-      />
-    ),
-  },
-];
+export const hrManagerMenus = [...hrMenus];

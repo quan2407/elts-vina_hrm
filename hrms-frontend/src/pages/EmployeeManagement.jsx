@@ -141,12 +141,12 @@ function EmployeeManagement() {
                 fontSize: "16px",
                 borderRadius: "6px",
                 cursor: "pointer",
-                backgroundColor: "#28a745", // xanh lá
+                backgroundColor: "#28a745",
                 color: "#fff",
                 border: "none",
               }}
             >
-              Export
+              Xuất excel
             </button>
           </div>
         </div>

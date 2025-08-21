@@ -12,13 +12,13 @@ import sep490.com.example.hrms_backend.dto.SalaryDTO;
 import sep490.com.example.hrms_backend.entity.*;
 import sep490.com.example.hrms_backend.enums.BenefitType;
 import sep490.com.example.hrms_backend.enums.FormulaType;
+import sep490.com.example.hrms_backend.enums.NotificationType;
 import sep490.com.example.hrms_backend.mapper.SalaryMapper;
-import sep490.com.example.hrms_backend.repository.AttendanceRecordRepository;
-import sep490.com.example.hrms_backend.repository.BenefitRegistrationRepository;
-import sep490.com.example.hrms_backend.repository.EmployeeRepository;
-import sep490.com.example.hrms_backend.repository.SalaryRepository;
+import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.BenefitService;
+import sep490.com.example.hrms_backend.service.NotificationService;
 import sep490.com.example.hrms_backend.service.SalaryService;
+import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -40,7 +40,9 @@ public class SalaryServiceImpl implements SalaryService {
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final BenefitRegistrationRepository benefitRegistrationRepository;
     private final BenefitService benefitService;
-
+    private final NotificationService notificationService;
+    private final AccountRepository accountRepository;
+    private final CurrentUserUtils currentUserUtils;
 
     @Override
     public List<SalaryDTO> getSalariesByMonth(int month, int year) {
@@ -164,7 +166,10 @@ public class SalaryServiceImpl implements SalaryService {
             salary.setSalaryBenefits(benefitItems);
             salaryRepository.save(salary);
 
+
         }
+        Account sender = currentUserUtils.getCurrentAccount();
+        notifyMany(NotificationType.SALARY_CREATED, sender, findAllEmployees());
     }
 
 
@@ -196,6 +201,7 @@ public class SalaryServiceImpl implements SalaryService {
 
 
         generateMonthlySalaries(month, year);
+        Account sender = currentUserUtils.getCurrentAccount();
     }
 
     @Override
@@ -218,6 +224,12 @@ public class SalaryServiceImpl implements SalaryService {
         }
 
         salaryRepository.saveAll(salaries);
+        Account sender = currentUserUtils.getCurrentAccount();
+        if(locked){
+        notifyMany(NotificationType.SALARY_LOCKED, sender, findAllEmployees());}
+        else {
+            notifyMany(NotificationType.SALARY_UNLOCKED, sender, findAllEmployees());
+        }
     }
     @Override
     public Page<SalaryDTO> getSalariesByMonth(int month, int year, int page, int size, String search, Long departmentId, Long positionId, Long lineId) {
@@ -342,4 +354,18 @@ public class SalaryServiceImpl implements SalaryService {
                 ))
                 .collect(Collectors.toList());
     }
+    private void notifyMany(NotificationType type, Account sender, List<Account> receivers) {
+        if (receivers == null || receivers.isEmpty()) return;
+        for (Account acc : receivers) {
+            if (acc == null || acc.equals(sender)) continue;
+            notificationService.addNotification(type, sender, acc);
+        }
+    }
+
+
+    private List<Account> findAllEmployees() {
+        return accountRepository.findByRole_RoleNameInAndIsActiveTrue(List.of("ROLE_EMPLOYEE","ROLE_PMC","ROLE_LINE_LEADER","ROLE_HR","ROLE_HR_MANAGER","ROLE_PRODUCTION_MANAGER")).stream().distinct().toList();
+    }
+
+
 }

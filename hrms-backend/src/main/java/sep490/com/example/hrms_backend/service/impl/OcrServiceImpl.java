@@ -62,11 +62,21 @@ public class OcrServiceImpl implements OcrService {
                     throw new IllegalArgumentException("Ảnh không hợp lệ.");
                 }
                 dto.setCitizenIssueDate(parseDate(extract(backText, "(?i)ngày, tháng, năm[^\\d]*(\\d{2}/\\d{2}/\\d{4})")));
+                String frontName = dto.getEmployeeName();
+                String backNameRaw = extractFullNameFromMRZ(backText);
+                String frontNorm = normalizeName(frontName);
+                String backNorm = normalizeName(backNameRaw);
 
+                if (backNameRaw != null && frontNorm != null && backNorm != null
+                        && !frontNorm.contains(backNorm)
+                        && !backNorm.contains(frontNorm)) {
+                    throw new IllegalArgumentException("Ảnh mặt trước và mặt sau không thuộc cùng một người.");
+                }
             } catch (IOException e) {
                 log.error("Failed to process back image", e);
             }
         }
+
         dto.setFrontImagePath(frontImagePath);
         dto.setBackImagePath(backImagePath);
 
@@ -172,4 +182,25 @@ public class OcrServiceImpl implements OcrService {
                 || text.toLowerCase().contains("ngày, tháng, năm")
                 || text.matches(".*<<.*<<.*");
     }
+    private String normalizeName(String name) {
+        if (name == null) return null;
+        return name.toUpperCase().replaceAll("[^A-Z]", "");
+    }
+    private String extractFullNameFromMRZ(String text) {
+        Pattern pattern = Pattern.compile("([A-Z<]{2,}<<[A-Z<]+)");
+        Matcher matcher = pattern.matcher(text);
+
+        while (matcher.find()) {
+            String line = matcher.group(1);
+            String[] parts = line.split("<<");
+            if (parts.length >= 2) {
+                String lastName = parts[0].replace("<", " ").trim(); // họ
+                String givenName = parts[1].replace("<", " ").trim(); // tên
+                return (lastName + " " + givenName).replaceAll("\\s+", " ").trim();
+            }
+        }
+        return null;
+    }
+
+
 }

@@ -113,7 +113,7 @@ function JobsManagement() {
                 onClick={handleExportClick}
                 className="btn-big btn-green"
               >
-                Export
+                Xuất excel
               </button>
             </div>
           </div>

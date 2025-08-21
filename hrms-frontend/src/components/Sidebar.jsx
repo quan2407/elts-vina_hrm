@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, matchPath } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { usePermissions } from "../contexts/PermissionContext";
 import { ChevronDown, ChevronUp, LayoutDashboard } from "lucide-react";
@@ -181,10 +181,23 @@ function Sidebar() {
             !item.apiPath || hasPermission(item.apiPath, item.method || "GET");
           if (!allowed) return null;
 
+          const matchesPattern = (pattern, pathname) => {
+            // Cho phép pattern là string bình thường hoặc pattern có :param
+            // end:false để các route con cũng match (vd: /employees/7/edit)
+            return !!matchPath({ path: pattern, end: false }, pathname);
+          };
+
           const isActive =
-            location.pathname === item.path ||
+            (item.pathsToMatch && item.pathsToMatch.length > 0
+              ? item.pathsToMatch.some((p) =>
+                  matchesPattern(p, location.pathname)
+                )
+              : matchesPattern(item.path, location.pathname)) ||
             (item.children &&
-              item.children.some((c) => location.pathname === c.path));
+              item.children.some((c) =>
+                matchesPattern(c.path, location.pathname)
+              ));
+
           const isSubOpen = openMenu === item.text;
 
           return (
