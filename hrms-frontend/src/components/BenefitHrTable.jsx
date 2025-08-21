@@ -145,7 +145,7 @@ function BenefitHrTable({ reloadKey, onForceReload, filters = {} }) {
     }, [pageNumber, pageSize, JSON.stringify(filters), reloadKey]);
 
     return (
-        <div className="employee-table-wrapper">
+        <div className="employee-table-wrapper benefit-table">
             {/* REMOVED: <BenefitSearchForm .../> */}
             <BenefitHRTableHeader />
 

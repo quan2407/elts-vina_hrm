@@ -228,3 +228,65 @@
 .employee-table .employee-table-cell:nth-child(5) {
   text-align: center !important;
 }
+
+/* Dùng cùng grid cho header + row của bảng Phúc lợi */
+.benefit-table .employee-table-header,
+.benefit-table .employee-table-row {
+  border-bottom: none !important;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  display: grid;
+  grid-template-columns:
+    80px                         /* Id */
+    minmax(160px, 1.1fr)         /* Tiêu đề – nở nhẹ */
+    minmax(260px, 1.6fr)         /* Mô tả – nở nhiều */
+    minmax(140px, 1fr)           /* Loại phúc lợi */
+    minmax(170px, 1fr)           /* Trạng thái hoạt động */
+    140px                        /* Ngày tạo */
+    160px;                       /* Chức năng */
+  gap: 10px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+}
+
+/* Hàng dữ liệu kẻ dòng dưới thay vì margin-bottom */
+.benefit-table .employee-table-row {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* (khuyến nghị) Header sticky và kẻ viền */
+.benefit-table .employee-table-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Cắt gọn text để không đội cột */
+.benefit-table .employee-header-cell,
+.benefit-table .employee-table-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Cho phép mô tả tối đa 2 dòng */
+.benefit-table .employee-table-row .employee-table-cell:nth-child(3) {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* container xếp dọc có khoảng cách giữa các hàng */
+.benefit-table .employee-table {
+  display: grid;
+  row-gap: 8px;        /* chỉnh 0–12 tuỳ ý */
+}
+
+/* bỏ đường kẻ ngăn cách */
+.benefit-table .employee-table-row {
+  border-bottom: none !important;
+}
