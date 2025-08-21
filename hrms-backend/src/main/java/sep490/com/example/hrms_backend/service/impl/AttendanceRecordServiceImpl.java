@@ -13,13 +13,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sep490.com.example.hrms_backend.dto.*;
-import sep490.com.example.hrms_backend.entity.AttendanceRecord;
-import sep490.com.example.hrms_backend.entity.Employee;
-import sep490.com.example.hrms_backend.entity.WorkSchedule;
-import sep490.com.example.hrms_backend.entity.WorkScheduleDetail;
+import sep490.com.example.hrms_backend.entity.*;
 import sep490.com.example.hrms_backend.enums.LeaveCode;
+import sep490.com.example.hrms_backend.enums.NotificationType;
 import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.AttendanceRecordService;
+import sep490.com.example.hrms_backend.service.NotificationService;
+import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
 import java.io.InputStream;
 import java.time.LocalDate;
@@ -39,7 +39,9 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     private final HolidayRepository holidayRepository;
     private final WorkScheduleServiceImpl workScheduleService;
     private final WorkScheduleDetailRepository workScheduleDetailRepository;
-
+    private final NotificationService notificationService;
+    private final AccountRepository accountRepository;
+    private final CurrentUserUtils currentUserUtils;
     //Tested
     @Override
     public List<AttendanceMonthlyViewDTO> getEmpMonthlyAttendanceById(Long employeeId, int month, int year) {
@@ -252,6 +254,15 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         }
 
         attendanceRecordRepository.save(record);
+        try {
+            Account sender = currentUserUtils.getCurrentAccount();
+            Long empId = record.getEmployee().getEmployeeId();
+            Account receiver = accountRepository.findByEmployee_EmployeeId(empId)
+                    .orElse(null);
+            if (receiver != null) {
+                notificationService.addNotification(NotificationType.ATTENDANCE_UPDATED, sender, receiver);
+            }
+        } catch (Exception ignore){}
     }
 
     //Tested
@@ -280,6 +291,15 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         }
 
         attendanceRecordRepository.save(record);
+        try {
+            Account sender = currentUserUtils.getCurrentAccount();
+            Long empId = record.getEmployee().getEmployeeId();
+            Account receiver = accountRepository.findByEmployee_EmployeeId(empId)
+                    .orElse(null);
+            if (receiver != null) {
+                notificationService.addNotification(NotificationType.LEAVE_CODE_UPDATED, sender, receiver);
+            }
+        } catch (Exception ignore) { }
     }
     //Tested
     @Override
@@ -310,6 +330,10 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
                 }
             }
         }
+        try {
+            Account sender = currentUserUtils.getCurrentAccount();
+            notifyMany(NotificationType.ATTENDANCE_DAILY_UPDATED, sender, findAllEmployees());
+        } catch (Exception ignore) {}
     }
 
 
@@ -602,4 +626,20 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         result.put("okToGenerate", totalExpected <= actualAttendanceCount);
         return result;
     }
+    private void notifyMany(NotificationType type, Account sender, List<Account> receivers) {
+        if (receivers == null || receivers.isEmpty()) return;
+        for (Account acc : receivers) {
+            if (acc == null || acc.equals(sender)) continue;
+            notificationService.addNotification(type, sender, acc);
+        }
+    }
+
+    private List<Account> findAllEmployees() {
+        return accountRepository
+                .findByRole_RoleNameInAndIsActiveTrue(
+                        List.of("ROLE_EMPLOYEE","ROLE_PMC","ROLE_LINE_LEADER","ROLE_HR","ROLE_HR_MANAGER","ROLE_PRODUCTION_MANAGER")
+                )
+                .stream().distinct().toList();
+    }
+
 }

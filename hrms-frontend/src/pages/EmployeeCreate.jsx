@@ -29,6 +29,7 @@ function EmployeeCreate() {
   const [lineId, setLineId] = useState("");
   const [errors, setErrors] = useState({});
   const [showOcrModal, setShowOcrModal] = useState(false);
+  const [ocrError, setOcrError] = useState(null);
 
   const [nationality, setNationality] = useState("");
   const [idNumber, setIdNumber] = useState("");
@@ -115,7 +116,7 @@ function EmployeeCreate() {
     try {
       setOcrLoading(true);
       const res = await axiosClient.post("/ocr/scan-cccd", formData);
-
+      setOcrError(null);
       const data = res.data;
       setFullName(data.employeeName || "");
       setGender((data.gender || "").toUpperCase());
@@ -135,7 +136,8 @@ function EmployeeCreate() {
       setCccdFrontImage(data.cccdFrontImage || "");
       setCccdBackImage(data.cccdBackImage || "");
     } catch (err) {
-      showError("OCR CCCD", err?.response?.data?.message || "Lỗi OCR");
+      const msg = err?.response?.data?.message ?? err?.message ?? "Lỗi OCR.";
+      setOcrError(msg);
     } finally {
       setOcrLoading(false);
     }
@@ -181,13 +183,7 @@ function EmployeeCreate() {
       endWorkAt ? format(endWorkAt, "yyyy-MM-dd") : ""
     );
     const bs = (basicSalary ?? "").toString().trim();
-    if (bs === "" || isNaN(Number(bs))) {
-      setErrors((p) => ({
-        ...p,
-        basicSalary: ["Lương cơ bản phải là số hợp lệ"],
-      }));
-      return false;
-    }
+
     formData.append("basicSalary", bs);
     formData.append("departmentId", departmentId !== "" ? departmentId : "");
     formData.append("positionId", positionId !== "" ? positionId : "");
@@ -621,6 +617,15 @@ function EmployeeCreate() {
                     ? "Đang trích xuất..."
                     : "📷 Trích xuất từ ảnh CCCD"}
                 </button>
+                {ocrError && (
+                  <div
+                    className="error-message"
+                    style={{ marginTop: 8 }}
+                    aria-live="assertive"
+                  >
+                    {ocrError}
+                  </div>
+                )}
               </div>
 
               <div className="employeedetail-form-row">

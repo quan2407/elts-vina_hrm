@@ -136,16 +136,13 @@ const HumanReport = () => {
               type="button"
               onClick={handleExport}
               style={{
-                backgroundColor: "#22c55e",
-                color: "#fff",
                 padding: "10px 20px",
-                borderRadius: "8px",
-                border: "none",
                 fontSize: "16px",
-                fontWeight: 500,
+                borderRadius: "6px",
                 cursor: "pointer",
-                height: "55px",
-                transition: "background-color 0.2s ease",
+                backgroundColor: "#28a745",
+                color: "#fff",
+                border: "none",
               }}
               onMouseOver={(e) =>
                 (e.currentTarget.style.backgroundColor = "#15803d")

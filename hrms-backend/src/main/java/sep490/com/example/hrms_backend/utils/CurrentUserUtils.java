@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import sep490.com.example.hrms_backend.entity.Account;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.repository.AccountRepository;
 import sep490.com.example.hrms_backend.repository.EmployeeRepository;
@@ -45,5 +46,11 @@ public class CurrentUserUtils {
                 .map(employee -> employee.getEmployeeName())
                 .orElseThrow(() -> new HRMSAPIException("Không tìm thấy thông tin nhân viên hiện tại!"));
     }
+    public Account getCurrentAccount() {
+        String username = getCurrentUsername();
+        return accountRepository.findByUsername(username)
+                .orElseThrow(() -> new HRMSAPIException("Không tìm thấy tài khoản người dùng hiện tại!"));
+    }
+
 }
 
