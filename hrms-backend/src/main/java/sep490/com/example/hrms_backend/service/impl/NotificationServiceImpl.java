@@ -18,7 +18,6 @@ import sep490.com.example.hrms_backend.websocket.NotificationWebSocketSender;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +40,7 @@ public class NotificationServiceImpl implements NotificationService {
                 break;
             case APPROVAL:
                 title = "Yêu cầu duyệt đơn mới";
-                content = "Nhân viên " + sender.getEmployee().getEmployeeName() + " vừa gửi đơn.";
+                content = "Nhân viên " + sender.getEmployee().getEmployeeName() + " vừa gửi đơn mới.";
                 break;
 
             case INTERVIEW_SCHEDULE:
@@ -52,6 +51,84 @@ public class NotificationServiceImpl implements NotificationService {
             case SHIFT_CHANGED:
                 title = "Cập nhật lịch làm việc";
                 content = "Nhân viên " + sender.getEmployee().getEmployeeName() + " vừa cập nhật lịch làm việc";
+                break;
+
+            case LINE_CHANGED:
+                title = "Chuyển line làm việc";
+                content = "Nhân viên " + recipients.getEmployee().getEmployeeName() + " vừa được điều chuyển line làm việc";
+                break;
+
+            case LEADER_CHANGE:
+                title = "Bổ nhiệm tổ trưởng mới";
+                content = "Nhân viên " + recipients.getEmployee().getEmployeeName() + " vừa được bổ nhiệm làm tổ trưởng";
+                break;
+            case APPLICATION_SUBMITTED:
+                title = "Đơn mới";
+                content = "Nhân viên " + sender.getEmployee().getEmployeeName() + " đã nộp đơn, chờ duyệt.";
+                break;
+
+            case APPLICATION_NEEDS_HR_APPROVAL:
+                title = "Đơn nghỉ phép cần duyệt HR";
+                content = "Đơn của nhân viên " + sender.getEmployee().getEmployeeName() + " đã được QLSX duyệt, cần HR xem xét.";
+                break;
+
+            case APPLICATION_APPROVED:
+                title = "Đơn nghỉ phép đã được duyệt";
+                content = "Đơn của nhân viên " + sender.getEmployee().getEmployeeName() + " đã được HR phê duyệt.";
+                break;
+
+            case APPLICATION_REJECTED:
+                title = "Đơn nghỉ phép bị từ chối";
+                content = "Đơn của nhân viên " + sender.getEmployee().getEmployeeName() + " đã bị từ chối.";
+                break;
+            case SCHEDULE_SUBMITTED:
+                title = "Phân ca mới được gửi";
+                content = "PMC vừa gửi phân ca chờ phê duyệt.";
+                break;
+
+            case SCHEDULE_REJECTED:
+                title = "Phân ca bị từ chối";
+                content = "Lịch phân ca đã bị từ chối. Vui lòng kiểm tra lại.";
+                break;
+
+            case SCHEDULE_NEEDS_REVISION:
+                title = "Yêu cầu chỉnh sửa phân ca";
+                content = "Lịch phân ca đã được yêu cầu chỉnh sửa lại. Vui lòng cập nhật.";
+                break;
+            case SALARY_CREATED:
+                title = "Tạo bảng lương mới";
+                content = "Bảng lương tháng mới đã được tạo.";
+                break;
+
+            case SALARY_UPDATED:
+                title = "Cập nhật bảng lương";
+                content = "Bảng lương đã được cập nhật.";
+                break;
+
+            case SALARY_LOCKED:
+                title = "Chốt bảng lương";
+                content = "Bảng lương đã được chốt và không thể chỉnh sửa.";
+                break;
+
+            case SALARY_UNLOCKED:
+                title = "Bỏ chốt bảng lương";
+                content = "Bảng lương đã được mở lại để chỉnh sửa.";
+                break;
+            case ATTENDANCE_UPDATED:
+                title = "Cập nhật chấm công";
+                content = "Chấm công của bạn vừa được "
+                        + sender.getEmployee().getEmployeeName() + " cập nhật giờ vào/ra.";
+                break;
+
+            case LEAVE_CODE_UPDATED:
+                title = "Cập nhật mã nghỉ";
+                content = "Mã nghỉ trong bảng công của bạn vừa được "
+                        + sender.getEmployee().getEmployeeName() + " cập nhật.";
+                break;
+
+            case ATTENDANCE_DAILY_UPDATED:
+                title = "Cập nhật bảng công ngày";
+                content = "Bảng công ngày đã được hệ thống cập nhật từ dữ liệu phân ca/chấm công.";
                 break;
             default:
                 title = "Thông báo mới";

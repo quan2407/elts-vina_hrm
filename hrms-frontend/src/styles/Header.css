@@ -7,232 +7,45 @@
   border-bottom: 1px solid #e5e7eb;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   margin-bottom: 16px;
-}
-
-.header-actions {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  position: relative;
-}
-
-.action-button {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  background: #f3f4f6;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.notification-badge {
-  position: absolute;
+  position: sticky;
   top: 0;
-  right: 0;
-  transform: translate(50%, -50%);
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: red;
-  color: white;
-  font-size: 10px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  z-index: 1030; /* dưới sidebar (1040) để offcanvas nổi lên */
 }
 
-.header-profile {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
+.header-actions { display: flex; gap: 16px; align-items: center; position: relative; }
+.action-button { position: relative; width: 40px; height: 40px; background: #f3f4f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.notification-badge { position: absolute; top: 0; right: 0; transform: translate(50%, -50%); width: 16px; height: 16px; border-radius: 50%; background: red; color: white; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 
-.header-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-}
+.header-profile { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.header-avatar { width: 32px; height: 32px; border-radius: 50%; }
+.header-username { font-weight: 600; color: #000; }
 
-.header-username {
-  font-weight: 600;
-  color: #000;
-}
+.profile-dropdown { position: absolute; top: 60px; right: 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 260px; padding: 8px 0; z-index: 1000; }
+.profile-info { padding: 12px 20px; border-bottom: 1px solid #e5e7eb; }
+.profile-name { font-weight: 600; font-size: 15px; }
+.profile-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; cursor: pointer; font-size: 14px; color: #374151; }
+.profile-item:hover { background: #f9fafb; }
+.profile-divider { height: 1px; background: #e5e7eb; margin: 6px 0; }
+.profile-logout { color: #dc2626; }
+.profile-logout:hover { background: #fee2e2; }
 
-.profile-dropdown {
-  position: absolute;
-  top: 60px;
-  right: 0;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  width: 260px;
-  padding: 8px 0;
-  z-index: 1000;
-}
+@media (max-width: 640px) { .header { padding: 16px; } .header-username { font-size: 14px; } }
 
-.profile-info {
-  padding: 12px 20px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.profile-name {
-  font-weight: 600;
-  font-size: 15px;
-}
-
-.profile-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 20px;
-  cursor: pointer;
-  font-size: 14px;
-  color: #374151;
-}
-
-.profile-item:hover {
-  background: #f9fafb;
-}
-
-.profile-divider {
-  height: 1px;
-  background: #e5e7eb;
-  margin: 6px 0;
-}
-
-.profile-logout {
-  color: #dc2626;
-}
-
-.profile-logout:hover {
-  background: #fee2e2;
-}
-
-@media (max-width: 640px) {
-  .header {
-    padding: 16px;
-  }
-
-  .header-username {
-    font-size: 14px;
-  }
-}
-
-
-.notification-dropdown {
-  position: absolute;
-  right: 60px;
-  top: 60px;
-  width: 360px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-  font-family: Arial, sans-serif;
-}
-
-.notification-header {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px;
-  font-weight: bold;
-  border-bottom: 1px solid #eee;
-}
-
-.notification-header span {
-  font-size: 24px;
-  color: #333;
-}
-
-.notification-tabs {
-  display: flex;
-  border-bottom: 1px solid #eee;
-}
-
-.notification-tabs button {
-  flex: 1;
-  padding: 10px;
-  background: none;
-  border: none;
-  font-weight: 500;
-  cursor: pointer;
-  color: #555;
-  font-size: 16px;
-}
-
-.notification-tabs button.active {
-  border-bottom: 2px solid #1877f2;
-  color: #1877f2;
-}
-
-.notification-list {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.notification-item {
-  display: flex;
-  align-items: flex-start;
-  padding: 10px 12px;
-  border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.notification-item.unread {
-  background-color: #e7f3ff;
-}
-
-.notification-item:hover {
-  background-color: #f5f5f5;
-}
-
-.notification-icon {
-  margin-right: 10px;
-  margin-top: 3px;
-  color: #1877f2;
-}
-
-.notification-content {
-  flex: 1;
-}
-
-.notification-text {
-  font-size: 14px;
-}
-
-.notification-time {
-  font-size: 12px;
-  color: #777;
-}
-
-.notification-empty {
-  padding: 20px;
-  text-align: center;
-  color: #888;
-}
-
-.notification-footer {
-  padding: 10px;
-  text-align: center;
-  border-top: 1px solid #eee;
-}
-
-.notification-footer button {
-  background: none;
-  border: none;
-  color: #1877f2;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.notification-list {
-  max-height: 300px;
-  overflow-y: auto;
-}
+/* Notifications dropdown */
+.notification-dropdown { position: absolute; right: 60px; top: 60px; width: 360px; background: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1); z-index: 100; font-family: Arial, sans-serif; }
+.notification-header { display: flex; justify-content: space-between; padding: 12px; font-weight: bold; border-bottom: 1px solid #eee; }
+.notification-header span { font-size: 24px; color: #333; }
+.notification-tabs { display: flex; border-bottom: 1px solid #eee; }
+.notification-tabs button { flex: 1; padding: 10px; background: none; border: none; font-weight: 500; cursor: pointer; color: #555; font-size: 16px; }
+.notification-tabs button.active { border-bottom: 2px solid #1877f2; color: #1877f2; }
+.notification-list { max-height: 300px; overflow-y: auto; }
+.notification-item { display: flex; align-items: flex-start; padding: 10px 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.2s; }
+.notification-item.unread { background-color: #e7f3ff; }
+.notification-item:hover { background-color: #f5f5f5; }
+.notification-icon { margin-right: 10px; margin-top: 3px; color: #1877f2; }
+.notification-content { flex: 1; }
+.notification-text { font-size: 14px; }
+.notification-time { font-size: 12px; color: #777; }
+.notification-empty { padding: 20px; text-align: center; color: #888; }
+.notification-footer { padding: 10px; text-align: center; border-top: 1px solid #eee; }
+.notification-footer button { background: none; border: none; color: #1877f2; font-weight: 500; cursor: pointer; }

@@ -42,7 +42,7 @@ function LoginPage() {
           roles.includes("ROLE_HR") ||
           roles.includes("ROLE_HR_MANAGER")
         ) {
-          navigate("/employee-management");
+          navigate("/dashboard");
         } else if (roles.includes("ROLE_PMC")) {
           navigate("/work-schedule-management");
         } else if (roles.includes("ROLE_PRODUCTION_MANAGER")) {
@@ -55,7 +55,7 @@ function LoginPage() {
         } else {
           navigate("/unauthorized");
         }
-      }, 100); // đợi một chút để permission cập nhật
+      }, 100);
     } catch (err) {
       console.error("Login failed:", err.response || err);
       if (err.response && err.response.data) {

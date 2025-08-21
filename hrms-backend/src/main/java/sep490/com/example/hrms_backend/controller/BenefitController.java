@@ -113,7 +113,7 @@ public ResponseEntity<?> unassignPositionFromBenefit(@PathVariable Long benefitI
 }
     //updateFormula
     @PutMapping("/hr/benefits/formula")
-    public ResponseEntity<?> updateFormula(@RequestBody BenefitPositionUpdateDTO request) {
+    public ResponseEntity<?> updateFormula(@Valid @RequestBody BenefitPositionUpdateDTO request) {
         benefitPositionService.updateFormula(request);
         return ResponseEntity.ok("Cập nhật công thức thành công");
     }

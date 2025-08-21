@@ -5,10 +5,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.entity.*;
+import sep490.com.example.hrms_backend.enums.NotificationType;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.mapper.WorkScheduleMapper;
 import sep490.com.example.hrms_backend.repository.*;
+import sep490.com.example.hrms_backend.service.NotificationService;
 import sep490.com.example.hrms_backend.service.WorkScheduleService;
+import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -30,6 +33,10 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final WorkScheduleDetailRepository workScheduleDetailRepository;
     private final HolidayRepository holidayRepository;
+    private final NotificationService notificationService;
+    private final AccountRepository accountRepository;
+    private final CurrentUserUtils currentUserUtils;
+
     @Override
     public List<WorkScheduleResponseDTO> createWorkSchedulesForAll(WorkScheduleCreateDTO dto) {
         int month = dto.getMonth();
@@ -398,6 +405,8 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
             schedule.setNeedRevision(false);
         }
         workScheduleRepository.saveAll(schedules);
+        Account sender = currentUserUtils.getCurrentAccount();
+        notifyMany(NotificationType.SCHEDULE_SUBMITTED, sender, findAllProductionManagers());
     }
 
 
@@ -413,21 +422,39 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
             workScheduleRepository.save(schedule);
             generateAttendanceRecords(schedule);
         }
-
+        Account sender = currentUserUtils.getCurrentAccount();
+        notifyMany(NotificationType.SHIFT_CHANGED, sender, findAllEmployees());
     }
     public List<EmployeeWorkScheduleDTO> getWorkScheduleForEmployee(Long employeeId, int month, int year) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "Không tìm thấy nhân viên"));
 
-        Long lineId = employee.getLine() != null ? employee.getLine().getLineId() : null;
+        Long lineId = (employee.getLine() != null) ? employee.getLine().getLineId() : null;
         Long departmentId = employee.getDepartment().getDepartmentId();
 
-        Optional<WorkSchedule> scheduleOpt = (lineId != null)
-                ? workScheduleRepository.findByDepartment_DepartmentIdAndLine_LineIdAndMonthAndYearAndIsAcceptedTrue(departmentId, lineId, month, year)
-                : workScheduleRepository.findByDepartment_DepartmentIdAndLineIsNullAndMonthAndYearAndIsAcceptedTrue(departmentId, month, year);
+        Optional<WorkSchedule> scheduleOpt = Optional.empty();
+
+        if (lineId != null) {
+            scheduleOpt = workScheduleRepository
+                    .findByDepartment_DepartmentIdAndLine_LineIdAndMonthAndYearAndIsAcceptedTrue(
+                            departmentId, lineId, month, year
+                    );
+            if (scheduleOpt.isEmpty()) {
+                scheduleOpt = workScheduleRepository
+                        .findByDepartment_DepartmentIdAndLineIsNullAndMonthAndYearAndIsAcceptedTrue(
+                                departmentId, month, year
+                        );
+            }
+        } else {
+            scheduleOpt = workScheduleRepository
+                    .findByDepartment_DepartmentIdAndLineIsNullAndMonthAndYearAndIsAcceptedTrue(
+                            departmentId, month, year
+                    );
+        }
 
         WorkSchedule schedule = scheduleOpt.orElseThrow(() ->
-                new HRMSAPIException(HttpStatus.NOT_FOUND, "Không có lịch làm việc đã được duyệt cho tháng này"));
+                new HRMSAPIException(HttpStatus.NOT_FOUND, "Không có lịch làm việc đã được duyệt cho tháng này")
+        );
 
         return schedule.getWorkScheduleDetails().stream()
                 .map(detail -> EmployeeWorkScheduleDTO.builder()
@@ -440,6 +467,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                         .build()
                 ).toList();
     }
+
 
 
     @Override
@@ -455,6 +483,8 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         }
 
         workScheduleRepository.saveAll(schedules);
+        Account sender = currentUserUtils.getCurrentAccount();
+        notifyMany(NotificationType.SCHEDULE_REJECTED, sender, findAllPmc());
     }
     @Override
     public void requestRevision(int month, int year, String reason) {
@@ -469,6 +499,8 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         }
 
         workScheduleRepository.saveAll(approvedSchedules);
+        Account sender = currentUserUtils.getCurrentAccount();
+        notifyMany(NotificationType.SCHEDULE_NEEDS_REVISION, sender, findAllPmc());
     }
 
     private int minutesBetween(LocalTime from, LocalTime to) {
@@ -544,6 +576,24 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                     "Vượt trần OT tháng (40h). Còn lại: " + remainHours + "h"
             );
         }
+    }
+    private void notifyMany(NotificationType type, Account sender, List<Account> receivers) {
+        if (receivers == null || receivers.isEmpty()) return;
+        for (Account acc : receivers) {
+            if (acc == null || acc.equals(sender)) continue;
+            notificationService.addNotification(type, sender, acc);
+        }
+    }
+    private List<Account> findAllProductionManagers() {
+        return accountRepository.findByRole_RoleNameInAndIsActiveTrue(List.of("ROLE_PRODUCTION_MANAGER")).stream().distinct().toList();
+    }
+
+    private List<Account> findAllEmployees() {
+        return accountRepository.findByRole_RoleNameInAndIsActiveTrue(List.of("ROLE_EMPLOYEE","ROLE_PMC","ROLE_LINE_LEADER","ROLE_HR","ROLE_HR_MANAGER")).stream().distinct().toList();
+    }
+
+    private List<Account> findAllPmc() {
+        return accountRepository.findByRole_RoleNameInAndIsActiveTrue(List.of("ROLE_PMC")).stream().distinct().toList();
     }
 
 }

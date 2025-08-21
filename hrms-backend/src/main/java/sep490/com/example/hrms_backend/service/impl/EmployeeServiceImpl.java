@@ -2,6 +2,7 @@ package sep490.com.example.hrms_backend.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -11,12 +12,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.entity.*;
+import sep490.com.example.hrms_backend.enums.NotificationType;
 import sep490.com.example.hrms_backend.exception.DuplicateEntryException;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.mapper.EmployeeMapper;
 import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.AccountService;
+import sep490.com.example.hrms_backend.service.NotificationService;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -39,6 +42,8 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     private final AccountRequestRepository accountRequestRepository;
     private final RoleRepository roleRepository;
 
+    @Autowired
+    NotificationService notificationService;
 
     @Override
     public Page<EmployeeResponseDTO> getAllEmployees(int page, int size, String search,
@@ -86,6 +91,17 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         List<EmployeeResponseDTO> content = start >= dtos.size() ? List.of() : dtos.subList(start, end);
 
         return new PageImpl<>(content, pageable, dtos.size());
+    }
+
+    @Override
+    public List<EmployeeResponseDTO> getLeaderEmployeeByDepartmentId(Long id) {
+        Department department = departmentRepository.findById(id).orElse(null);
+
+        List<EmployeeResponseDTO> employees = department.getEmployees().stream()
+                .filter(employee -> employee.getPosition().getPositionName().equalsIgnoreCase("Tổ trưởng"))
+                .map(EmployeeMapper::mapToEmployeeResponseDTO)
+                .collect(Collectors.toList());
+        return employees;
     }
 
 
@@ -170,7 +186,12 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
 
     @Override
     @Transactional
-    public void addEmployeesToLine(Long lineId, List<Long> employeeIds) {
+    public void addEmployeesToLine(Long lineId, List<Long> employeeIds, Long senderId) {
+
+        Employee senderEmp = employeeRepository.findById(senderId).orElseThrow(() -> new RuntimeException("Không tìm thấy id"));
+
+        Account senderAcc = senderEmp.getAccount();
+
         Line line = lineRepository.findById(lineId).orElseThrow(() -> new ResourceNotFoundException("Line", "id", lineId));
 
         Position p = positionRepository.findByPositionName("Công Nhân");
@@ -203,6 +224,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
             e.setLine(line);
             employeeRepository.save(e);
 
+            notificationService.addNotification(NotificationType.LINE_CHANGED, senderAcc, e.getAccount());
         }
     }
 

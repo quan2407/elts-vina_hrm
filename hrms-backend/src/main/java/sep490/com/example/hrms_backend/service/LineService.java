@@ -13,5 +13,5 @@ public interface LineService {
 
     LineDTO getLineByLineId(Long lineId);
 
-    void assignLeaderToLine(Long lineId, Long leaderId);
+    void assignLeaderToLine(Long lineId, Long leaderId, Long senderId);
 }

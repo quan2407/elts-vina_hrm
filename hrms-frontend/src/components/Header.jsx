@@ -1,13 +1,11 @@
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import { Bell, ChevronDown, User, Key, LogOut } from "lucide-react";
+import { Bell, ChevronDown, User, Key, LogOut , CircleUser } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Header.css";
-import {
-  getNotifications,
-  markNotificationAsRead,
-} from "../services/notificationService";
+import { getNotifications, markNotificationAsRead } from "../services/notificationService";
 import notificationLinks from "../constants/notificationLinks.jsx";
+import { Offcanvas } from "bootstrap";
 
 function Header() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -19,7 +17,6 @@ function Header() {
 
   const navigate = useNavigate();
 
-  // Decode token once
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) return;
@@ -31,17 +28,15 @@ function Header() {
     }
   }, []);
 
-  const filteredNotifications = useMemo(() => {
-    return notifications.filter((n) =>
-      notificationFilter === "all" ? true : !n.isRead
-    );
-  }, [notifications, notificationFilter]);
+  const filteredNotifications = useMemo(
+    () => notifications.filter((n) => (notificationFilter === "all" ? true : !n.isRead)),
+    [notifications, notificationFilter]
+  );
 
-  const visibleNotifications = useMemo(() => {
-    return showAllNotifications
-      ? filteredNotifications
-      : filteredNotifications.slice(0, 5);
-  }, [filteredNotifications, showAllNotifications]);
+  const visibleNotifications = useMemo(
+    () => (showAllNotifications ? filteredNotifications : filteredNotifications.slice(0, 5)),
+    [filteredNotifications, showAllNotifications]
+  );
 
   const handleSignOut = () => {
     localStorage.removeItem("accessToken");
@@ -63,22 +58,18 @@ function Header() {
       const response = await getNotifications();
       const withLinks = (response || []).map((n) => {
         const t = n.type?.code || n.type?.name || n.type || n.notificationType;
-        return {
-          ...n,
-          link: notificationLinks[t] || n.link || null,
-        };
+        return { ...n, link: notificationLinks[t] || n.link || null };
       });
       setNotifications(withLinks);
     } catch (error) {
       console.error("Error fetching notifications:", error);
     }
   };
+
   const handleNotificationClick = async (id, link) => {
     try {
       await markNotificationAsRead(id);
-      setNotifications((prev) =>
-        prev.map((noti) => (noti.id === id ? { ...noti, isRead: true } : noti))
-      );
+      setNotifications((prev) => prev.map((noti) => (noti.id === id ? { ...noti, isRead: true } : noti)));
       if (link) navigate(link);
     } catch (error) {
       console.error("Error marking notification as read:", error);
@@ -87,8 +78,7 @@ function Header() {
 
   function formatRelativeTime(dateString) {
     const date = new Date(dateString);
-    const diff = Math.floor((new Date() - date) / 1000); // seconds
-
+    const diff = Math.floor((new Date() - date) / 1000);
     if (diff < 60) return `${diff} giây trước`;
     if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
     if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
@@ -99,52 +89,45 @@ function Header() {
     fetchNotifications();
   }, []);
 
-  // Đóng dropdown khi click ra ngoài (dùng mousedown để tránh flicker)
   const profileRef = useRef(null);
   const notificationAreaRef = useRef(null);
 
   useEffect(() => {
     const onClickOutside = (e) => {
-      if (profileRef.current && !profileRef.current.contains(e.target)) {
-        setIsProfileOpen(false);
-      }
-      if (
-        notificationAreaRef.current &&
-        !notificationAreaRef.current.contains(e.target)
-      ) {
-        setIsNotificationOpen(false);
-      }
+      if (profileRef.current && !profileRef.current.contains(e.target)) setIsProfileOpen(false);
+      if (notificationAreaRef.current && !notificationAreaRef.current.contains(e.target)) setIsNotificationOpen(false);
     };
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
+const openMobileSidebar = () => {
+  const el = document.getElementById("sidebarOffcanvas");
+  if (!el) return;
+  let instance = Offcanvas.getInstance(el);
+  if (!instance) instance = new Offcanvas(el);
+  instance.show();
+};
+
   return (
-    <div className="header">
+    <header className="header">
+      {/* Toggle for mobile: opens offcanvas sidebar */}
       <button
         className="btn btn-outline-secondary d-md-none"
         type="button"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#sidebarOffcanvas"
-        aria-controls="sidebarOffcanvas"
+        onClick={openMobileSidebar}
       >
         ☰
       </button>
 
       <div className="header-actions ms-auto">
-        <div
-          className="notification-area"
-          ref={notificationAreaRef}
-        >
+        <div className="notification-area" ref={notificationAreaRef}>
           <div
             className="action-button position-relative"
             onClick={() => setIsNotificationOpen((s) => !s)}
             aria-label="Thông báo"
           >
-            <Bell
-              size={20}
-              stroke="#000"
-            />
+            <Bell size={20} stroke="#000" />
             {notifications.some((n) => !n.isRead) && (
               <div className="notification-badge">
                 {notifications.filter((n) => !n.isRead).length}
@@ -153,44 +136,29 @@ function Header() {
           </div>
 
           {isNotificationOpen && (
-            <div
-              className="notification-dropdown"
-              onMouseDown={(e) => e.stopPropagation()}
-            >
+            <div className="notification-dropdown" onMouseDown={(e) => e.stopPropagation()}>
               <div className="notification-header">
                 <span>Thông báo</span>
               </div>
 
               <div className="notification-tabs">
-                <button
-                  className={notificationFilter === "all" ? "active" : ""}
-                  onClick={() => setNotificationFilter("all")}
-                >
+                <button className={notificationFilter === "all" ? "active" : ""} onClick={() => setNotificationFilter("all")}>
                   Tất cả
                 </button>
-                <button
-                  className={notificationFilter === "unread" ? "active" : ""}
-                  onClick={() => setNotificationFilter("unread")}
-                >
+                <button className={notificationFilter === "unread" ? "active" : ""} onClick={() => setNotificationFilter("unread")}>
                   Chưa đọc
                 </button>
               </div>
 
               <div className="notification-list">
                 {filteredNotifications.length === 0 ? (
-                  <div className="notification-empty">
-                    Không có thông báo nào
-                  </div>
+                  <div className="notification-empty">Không có thông báo nào</div>
                 ) : (
                   visibleNotifications.map((noti) => (
                     <div
                       key={noti.id}
-                      className={`notification-item ${
-                        !noti.isRead ? "unread" : ""
-                      }`}
-                      onClick={() =>
-                        handleNotificationClick(noti.id, noti.link)
-                      }
+                      className={`notification-item ${!noti.isRead ? "unread" : ""}`}
+                      onClick={() => handleNotificationClick(noti.id, noti.link)}
                       style={{ cursor: "pointer" }}
                     >
                       <div className="notification-icon">
@@ -198,9 +166,7 @@ function Header() {
                       </div>
                       <div className="notification-content">
                         <div className="notification-text">{noti.content}</div>
-                        <div className="notification-time">
-                          {formatRelativeTime(noti.createdAt)}
-                        </div>
+                        <div className="notification-time">{formatRelativeTime(noti.createdAt)}</div>
                       </div>
                     </div>
                   ))
@@ -209,33 +175,22 @@ function Header() {
 
               <div className="notification-footer">
                 {!showAllNotifications && filteredNotifications.length > 5 && (
-                  <button onClick={() => setShowAllNotifications(true)}>
-                    Xem thông báo trước đó
-                  </button>
+                  <button onClick={() => setShowAllNotifications(true)}>Xem thông báo trước đó</button>
                 )}
               </div>
             </div>
           )}
         </div>
 
-        {/* Hồ sơ */}
-        <div
-          className="header-profile"
-          ref={profileRef}
-          onClick={() => setIsProfileOpen((s) => !s)}
-        >
-          <img
-            className="header-avatar"
-            src="https://i.pravatar.cc/40"
-            alt="User"
-          />
+        {/* Profile */}
+        <div className="header-profile" ref={profileRef} onClick={() => setIsProfileOpen((s) => !s)}>
+              <CircleUser className="header-avatar" alt="User" size={20} />
           <span className="header-username">{username}</span>
           <ChevronDown size={16} stroke="#000" />
         </div>
 
         {isProfileOpen && (
           <div className="profile-dropdown" onMouseDown={(e) => e.stopPropagation()}>
-
             <div className="profile-info">
               <div className="profile-name">{username}</div>
             </div>
@@ -245,7 +200,6 @@ function Header() {
             <div className="profile-item" onClick={handleChangePassword}>
               <Key size={16} /> <span>Đổi mật khẩu</span>
             </div>
-
             <div className="profile-divider"></div>
             <div className="profile-item profile-logout" onClick={handleSignOut}>
               <LogOut size={16} /> <span>Đăng xuất</span>
@@ -253,7 +207,7 @@ function Header() {
           </div>
         )}
       </div>
-    </div>
+    </header>
   );
 }
 

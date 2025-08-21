@@ -64,8 +64,6 @@ ALTER TABLE position AUTO_INCREMENT = 1;
 ALTER TABLE department AUTO_INCREMENT = 1;
 ALTER TABLE role AUTO_INCREMENT = 1;
 ALTER TABLE holidays AUTO_INCREMENT = 1;
-ALTER TABLE employee
-MODIFY COLUMN union_fee DECIMAL(10,2) DEFAULT 50000;
 
 
 INSERT INTO role (role_id, role_name) VALUES
@@ -138,8 +136,8 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 
 -- HR, HR_MANAGER: xem chi tiết, xem và duyệt bước 2
 INSERT INTO role_permission (role_id, permission_id) VALUES 
-(2, 11), (2, 15), (2, 16), -- HR
-(8, 11), (8, 15), (8, 16); -- HR_MANAGER
+(2, 11), (2, 15), (2, 16),(2,9), -- HR
+(8, 11), (8, 15), (8, 16),(8,9); -- HR_MANAGER
 -- Module: Attendance 
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
 (17, 'GET', '/api/attendances/view-by-month', 'Xem bảng công theo tháng', 'Attendance '),
@@ -172,7 +170,13 @@ INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 UPDATE permission
 SET method = 'PUT'
 WHERE permission_id = 24;
-
+INSERT INTO role_permission (role_id, permission_id) VALUES 
+(1,25),
+(2,25),                     -- HR
+(3,25),                     -- LINE_LEADER
+(4,25),                     -- PRODUCTION_MANAGER
+(6,25),                     -- EMPLOYEE
+(7,25);                     -- PMC
 -- Gán permission:
 INSERT INTO role_permission (role_id, permission_id) VALUES 
 (1,24),(1,26),(1,27),       -- ADMIN
@@ -335,6 +339,14 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 INSERT INTO role_permission (role_id, permission_id) VALUES
 (6, 61), (6, 62), (6, 63), (6, 65), (6, 66), (6, 67);
 
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(3, 61), (3, 62), (3, 63), (3, 65), (3, 66), (3, 67);
+
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(4, 61), (4, 62), (4, 63), (4, 65), (4, 66), (4, 67);
+
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(7, 61), (7, 62), (7, 63), (7, 65), (7, 66), (7, 67);
 -- Module: Line
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 (68, 'GET', '/api/lines/*/department', 'Lấy phòng ban theo chuyền', 'Line'),
@@ -353,6 +365,8 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 -- PMC (7)
 INSERT INTO role_permission (role_id, permission_id) VALUES
 (7, 68), (7, 69), (7, 70), (7, 71);
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(1, 68), (1, 69), (1, 70), (1, 71);
 -- Module: OCR
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 (72, 'POST', '/api/ocr/scan-cccd', 'Scan CCCD bằng OCR', 'OCR'),
@@ -394,6 +408,8 @@ INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 INSERT INTO role_permission (role_id, permission_id) VALUES
 (2, 77), (2, 78), (2, 79), (2, 80), (2, 82),
 (8, 77), (8, 78), (8, 79), (8, 80), (8, 82);
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(2, 81),(8,81),(7,81),(4,81),(4,80),(7,80);
 
 -- EMPLOYEE được xem lương của mình và danh sách tháng
 INSERT INTO role_permission (role_id, permission_id) VALUES
@@ -416,7 +432,8 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 -- PMC (7): tạo, dải, gửi
 INSERT INTO role_permission (role_id, permission_id) VALUES
 (7, 83), (7, 84), (7, 85), (7, 86), (7, 90);
-
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(7, 88), (2,88),(8,88),(2,85),(8,85);
 -- PRODUCTION_MANAGER (4): duyệt, từ chối, yêu cầu sửa
 INSERT INTO role_permission (role_id, permission_id) VALUES
 (4, 85), (4, 87), (4, 88), (4, 89), (4, 91);
@@ -470,16 +487,14 @@ INSERT INTO department (department_id, department_name) VALUES
 INSERT INTO position (position_id, position_name, description) VALUES
 (1, 'Công Nhân', NULL),
 (2, 'Công Nhân Kiểm Tra', NULL),
-(3, 'Data', NULL),
 (6, 'Nhân Viên Vệ Sinh', NULL),
 (7, 'Nhân Viên QC', NULL),
 (10, 'Quản Lý Sản Xuất', NULL),
-(11, 'Quản Lý Kỹ Thuật', NULL),
-(12, 'Quản Lý Vật Tư', NULL),
 (15, 'Tổ Trưởng', NULL),
 (17, 'HR', 'Nhân viên nhân sự'),
 (18, 'PMC', 'Nhân viên phòng kế hoạch sản xuất & vật tư'),
-(19, 'Trưởng Phòng Nhân Sự', 'Quản lý phòng Nhân sự');
+(19, 'Trưởng Phòng Nhân Sự', 'Quản lý phòng Nhân sự'),
+(20, "IT", "Quản lý hệ thống");
 
 INSERT INTO department_position (department_id, position_id) VALUES
 (1, 1),  
@@ -502,123 +517,123 @@ INSERT INTO employee (
     citizen_issue_date, citizen_expiry_date, citizen_issue_place,
     address, image, start_work_at, phone_number, email,
     department_id, position_id,
-    basic_salary, allowance_phone, allowance_meal, allowance_attendance, allowance_transport, end_work_at
+    basic_salary, end_work_at
 ) VALUES
-(1, 'ELTSSX0001', 'Nguyễn Văn A', 'NAM', '1991-01-15', NULL, NULL, 'Vietnam', '0123456781', '2010-01-01', '2030-01-01', 'Hà Nội', NULL, NULL, '2016-01-01', '0901234567', 'user1@example.com', 1, 1, 4620000, 100000, 200000, 500000, 40000, '2030-01-01'),
+(1, 'ELTSSX0001', 'Nguyễn Văn An', 'NAM', '1991-01-15', NULL, NULL, 'Vietnam', '0123456781', '2010-01-01', '2030-01-01', 'Hà Nội', NULL, NULL, '2016-01-01', '0901234567', 'user1@example.com', 1, 1, 4620000, '2030-01-01'),
 
-(2, 'ELTSHC0001', 'Trần Thị B', 'NỮ', '1992-02-15', NULL, NULL, 'Vietnam', '0123456782', '2011-01-01', '2031-01-01', 'Hồ Chí Minh', NULL, NULL, '2017-01-01', '0902345678', 'user2@example.com', 8, 17, 4800000, 90000, 180000, 450000, 35000, '2031-01-01'),
+(2, 'ELTSHC0001', 'Trần Thị Bình', 'NỮ', '1992-02-15', NULL, NULL, 'Vietnam', '0123456782', '2011-01-01', '2031-01-01', 'Hồ Chí Minh', NULL, NULL, '2017-01-01', '0902345678', 'user2@example.com', 8, 17, 4800000, '2031-01-01'),
 
-(3, 'ELTSSX0002', 'Lê Văn C', 'NAM', '1993-03-15', NULL, NULL, 'Vietnam', '0123456783', '2012-01-01', '2032-01-01', 'Đà Nẵng', NULL, NULL, '2018-01-01', '0903456789', 'user3@example.com', 4, 2, 5000000, 95000, 220000, 470000, 30000, '2032-01-01'),
+(3, 'ELTSSX0002', 'Lê Văn Cường', 'NAM', '1993-03-15', NULL, NULL, 'Vietnam', '0123456783', '2012-01-01', '2032-01-01', 'Đà Nẵng', NULL, NULL, '2018-01-01', '0903456789', 'user3@example.com', 4, 2, 5000000, '2032-01-01'),
 
-(4, 'ELTSSX0003', 'Phạm Thị D', 'NỮ', '1994-04-15', NULL, NULL, 'Vietnam', '0123456784', '2013-01-01', '2033-01-01', 'Hải Phòng', NULL, NULL, '2019-01-01', '0904567890', 'user4@example.com', 5, 15, 4750000, 98000, 210000, 490000, 37000, '2033-01-01'),
+(4, 'ELTSSX0003', 'Phạm Thị Dinh', 'NỮ', '1994-04-15', NULL, NULL, 'Vietnam', '0123456784', '2013-01-01', '2033-01-01', 'Hải Phòng', NULL, NULL, '2019-01-01', '0904567890', 'user4@example.com', 5, 15, 4750000, '2033-01-01'),
 
-(5, 'ELTSSX0004', 'Hoàng Văn E', 'NAM', '1995-05-15', NULL, NULL, 'Vietnam', '0123456785', '2014-01-01', '2034-01-01', 'Cần Thơ', NULL, NULL, '2020-01-01', '0905678901', 'user5@example.com', 1, 1, 4900000, 92000, 205000, 460000, 36000, '2034-01-01'),
+(5, 'ELTSSX0004', 'Hoàng Văn Tiến', 'NAM', '1995-05-15', NULL, NULL, 'Vietnam', '0123456785', '2014-01-01', '2034-01-01', 'Cần Thơ', NULL, NULL, '2020-01-01', '0905678901', 'user5@example.com', 1, 1, 4900000,'2034-01-01'),
 
-(6, 'ELTSSX0005', 'Nguyễn Thị F', 'NỮ', '1996-06-15', NULL, NULL, 'Vietnam', '0123456786', '2015-01-01', '2035-01-01', 'Huế', NULL, NULL, '2021-01-01', '0906789012', 'user6@example.com', 5, 1, 4700000, 87000, 200000, 430000, 34000, '2035-01-01'),
+(6, 'ELTSSX0005', 'Nguyễn Thị Lành', 'NỮ', '1996-06-15', NULL, NULL, 'Vietnam', '0123456786', '2015-01-01', '2035-01-01', 'Huế', NULL, NULL, '2021-01-01', '0906789012', 'user6@example.com', 5, 1, 4700000, '2035-01-01'),
 
-(7, 'ELTSSX0006', 'Vũ Văn G', 'NAM', '1997-07-15', NULL, NULL, 'Vietnam', '0123456787', '2016-01-01', '2036-01-01', 'Quảng Ninh', NULL, NULL, '2022-01-01', '0907890123', 'user7@example.com', 10, 10, 4850000, 99000, 215000, 510000, 39000, '2036-01-01'),
+(7, 'ELTSSX0006', 'Vũ Văn Hùng', 'NAM', '1997-07-15', NULL, NULL, 'Vietnam', '0123456787', '2016-01-01', '2036-01-01', 'Quảng Ninh', NULL, NULL, '2022-01-01', '0907890123', 'user7@example.com', 10, 10, 4850000, '2036-01-01'),
 
-(8, 'ELTSSX0007', 'Đoàn Thị H', 'NỮ', '1998-08-15', NULL, NULL, 'Vietnam', '0123456788', '2017-01-01', '2037-01-01', 'Nghệ An', NULL, NULL, '2023-01-01', '0908901234', 'user8@example.com', 5, 1, 4950000, 93000, 198000, 440000, 32000, '2037-01-01'),
+(8, 'ELTSSX0007', 'Đoàn Thị Hảo', 'NỮ', '1998-08-15', NULL, NULL, 'Vietnam', '0123456788', '2017-01-01', '2037-01-01', 'Nghệ An', NULL, NULL, '2023-01-01', '0908901234', 'user8@example.com', 5, 1, 4950000,'2037-01-01'),
 
-(9, 'ELTSSX0008', 'Phan Văn I', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456789', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0909012345', 'user9@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(9, 'ELTSSX0008', 'Phan Văn Nghĩa', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456789', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0909012345', 'user9@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(10, 'ELTSSX0009', 'Bùi Thị J', 'NỮ', '1990-10-15', NULL, NULL, 'Vietnam', '0123456790', '2009-01-01', '2029-01-01', 'Bắc Ninh', NULL, NULL, '2025-01-01', '0900123456', 'user10@example.com', 9, 18, 5100000, 96000, 212000, 480000, 38000, '2029-01-01'),
+(10, 'ELTSSX0009', 'Bùi Thị Dậu', 'NỮ', '1990-10-15', NULL, NULL, 'Vietnam', '0123456790', '2009-01-01', '2029-01-01', 'Bắc Ninh', NULL, NULL, '2025-01-01', '0900123456', 'user10@example.com', 9, 18, 5100000,'2029-01-01'),
 
-(11, 'ELTSSX0011', 'Nguyễn Văn K', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456791', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0901234567', 'user11@example.com', 5, 15, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(11, 'ELTSSX0011', 'Nguyễn Văn Kiên', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456791', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0901234567', 'user11@example.com', 5, 15, 5050000,'2038-01-01'),
 
-(12, 'ELTSSX0012', 'Trần Thị L', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456792', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0902345678', 'user12@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(12, 'ELTSSX0012', 'Trần Thị Linh', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456792', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0902345678', 'user12@example.com', 5, 1, 5050000,'2038-01-01'),
 
-(13, 'ELTSSX0013', 'Lê Văn M', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456793', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0903456789', 'user13@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(13, 'ELTSSX0013', 'Lê Văn Minh', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456793', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0903456789', 'user13@example.com', 5, 1, 5050000,'2038-01-01'),
 
-(14, 'ELTSSX0014', 'Phạm Thị N', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456794', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0904567890', 'user14@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(14, 'ELTSSX0014', 'Phạm Thị Ngạn', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456794', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0904567890', 'user14@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(15, 'ELTSSX0015', 'Hoàng Văn O', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456795', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0905678901', 'user15@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(15, 'ELTSSX0015', 'Hoàng Văn Đạt', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456795', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0905678901', 'user15@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(16, 'ELTSSX0016', 'Nguyễn Thị P', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456796', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0906789012', 'user16@example.com', 5, 15, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(16, 'ELTSSX0016', 'Nguyễn Thị Phước', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456796', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0906789012', 'user16@example.com', 5, 15, 5050000,'2038-01-01'),
 
-(17, 'ELTSSX0017', 'Vũ Văn Q', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456797', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0907890123', 'user17@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(17, 'ELTSSX0017', 'Vũ Văn Quân', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456797', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0907890123', 'user17@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(18, 'ELTSSX0018', 'Đoàn Thị R', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456798', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0908901234', 'user18@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(18, 'ELTSSX0018', 'Đoàn Thị Điểm', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456798', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0908901234', 'user18@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(19, 'ELTSSX0019', 'Phan Văn S', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456799', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0909012345', 'user19@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(19, 'ELTSSX0019', 'Phan Văn Sông', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456799', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0909012345', 'user19@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(20, 'ELTSSX0020', 'Bùi Thị T', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456800', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0900123456', 'user20@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(20, 'ELTSSX0020', 'Bùi Thị Thu Hà', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456800', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0900123456', 'user20@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(21, 'ELTSSX0021', 'Nguyễn Văn U', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456801', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0901234567', 'user21@example.com', 5, 15, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(21, 'ELTSSX0021', 'Nguyễn Văn Luyện', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456801', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0901234567', 'user21@example.com', 5, 15, 5050000, '2038-01-01'),
 
-(22, 'ELTSSX0022', 'Trần Thị V', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456802', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0902345678', 'user22@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(22, 'ELTSSX0022', 'Trần Thị Vinh', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456802', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0902345678', 'user22@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(23, 'ELTSSX0023', 'Lê Văn W', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456803', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0903456789', 'user23@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(23, 'ELTSSX0023', 'Lê Văn Sinh', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456803', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0903456789', 'user23@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(24, 'ELTSSX0024', 'Phạm Thị X', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456804', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0904567890', 'user24@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(24, 'ELTSSX0024', 'Phạm Thị Bích Ngọc', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456804', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0904567890', 'user24@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(25, 'ELTSSX0025', 'Hoàng Văn Y', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456805', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0905678901', 'user25@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(25, 'ELTSSX0025', 'Hoàng Văn Yến', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456805', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0905678901', 'user25@example.com', 5, 1, 5050000,'2038-01-01'),
 
-(26, 'ELTSSX0026', 'Nguyễn Thị Z', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456806', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0906789012', 'user26@example.com', 5, 15, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(26, 'ELTSSX0026', 'Nguyễn Thị Thu Thủy', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456806', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0906789012', 'user26@example.com', 5, 15, 5050000, '2038-01-01'),
 
-(27, 'ELTSSX0027', 'Vũ Văn AA', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456807', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0907890123', 'user27@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(27, 'ELTSSX0027', 'Vũ Văn Trội', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456807', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0907890123', 'user27@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(28, 'ELTSSX0028', 'Đoàn Thị AB', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456808', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0908901234', 'user28@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(28, 'ELTSSX0028', 'Đoàn Thị Sách', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456808', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0908901234', 'user28@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(29, 'ELTSSX0029', 'Phan Văn AC', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456809', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0909012345', 'user29@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(29, 'ELTSSX0029', 'Phan Văn Trường', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456809', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0909012345', 'user29@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(30, 'ELTSSX0030', 'Bùi Thị AD', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456810', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0900123456', 'user30@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(30, 'ELTSSX0030', 'Bùi Thị Thúy Nga', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456810', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0900123456', 'user30@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(31, 'ELTSSX0031', 'Nguyễn Văn AE', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456811', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0901234567', 'user31@example.com', 5, 15, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(31, 'ELTSSX0031', 'Nguyễn Văn Trang', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456811', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0901234567', 'user31@example.com', 5, 15, 5050000, '2038-01-01'),
 
-(32, 'ELTSSX0032', 'Trần Thị AF', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456812', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0902345678', 'user32@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(32, 'ELTSSX0032', 'Trần Thị Bích', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456812', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0902345678', 'user32@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(33, 'ELTSSX0033', 'Lê Văn AG', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456813', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0903456789', 'user33@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(33, 'ELTSSX0033', 'Lê Văn Doan', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456813', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0903456789', 'user33@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(34, 'ELTSSX0034', 'Phạm Thị AH', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456814', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0904567890', 'user34@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(34, 'ELTSSX0034', 'Phạm Thị Kim', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456814', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0904567890', 'user34@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(35, 'ELTSSX0035', 'Hoàng Văn AI', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456815', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0905678901', 'user35@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(35, 'ELTSSX0035', 'Hoàng Văn Hùng', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456815', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0905678901', 'user35@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(36, 'ELTSSX0036', 'Nguyễn Thị AJ', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456816', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0906789012', 'user36@example.com', 5, 15, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(36, 'ELTSSX0036', 'Nguyễn Thị Giang', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456816', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0906789012', 'user36@example.com', 5, 15, 5050000, '2038-01-01'),
 
-(37, 'ELTSSX0037', 'Vũ Văn AK', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456817', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0907890123', 'user37@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(37, 'ELTSSX0037', 'Vũ Văn Lý', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456817', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0907890123', 'user37@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(38, 'ELTSSX0038', 'Đoàn Thị AL', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456818', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0908901234', 'user38@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(38, 'ELTSSX0038', 'Đoàn Thị Ngọc', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456818', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0908901234', 'user38@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(39, 'ELTSSX0039', 'Phan Văn AM', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456819', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0909012345', 'user39@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01'),
+(39, 'ELTSSX0039', 'Phan Văn Nam', 'NAM', '1999-09-15', NULL, NULL, 'Vietnam', '0123456819', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0909012345', 'user39@example.com', 5, 1, 5050000, '2038-01-01'),
 
-(40, 'ELTSSX0040', 'Bùi Thị AN', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456820', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0900123456', 'user40@example.com', 5, 1, 5050000, 94000, 208000, 450000, 33000, '2038-01-01');
+(40, 'ELTSSX0040', 'Bùi Thị Trinh', 'NỮ', '1999-09-15', NULL, NULL, 'Vietnam', '0123456820', '2018-01-01', '2038-01-01', 'Thanh Hóa', NULL, NULL, '2024-01-01', '0900123456', 'user40@example.com', 5, 1, 5050000, '2038-01-01');
 
 
 -- Phòng ban Bán Tự Động
 INSERT INTO employee (
     employee_id, employee_code, employee_name, gender, dob,
     department_id, position_id, basic_salary, phone_number, email,
-    allowance_phone, allowance_meal, allowance_attendance, allowance_transport, start_work_at, end_work_at
+	start_work_at, end_work_at
 )
 VALUES
-(41, 'ELTSSX0041', 'Nguyễn Văn B1', 'NAM', '1985-02-20', 1, 15, 5000000, '0901000001', 'user41@example.com', 94000, 208000, 450000, 33000, '2015-06-01', '2025-12-31'),
-(42, 'ELTSSX0042', 'Trần Thị B2', 'NỮ', '1990-04-25', 1, 1, 4800000, '0901000002', 'user42@example.com', 94000, 208000, 450000, 33000, '2016-06-01', '2025-12-31'),
-(43, 'ELTSSX0043', 'Lê Văn B3', 'NAM', '1992-07-15', 1, 1, 5000000, '0901000003', 'user43@example.com', 94000, 208000, 450000, 33000, '2017-06-01', '2025-12-31');
+(41, 'ELTSSX0041', 'Nguyễn Bùi Việt Anh', 'NAM', '1985-02-20', 1, 15, 5000000, '0901000001', 'user41@example.com', '2015-06-01', '2025-12-31'),
+(42, 'ELTSSX0042', 'Nguyễn Thị Thảo', 'NỮ', '1990-04-25', 1, 1, 4800000, '0901000002', 'user42@example.com', '2016-06-01', '2025-12-31'),
+(43, 'ELTSSX0043', 'Trần Thanh Bình', 'NAM', '1992-07-15', 1, 1, 5000000, '0901000003', 'user43@example.com', '2017-06-01', '2025-12-31');
 
 
 -- Phòng ban QC
 INSERT INTO employee (
     employee_id, employee_code, employee_name, gender, dob,
     department_id, position_id, basic_salary, phone_number, email,
-    allowance_phone, allowance_meal, allowance_attendance, allowance_transport, start_work_at, end_work_at
+    start_work_at, end_work_at
 )
 VALUES
-(44, 'ELTSSX0044', 'Nguyễn Thị C1', 'NỮ', '1990-05-22', 4, 15, 5200000, '0902000001', 'user44@example.com', 94000, 208000, 450000, 33000, '2020-06-01', '2025-12-31'),
-(45, 'ELTSSX0045', 'Vũ Thị C2', 'NỮ', '1993-10-18', 4, 2, 5100000, '0902000002', 'user45@example.com', 94000, 208000, 450000, 33000, '2021-01-01', '2025-12-31'),
-(46, 'ELTSSX0046', 'Trần Văn C3', 'NAM', '1988-03-30', 4, 2, 5300000, '0902000003', 'user46@example.com', 94000, 208000, 450000, 33000, '2021-02-01', '2025-12-31');
+(44, 'ELTSSX0044', 'Trần Thị Tiên ', 'NỮ', '1990-05-22', 4, 15, 5200000, '0902000001', 'user44@example.com', '2020-06-01', '2025-12-31'),
+(45, 'ELTSSX0045', 'Nguyễn Ngọc Thủy Tiên', 'NỮ', '1993-10-18', 4, 2, 5100000, '0902000002', 'user45@example.com','2021-01-01', '2025-12-31'),
+(46, 'ELTSSX0046', 'Nguyễn Minh Phương', 'NAM', '1988-03-30', 4, 2, 5300000, '0902000003', 'user46@example.com', '2021-02-01', '2025-12-31');
 
 
 -- Phòng ban Tự Động
 INSERT INTO employee (
     employee_id, employee_code, employee_name, gender, dob,
     department_id, position_id, basic_salary, phone_number, email,
-    allowance_phone, allowance_meal, allowance_attendance, allowance_transport, start_work_at, end_work_at
+	start_work_at, end_work_at
 )
 VALUES
-(47, 'ELTSSX0047', 'Phạm Thị D1', 'NỮ', '1991-09-05', 6, 15, 5200000, '0903000001', 'user47@example.com', 94000, 208000, 450000, 33000, '2020-01-01', '2025-12-31'),
-(48, 'ELTSSX0048', 'Bùi Văn D2', 'NAM', '1994-01-12', 6, 1, 5100000, '0903000002', 'user48@example.com', 94000, 208000, 450000, 33000, '2021-02-01', '2025-12-31'),
-(49, 'ELTSSX0049', 'Nguyễn Thị D3', 'NỮ', '1992-11-05', 6, 1, 5300000, '0903000003', 'user49@example.com', 94000, 208000, 450000, 33000, '2021-03-01', '2025-12-31');
+(47, 'ELTSSX0047', 'Phạm Thu Ngọc', 'NỮ', '1991-09-05', 6, 15, 5200000, '0903000001', 'user47@example.com', '2020-01-01', '2025-12-31'),
+(48, 'ELTSSX0048', 'Nguyễn Minh Đức', 'NAM', '1994-01-12', 6, 1, 5100000, '0903000002', 'user48@example.com', '2021-02-01', '2025-12-31'),
+(49, 'ELTSSX0049', 'Nguyễn Thị Bích Tiên', 'NỮ', '1992-11-05', 6, 1, 5300000, '0903000003', 'user49@example.com', '2021-03-01', '2025-12-31');
 
 
 INSERT INTO employee (
@@ -627,14 +642,14 @@ INSERT INTO employee (
     citizen_issue_date, citizen_expiry_date, citizen_issue_place,
     address, image, start_work_at, end_work_at, phone_number, email,
     department_id, position_id,
-    basic_salary, allowance_phone, allowance_meal, allowance_attendance, allowance_transport
+    basic_salary
 ) VALUES
-(50, 'ELTSHC0002', 'Ngô Văn HR', 'NAM', '1980-12-12',
+(50, 'ELTSHC0002', 'Nguyễn Ngọc Đức', 'NAM', '1980-12-12',
  NULL, NULL, 'Vietnam', '0123456999',
  '2005-01-01', '2025-01-01', 'Hà Nội',
  NULL, NULL, '2010-01-01', '2025-12-31', '0911999999', 'truongphonghr@example.com',
  8, 19,
- 8000000, 120000, 250000, 550000, 50000);
+ 8000000);
 
 INSERT INTO employee (
     employee_id, employee_code, employee_name, gender, dob,
@@ -642,18 +657,31 @@ INSERT INTO employee (
     citizen_issue_date, citizen_expiry_date, citizen_issue_place,
     address, image, start_work_at, end_work_at, phone_number, email,
     department_id, position_id,
-    basic_salary, allowance_phone, allowance_meal, allowance_attendance, allowance_transport
+    basic_salary
 ) VALUES
-(51, 'ELTSXC0010', 'Ngô Văn C', 'NAM', '1980-12-12',
+(51, 'ELTSX0010', 'Nguyễn Trung Kiên', 'NAM', '1980-12-12',
  NULL, NULL, 'Vietnam', '01283273421',
  '2005-01-01', '2025-01-01', 'Hà Nội',
  NULL, NULL, '2010-01-01', '2025-12-31', '09237223642', 'user51@example.com',
  6, 15,
- 8000000, 120000, 250000, 550000, 50000);
-
+ 8000000);
+INSERT INTO employee (
+    employee_id, employee_code, employee_name, gender, dob,
+    place_of_birth, origin_place, nationality, citizen_id,
+    citizen_issue_date, citizen_expiry_date, citizen_issue_place,
+    address, image, start_work_at, end_work_at, phone_number, email,
+	position_id,
+    basic_salary
+) VALUES
+(52, 'ELTSHC0003', 'Nguyễn Thành Công', 'NAM', '1980-12-12',
+ NULL, NULL, 'Vietnam', '09283483344',
+ '2005-01-01', '2025-01-01', 'Hà Nội',
+ NULL, NULL, '2010-01-01', '2025-12-31', '09128338222', 'admin@example.com',
+ 20,
+ 8000000);
 
 INSERT INTO account (account_id, username, password_hash, email, is_active, created_at, updated_at, last_login_at, login_attempts, must_change_password, employee_id, role_id) VALUES
-(1, 'user1', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user1@example.com', true, NOW(), NOW(), NULL, 5, false, 1, 1),
+(1, 'user1', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user1@example.com', true, NOW(), NOW(), NULL, 5, false, 1, 6),
 (2, 'user2', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user2@example.com', true, NOW(), NOW(), NULL, 5, false, 2, 2),
 (3, 'user3', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user3@example.com', true, NOW(), NOW(), NULL, 5, false, 3, 6),
 (4, 'user4', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy', 'user4@example.com', true, NOW(), NOW(), NULL, 5, false, 4, 3),
@@ -723,6 +751,13 @@ INSERT INTO account (
 (51, 'user51', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy',
  'user51@example.com', true, NOW(), NOW(),
  NULL, 5, false, 51, 6);
+INSERT INTO account (
+    account_id, username, password_hash, email, is_active, created_at, updated_at,
+    last_login_at, login_attempts, must_change_password, employee_id, role_id
+) VALUES
+(52, 'admin', '$2a$10$GjpaNl5KbwTEY.nbDrX20O4ZZbgdaGxIzeqScMdB1gsnDLillFIJy',
+ 'admin@example.com', true, NOW(), NOW(),
+ NULL, 5, false, 52, 1);
 
 
 
@@ -855,12 +890,9 @@ INSERT INTO benefit_position (benefit_id, position_id, formula_value, formula_ty
 VALUES
 (1, 1, 100000, 'AMOUNT'),
 (1, 2, 100000, 'AMOUNT'),
-(1, 3, 100000, 'AMOUNT'),
 (1, 6, 100000, 'AMOUNT'),
 (1, 7, 100000, 'AMOUNT'),
 (1, 10, 200000, 'AMOUNT'),
-(1, 11, 200000, 'AMOUNT'),
-(1, 12, 200000, 'AMOUNT'),
 (1, 15, 150000, 'AMOUNT'),
 (1, 17, 150000, 'AMOUNT'),
 (1, 18, 150000, 'AMOUNT'),
@@ -868,12 +900,9 @@ VALUES
 
 (2, 1, 200000, 'AMOUNT'),
 (2, 2, 200000, 'AMOUNT'),
-(2, 3, 200000, 'AMOUNT'),
 (2, 6, 200000, 'AMOUNT'),
 (2, 7, 200000, 'AMOUNT'),
 (2, 10, 400000, 'AMOUNT'),
-(2, 11, 400000, 'AMOUNT'),
-(2, 12, 400000, 'AMOUNT'),
 (2, 15, 300000, 'AMOUNT'),
 (2, 17, 300000, 'AMOUNT'),
 (2, 18, 300000, 'AMOUNT'),
@@ -881,12 +910,9 @@ VALUES
 
 (3, 1, 500000, 'AMOUNT'),
 (3, 2, 500000, 'AMOUNT'),
-(3, 3, 500000, 'AMOUNT'),
 (3, 6, 500000, 'AMOUNT'),
 (3, 7, 500000, 'AMOUNT'),
 (3, 10, 1000000, 'AMOUNT'),
-(3, 11, 1000000, 'AMOUNT'),
-(3, 12, 1000000, 'AMOUNT'),
 (3, 15, 750000, 'AMOUNT'),
 (3, 17, 750000, 'AMOUNT'),
 (3, 18, 750000, 'AMOUNT'),
@@ -894,12 +920,9 @@ VALUES
 
 (4, 1, 50000, 'AMOUNT'),
 (4, 2, 50000, 'AMOUNT'),
-(4, 3, 50000, 'AMOUNT'),
 (4, 6, 50000, 'AMOUNT'),
 (4, 7, 50000, 'AMOUNT'),
 (4, 10, 100000, 'AMOUNT'),
-(4, 11, 100000, 'AMOUNT'),
-(4, 12, 100000, 'AMOUNT'),
 (4, 15, 75000, 'AMOUNT'),
 (4, 17, 75000, 'AMOUNT'),
 (4, 18, 75000, 'AMOUNT'),
@@ -907,12 +930,9 @@ VALUES
 
 (5, 1, 8.0, 'PERCENTAGE'),
 (5, 2, 8.0, 'PERCENTAGE'),
-(5, 3, 8.0, 'PERCENTAGE'),
 (5, 6, 8.0, 'PERCENTAGE'),
 (5, 7, 8.0, 'PERCENTAGE'),
 (5, 10, 16.0, 'PERCENTAGE'),
-(5, 11, 16.0, 'PERCENTAGE'),
-(5, 12, 16.0, 'PERCENTAGE'),
 (5, 15, 12.0, 'PERCENTAGE'),
 (5, 17, 12.0, 'PERCENTAGE'),
 (5, 18, 12.0, 'PERCENTAGE'),
@@ -920,12 +940,9 @@ VALUES
 
 (6, 1, 1.5, 'PERCENTAGE'),
 (6, 2, 1.5, 'PERCENTAGE'),
-(6, 3, 1.5, 'PERCENTAGE'),
 (6, 6, 1.5, 'PERCENTAGE'),
 (6, 7, 1.5, 'PERCENTAGE'),
 (6, 10, 3.0, 'PERCENTAGE'),
-(6, 11, 3.0, 'PERCENTAGE'),
-(6, 12, 3.0, 'PERCENTAGE'),
 (6, 15, 2.3, 'PERCENTAGE'),
 (6, 17, 2.3, 'PERCENTAGE'),
 (6, 18, 2.3, 'PERCENTAGE'),
@@ -933,12 +950,9 @@ VALUES
 
 (7, 1, 1.0, 'PERCENTAGE'),
 (7, 2, 1.0, 'PERCENTAGE'),
-(7, 3, 1.0, 'PERCENTAGE'),
 (7, 6, 1.0, 'PERCENTAGE'),
 (7, 7, 1.0, 'PERCENTAGE'),
 (7, 10, 2.0, 'PERCENTAGE'),
-(7, 11, 2.0, 'PERCENTAGE'),
-(7, 12, 2.0, 'PERCENTAGE'),
 (7, 15, 1.5, 'PERCENTAGE'),
 (7, 17, 1.5, 'PERCENTAGE'),
 (7, 18, 1.5, 'PERCENTAGE'),
@@ -946,12 +960,9 @@ VALUES
 
 (8, 1, 50000, 'AMOUNT'),
 (8, 2, 50000, 'AMOUNT'),
-(8, 3, 50000, 'AMOUNT'),
 (8, 6, 50000, 'AMOUNT'),
 (8, 7, 50000, 'AMOUNT'),
 (8, 10, 100000, 'AMOUNT'),
-(8, 11, 100000, 'AMOUNT'),
-(8, 12, 100000, 'AMOUNT'),
 (8, 15, 75000, 'AMOUNT'),
 (8, 17, 75000, 'AMOUNT'),
 (8, 18, 75000, 'AMOUNT'),

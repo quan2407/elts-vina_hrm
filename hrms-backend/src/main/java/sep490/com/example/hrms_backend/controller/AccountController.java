@@ -17,8 +17,16 @@ public class AccountController {
     @GetMapping
     public ResponseEntity<Page<AccountResponseDTO>> getAllAccounts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(accountService.getAllAccounts(page, size));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long departmentId,
+            @RequestParam(required = false) Long positionId,
+            @RequestParam(required = false) Long lineId,
+            @RequestParam(required = false) String role
+    ) {
+        return ResponseEntity.ok(
+                accountService.getAllAccounts(page, size, search, departmentId, positionId, lineId, role)
+        );
     }
 
 

@@ -37,7 +37,7 @@ function EmployeeDetails() {
   const [foreignLanguages, setForeignLanguages] = useState("");
   const [trainingType, setTrainingType] = useState("");
   const [trainingMajor, setTrainingMajor] = useState("");
-
+  const [ocrError, setOcrError] = useState(null);
   const [startWorkAt, setStartWorkAt] = useState(null);
   const [departmentId, setDepartmentId] = useState("");
   const [positionId, setPositionId] = useState("");
@@ -72,7 +72,7 @@ function EmployeeDetails() {
     try {
       setOcrLoading(true);
       const res = await axiosClient.post("/ocr/scan-cccd", formData);
-
+      setOcrError(null);
       const data = res.data;
       setFullName(data.employeeName || "");
       setGender((data.gender || "").toUpperCase());
@@ -92,7 +92,8 @@ function EmployeeDetails() {
       setCccdFrontImage(data.cccdFrontImage || "");
       setCccdBackImage(data.cccdBackImage || "");
     } catch (err) {
-      alert(err?.response?.data?.message || "Lỗi OCR");
+      const msg = err?.response?.data?.message ?? err?.message ?? "Lỗi OCR.";
+      setOcrError(msg);
     } finally {
       setOcrLoading(false);
     }
@@ -139,13 +140,6 @@ function EmployeeDetails() {
     );
 
     const bs = (basicSalary ?? "").toString().trim();
-    if (bs === "" || isNaN(Number(bs))) {
-      setErrors((p) => ({
-        ...p,
-        basicSalary: ["Lương cơ bản phải là số hợp lệ"],
-      }));
-      return false;
-    }
     formData.append("basicSalary", bs);
     if (frontFile) {
       formData.append("frontImageFile", frontFile);
@@ -618,6 +612,15 @@ function EmployeeDetails() {
                     ? "Đang trích xuất..."
                     : "📷 Trích xuất từ ảnh CCCD"}
                 </button>
+                {ocrError && (
+                  <div
+                    className="error-message"
+                    style={{ marginTop: 8 }}
+                    aria-live="assertive"
+                  >
+                    {ocrError}
+                  </div>
+                )}
               </div>
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">

@@ -29,6 +29,7 @@ function EmployeeCreate() {
   const [lineId, setLineId] = useState("");
   const [errors, setErrors] = useState({});
   const [showOcrModal, setShowOcrModal] = useState(false);
+  const [ocrError, setOcrError] = useState(null);
 
   const [nationality, setNationality] = useState("");
   const [idNumber, setIdNumber] = useState("");
@@ -59,7 +60,16 @@ function EmployeeCreate() {
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [activeSection, setActiveSection] = useState("basic-info");
+  const normalizeVN = (s) =>
+    (s || "")
+      .toString()
+      .trim()
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "")
+      .toLowerCase();
 
+  const isHiddenPosition = (name) =>
+    normalizeVN(name) === normalizeVN("Tổ Trưởng");
   const showSuccess = (title, message) =>
     setModal({ open: true, title, message, type: "success" });
 
@@ -106,7 +116,7 @@ function EmployeeCreate() {
     try {
       setOcrLoading(true);
       const res = await axiosClient.post("/ocr/scan-cccd", formData);
-
+      setOcrError(null);
       const data = res.data;
       setFullName(data.employeeName || "");
       setGender((data.gender || "").toUpperCase());
@@ -126,7 +136,8 @@ function EmployeeCreate() {
       setCccdFrontImage(data.cccdFrontImage || "");
       setCccdBackImage(data.cccdBackImage || "");
     } catch (err) {
-      showError("OCR CCCD", err?.response?.data?.message || "Lỗi OCR");
+      const msg = err?.response?.data?.message ?? err?.message ?? "Lỗi OCR.";
+      setOcrError(msg);
     } finally {
       setOcrLoading(false);
     }
@@ -172,13 +183,7 @@ function EmployeeCreate() {
       endWorkAt ? format(endWorkAt, "yyyy-MM-dd") : ""
     );
     const bs = (basicSalary ?? "").toString().trim();
-    if (bs === "" || isNaN(Number(bs))) {
-      setErrors((p) => ({
-        ...p,
-        basicSalary: ["Lương cơ bản phải là số hợp lệ"],
-      }));
-      return false;
-    }
+
     formData.append("basicSalary", bs);
     formData.append("departmentId", departmentId !== "" ? departmentId : "");
     formData.append("positionId", positionId !== "" ? positionId : "");
@@ -354,8 +359,20 @@ function EmployeeCreate() {
             departmentService.getPositionsByDepartment(departmentId),
             departmentService.getLinesByDepartment(departmentId),
           ]);
-          setPositions(posRes.data);
-          setLines(lineRes.data);
+
+          const raw = posRes.data || [];
+          // 🔥 LỌC BỎ "Tổ trưởng" TRƯỚC KHI SET STATE
+          const filtered = raw.filter((p) => !isHiddenPosition(p.name));
+          setPositions(filtered);
+          setLines(lineRes.data || []);
+
+          // Nếu giá trị đang chọn không còn trong list (hoặc là "Tổ trưởng"), reset
+          if (
+            positionId &&
+            !filtered.some((p) => String(p.id) === String(positionId))
+          ) {
+            setPositionId("");
+          }
         } catch (err) {
           console.error("Lỗi load vị trí hoặc line:", err);
         }
@@ -364,8 +381,9 @@ function EmployeeCreate() {
     } else {
       setPositions([]);
       setLines([]);
+      setPositionId("");
     }
-  }, [departmentId]);
+  }, [departmentId, positionId]);
 
   const isClickScrolling = useRef(false);
 
@@ -599,6 +617,15 @@ function EmployeeCreate() {
                     ? "Đang trích xuất..."
                     : "📷 Trích xuất từ ảnh CCCD"}
                 </button>
+                {ocrError && (
+                  <div
+                    className="error-message"
+                    style={{ marginTop: 8 }}
+                    aria-live="assertive"
+                  >
+                    {ocrError}
+                  </div>
+                )}
               </div>
 
               <div className="employeedetail-form-row">

@@ -8,16 +8,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.*;
-import sep490.com.example.hrms_backend.entity.Application;
-import sep490.com.example.hrms_backend.entity.ApplicationApprovalStep;
-import sep490.com.example.hrms_backend.entity.ApplicationType;
-import sep490.com.example.hrms_backend.entity.Employee;
+import sep490.com.example.hrms_backend.entity.*;
 import sep490.com.example.hrms_backend.enums.ApplicationStatus;
 import sep490.com.example.hrms_backend.enums.ApprovalStepStatus;
+import sep490.com.example.hrms_backend.enums.NotificationType;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.ApplicationService;
 import sep490.com.example.hrms_backend.service.AttendanceRecordService;
+import sep490.com.example.hrms_backend.service.NotificationService;
 import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 import sep490.com.example.hrms_backend.validation.ApplicationValidator;
 
@@ -40,7 +39,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final AttendanceRecordService attendanceRecordService;
     private final ApplicationValidator applicationValidator;
-
+    private final NotificationService notificationService;
+    private final AccountRepository accountRepository;
     //tested
     @Override
     public void createApplication(ApplicationCreateDTO dto, Long employeeId) {
@@ -76,7 +76,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 ? creator.getPosition().getPositionName().toLowerCase()
                 : "";
 
-        if (position.contains("hr")) {
+        if (position.contains("hr") || position.contains("trưởng phòng nhân sự") || position.contains("hr_manager")) {
             application.setStatus(ApplicationStatus.HR_APPROVED);
 
             ApplicationApprovalStep step2 = ApplicationApprovalStep.builder()
@@ -89,7 +89,18 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .build();
 
             applicationRepository.save(application);
+
+
+
             approvalStepRepository.save(step2);
+            Account senderAcc = creator.getAccount();
+            Account employeeAcc = employee.getAccount();
+            notificationService.addNotification(
+                    NotificationType.APPLICATION_APPROVED,
+                    senderAcc,
+                    employeeAcc
+            );
+
             if (application.getCheckIn() != null && application.getCheckOut() != null) {
                 attendanceRecordRepository.findByEmployee_EmployeeIdAndDate(
                         application.getEmployee().getEmployeeId(),
@@ -122,6 +133,10 @@ public class ApplicationServiceImpl implements ApplicationService {
             applicationRepository.save(application);
             approvalStepRepository.save(step1);
             approvalStepRepository.save(step2);
+            Account approverAcc = creator.getAccount();
+            notifyMany(NotificationType.APPLICATION_NEEDS_HR_APPROVAL, approverAcc, findAllHrApprovers());
+
+
 
         } else {
             application.setStatus(ApplicationStatus.PENDING_MANAGER_APPROVAL);
@@ -129,6 +144,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             applicationRepository.save(application);
             ApplicationApprovalStep step1 = createInitialApprovalStep(application);
             approvalStepRepository.save(step1);
+            notifyMany(NotificationType.APPLICATION_SUBMITTED, employee.getAccount(), findAllProductionManagers());
+
         }
 
         application.setUpdatedAt(LocalDateTime.now());
@@ -145,6 +162,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .status(ApprovalStepStatus.PENDING)
                 .build();
     }
+
     //tested
     @Override
     public Page<ApplicationListItemDTO> getApplicationsForEmployee(Long employeeId, ApplicationStatus status, Pageable pageable) {
@@ -289,10 +307,11 @@ public class ApplicationServiceImpl implements ApplicationService {
         step1.setStatus(request.isApproved() ? ApprovalStepStatus.APPROVED : ApprovalStepStatus.REJECTED);
         step1.setNote(request.getNote());
         step1.setApprovedAt(LocalDateTime.now());
-
+        Account approverAcc = approver.getAccount();
+        Account employeeAcc = app.getEmployee().getAccount();
         if (request.isApproved()) {
             app.setStatus(ApplicationStatus.MANAGER_APPROVED);
-
+            notifyMany(NotificationType.APPLICATION_NEEDS_HR_APPROVAL, approverAcc, findAllHrApprovers());
             ApplicationApprovalStep step2 = ApplicationApprovalStep.builder()
                     .application(app)
                     .step(2)
@@ -303,6 +322,11 @@ public class ApplicationServiceImpl implements ApplicationService {
         } else {
             app.setStatus(ApplicationStatus.MANAGER_REJECTED);
             app.setRejectReason(request.getNote());
+            notificationService.addNotification(
+                    NotificationType.APPLICATION_REJECTED,
+                    approverAcc,
+                    employeeAcc
+            );
         }
 
         app.setUpdatedAt(LocalDateTime.now());
@@ -332,6 +356,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         return new PageImpl<>(dtos, of, steps.getTotalElements());
     }
+
     private ApplicationApprovalListItemDTO toApprovalListItemDTO(Application app) {
         Employee emp = app.getEmployee();
         return ApplicationApprovalListItemDTO.builder()
@@ -375,9 +400,15 @@ public class ApplicationServiceImpl implements ApplicationService {
         step2.setStatus(request.isApproved() ? ApprovalStepStatus.APPROVED : ApprovalStepStatus.REJECTED);
         step2.setNote(request.getNote());
         step2.setApprovedAt(LocalDateTime.now());
-
+        Account approverAcc = approver.getAccount();
+        Account employeeAcc = app.getEmployee().getAccount();
         if (request.isApproved()) {
             app.setStatus(ApplicationStatus.HR_APPROVED);
+            notificationService.addNotification(
+                    NotificationType.APPLICATION_APPROVED,
+                    approverAcc,
+                    employeeAcc
+            );
             if (app.getCheckIn() != null && app.getCheckOut() != null) {
                 attendanceRecordRepository.findByEmployee_EmployeeIdAndDate(app.getEmployee().getEmployeeId(), app.getStartDate())
                         .ifPresent(record -> {
@@ -392,6 +423,11 @@ public class ApplicationServiceImpl implements ApplicationService {
         } else {
             app.setStatus(ApplicationStatus.HR_REJECTED);
             app.setRejectReason(request.getNote());
+            notificationService.addNotification(
+                    NotificationType.APPLICATION_REJECTED,
+                    approverAcc,
+                    employeeAcc
+            );
         }
 
         app.setUpdatedAt(LocalDateTime.now());
@@ -422,6 +458,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         return new PageImpl<>(dtos, pageRequest, steps.getTotalElements());
     }
+
     @Override
     @Transactional
     public void deleteApplication(Long id, Long employeeId) {
@@ -455,4 +492,26 @@ public class ApplicationServiceImpl implements ApplicationService {
             // có thể log nếu muốn
         }
     }
+    private void notifyMany(NotificationType type, Account sender, List<Account> recipients) {
+        if (recipients == null || recipients.isEmpty()) return;
+        Long senderId = sender != null ? sender.getAccountId() : null;
+
+        for (Account r : recipients) {
+            if (r == null) continue;
+            if (senderId != null && senderId.equals(r.getAccountId())) continue; // tránh tự gửi
+            notificationService.addNotification(type, sender, r);
+        }
+    }
+    private List<Account> findAllHrApprovers() {
+        return accountRepository.findByRole_RoleNameInAndIsActiveTrue(
+                List.of("ROLE_HR", "ROLE_HR_MANAGER")
+        ).stream().distinct().toList();
+    }
+
+    private List<Account> findAllProductionManagers() {
+        return accountRepository.findByRole_RoleNameInAndIsActiveTrue(
+                List.of("ROLE_PRODUCTION_MANAGER")
+        ).stream().distinct().toList();
+    }
+
 }

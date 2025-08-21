@@ -7,7 +7,10 @@ public interface AccountRequestService {
 
     void approveRequest(Long requestId);
     void rejectRequest(Long requestId);
-    Page<AccountRequestDTO> getRequestsByStatus(String status, int page, int size);
+    Page<AccountRequestDTO> getRequestsByStatus(
+            String status, int page, int size,
+            String search, Long departmentId, Long positionId, Long lineId
+    );
 
 
 }

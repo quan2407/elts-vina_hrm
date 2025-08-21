@@ -18,13 +18,13 @@
 .employeeLine-table-row {
   display: grid;
   grid-template-columns:
-    150px /* mã NV */
+    200px /* mã NV */
     150px /* tài khoản */
-    180px /* họ tên */
+    200px /* họ tên */
     150px /* giới tính */
-    150px /* sđt */
-    150px /* vị trí */
-    200px; /* tổ trưởng */
+    180px /* sđt */
+    200px /* vị trí */
+    180px; /* tổ trưởng */
   gap: 10px;
   padding: 12px 20px;
   margin-bottom: 10px;
