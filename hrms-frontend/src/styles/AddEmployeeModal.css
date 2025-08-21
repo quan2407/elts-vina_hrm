@@ -2,7 +2,7 @@
 .aem-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0,0,0,.4);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,11 +13,10 @@
   background-color: #fff;
   border-radius: 12px;
   padding: 24px 32px;
-  /* Không ép min-width để tránh tràn ngang */
   width: min(100%, 1200px);
   max-height: 85vh;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  overflow: hidden; /* phần bảng cuộn bên trong container riêng */
+  box-shadow: 0 8px 32px rgba(0,0,0,.2);
+  overflow: hidden;                  /* phần bảng cuộn trong container riêng */
   display: flex;
   flex-direction: column;
 }
@@ -25,61 +24,205 @@
 .aem-modal-title {
   font-size: 24px;
   font-weight: 700;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .aem-sticky-title {
   position: sticky;
   top: 0;
   background: #fff;
-  z-index: 10;
+  z-index: 20;
+  padding-top: 4px;
+  padding-bottom: 8px;
+  box-shadow: 0 2px 0 rgba(15,23,42,.04);
 }
 
-/* ===== Search Bar ===== */
-.aem-search-bar-wrapper {
+/* ===== Toolbar: search + filter trên 1 hàng ===== */
+.aem-toolbar{
   display: flex;
-  justify-content: flex-start;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;              /* không xuống dòng */
+  overflow-x: auto;               /* hẹp thì trượt ngang */
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px;
+}
+
+.aem-input,
+.aem-select{
+  height: 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0 12px;
+  font: inherit;
+  background: #fff;
+  color: #0f172a;
+  transition: border .2s, box-shadow .2s;
+  white-space: nowrap;
+}
+
+.aem-input { width: 300px; min-width: 240px; }
+.aem-select{ min-width: 220px; }
+
+.aem-input:focus,
+.aem-select:focus{
+  outline: none;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px #93c5fd;
 }
 
 /* ===== Table Container (scroll dọc, KHÔNG ngang) ===== */
 .aem-employee-table-container {
   overflow-y: auto;
-  overflow-x: hidden;       /* quan trọng: không tạo scroll ngang */
+  overflow-x: hidden;
   max-height: 55vh;
   margin-top: 12px;
+  padding-right: 6px;             /* chừa mép phải tránh đè scrollbar */
   -webkit-overflow-scrolling: touch;
 }
 
-/* ===== Table Root ===== */
-.aem-employee-table {
-  width: 100%;
+/* ===== Table ===== */
+.aem-employee-table { width: 100%; box-sizing: border-box; }
+
+/* Header & Row as Grid (7 cột)
+   1 Chọn | 2 Mã NV | 3 Họ tên | 4 Chuyền | 5 Giới tính | 6 Phòng ban | 7 Vị trí */
+.aem-employee-table-header,
+.aem-employee-table-row{
+  display: grid;
+  grid-template-columns:
+    44px                             /* 1 Chọn (fix width) */
+    minmax(110px, .9fr)              /* 2 Mã NV */
+    minmax(180px, 1.4fr)             /* 3 Họ tên */
+    minmax(120px, 1.1fr)             /* 4 Chuyền */
+    minmax(100px, .9fr)              /* 5 Giới tính */
+    minmax(170px, 1.2fr)             /* 6 Phòng ban */
+    minmax(150px, 1.1fr);            /* 7 Vị trí */
+  gap: 10px;
+  padding: 12px 20px;
+  margin-bottom: 10px;
+  border-radius: 6px;
   box-sizing: border-box;
 }
 
+.aem-employee-table-header{
+  position: sticky;
+  top: 0;                            /* dính trong vùng cuộn của container */
+  z-index: 15;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(15,23,42,.06);
+}
+
+.aem-employee-header-cell{
+  color: #000;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aem-employee-table-cell{
+  color: #000;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Căn giữa checkbox đúng ô */
+.aem-employee-table-cell:first-child,
+.aem-employee-header-cell:first-child{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aem-employee-table-cell input[type="checkbox"]{
+  width: 18px;
+  height: 18px;
+}
+
+/* Empty state */
+.aem-employee-table-empty{ padding: 12px 20px; text-align: center; }
+
 /* ===== Actions ===== */
-.aem-modal-actions {
+.aem-modal-actions{
   display: flex;
   justify-content: center;
   gap: 16px;
-  margin-top: 24px;
+  margin-top: 16px;
 }
 
-.aem-btn-confirm {
+.aem-btn-confirm{
   background-color: #2e7d32;
   color: #fff;
   font-weight: 700;
   border: none;
-  padding: 8px 18px;
-  border-radius: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
   cursor: pointer;
 }
 
-.aem-btn-cancel {
+.aem-btn-cancel{
   background-color: #e70c0c;
   color: #fff;
-  font-weight: 500;
+  font-weight: 600;
   border: none;
-  padding: 8px 18px;
-  border-radius: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
   cursor: pointer;
+}
+
+/* Hover highlight hàng */
+.aem-employee-table-row:hover{ background: #f8fafc; }
+
+/* Scrollbar gọn gàng (optional) */
+.aem-employee-table-container::-webkit-scrollbar{ width: 8px; }
+.aem-employee-table-container::-webkit-scrollbar-track{ background: transparent; }
+.aem-employee-table-container::-webkit-scrollbar-thumb{
+  background: #e5e7eb; border-radius: 8px;
+}
+.aem-employee-table-container:hover::-webkit-scrollbar-thumb{ background: #cbd5e1; }
+
+/* ===== Responsive ===== */
+@media (max-width: 992px){
+  .aem-employee-table-header,
+  .aem-employee-table-row{
+    grid-template-columns:
+      40px
+      minmax(90px, 1fr)
+      minmax(160px, 1.2fr)
+      minmax(110px, 1fr)
+      minmax(100px, .9fr);         /* Chọn, Mã, Họ tên, Chuyền, Giới tính */
+  }
+  .aem-employee-table-header .aem-employee-header-cell:nth-child(6),
+  .aem-employee-table-header .aem-employee-header-cell:nth-child(7),
+  .aem-employee-table-row    .aem-employee-table-cell:nth-child(6),
+  .aem-employee-table-row    .aem-employee-table-cell:nth-child(7){
+    display: none;
+  }
+}
+
+@media (max-width: 576px){
+  .aem-employee-table-header,
+  .aem-employee-table-row{
+    grid-template-columns:
+      36px
+      minmax(80px, 1fr)
+      minmax(140px, 1.3fr)
+      minmax(90px, .9fr);          /* Chọn, Mã, Họ tên, Chuyền */
+  }
+  .aem-employee-table-header .aem-employee-header-cell:nth-child(5),
+  .aem-employee-table-row    .aem-employee-table-cell:nth-child(5){
+    display: none;
+  }
+}
+
+/* Mobile tinh chỉnh toolbar */
+@media (max-width: 480px){
+  .aem-input { min-width: 200px; width: 240px; }
+  .aem-select{ min-width: 180px; }
 }
