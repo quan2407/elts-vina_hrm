@@ -8,7 +8,7 @@ import { Modal, message, Checkbox, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 
 const BenefitByPositionHeader = ({ isMultiSelectMode }) => {
-    const headers = ["", "Id", "Tên vị trí", "Giá trị", "Số lượng đăng kí", "Chức năng"];
+    const headers = ["", "Id", "Tên vị trí", "Giá trị", "Số lượng", "Chức năng"];
     return (
         <div className="employee-table-header">
             {headers.map((label, index) => (
