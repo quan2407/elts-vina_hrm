@@ -30,4 +30,6 @@ public interface EmployeeService {
     public List<DepartmentDistributionDTO> getDepartmentDistribution(LocalDate startDate, LocalDate endDate);
 
     Page<EmployeeResponseDTO> getAllEmployees(int page, int size, String search, Long departmentId, Long positionId, Long lineId);
+
+    List<EmployeeResponseDTO> getLeaderEmployeeByDepartmentId(Long id);
 }
