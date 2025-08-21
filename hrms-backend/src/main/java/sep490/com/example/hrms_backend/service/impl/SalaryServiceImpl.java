@@ -121,13 +121,13 @@ public class SalaryServiceImpl implements SalaryService {
 
 
             BigDecimal hourlyRate = employee.getBasicSalary()
-                    .divide(BigDecimal.valueOf(26 * 8), 10, RoundingMode.HALF_UP);
+                    .divide(BigDecimal.valueOf(26 * 8), 10, RoundingMode.HALF_DOWN);
 
             BigDecimal productionSalary = hourlyRate.multiply(BigDecimal.valueOf(totalDayHours))
-                    .setScale(0, RoundingMode.CEILING);
+                    .setScale(0, RoundingMode.HALF_DOWN);
 
             BigDecimal overtimeSalary = hourlyRate.multiply(BigDecimal.valueOf(otHours*2 + weekendHours * 2 + holidayHours * 3))
-                    .setScale(0, RoundingMode.CEILING);
+                    .setScale(0,RoundingMode.HALF_DOWN);
 
             List<SalaryBenefit> benefitItems = generateSalaryBenefits(employee, null);
 

@@ -93,7 +93,7 @@ function EmployeeInLineManagement() {
               type="button"
               onClick={handleExportClick}
               style={{
-                backgroundColor: "#22c55e", // xanh lá
+                backgroundColor: "#22c55e",
                 color: "#fff",
                 padding: "10px 20px",
                 borderRadius: "8px",
@@ -114,7 +114,7 @@ function EmployeeInLineManagement() {
                 (e.currentTarget.style.backgroundColor = "#22c55e")
               }
             >
-              Export
+              Xuất excel
             </button>
           </div>
         </div>
