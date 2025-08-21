@@ -9,7 +9,6 @@ function JobsManagement() {
   const tableRef = useRef();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortOrder, setSortOrder] = useState("desc");
   const [sortField, setSortField] = useState("createAt");
   const [jobs, setJobs] = useState([]);
   const [page, setPage] = useState(0);
@@ -23,7 +22,6 @@ function JobsManagement() {
         targetSize,
         searchTerm,
         sortField,
-        sortOrder
       );
       setJobs(res?.content || []);
       setTotalPages(res?.totalPages || 0);
@@ -44,7 +42,7 @@ function JobsManagement() {
   useEffect(() => {
     setPage(0);
     fetchRecruitments(0, size);
-  }, [searchTerm, sortField, sortOrder]);
+  }, [searchTerm, sortField]);
 
   const handleExportClick = () => {
     if (tableRef.current) tableRef.current.exportToExcel();
@@ -90,18 +88,10 @@ function JobsManagement() {
               <option value="expiredAt">Sắp xếp theo ngày hết hạn</option>
             </select>
 
-            <select
-              className="form-select"
-              style={{ height: "55px", width: "100px" }}
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-            >
-              <option value="desc">Z - A</option>
-              <option value="asc">A - Z</option>
-            </select>
-
             <div className="page-actions">
               <button
+                            style={{ height: "55px" }}
+
                 type="button"
                 onClick={handleAddClick}
                 className="btn-big"
@@ -110,11 +100,14 @@ function JobsManagement() {
               </button>
               <button
                 type="button"
+                              style={{ height: "55px" }}
+
                 onClick={handleExportClick}
                 className="btn-big btn-green"
               >
-                Xuất excel
-              </button>
+
+                Xuất excel              </button>
+
             </div>
           </div>
         </div>
@@ -169,9 +162,8 @@ function JobsManagement() {
             <button
               key={p}
               onClick={() => setPage(p)}
-              className={`employee-pagination-btn ${
-                p === page ? "employee-pagination-active" : ""
-              }`}
+              className={`employee-pagination-btn ${p === page ? "employee-pagination-active" : ""
+                }`}
             >
               {p + 1}
             </button>

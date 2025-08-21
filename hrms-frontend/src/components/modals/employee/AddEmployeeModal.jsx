@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import employeeService from "../../../services/employeeService";
 import "../../../styles/AddEmployeeModal.css";
-import "../../../styles/AddEmployeeModalTable.css";
 import SuccessModal from "../../popup/SuccessModal";
 
 const AddEmployeeModal = ({ lineId, onClose, onSuccess }) => {
@@ -10,6 +9,9 @@ const AddEmployeeModal = ({ lineId, onClose, onSuccess }) => {
   const [aemSearchTerm, setAemSearchTerm] = useState("");
   const [aemShowSuccess, setAemShowSuccess] = useState(false);
   const [aemShowAddEmpty, setAemShowAddEmpty] = useState(false);
+
+  // Filter theo line: ALL | NO_LINE | <lineName>
+  const [aemLineFilter, setAemLineFilter] = useState("ALL");
 
   useEffect(() => {
     const fetchAvailableEmployees = async () => {
@@ -35,6 +37,7 @@ const AddEmployeeModal = ({ lineId, onClose, onSuccess }) => {
   };
 
   const aemSortByLineStatus = (list) => {
+    // Ưu tiên hiển thị “chưa có chuyền” trước
     return list.slice().sort((a, b) => {
       const aInLine = a.lineName && a.lineName.trim() !== "";
       const bInLine = b.lineName && b.lineName.trim() !== "";
@@ -55,22 +58,62 @@ const AddEmployeeModal = ({ lineId, onClose, onSuccess }) => {
     }
   };
 
+  // Danh sách line duy nhất
+  const aemUniqueLines = useMemo(() => {
+    const set = new Set();
+    for (const emp of aemEmployees) {
+      if (emp?.lineName && emp.lineName.trim() !== "") {
+        set.add(emp.lineName.trim());
+      }
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "vi"));
+  }, [aemEmployees]);
+
+  // Áp filter theo line
+  const aemFilteredEmployees = useMemo(() => {
+    let list = aemEmployees;
+
+    if (aemLineFilter === "NO_LINE") {
+      list = list.filter((e) => !e.lineName || e.lineName.trim() === "");
+    } else if (aemLineFilter !== "ALL") {
+      list = list.filter((e) => (e.lineName || "").trim() === aemLineFilter);
+    }
+
+    return aemSortByLineStatus(list);
+  }, [aemEmployees, aemLineFilter]);
+
   return (
     <div className="aem-modal-overlay">
       <div className="aem-modal-box large">
-        <h3 className="aem-modal-title aem-sticky-title">Thêm nhân viên vào line</h3>
+        <h3 className="aem-modal-title aem-sticky-title">
+          Thêm nhân viên vào line
+        </h3>
 
-        <div className="aem-search-bar-wrapper">
+        {/* Toolbar 1 hàng: Search + Filter */}
+        <div className="aem-toolbar">
           <input
             type="text"
-            className="form-control"
+            className="aem-input"
             placeholder="Tìm kiếm theo tên nhân viên..."
             value={aemSearchTerm}
             onChange={(e) => setAemSearchTerm(e.target.value)}
-            style={{ width: "300px", marginBottom: 16 }}
           />
+          <select
+            className="aem-select"
+            value={aemLineFilter}
+            onChange={(e) => setAemLineFilter(e.target.value)}
+          >
+            <option value="ALL">— Tất cả chuyền —</option>
+            <option value="NO_LINE">— Chưa có chuyền —</option>
+            {aemUniqueLines.map((ln) => (
+              <option key={ln} value={ln}>
+                {ln}
+              </option>
+            ))}
+          </select>
         </div>
 
+        {/* Bảng trong vùng cuộn; header sticky */}
         <div className="aem-employee-table-container">
           <div className="aem-employee-table">
             <div className="aem-employee-table-header">
@@ -83,13 +126,13 @@ const AddEmployeeModal = ({ lineId, onClose, onSuccess }) => {
               <div className="aem-employee-header-cell">Vị trí</div>
             </div>
 
-            {aemEmployees.length === 0 && (
+            {aemFilteredEmployees.length === 0 && (
               <div className="aem-employee-table-empty" style={{ color: "red" }}>
                 Không tìm thấy nhân viên nào phù hợp.
               </div>
             )}
 
-            {aemSortByLineStatus(aemEmployees).map((emp) => (
+            {aemFilteredEmployees.map((emp) => (
               <div key={emp.employeeId} className="aem-employee-table-row">
                 <div className="aem-employee-table-cell">
                   <input
@@ -100,7 +143,9 @@ const AddEmployeeModal = ({ lineId, onClose, onSuccess }) => {
                 </div>
                 <div className="aem-employee-table-cell">{emp.employeeCode}</div>
                 <div className="aem-employee-table-cell">{emp.employeeName}</div>
-                <div className="aem-employee-table-cell">{emp.lineName || "-"}</div>
+                <div className="aem-employee-table-cell">
+                  {emp.lineName || "-"}
+                </div>
                 <div className="aem-employee-table-cell">{emp.gender || "-"}</div>
                 <div className="aem-employee-table-cell">
                   {emp.departmentName || "-"}
@@ -127,9 +172,7 @@ const AddEmployeeModal = ({ lineId, onClose, onSuccess }) => {
         <SuccessModal
           title="Chưa chọn nhân viên"
           message="Chưa chọn nhân viên để thêm vào line!"
-          onClose={() => {
-            setAemShowAddEmpty(false);
-          }}
+          onClose={() => setAemShowAddEmpty(false)}
         />
       )}
 
