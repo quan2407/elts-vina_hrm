@@ -22,6 +22,7 @@ import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/attendances")
@@ -111,6 +112,13 @@ public class AttendanceRecordController {
                 .body(resource);
     }
 
-
+    @GetMapping("/check-schedule-coverage")
+    public ResponseEntity<Map<String, Object>> checkScheduleCoverage(
+            @RequestParam int month,
+            @RequestParam int year
+    ) {
+        Map<String, Object> result = attendanceRecordService.checkScheduleCoverage(month, year);
+        return ResponseEntity.ok(result);
+    }
 
 }

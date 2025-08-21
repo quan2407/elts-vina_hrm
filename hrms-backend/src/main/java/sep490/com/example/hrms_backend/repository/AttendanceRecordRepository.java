@@ -9,6 +9,7 @@ import sep490.com.example.hrms_backend.entity.Employee;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface AttendanceRecordRepository extends JpaRepository<AttendanceRecord, Long> {
     boolean existsByEmployeeAndDate(Employee employee, LocalDate date);
@@ -101,5 +102,15 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
     List<AttendanceRecord> findByMonthYearAndEmpIds(@Param("month") int month,
                                                     @Param("year") int year,
                                                     @Param("empIds") List<Long> empIds);
+
+    @Query("SELECT COUNT(ar) FROM AttendanceRecord ar WHERE ar.month = :month AND ar.year = :year")
+    int countByMonthAndYear(@Param("month") int month, @Param("year") int year);
+
+    @Query("SELECT COUNT(ar) FROM AttendanceRecord ar " +
+            "WHERE MONTH(ar.date) = :month AND YEAR(ar.date) = :year " +
+            "AND ar.employee.employeeId IN :employeeIds")
+    int countByMonthAndYearAndEmployeeIds(@Param("month") int month,
+                                          @Param("year") int year,
+                                          @Param("employeeIds") Set<Long> employeeIds);
 }
 

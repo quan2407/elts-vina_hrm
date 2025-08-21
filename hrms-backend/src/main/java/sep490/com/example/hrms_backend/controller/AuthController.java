@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.ChangePasswordRequest;
 import sep490.com.example.hrms_backend.dto.JWTAuthResponse;
 import sep490.com.example.hrms_backend.dto.LoginDto;
-import sep490.com.example.hrms_backend.entity.PasswordResetRequest;
+import sep490.com.example.hrms_backend.dto.PasswordResetRequestDTO;
 import sep490.com.example.hrms_backend.service.AccountService;
 import sep490.com.example.hrms_backend.service.AuthService;
 
@@ -49,11 +49,18 @@ public class AuthController {
         return ResponseEntity.ok("Yêu cầu reset mật khẩu đã được gửi và chờ admin phê duyệt.");
     }
     @GetMapping("/admin/pending-reset-requests")
-    public ResponseEntity<Page<PasswordResetRequest>> getPendingResetRequests(
+    public ResponseEntity<Page<PasswordResetRequestDTO>> getResetRequests(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "all") String status,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String departmentName,
+            @RequestParam(required = false) String positionName,
+            @RequestParam(required = false) String lineName
     ) {
-        return ResponseEntity.ok(accountService.getPendingResetRequests(page, size));
+        return ResponseEntity.ok(
+                accountService.getRequestsByFilter(status, page, size, search, departmentName, positionName, lineName)
+        );
     }
 
 

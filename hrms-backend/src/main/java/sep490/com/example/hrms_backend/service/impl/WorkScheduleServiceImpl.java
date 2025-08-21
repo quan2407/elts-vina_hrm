@@ -419,15 +419,32 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "Không tìm thấy nhân viên"));
 
-        Long lineId = employee.getLine() != null ? employee.getLine().getLineId() : null;
+        Long lineId = (employee.getLine() != null) ? employee.getLine().getLineId() : null;
         Long departmentId = employee.getDepartment().getDepartmentId();
 
-        Optional<WorkSchedule> scheduleOpt = (lineId != null)
-                ? workScheduleRepository.findByDepartment_DepartmentIdAndLine_LineIdAndMonthAndYearAndIsAcceptedTrue(departmentId, lineId, month, year)
-                : workScheduleRepository.findByDepartment_DepartmentIdAndLineIsNullAndMonthAndYearAndIsAcceptedTrue(departmentId, month, year);
+        Optional<WorkSchedule> scheduleOpt = Optional.empty();
+
+        if (lineId != null) {
+            scheduleOpt = workScheduleRepository
+                    .findByDepartment_DepartmentIdAndLine_LineIdAndMonthAndYearAndIsAcceptedTrue(
+                            departmentId, lineId, month, year
+                    );
+            if (scheduleOpt.isEmpty()) {
+                scheduleOpt = workScheduleRepository
+                        .findByDepartment_DepartmentIdAndLineIsNullAndMonthAndYearAndIsAcceptedTrue(
+                                departmentId, month, year
+                        );
+            }
+        } else {
+            scheduleOpt = workScheduleRepository
+                    .findByDepartment_DepartmentIdAndLineIsNullAndMonthAndYearAndIsAcceptedTrue(
+                            departmentId, month, year
+                    );
+        }
 
         WorkSchedule schedule = scheduleOpt.orElseThrow(() ->
-                new HRMSAPIException(HttpStatus.NOT_FOUND, "Không có lịch làm việc đã được duyệt cho tháng này"));
+                new HRMSAPIException(HttpStatus.NOT_FOUND, "Không có lịch làm việc đã được duyệt cho tháng này")
+        );
 
         return schedule.getWorkScheduleDetails().stream()
                 .map(detail -> EmployeeWorkScheduleDTO.builder()
@@ -440,6 +457,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                         .build()
                 ).toList();
     }
+
 
 
     @Override

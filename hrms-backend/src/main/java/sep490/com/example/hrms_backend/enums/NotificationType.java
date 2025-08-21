@@ -13,5 +13,9 @@ public enum NotificationType {
     LEADER_CHANGE,
 
     //Lịch làm việc
-    SHIFT_CHANGED
+    SHIFT_CHANGED,
+    APPLICATION_SUBMITTED,          // NV → QLSX
+    APPLICATION_NEEDS_HR_APPROVAL,  // QLSX → HR
+    APPLICATION_APPROVED,           // HR → NV (và/hoặc QLSX)
+    APPLICATION_REJECTED,           // QLSX/HR → NV
 }

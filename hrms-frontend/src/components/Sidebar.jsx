@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { usePermissions } from "../contexts/PermissionContext";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, LayoutDashboard } from "lucide-react";
 import {
   systemMenus,
   hrMenus,
@@ -25,6 +25,13 @@ function Sidebar() {
   const token = localStorage.getItem("accessToken");
   const [delayPassed, setDelayPassed] = useState(false);
   const [employeeName, setEmployeeName] = useState("Loading...");
+  const userId = localStorage.getItem("userId") || "";
+  const storageKey = `viewMode:${userId}`;
+
+  const [viewMode, setViewMode] = useState(() => {
+    return sessionStorage.getItem(storageKey) || "role"; // "role" | "employee"
+  });
+  const isViewingAsEmployee = viewMode === "employee";
 
   useEffect(() => {
     const timeout = setTimeout(() => setDelayPassed(true), 300);
@@ -55,9 +62,38 @@ function Sidebar() {
       console.error("Invalid token", err);
     }
   }
+  const canUseEmployeeView =
+    roles.includes("HR") ||
+    roles.includes("HR_MANAGER") ||
+    roles.includes("PMC") ||
+    roles.includes("PRODUCTION_MANAGER");
+
+  const prevTokenRef = useRef(token);
+  useEffect(() => {
+    if (prevTokenRef.current !== token) {
+      prevTokenRef.current = token;
+      const newUserId = localStorage.getItem("userId") || "";
+      const newKey = `viewMode:${newUserId}`;
+      const saved = sessionStorage.getItem(newKey) || "role";
+      setViewMode(saved);
+    }
+  }, [token]);
+  const roleHomePath = React.useMemo(() => {
+    if (roles.includes("PMC")) return "/work-schedule-management";
+    if (roles.includes("PRODUCTION_MANAGER"))
+      return "/work-schedule-production";
+    if (roles.includes("HR") || roles.includes("HR_MANAGER"))
+      return "/dashboard";
+    if (roles.includes("LINE_LEADER") || roles.includes("EMPLOYEE"))
+      return "/my-work-schedule";
+    if (roles.includes("CANTEEN")) return "/"; // chỉnh nếu bạn có trang riêng cho canteen
+    return "/accounts"; // fallback cho admin/system
+  }, [roles]);
 
   let menus;
-  if (roles.includes("PMC")) menus = pmcMenus;
+  if (isViewingAsEmployee && canUseEmployeeView) {
+    menus = employeeMenus;
+  } else if (roles.includes("PMC")) menus = pmcMenus;
   else if (roles.includes("HR")) menus = hrMenus;
   else if (roles.includes("HR_MANAGER")) menus = hrManagerMenus;
   else if (roles.includes("LINE_LEADER")) menus = lineLeaderMenus;
@@ -65,12 +101,37 @@ function Sidebar() {
   else if (roles.includes("CANTEEN")) menus = canteenMenus;
   else if (roles.includes("EMPLOYEE")) menus = employeeMenus;
   else menus = systemMenus;
+  useEffect(() => {
+    if (!canUseEmployeeView && viewMode === "employee") {
+      sessionStorage.removeItem(storageKey);
+      setViewMode("role");
+    }
+  }, [canUseEmployeeView, viewMode, storageKey]);
+
+  if (isViewingAsEmployee && canUseEmployeeView) {
+    menus = [
+      ...menus,
+      {
+        text: "Thoát chế độ nhân viên",
+        path: roleHomePath,
+        exitViewAs: true,
+        icon: (isActive) => (
+          <LayoutDashboard
+            size={20}
+            stroke={isActive ? "#4f46e5" : "white"}
+          />
+        ),
+      },
+    ];
+  }
 
   const closeOffcanvasIfOpen = () => {
     const el = document.getElementById("sidebarOffcanvas");
     if (!el) return;
     if (typeof window !== "undefined" && window.bootstrap) {
-      const instance = window.bootstrap.Offcanvas.getInstance(el) || window.bootstrap.Offcanvas.getOrCreateInstance(el);
+      const instance =
+        window.bootstrap.Offcanvas.getInstance(el) ||
+        window.bootstrap.Offcanvas.getOrCreateInstance(el);
       instance.hide();
     }
   };
@@ -78,10 +139,36 @@ function Sidebar() {
   const handleMenuClick = (item) => {
     if (item.children) {
       setOpenMenu(openMenu === item.text ? "" : item.text);
-    } else {
+      return;
+    }
+
+    if (item.exitViewAs) {
+      setViewMode("role");
+      sessionStorage.removeItem(storageKey);
+
+      navigate(roleHomePath);
+      closeOffcanvasIfOpen();
+      return;
+    }
+    if (item.viewAs === "employee") {
+      if (canUseEmployeeView) {
+        setViewMode("employee");
+        sessionStorage.setItem(storageKey, "employee");
+
+        navigate(item.path || "/my-work-schedule");
+      } else {
+        navigate(item.path);
+      }
+      closeOffcanvasIfOpen();
+      return;
+    }
+    if (isViewingAsEmployee) {
       navigate(item.path);
       closeOffcanvasIfOpen();
+      return;
     }
+    navigate(item.path);
+    closeOffcanvasIfOpen();
   };
 
   const renderMenuList = (isOffcanvas = false) => (
@@ -90,12 +177,14 @@ function Sidebar() {
         <div className="loading-message">Đang tải menu...</div>
       ) : (
         menus.map((item, index) => {
-          const allowed = !item.apiPath || hasPermission(item.apiPath, item.method || "GET");
+          const allowed =
+            !item.apiPath || hasPermission(item.apiPath, item.method || "GET");
           if (!allowed) return null;
 
           const isActive =
             location.pathname === item.path ||
-            (item.children && item.children.some((c) => location.pathname === c.path));
+            (item.children &&
+              item.children.some((c) => location.pathname === c.path));
           const isSubOpen = openMenu === item.text;
 
           return (
@@ -107,12 +196,25 @@ function Sidebar() {
                 {...(isOffcanvas ? { "data-bs-dismiss": "offcanvas" } : {})}
               >
                 <div className="nav-icon">{item.icon(isActive)}</div>
-                <div className="nav-text" style={{ color: isActive ? "#4f46e5" : "white" }}>
+                <div
+                  className="nav-text"
+                  style={{ color: isActive ? "#4f46e5" : "white" }}
+                >
                   {item.text}
                 </div>
                 {item.children && (
                   <div className="nav-icon">
-                    {isSubOpen ? <ChevronUp size={16} stroke="white" /> : <ChevronDown size={16} stroke="white" />}
+                    {isSubOpen ? (
+                      <ChevronUp
+                        size={16}
+                        stroke="white"
+                      />
+                    ) : (
+                      <ChevronDown
+                        size={16}
+                        stroke="white"
+                      />
+                    )}
                   </div>
                 )}
                 {item.badge && (
@@ -122,19 +224,28 @@ function Sidebar() {
                 )}
               </div>
 
-              {item.children && isSubOpen &&
+              {item.children &&
+                isSubOpen &&
                 item.children
-                  .filter((child) => !child.apiPath || hasPermission(child.apiPath, child.method || "GET"))
+                  .filter(
+                    (child) =>
+                      !child.apiPath ||
+                      hasPermission(child.apiPath, child.method || "GET")
+                  )
                   .map((child, cIdx) => (
                     <div
                       key={cIdx}
-                      className={`nav-item ${location.pathname === child.path ? "active" : ""}`}
+                      className={`nav-item ${
+                        location.pathname === child.path ? "active" : ""
+                      }`}
                       onClick={() => {
                         navigate(child.path);
                         closeOffcanvasIfOpen();
                       }}
                       role="button"
-                      {...(isOffcanvas ? { "data-bs-dismiss": "offcanvas" } : {})}
+                      {...(isOffcanvas
+                        ? { "data-bs-dismiss": "offcanvas" }
+                        : {})}
                     >
                       <div className="nav-text">{child.text}</div>
                     </div>
@@ -148,7 +259,6 @@ function Sidebar() {
 
   return (
     <>
-      {/* Desktop fixed sidebar */}
       <aside className="sidebar d-none d-md-flex">
         <div className="sidebar-inner">
           <div className="sidebar-top">
@@ -166,8 +276,6 @@ function Sidebar() {
           <div className="menu-scroll">{renderMenuList(false)}</div>
         </div>
       </aside>
-
-      {/* Mobile offcanvas sidebar */}
       <div
         className="offcanvas offcanvas-start d-md-none"
         tabIndex="-1"
@@ -175,7 +283,12 @@ function Sidebar() {
         aria-labelledby="sidebarOffcanvasLabel"
       >
         <div className="offcanvas-header">
-          <button type="button" className="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          <button
+            type="button"
+            className="btn-close"
+            data-bs-dismiss="offcanvas"
+            aria-label="Close"
+          ></button>
         </div>
         <div className="offcanvas-body p-0">
           <div className="offcanvas-inner">

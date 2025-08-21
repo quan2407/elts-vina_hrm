@@ -20,7 +20,29 @@ const SalaryMonthlyView = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [hasData, setHasData] = useState(false);
-  let debounceTimeout;
+  // Ngày hệ thống (chốt theo ngày, bỏ phần giờ)
+  const today = new Date();
+
+  // helper: quá hạn kể từ 00:00 ngày 06 của THÁNG KẾ TIẾP so với (month/year) đang xem
+  const isPastEditDeadline = (m, y) => {
+    if (!m || !y) return false;
+    // JS Date: month index 0-based; m là 1..12 => m = THÁNG KẾ TIẾP
+    // cutoff = 06/(m+1)/y lúc 00:00 (ví dụ đang xem 8/2025 => cutoff = 06/09/2025 00:00)
+    const cutoff = new Date(y, m, 6);
+    const todayDateOnly = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+    return todayDateOnly >= cutoff;
+  };
+
+  // “Xem như đã chốt” nếu 1) backend đã locked hoặc 2) đã quá hạn tự khóa UI
+  const isDisplayLocked = (m, y, backendLocked) => {
+    return backendLocked || isPastEditDeadline(m, y);
+  };
+  const uiLocked = isDisplayLocked(month, year, isLocked);
+
   const [departmentId, setDepartmentId] = useState(null);
   const [positionId, setPositionId] = useState(null);
   const [lineId, setLineId] = useState(null);
@@ -207,7 +229,6 @@ const SalaryMonthlyView = () => {
     };
 
     fetchAvailableMonths();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -251,8 +272,15 @@ const SalaryMonthlyView = () => {
             <div className="salary-actions">
               <button
                 className="btn-update"
-                disabled={isLocked}
+                disabled={uiLocked || !hasData}
                 onClick={async () => {
+                  if (uiLocked) {
+                    showError(
+                      "Cập nhật bảng lương",
+                      "Đã quá hạn cập nhật (sau ngày 05 tháng kế tiếp)."
+                    );
+                    return;
+                  }
                   if (
                     window.confirm(
                       "Bạn có chắc muốn cập nhật lại bảng lương không?"
@@ -277,14 +305,27 @@ const SalaryMonthlyView = () => {
                     }
                   }
                 }}
+                title={
+                  uiLocked
+                    ? "Đã quá hạn cập nhật (từ 00:00 ngày 06 của tháng kế tiếp)"
+                    : "Cập nhật lại bảng lương cho tháng đã chọn"
+                }
               >
-                Cập nhật bảng lương
+                {uiLocked ? "Đã chốt (hết hạn)" : "Cập nhật bảng lương"}
               </button>
 
               {isHrManager && (
                 <button
                   className="btn-lock"
                   onClick={async () => {
+                    if (uiLocked) {
+                      // quá hạn thì không cho bấm
+                      showError(
+                        "Trạng thái chốt lương",
+                        "Đã quá hạn (sau ngày 05 tháng kế tiếp)."
+                      );
+                      return;
+                    }
                     const confirmMsg = isLocked
                       ? "Bạn có chắc muốn mở khóa bảng lương này?"
                       : "Bạn có chắc muốn chốt bảng lương này?";
@@ -310,11 +351,23 @@ const SalaryMonthlyView = () => {
                       }
                     }
                   }}
-                  disabled={salaries.length === 0}
+                  disabled={uiLocked || salaries.length === 0}
+                  title={
+                    uiLocked
+                      ? "Đã quá hạn thao tác (từ 00:00 ngày 06 của tháng kế tiếp)"
+                      : isLocked
+                      ? "Đã chốt - bấm để mở khóa"
+                      : "Chốt bảng lương"
+                  }
                 >
-                  {isLocked ? "Đã chốt (mở khóa)" : "Chốt bảng lương"}
+                  {uiLocked
+                    ? "Đã chốt (hết hạn)"
+                    : isLocked
+                    ? "Đã chốt (mở khóa)"
+                    : "Chốt bảng lương"}
                 </button>
               )}
+
               <button
                 className="btn-export"
                 style={{

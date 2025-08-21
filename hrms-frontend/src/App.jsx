@@ -126,6 +126,8 @@ function App() {
                     "ROLE_PRODUCTION_MANAGER",
                     "ROLE_HR",
                     "ROLE_LINE_LEADER",
+                    "ROLE_HR_MANAGER",
+                    "ROLE_PMC",
                   ]}
                 >
                   <ApplicationDetail />
@@ -184,7 +186,14 @@ function App() {
               path="/my-work-schedule"
               element={
                 <ProtectedRoute
-                  allowedRoles={["ROLE_EMPLOYEE", "ROLE_LINE_LEADER"]}
+                  allowedRoles={[
+                    "ROLE_EMPLOYEE",
+                    "ROLE_LINE_LEADER",
+                    "ROLE_HR",
+                    "ROLE_HR_MANAGER",
+                    "ROLE_PMC",
+                    "ROLE_PRODUCTION_MANAGER",
+                  ]}
                 >
                   <EmployeeWorkScheduleView />
                 </ProtectedRoute>
@@ -262,7 +271,14 @@ function App() {
               path="/add-interview/:id"
               element={
                 <ProtectedRoute
-                  allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_EMPLOYEE"]}
+                  allowedRoles={[
+                    "ROLE_HR",
+                    "ROLE_HR_MANAGER",
+                    "ROLE_PMC",
+                    "ROLE_PRODUCTION_MANAGER",
+                    "ROLE_EMPLOYEE",
+                    "ROLE_LINE_LEADER",
+                  ]}
                 >
                   <InterviewCreate />
                 </ProtectedRoute>
@@ -273,7 +289,14 @@ function App() {
               path="/interviews-management"
               element={
                 <ProtectedRoute
-                  allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_EMPLOYEE"]}
+                  allowedRoles={[
+                    "ROLE_HR",
+                    "ROLE_HR_MANAGER",
+                    "ROLE_PMC",
+                    "ROLE_PRODUCTION_MANAGER",
+                    "ROLE_EMPLOYEE",
+                    "ROLE_LINE_LEADER",
+                  ]}
                 >
                   <InterviewManagement />
                 </ProtectedRoute>
@@ -284,7 +307,14 @@ function App() {
               path="/interviews-management/:id"
               element={
                 <ProtectedRoute
-                  allowedRoles={["ROLE_HR", "ROLE_HR_MANAGER", "ROLE_EMPLOYEE"]}
+                  allowedRoles={[
+                    "ROLE_HR",
+                    "ROLE_HR_MANAGER",
+                    "ROLE_PMC",
+                    "ROLE_PRODUCTION_MANAGER",
+                    "ROLE_EMPLOYEE",
+                    "ROLE_LINE_LEADER",
+                  ]}
                 >
                   <InterviewDetail />
                 </ProtectedRoute>
@@ -521,7 +551,10 @@ function App() {
                   allowedRoles={[
                     "ROLE_EMPLOYEE",
                     "ROLE_LINE_LEADER",
+                    "ROLE_HR",
                     "ROLE_HR_MANAGER",
+                    "ROLE_PMC",
+                    "ROLE_PRODUCTION_MANAGER",
                   ]}
                 >
                   <EmployeeAttendanceMonthlyView />
@@ -536,7 +569,10 @@ function App() {
                   allowedRoles={[
                     "ROLE_EMPLOYEE",
                     "ROLE_LINE_LEADER",
+                    "ROLE_HR",
                     "ROLE_HR_MANAGER",
+                    "ROLE_PMC",
+                    "ROLE_PRODUCTION_MANAGER",
                   ]}
                 >
                   <EmpSalaryView />

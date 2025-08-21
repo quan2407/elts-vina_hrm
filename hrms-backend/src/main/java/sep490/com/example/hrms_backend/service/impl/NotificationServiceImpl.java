@@ -18,7 +18,6 @@ import sep490.com.example.hrms_backend.websocket.NotificationWebSocketSender;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -63,6 +62,26 @@ public class NotificationServiceImpl implements NotificationService {
                 title = "Bổ nhiệm tổ trưởng mới";
                 content = "Nhân viên " + recipients.getEmployee().getEmployeeName() + " vừa được bổ nhiệm làm tổ trưởng";
                 break;
+            case APPLICATION_SUBMITTED:
+                title = "Đơn mới";
+                content = "Nhân viên " + sender.getEmployee().getEmployeeName() + " đã nộp đơn, chờ duyệt.";
+                break;
+
+            case APPLICATION_NEEDS_HR_APPROVAL:
+                title = "Đơn nghỉ phép cần duyệt HR";
+                content = "Đơn của nhân viên " + sender.getEmployee().getEmployeeName() + " đã được QLSX duyệt, cần HR xem xét.";
+                break;
+
+            case APPLICATION_APPROVED:
+                title = "Đơn nghỉ phép đã được duyệt";
+                content = "Đơn của nhân viên " + sender.getEmployee().getEmployeeName() + " đã được HR phê duyệt.";
+                break;
+
+            case APPLICATION_REJECTED:
+                title = "Đơn nghỉ phép bị từ chối";
+                content = "Đơn của nhân viên " + sender.getEmployee().getEmployeeName() + " đã bị từ chối.";
+                break;
+
             default:
                 title = "Thông báo mới";
                 content = "Bạn có một thông báo mới từ hệ thống.";

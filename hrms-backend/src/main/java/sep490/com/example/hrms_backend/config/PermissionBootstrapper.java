@@ -197,5 +197,14 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Employee",
                 allRoles
         );
+
+         permissionRegistrationService.registerPermission(
+                "/api/attendances/check-schedule-coverage",
+                "GET",
+                "Attendance",
+                allRoles
+        );
+
+
     }
 }

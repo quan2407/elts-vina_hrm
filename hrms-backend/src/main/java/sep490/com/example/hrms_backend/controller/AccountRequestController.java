@@ -15,12 +15,18 @@ public class AccountRequestController {
     private final AccountRequestService accountRequestService;
 
     @GetMapping
-    public ResponseEntity<Page<AccountRequestDTO>> getRequestsByStatus(
-            @RequestParam(defaultValue = "pending") String status,
+    public ResponseEntity<Page<AccountRequestDTO>> getRequests(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "all") String status,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long departmentId,
+            @RequestParam(required = false) Long positionId,
+            @RequestParam(required = false) Long lineId
     ) {
-        return ResponseEntity.ok(accountRequestService.getRequestsByStatus(status, page, size));
+        return ResponseEntity.ok(
+                accountRequestService.getRequestsByStatus(status, page, size, search, departmentId, positionId, lineId)
+        );
     }
 
 

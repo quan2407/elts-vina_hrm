@@ -56,6 +56,13 @@ function ApplicationForm({
   const roles = JSON.parse(localStorage.getItem("role") || "[]");
   const currentUserId = localStorage.getItem("userId") || "";
   const isManager = roles.includes("ROLE_PRODUCTION_MANAGER");
+  const viewMode = sessionStorage.getItem("viewMode") || "role";
+  const isViewingAsEmployee = viewMode === "employee";
+  const lockEmployeeSelect =
+    mode === "create" &&
+    isViewingAsEmployee &&
+    (roles.includes("ROLE_HR") || roles.includes("ROLE_PRODUCTION_MANAGER"));
+
   const isCreator = data?.creator;
   const [modal, setModal] = useState({
     open: false,
@@ -154,6 +161,16 @@ function ApplicationForm({
       fetchEmployees();
     }
   }, []);
+  useEffect(() => {
+    if (!lockEmployeeSelect) return;
+    if (!employees?.length) return;
+    if (selectedEmployee?.id) return;
+
+    const me = employees.find((e) => String(e.id) === String(currentUserId));
+    if (me) {
+      setSelectedEmployee(me);
+    }
+  }, [lockEmployeeSelect, employees, currentUserId, selectedEmployee]);
 
   useEffect(() => {
     setErrors((prev) => {
@@ -327,9 +344,18 @@ function ApplicationForm({
                         }
                       : null
                   }
-                  onChange={(selected) => setSelectedEmployee(selected)}
-                  placeholder="-- Chọn nhân viên --"
-                  isClearable
+                  onChange={
+                    lockEmployeeSelect
+                      ? undefined
+                      : (selected) => setSelectedEmployee(selected)
+                  }
+                  placeholder={
+                    lockEmployeeSelect
+                      ? "(Tự động chọn: chính bạn)"
+                      : "-- Chọn nhân viên --"
+                  }
+                  isClearable={!lockEmployeeSelect}
+                  isDisabled={lockEmployeeSelect}
                 />
               </div>
             </div>
