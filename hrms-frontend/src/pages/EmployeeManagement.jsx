@@ -146,7 +146,7 @@ function EmployeeManagement() {
                 border: "none",
               }}
             >
-              Export
+              Xuất excel
             </button>
           </div>
         </div>
