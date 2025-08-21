@@ -80,6 +80,7 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
                             });
                         }
                     }}
+
                     onDelete={() => Modal.confirm({
                         title: "Bạn có chắc chắn muốn xóa?",
                         onOk: async () => {
@@ -92,6 +93,7 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
                             }
                         }
                     })}
+                    canDelete={!benefit.isActive}
                     onDetails={handleDetails}
                 />
             </div>
