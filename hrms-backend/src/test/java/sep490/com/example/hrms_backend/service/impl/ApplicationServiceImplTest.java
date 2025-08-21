@@ -245,6 +245,131 @@ public class ApplicationServiceImplTest {
         assertEquals(creatorHr, savedStep.getApprover());
     }
 
+    @Test
+    @DisplayName("createApplication - HR tạo đơn không có checkin/checkout -> duyệt step2, không cập nhật chấm công")
+    void createApplication_HR_NoCheckInOut_NoAttendanceUpdate() {
+        Long employeeId = 1L;
+        Long creatorId = 3L; // HR
+
+        // Không set checkin/checkout
+        createDTO.setCheckIn(null);
+        createDTO.setCheckOut(null);
+
+        when(employeeRepository.findById(employeeId)).thenReturn(Optional.of(employee));
+        when(applicationTypeRepository.findById(createDTO.getApplicationTypeId())).thenReturn(Optional.of(applicationType));
+        doNothing().when(applicationValidator).validate(any(), eq(applicationType.getName()));
+        when(currentUserUtils.getCurrentEmployeeId()).thenReturn(creatorId);
+        when(employeeRepository.findById(creatorId)).thenReturn(Optional.of(creatorHr));
+        when(applicationRepository.save(any(Application.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ArgumentCaptor<Application> appCaptor = ArgumentCaptor.forClass(Application.class);
+        ArgumentCaptor<ApplicationApprovalStep> stepCaptor = ArgumentCaptor.forClass(ApplicationApprovalStep.class);
+
+        applicationService.createApplication(createDTO, employeeId);
+
+        // Save 2 lần (lưu + cập nhật updatedAt)
+        verify(applicationRepository, times(2)).save(appCaptor.capture());
+        verify(approvalStepRepository, times(1)).save(stepCaptor.capture());
+
+        // Không đụng vào chấm công
+        verify(attendanceRecordRepository, never()).findByEmployee_EmployeeIdAndDate(anyLong(), any());
+        verify(attendanceRecordService, never()).updateCheckInOut(anyLong(), any());
+
+        Application savedFirst = appCaptor.getAllValues().get(0);
+        assertEquals(ApplicationStatus.HR_APPROVED, savedFirst.getStatus());
+
+        ApplicationApprovalStep step2 = stepCaptor.getValue();
+        assertEquals(2, step2.getStep());
+        assertEquals(ApprovalStepStatus.APPROVED, step2.getStatus());
+        assertEquals(creatorHr, step2.getApprover());
+        assertEquals("HR tạo và duyệt đơn", step2.getNote());
+    }
+
+    @Test
+    @DisplayName("createApplication - HR có checkin/checkout nhưng không có bản ghi chấm công -> không cập nhật")
+    void createApplication_HR_CheckInOut_NoAttendanceRecord_NoUpdate() {
+        Long employeeId = 1L;
+        Long creatorId = 3L; // HR
+
+        createDTO.setCheckIn(LocalTime.of(8, 0));
+        createDTO.setCheckOut(LocalTime.of(17, 0));
+
+        when(employeeRepository.findById(employeeId)).thenReturn(Optional.of(employee));
+        when(applicationTypeRepository.findById(createDTO.getApplicationTypeId())).thenReturn(Optional.of(applicationType));
+        doNothing().when(applicationValidator).validate(any(), eq(applicationType.getName()));
+        when(currentUserUtils.getCurrentEmployeeId()).thenReturn(creatorId);
+        when(employeeRepository.findById(creatorId)).thenReturn(Optional.of(creatorHr));
+        when(applicationRepository.save(any(Application.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(attendanceRecordRepository.findByEmployee_EmployeeIdAndDate(employeeId, createDTO.getStartDate()))
+                .thenReturn(Optional.empty());
+
+        applicationService.createApplication(createDTO, employeeId);
+
+        // Có gọi tìm bản ghi chấm công nhưng không cập nhật
+        verify(attendanceRecordRepository, times(1))
+                .findByEmployee_EmployeeIdAndDate(employeeId, createDTO.getStartDate());
+        verify(attendanceRecordService, never()).updateCheckInOut(anyLong(), any());
+    }
+
+    @Test
+    @DisplayName("createApplication - Validator ném lỗi -> không lưu application/step")
+    void createApplication_ValidatorThrows_ShouldNotSave() {
+        Long employeeId = 1L;
+
+        when(employeeRepository.findById(employeeId)).thenReturn(Optional.of(employee));
+        when(applicationTypeRepository.findById(createDTO.getApplicationTypeId())).thenReturn(Optional.of(applicationType));
+        doThrow(new RuntimeException("invalid")).when(applicationValidator).validate(any(), eq(applicationType.getName()));
+
+        assertThrows(RuntimeException.class, () -> applicationService.createApplication(createDTO, employeeId));
+
+        verify(applicationRepository, never()).save(any());
+        verify(approvalStepRepository, never()).save(any());
+        verify(attendanceRecordService, never()).updateCheckInOut(anyLong(), any());
+    }
+
+    @Test
+    @DisplayName("createApplication - Employee không tồn tại -> throw và không lưu gì")
+    void createApplication_EmployeeNotFound_Throws() {
+        Long employeeId = 999L;
+        when(employeeRepository.findById(employeeId)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> applicationService.createApplication(createDTO, employeeId));
+
+        verifyNoInteractions(applicationTypeRepository, applicationRepository, approvalStepRepository,
+                attendanceRecordRepository, attendanceRecordService, currentUserUtils, applicationValidator);
+    }
+
+    @Test
+    @DisplayName("createApplication - ApplicationType không tồn tại -> throw và không lưu gì")
+    void createApplication_ApplicationTypeNotFound_Throws() {
+        Long employeeId = 1L;
+        when(employeeRepository.findById(employeeId)).thenReturn(Optional.of(employee));
+        when(applicationTypeRepository.findById(createDTO.getApplicationTypeId())).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> applicationService.createApplication(createDTO, employeeId));
+
+        verify(applicationRepository, never()).save(any());
+        verify(approvalStepRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("createApplication - Creator không tồn tại -> throw và không lưu gì")
+    void createApplication_CreatorNotFound_Throws() {
+        Long employeeId = 1L;
+        Long creatorId = 12345L;
+
+        when(employeeRepository.findById(employeeId)).thenReturn(Optional.of(employee));
+        when(applicationTypeRepository.findById(createDTO.getApplicationTypeId())).thenReturn(Optional.of(applicationType));
+        doNothing().when(applicationValidator).validate(any(), eq(applicationType.getName()));
+        when(currentUserUtils.getCurrentEmployeeId()).thenReturn(creatorId);
+        when(employeeRepository.findById(creatorId)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> applicationService.createApplication(createDTO, employeeId));
+
+        verify(applicationRepository, never()).save(any());
+        verify(approvalStepRepository, never()).save(any());
+    }
+
 
     //================================================================================
     // Test cho phương thức getApplicationsForEmployee
@@ -299,6 +424,72 @@ public class ApplicationServiceImplTest {
         verify(applicationRepository, never()).findByEmployee_EmployeeIdAndStatus(anyLong(), any(ApplicationStatus.class), any(Pageable.class));
         verify(applicationRepository, times(1)).findByEmployee_EmployeeId(employeeId, pageable);
     }
+
+    @Test
+    @DisplayName("getApplicationsForEmployee - Có status nhưng không có kết quả -> trả về trang rỗng")
+    void getApplicationsForEmployee_WithStatus_NoResults_ReturnsEmptyPage() {
+        Long employeeId = 1L;
+        ApplicationStatus status = ApplicationStatus.PENDING_MANAGER_APPROVAL;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Page<Application> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+        when(applicationRepository.findByEmployee_EmployeeIdAndStatus(employeeId, status, pageable))
+                .thenReturn(emptyPage);
+
+        Page<ApplicationListItemDTO> result = applicationService.getApplicationsForEmployee(employeeId, status, pageable);
+
+        assertEquals(0, result.getTotalElements());
+        assertTrue(result.getContent().isEmpty());
+        verify(applicationRepository, times(1)).findByEmployee_EmployeeIdAndStatus(employeeId, status, pageable);
+        verify(applicationRepository, never()).findByEmployee_EmployeeId(anyLong(), any());
+    }
+
+    @Test
+    @DisplayName("getApplicationsForEmployee - Bảo toàn thông tin phân trang (page, size, total)")
+    void getApplicationsForEmployee_PaginationMetadata_Preserved() {
+        Long employeeId = 1L;
+        Pageable pageable = PageRequest.of(2, 5); // page=2, size=5
+        // total lớn hơn số phần tử trả về ở trang hiện tại
+        Page<Application> repoPage = new PageImpl<>(List.of(application), pageable, 23);
+
+        when(applicationRepository.findByEmployee_EmployeeId(employeeId, pageable)).thenReturn(repoPage);
+
+        Page<ApplicationListItemDTO> result = applicationService.getApplicationsForEmployee(employeeId, null, pageable);
+
+        assertEquals(23, result.getTotalElements());
+        assertEquals(2, result.getNumber());
+        assertEquals(5, result.getSize());
+        verify(applicationRepository, times(1)).findByEmployee_EmployeeId(employeeId, pageable);
+    }
+
+    @Test
+    @DisplayName("getApplicationsForEmployee - Map đúng và giữ nguyên thứ tự nhiều phần tử")
+    void getApplicationsForEmployee_WithMultipleResults_MapsAllAndKeepsOrder() {
+        Long employeeId = 1L;
+        ApplicationStatus status = ApplicationStatus.PENDING_MANAGER_APPROVAL;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Application app1 = application; // đã setup với title "Đơn xin nghỉ phép"
+        Application app2 = new Application();
+        app2.setId(101L);
+        app2.setTitle("Đơn xin đi muộn");
+        app2.setApplicationType(applicationType);
+        app2.setStatus(ApplicationStatus.PENDING_MANAGER_APPROVAL);
+        app2.setEmployee(employee);
+        app2.setCreatedAt(java.time.LocalDateTime.now());
+
+        Page<Application> repoPage = new PageImpl<>(List.of(app1, app2), pageable, 2);
+        when(applicationRepository.findByEmployee_EmployeeIdAndStatus(employeeId, status, pageable))
+                .thenReturn(repoPage);
+
+        Page<ApplicationListItemDTO> result = applicationService.getApplicationsForEmployee(employeeId, status, pageable);
+
+        assertEquals(2, result.getTotalElements());
+        assertEquals("Đơn xin nghỉ phép", result.getContent().get(0).getTitle());
+        assertEquals("Đơn xin đi muộn", result.getContent().get(1).getTitle());
+        verify(applicationRepository, times(1)).findByEmployee_EmployeeIdAndStatus(employeeId, status, pageable);
+    }
+
 
     //================================================================================
     // Test cho phương thức approveStep2
