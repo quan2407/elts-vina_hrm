@@ -162,6 +162,12 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeDetailInDepartment);
     }
 
+    @GetMapping("/leader/department/{id}")
+    public ResponseEntity<List<EmployeeResponseDTO>> getLeaderEmployeeByDepartmentId(@PathVariable Long id) {
+        List<EmployeeResponseDTO> employeeDetailInDepartment = employeeService.getLeaderEmployeeByDepartmentId(id);
+        return ResponseEntity.ok(employeeDetailInDepartment);
+    }
+
     @GetMapping("/line/{id}")
     public ResponseEntity<List<EmployeeResponseDTO>> getEmployeeByLineId(@PathVariable Long id) {
         List<EmployeeResponseDTO> employeeDetailInLine = employeeService.getEmployeeByLineId(id);

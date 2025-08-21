@@ -1,104 +1,159 @@
-@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Archivo+Black:wght@400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap");
 
-.jobDetail-page {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+/* ================== Design tokens ================== */
+:root{
+  --bg:#ffffff;
+  --muted:#f5f7fb;
+  --card:#ffffff;
+  --text:#0f172a;
+  --text-muted:#475569;
+  --primary:#0ea5e9;       /* sky-500 */
+  --primary-600:#0284c7;   /* sky-600 */
+  --ring:#93c5fd;
+  --border:#e5e7eb;
+  --shadow:0 10px 20px rgba(2,8,23,.06), 0 2px 6px rgba(2,8,23,.04);
+  --radius:14px;
 }
 
-.jobDetail-container {
-  display: flex;
-  gap: 40px;
-  width: 100%;
-  max-width: 1400px;
-  margin: 50px auto;
-  padding: 40px 20px;
-  background-color: #fff;
+*{box-sizing:border-box}
+body{font-family:"Manrope",system-ui,-apple-system,Segoe UI,Roboto,Arial; color:var(--text); background:var(--bg)}
+
+/* ================== Page layout ================== */
+.jobDetail-page{display:flex; flex-direction:column; min-height:100vh}
+
+/* Breadcrumb container to avoid sticking to the left edge */
+.jd-breadcrumb-wrap{
+  max-width:1100px;
+  margin:0 auto;
+  padding:0 16px;
 }
 
-.jobDetail-sidebar {
-  width: 30%;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+/* Main grid: widen sidebar to avoid salary truncation */
+.jobDetail-container{
+  max-width:1100px;
+  width:100%;
+  margin:24px auto 80px;
+  padding:0 16px;
+  display:grid;
+  grid-template-columns:380px 1fr; /* was 320px */
+  gap:24px;
 }
 
-.jobDetail-content {
-  margin-left: 150px;
-  width: 70%;
+/* ================== Sidebar ================== */
+.jobDetail-sidebar{position:sticky; top:20px; align-self:start; display:flex; flex-direction:column; gap:16px}
+.jobDetail-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:18px;
+}
+.jobDetail-card h4{margin:0 0 10px; font-size:16px; color:var(--text-muted)}
+
+.jd-card__row{
+  display:flex; align-items:center; gap:10px;
+  padding:10px 0; border-top:1px dashed var(--border);
+  flex-wrap:nowrap; /* keep on one line */
+}
+.jd-card__row:first-of-type{border-top:none}
+.jd-card__row--primary{background:rgba(14,165,233,.06); border-radius:10px; padding:12px}
+.jd-card__value{font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+
+.chip{
+  display:inline-flex; align-items:center; height:26px; padding:0 10px;
+  background:var(--muted); border:1px solid var(--border);
+  border-radius:999px; font-size:12px; font-weight:700; color:#64748b;
+  flex-shrink:0;
+}
+.chip--primary{background:rgba(14,165,233,.08); border-color:rgba(14,165,233,.25); color:#0369a1}
+
+.jd-actions{display:flex; flex-direction:column; gap:10px}
+
+/* ================== Content ================== */
+.jobDetail-content{background:transparent; max-width:720px; width:100%}
+.jd-header{display:flex; align-items:center; gap:12px; margin-bottom:8px}
+.jd-title{margin:0; font-size:28px; line-height:1.3}
+
+/* ===== Badge (pill) – như ảnh minh hoạ */
+.jd-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:26px;
+  padding:0 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.2px;
+  background:#E6F4FF;       /* nền xanh rất nhạt */
+  color:#0B5CAB;            /* chữ xanh đậm */
+  border:0;
+  box-shadow: inset 0 0 0 1px rgba(11,92,171,.12);
+  opacity:1;
+}
+.jd-badge--open{
+  /* vẫn giữ nền nhạt + chữ đậm (không đổi sang nền đậm) */
+  background:#E6F4FF;
+  color:#0B5CAB;
 }
 
-.jobDetail-card {
-  border: 1px solid #eee;
-  padding: 15px;
-  border-radius: 4px;
+.jd-block{
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--radius); box-shadow:var(--shadow);
+  padding:18px; margin-top:16px
 }
+.jd-block h3{margin:0 0 10px; font-size:18px}
+.jd-richtext{color:var(--text); line-height:1.75; white-space:pre-line}
+.jd-richtext ul{margin:0; padding-left:18px}
+.jd-richtext li{margin:6px 0}
 
-.jobDetail-card h4 {
-  font-size: 25px;
-  color: #555;
-  margin-bottom: 5px;
+.jd-footer-cta{margin-top:18px; display:flex; justify-content:flex-end}
+
+/* ================== Buttons (fix reset) ================== */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  height:44px; padding:0 16px; border-radius:12px;
+  border:1px solid var(--border); background:#fff; color:var(--text);
+  font-weight:800; cursor:pointer; transition:.2s;
+  text-decoration:none;
 }
-
-.jobDetail-card p {
-  font-size: 20px;
-  color: #111;
+button.btn{all:unset;}          /* remove global resets safely for buttons */
+button.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  height:44px; padding:0 16px; border-radius:12px;
+  border:1px solid var(--border); background:#fff; color:var(--text);
+  font-weight:800; cursor:pointer; transition:.2s;
 }
+.btn:hover, button.btn:hover{border-color:var(--primary)}
+.btn:focus, button.btn:focus{outline:none; box-shadow:0 0 0 3px var(--ring)}
+.btn--primary{background:var(--primary); color:#fff; border-color:var(--primary)}
+.btn--primary:hover{background:var(--primary-600); border-color:var(--primary-600)}
+.btn--ghost{background:#fff; color:var(--text)}
+.btn--lg{height:48px; padding:0 22px}
 
-.jobDetail-back-btn {
-  font-size: 25px;
-  margin-top: 20px;
-  padding: 10px;
-  background-color: #0e1a38;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+/* ================== Skeleton & Error ================== */
+.jd-skeleton-wrap{display:grid; grid-template-columns:380px 1fr; gap:24px; width:100%}
+.jd-skeleton-aside, .jd-skeleton-content{
+  height:220px; border-radius:var(--radius);
+  background:linear-gradient(90deg,#f0f3f8 25%,#e6ebf3 37%,#f0f3f8 63%);
+  background-size:400% 100%; animation:shimmer 1.2s infinite
 }
+.jd-skeleton-content{height:360px}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
 
-.jobDetail-content h1 {
-  margin-bottom: 40px;
+.jd-error{
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--radius); padding:18px; box-shadow:var(--shadow)
 }
+.jd-error p{margin:0 0 10px; color:#ef4444}
 
-.jobDetail-content h3 {
-  font-size: 25px;
-  margin-bottom: 10px;
-  font-weight: 500;
+/* ================== Responsive ================== */
+@media (max-width:1100px){
+  .jobDetail-container{grid-template-columns:340px 1fr}
+  .jd-skeleton-wrap{grid-template-columns:340px 1fr}
 }
-
-.jobDetail-content h4 {
-  font-size: 25px;
-  margin-top: 20px;
-  margin-bottom: 5px;
-  font-weight: 500;
-}
-
-.jobDetail-content p {
-  font-size: 20px;
-  color: #333;
-  line-height: 1.6;
-}
-
-.jobDetail-apply-btn {
-  font-size: 25px;
-  margin-top: 50px;
-  padding: 20px 60px;
-  background-color: #14e4b5;
-  color: black;
-  font-weight: bold;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-/* Optional: Responsive */
-@media (max-width: 768px) {
-  .jobDetail-container {
-    flex-direction: column;
-  }
-
-  .jobDetail-sidebar,
-  .jobDetail-content {
-    width: 100%;
-  }
+@media (max-width:960px){
+  .jobDetail-container{grid-template-columns:1fr; gap:16px}
+  .jobDetail-sidebar{position:static}
+  .jd-skeleton-wrap{grid-template-columns:1fr}
 }

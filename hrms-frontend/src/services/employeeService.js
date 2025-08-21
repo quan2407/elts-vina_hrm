@@ -26,6 +26,10 @@ const employeeService = {
     return axiosClient.get("/employees", { params });
   },
 
+  getLeaderEmployeesByDepartmentId: (id) => {
+    return axiosClient.get(`/employees/leader/department/${id}`);
+  },
+
   getEmployeesByDepartmentId: (id) => {
     return axiosClient.get(`/employees/department/${id}`);
   },

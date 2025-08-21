@@ -93,6 +93,17 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
         return new PageImpl<>(content, pageable, dtos.size());
     }
 
+    @Override
+    public List<EmployeeResponseDTO> getLeaderEmployeeByDepartmentId(Long id) {
+        Department department = departmentRepository.findById(id).orElse(null);
+
+        List<EmployeeResponseDTO> employees = department.getEmployees().stream()
+                .filter(employee -> employee.getPosition().getPositionName().equalsIgnoreCase("Tổ trưởng"))
+                .map(EmployeeMapper::mapToEmployeeResponseDTO)
+                .collect(Collectors.toList());
+        return employees;
+    }
+
 
     @Override
     public String getNextEmployeeCode() {
