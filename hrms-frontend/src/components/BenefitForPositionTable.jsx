@@ -325,7 +325,7 @@ function BenefitForPositionTable({
     const currentPageData = filteredBenefits.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
 
     return (
-        <div className="employee-table-wrapper">
+        <div className="employee-table-wrapper benefit-pos-table">
             {isMultiSelectMode && (
                 <div style={{ marginBottom: 16 }}>
                     <Button onClick={handleSelectAll} disabled={selectableKeys.length === 0} style={{ marginRight: 8 }}>
