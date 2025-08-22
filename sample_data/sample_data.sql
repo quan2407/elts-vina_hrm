@@ -5,7 +5,6 @@ SET SQL_SAFE_UPDATES = 0;
 UPDATE employee SET line_id = NULL;
 UPDATE `lines` SET leader_id = NULL;
 ALTER TABLE employee MODIFY COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0;
-
 DELETE FROM notification;
 ALTER TABLE notification AUTO_INCREMENT = 1;
 DELETE FROM application_approval_step;
@@ -191,7 +190,8 @@ INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 
 -- Gán quyền cho HR và HR_MANAGER
 INSERT INTO role_permission (role_id, permission_id) VALUES 
-(2, 28),  -- HR
+(2, 28),
+(1,28),  -- HR
 (8, 28);  -- HR_MANAGER
 -- Module: Recruitment
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
@@ -203,6 +203,7 @@ INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 -- Gán cho HR và HR_MANAGER quyền tạo/sửa
 INSERT INTO role_permission (role_id, permission_id) VALUES 
 (2, 31), (2, 32), (2,29),(2,30),   -- HR
+(1, 31), (1, 32), (1,29),(1,30),
 (8, 31), (8, 32),(8,29),(8,30);    -- HR_MANAGER
 -- Module: Dashboard
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
@@ -211,6 +212,7 @@ INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 -- Gán quyền cho HR và HR_MANAGER
 INSERT INTO role_permission (role_id, permission_id) VALUES 
 (2, 33),   -- HR
+(1,33),
 (8, 33);   -- HR_MANAGER
 -- Module: Department
 INSERT INTO permission (permission_id, method, api_path, name, module) VALUES 
@@ -314,7 +316,7 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
 
 -- ADMIN (1)
 INSERT INTO role_permission (role_id, permission_id) VALUES
-(1, 60);
+(1, 57),(1,58),(1,59),(1,60);
 -- HR_MANAGER (8) - thêm quyền export
 INSERT INTO role_permission (role_id, permission_id) VALUES
 (8, 60);
@@ -330,7 +332,8 @@ INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 -- HR (role_id = 2)
 INSERT INTO role_permission (role_id, permission_id) VALUES
 (2, 61), (2, 62), (2, 63), (2, 64), (2, 65), (2, 66), (2, 67);
-
+INSERT INTO role_permission (role_id, permission_id) VALUES
+(1, 61), (1, 62), (1, 63), (1, 64), (1, 65), (1, 66), (1, 67);
 -- HR_MANAGER (role_id = 8)
 INSERT INTO role_permission (role_id, permission_id) VALUES
 (8, 61), (8, 62), (8, 63), (8, 64), (8, 65), (8, 66), (8, 67);
@@ -407,9 +410,10 @@ INSERT INTO permission (permission_id, method, api_path, name, module) VALUES
 -- HR và HR_MANAGER có toàn quyền
 INSERT INTO role_permission (role_id, permission_id) VALUES
 (2, 77), (2, 78), (2, 79), (2, 80), (2, 82),
+(1, 77), (1, 78), (1, 79), (1, 80), (1, 82),
 (8, 77), (8, 78), (8, 79), (8, 80), (8, 82);
 INSERT INTO role_permission (role_id, permission_id) VALUES
-(2, 81),(8,81),(7,81),(4,81),(4,80),(7,80);
+(2, 81),(8,81),(7,81),(4,81),(4,80),(7,80),(1,81);
 
 -- EMPLOYEE được xem lương của mình và danh sách tháng
 INSERT INTO role_permission (role_id, permission_id) VALUES

@@ -6,6 +6,7 @@ import lombok.*;
 import sep490.com.example.hrms_backend.enums.Gender;
 import sep490.com.example.hrms_backend.enums.GenderDeserializer;
 import sep490.com.example.hrms_backend.validation.Age18;
+import sep490.com.example.hrms_backend.validation.ValidStartWorkDate;
 import sep490.com.example.hrms_backend.validation.ValidWorkDateRange;
 
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @ValidWorkDateRange
+@ValidStartWorkDate
 public class EmployeeRequestDTO {
 
     @NotBlank(message = "Mã nhân viên không được để trống")
@@ -94,7 +96,6 @@ public class EmployeeRequestDTO {
 
 
     @NotNull(message = "Ngày vào công ty không được để trống")
-    @Age18(message = "Nhân viên phải đủ 18 tuổi")
     private LocalDate startWorkAt;
     @NotNull(message = "Ngày ra công ty không được để trống")
     private LocalDate endWorkAt;
