@@ -62,49 +62,53 @@ const EmployeeAttendanceMonthlyView = () => {
         <h1 className="attendance-title">Xem bảng công theo tháng</h1>
 
         <div className="attendance-controls">
-          <select
-            value={month || ""}
-            onChange={(e) => setMonth(Number(e.target.value))}
-          >
-            <option
-              value=""
-              disabled
+          <div className="attendance-select-group">
+            <select
+              value={month || ""}
+              onChange={(e) => setMonth(Number(e.target.value))}
             >
-              -- Chọn tháng --
-            </option>
-            {Array.from(new Set(availableMonths.map((m) => m.month))).map(
-              (m) => (
-                <option
-                  key={m}
-                  value={m}
-                >
-                  Tháng {m < 10 ? `0${m}` : m}
-                </option>
-              )
-            )}
-          </select>
+              <option
+                value=""
+                disabled
+              >
+                -- Chọn tháng --
+              </option>
+              {Array.from(new Set(availableMonths.map((m) => m.month))).map(
+                (m) => (
+                  <option
+                    key={m}
+                    value={m}
+                  >
+                    Tháng {m < 10 ? `0${m}` : m}
+                  </option>
+                )
+              )}
+            </select>
+            <select
+              value={year || ""}
+              onChange={(e) => setYear(Number(e.target.value))}
+            >
+              <option
+                value=""
+                disabled
+              >
+                -- Chọn năm --
+              </option>
+              {Array.from(new Set(availableMonths.map((m) => m.year))).map(
+                (y) => (
+                  <option
+                    key={y}
+                    value={y}
+                  >
+                    Năm {y}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
 
-          <select
-            value={year || ""}
-            onChange={(e) => setYear(Number(e.target.value))}
-          >
-            <option
-              value=""
-              disabled
-            >
-              -- Chọn năm --
-            </option>
-            {Array.from(new Set(availableMonths.map((m) => m.year))).map(
-              (y) => (
-                <option
-                  key={y}
-                  value={y}
-                >
-                  Năm {y}
-                </option>
-              )
-            )}
-          </select>
+
+
         </div>
 
         <div className="attendance-table-wrapper">
@@ -166,9 +170,8 @@ const EmployeeAttendanceMonthlyView = () => {
                               >
                                 {cell.checkIn || cell.checkOut ? (
                                   <span className="attendance-edit-icon">
-                                    {`${cell.checkIn || "--"} - ${
-                                      cell.checkOut || "--"
-                                    }`}
+                                    {`${cell.checkIn || "--"} - ${cell.checkOut || "--"
+                                      }`}
                                   </span>
                                 ) : (
                                   <span className="attendance-empty-cell">
