@@ -228,3 +228,139 @@
 .employee-table .employee-table-cell:nth-child(5) {
   text-align: center !important;
 }
+
+/* Dùng cùng grid cho header + row của bảng Phúc lợi */
+.benefit-table .employee-table-header,
+.benefit-table .employee-table-row {
+  border-bottom: none !important;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  display: grid;
+  grid-template-columns:
+    80px                         /* Id */
+    minmax(160px, 1.1fr)         /* Tiêu đề – nở nhẹ */
+    minmax(260px, 1.6fr)         /* Mô tả – nở nhiều */
+    minmax(140px, 1fr)           /* Loại phúc lợi */
+    minmax(170px, 1fr)           /* Trạng thái hoạt động */
+    140px                        /* Ngày tạo */
+    160px;                       /* Chức năng */
+  gap: 10px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+}
+
+/* Hàng dữ liệu kẻ dòng dưới thay vì margin-bottom */
+.benefit-table .employee-table-row {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* (khuyến nghị) Header sticky và kẻ viền */
+.benefit-table .employee-table-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Cắt gọn text để không đội cột */
+.benefit-table .employee-header-cell,
+.benefit-table .employee-table-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Cho phép mô tả tối đa 2 dòng */
+.benefit-table .employee-table-row .employee-table-cell:nth-child(3) {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* container xếp dọc có khoảng cách giữa các hàng */
+.benefit-table .employee-table {
+  display: grid;
+  row-gap: 8px;        /* chỉnh 0–12 tuỳ ý */
+}
+
+/* bỏ đường kẻ ngăn cách */
+.benefit-table .employee-table-row {
+  border-bottom: none !important;
+}
+
+/* Header + Row dùng chung layout 6 cột */
+.benefit-pos-table .employee-table-header,
+.benefit-pos-table .employee-table-row {
+  display: grid;
+  grid-template-columns:
+    48px                      /* ☐ checkbox (luôn có, rỗng khi ko multi) */
+    80px                      /* Id (positionId) */
+    minmax(240px, 1.6fr)      /* Tên vị trí (nở nhiều) */
+    minmax(160px, 1fr)        /* Giá trị */
+    160px                     /* Số lượng đăng ký */
+    160px;                    /* Chức năng */
+  gap: 10px;
+  padding: 12px 20px;
+  margin: 0 0 10px 0;         /* khoảng cách giữa 2 dòng = 10px */
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+/* Bỏ đường kẻ ngăn cách để chỉ còn khoảng hở 10px */
+.benefit-pos-table .employee-table-row {
+  border: none !important;
+}
+
+/* Header sticky (nếu khu vực nội dung cao) */
+.benefit-pos-table .employee-table-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #fff;
+  border: none;
+}
+
+/* Cắt gọn text để không “đội” cột */
+.benefit-pos-table .employee-header-cell,
+.benefit-pos-table .employee-table-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Tên vị trí cho phép 2 dòng để gọn gàng */
+.benefit-pos-table .employee-table-row .employee-table-cell:nth-child(3) {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* Căn giữa cột checkbox và số liệu đăng ký */
+.benefit-pos-table .employee-header-cell:nth-child(1),
+.benefit-pos-table .employee-table-cell:nth-child(1),
+.benefit-pos-table .employee-header-cell:nth-child(5),
+.benefit-pos-table .employee-table-cell:nth-child(5) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cột chức năng: để nút dropdown không bị bó hẹp */
+.benefit-pos-table .employee-table-cell:nth-child(6) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* hoặc center tuỳ UI */
+}
+
+/* (tuỳ chọn) Bảng co giãn theo bề ngang wrapper */
+.benefit-pos-table .employee-table {
+  width: 100%;
+  /* nếu muốn ôm sát tổng độ rộng cột và cuộn ngang, dùng:
+     inline-size: max-content; min-inline-size: 100%;
+  */
+}
