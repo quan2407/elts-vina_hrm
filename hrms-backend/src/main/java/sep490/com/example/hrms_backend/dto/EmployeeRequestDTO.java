@@ -94,6 +94,7 @@ public class EmployeeRequestDTO {
 
 
     @NotNull(message = "Ngày vào công ty không được để trống")
+    @Age18(message = "Nhân viên phải đủ 18 tuổi")
     private LocalDate startWorkAt;
     @NotNull(message = "Ngày ra công ty không được để trống")
     private LocalDate endWorkAt;

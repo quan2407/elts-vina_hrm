@@ -21,12 +21,12 @@ function Dashboard() {
     const today = new Date();
     const lastWeek = new Date();
     lastWeek.setDate(today.getDate() - 7);
-    return lastWeek.toISOString().split("T")[0]; // format YYYY-MM-DD
+    return lastWeek.toISOString().split("T")[0];
   });
 
   const [ToDate, setToDate] = useState(() => {
     const today = new Date();
-    return today.toISOString().split("T")[0]; // format YYYY-MM-DD
+    return today.toISOString().split("T")[0];
   });
 
   const [data, setData] = useState([]);
