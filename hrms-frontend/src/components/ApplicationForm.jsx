@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
-import { vi } from "date-fns/locale";
+import { ro, vi } from "date-fns/locale";
 import applicationApprovalService from "../services/applicationApprovalService";
 import employeeService from "../services/employeeService";
 import TimePicker from "react-time-picker";
@@ -61,7 +61,10 @@ function ApplicationForm({
   const lockEmployeeSelect =
     mode === "create" &&
     isViewingAsEmployee &&
-    (roles.includes("ROLE_HR") || roles.includes("ROLE_PRODUCTION_MANAGER"));
+    (roles.includes("ROLE_HR") ||
+      roles.includes("ROLE_PRODUCTION_MANAGER") ||
+      roles.includes("ROLE_ADMIN") ||
+      roles.includes("HR_MANAGER"));
 
   const isCreator = data?.creator;
   const [modal, setModal] = useState({
@@ -102,7 +105,9 @@ function ApplicationForm({
 
   const isHrApprover = React.useMemo(() => {
     return (
-      roles.includes("ROLE_HR") &&
+      (roles.includes("ROLE_HR") ||
+        roles.includes("ROLE_ADMIN") ||
+        roles.includes("HR_MANAGER")) &&
       data?.status === "MANAGER_APPROVED" &&
       data?.approvalSteps?.[1]?.approverName === null &&
       data?.approvalSteps?.[1]?.status === "PENDING"
@@ -131,7 +136,12 @@ function ApplicationForm({
     const isMakeupReadOnly =
       mode === "create" &&
       type === "makeup" &&
-      !(roles.includes("ROLE_HR") || roles.includes("ROLE_PRODUCTION_MANAGER"));
+      !(
+        roles.includes("ROLE_HR") ||
+        roles.includes("ROLE_PRODUCTION_MANAGER") ||
+        roles.includes("ROLE_ADMIN") ||
+        roles.includes("HR_MANAGER")
+      );
 
     return (
       <input
@@ -156,7 +166,10 @@ function ApplicationForm({
 
     if (
       mode === "create" &&
-      (roles.includes("ROLE_HR") || roles.includes("ROLE_PRODUCTION_MANAGER"))
+      (roles.includes("ROLE_HR") ||
+        roles.includes("ROLE_PRODUCTION_MANAGER") ||
+        roles.includes("ROLE_ADMIN") ||
+        roles.includes("HR_MANAGER"))
     ) {
       fetchEmployees();
     }
@@ -180,7 +193,6 @@ function ApplicationForm({
     });
   }, [externalErrors]);
 
-  // ✅ Khởi tạo giá trị nếu tạo đơn mới
   useEffect(() => {
     if (mode === "create" && initialDate) {
       setStartDate(initialDate);
@@ -321,7 +333,9 @@ function ApplicationForm({
         </div>
         {mode === "create" &&
           (roles.includes("ROLE_HR") ||
-            roles.includes("ROLE_PRODUCTION_MANAGER")) && (
+            roles.includes("ROLE_PRODUCTION_MANAGER") ||
+            roles.includes("ROLE_ADMIN") ||
+            roles.includes("HR_MANAGER")) && (
             <div className="application-form-row">
               <div className="application-form-input-group">
                 <div className="application-form-input-label">
@@ -448,7 +462,9 @@ function ApplicationForm({
         )}
         {mode === "create" &&
           (roles.includes("ROLE_HR") ||
-            roles.includes("ROLE_PRODUCTION_MANAGER")) && (
+            roles.includes("ROLE_PRODUCTION_MANAGER") ||
+            roles.includes("ROLE_HR_MANAGER") ||
+            roles.includes("ROLE_ADMIN")) && (
             <div className="application-form-row">
               <div className="application-form-input-group">
                 <div className="application-form-input-label">Loại đơn</div>
