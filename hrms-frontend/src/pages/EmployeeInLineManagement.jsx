@@ -65,7 +65,6 @@ function EmployeeInLineManagement() {
               type="button"
               onClick={() => setShowAddModal(true)}
               style={{
-                backgroundColor: "#2563eb", // xanh dương
                 color: "#fff",
                 padding: "10px 20px",
                 borderRadius: "8px",

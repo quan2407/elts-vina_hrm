@@ -65,11 +65,13 @@ public class OcrServiceImpl implements OcrService {
                 String frontName = dto.getEmployeeName();
                 String backNameRaw = extractFullNameFromMRZ(backText);
                 String frontNorm = normalizeName(frontName);
+                System.out.println("Ten mat truoc " + frontNorm);
                 String backNorm = normalizeName(backNameRaw);
-
+                System.out.println("Ten mat sau " + backNorm);
+                System.out.println("equal or not: " + frontNorm.equals(backNorm) );
                 if (backNameRaw != null && frontNorm != null && backNorm != null
-                        && !frontNorm.contains(backNorm)
-                        && !backNorm.contains(frontNorm)) {
+                        && !frontNorm.equals(backNorm)
+                        && !backNorm.equals(frontNorm)) {
                     throw new IllegalArgumentException("Ảnh mặt trước và mặt sau không thuộc cùng một người.");
                 }
             } catch (IOException e) {
@@ -184,23 +186,26 @@ public class OcrServiceImpl implements OcrService {
     }
     private String normalizeName(String name) {
         if (name == null) return null;
-        return name.toUpperCase().replaceAll("[^A-Z]", "");
+        String noDiacritics = java.text.Normalizer.normalize(name, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        return noDiacritics.toUpperCase().replaceAll("[^A-Z]", "");
     }
-    private String extractFullNameFromMRZ(String text) {
-        Pattern pattern = Pattern.compile("([A-Z<]{2,}<<[A-Z<]+)");
-        Matcher matcher = pattern.matcher(text);
 
-        while (matcher.find()) {
-            String line = matcher.group(1);
-            String[] parts = line.split("<<");
-            if (parts.length >= 2) {
-                String lastName = parts[0].replace("<", " ").trim(); // họ
-                String givenName = parts[1].replace("<", " ").trim(); // tên
-                return (lastName + " " + givenName).replaceAll("\\s+", " ").trim();
+    private String extractFullNameFromMRZ(String text) {
+        // Chỉ lấy dòng có '<<' và có chữ cái, loại bỏ dòng chứa VNM hoặc số
+        for (String line : text.split("\\r?\\n")) {
+            if (line.contains("<<") && line.matches("^[A-Z<]+$") && !line.contains("VNM")) {
+                String[] parts = line.split("<<");
+                if (parts.length >= 2) {
+                    String lastName = parts[0].replace("<", " ").trim();
+                    String givenName = parts[1].replace("<", " ").trim();
+                    return (lastName + " " + givenName).replaceAll("\\s+", " ").trim();
+                }
             }
         }
         return null;
     }
+
 
 
 }

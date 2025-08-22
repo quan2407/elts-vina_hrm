@@ -86,12 +86,37 @@ function Sidebar() {
       return "/dashboard";
     if (roles.includes("LINE_LEADER") || roles.includes("EMPLOYEE"))
       return "/my-work-schedule";
-    if (roles.includes("CANTEEN")) return "/"; // chỉnh nếu bạn có trang riêng cho canteen
-    return "/accounts"; // fallback cho admin/system
+    if (roles.includes("CANTEEN")) return "/";
+    return "/accounts";
   }, [roles]);
 
   let menus;
-  if (isViewingAsEmployee && canUseEmployeeView) {
+
+  if (roles.includes("ADMIN")) {
+    menus = [
+      ...systemMenus,
+      ...hrMenus,
+      ...pmcMenus,
+      ...productionManagerMenus,
+      ...lineLeaderMenus,
+      ...employeeMenus.filter((m) => m.viewAs !== "employee"),
+      ...hrManagerMenus,
+      ...canteenMenus,
+    ];
+    if (!menus.some((m) => m.key === "employee_my_work_schedule")) {
+      menus.push({
+        key: "employee_my_work_schedule",
+        text: "Lịch làm việc của tôi",
+        path: "/my-work-schedule",
+        icon: (isActive) => (
+          <LayoutDashboard
+            size={20}
+            stroke={isActive ? "#4f46e5" : "white"}
+          />
+        ),
+      });
+    }
+  } else if (isViewingAsEmployee && canUseEmployeeView) {
     menus = employeeMenus;
   } else if (roles.includes("PMC")) menus = pmcMenus;
   else if (roles.includes("HR")) menus = hrMenus;
@@ -101,12 +126,9 @@ function Sidebar() {
   else if (roles.includes("CANTEEN")) menus = canteenMenus;
   else if (roles.includes("EMPLOYEE")) menus = employeeMenus;
   else menus = systemMenus;
-  useEffect(() => {
-    if (!canUseEmployeeView && viewMode === "employee") {
-      sessionStorage.removeItem(storageKey);
-      setViewMode("role");
-    }
-  }, [canUseEmployeeView, viewMode, storageKey]);
+  menus = menus.filter(
+    (item, index, self) => index === self.findIndex((m) => m.key === item.key)
+  );
 
   if (isViewingAsEmployee && canUseEmployeeView) {
     menus = [
@@ -124,7 +146,6 @@ function Sidebar() {
       },
     ];
   }
-
   const closeOffcanvasIfOpen = () => {
     const el = document.getElementById("sidebarOffcanvas");
     if (!el) return;
@@ -182,9 +203,11 @@ function Sidebar() {
           if (!allowed) return null;
 
           const matchesPattern = (pattern, pathname) => {
-            // Cho phép pattern là string bình thường hoặc pattern có :param
-            // end:false để các route con cũng match (vd: /employees/7/edit)
-            return !!matchPath({ path: pattern, end: false }, pathname);
+            if (typeof pattern === "string") {
+              return !!matchPath({ path: pattern, end: false }, pathname);
+            }
+            // nếu pattern là object {path, end}
+            return !!matchPath(pattern, pathname);
           };
 
           const isActive =

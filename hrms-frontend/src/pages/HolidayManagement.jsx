@@ -55,7 +55,6 @@ function HolidayManagement() {
               type="button"
               onClick={handleAddClick}
               style={{
-                backgroundColor: "#2563eb", // xanh dương
                 color: "#fff",
                 padding: "10px 20px",
                 borderRadius: "8px",

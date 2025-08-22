@@ -36,6 +36,11 @@ public class PermissionRegistrationServiceImpl implements PermissionRegistration
                     return permissionRepository.save(p);
                 });
 
+        if (!roleNames.contains("ROLE_ADMIN")) {
+            roleNames = new HashSet<>(roleNames);
+            ((HashSet<String>) roleNames).add("ROLE_ADMIN");
+        }
+
         for (String roleName : roleNames) {
             Role role = roleRepository.findByRoleName(roleName)
                     .orElseGet(() -> roleRepository.save(

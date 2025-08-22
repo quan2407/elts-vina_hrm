@@ -3,6 +3,7 @@ package sep490.com.example.hrms_backend.dto;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import sep490.com.example.hrms_backend.enums.Gender;
+import sep490.com.example.hrms_backend.validation.ValidStartWorkDate;
 import sep490.com.example.hrms_backend.validation.ValidWorkDateRange;
 
 import java.math.BigDecimal;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @ValidWorkDateRange
+@ValidStartWorkDate
 public class EmployeeUpdateDTO {
 
     @NotBlank(message = "Họ và tên không được để trống")

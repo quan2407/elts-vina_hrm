@@ -21,7 +21,7 @@ function JobsManagement() {
         targetPage,
         targetSize,
         searchTerm,
-        sortField,
+        sortField
       );
       setJobs(res?.content || []);
       setTotalPages(res?.totalPages || 0);
@@ -90,24 +90,28 @@ function JobsManagement() {
 
             <div className="page-actions">
               <button
-                            style={{ height: "55px" }}
-
+                style={{
+                  padding: "10px 20px",
+                  height: "55px",
+                  fontSize: "16px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  color: "#fff",
+                  border: "none",
+                }}
                 type="button"
                 onClick={handleAddClick}
-                className="btn-big"
               >
                 Thêm bài tuyển dụng
               </button>
               <button
                 type="button"
-                              style={{ height: "55px" }}
-
+                style={{ height: "55px" }}
                 onClick={handleExportClick}
                 className="btn-big btn-green"
               >
-
-                Xuất excel              </button>
-
+                Xuất excel{" "}
+              </button>
             </div>
           </div>
         </div>
@@ -162,8 +166,9 @@ function JobsManagement() {
             <button
               key={p}
               onClick={() => setPage(p)}
-              className={`employee-pagination-btn ${p === page ? "employee-pagination-active" : ""
-                }`}
+              className={`employee-pagination-btn ${
+                p === page ? "employee-pagination-active" : ""
+              }`}
             >
               {p + 1}
             </button>
