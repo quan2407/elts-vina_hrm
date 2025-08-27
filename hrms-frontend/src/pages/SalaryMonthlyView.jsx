@@ -19,6 +19,7 @@ const SalaryMonthlyView = () => {
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [hasData, setHasData] = useState(false);
   let debounceTimeout;
   const [departmentId, setDepartmentId] = useState(null);
   const [positionId, setPositionId] = useState(null);
@@ -68,22 +69,21 @@ const SalaryMonthlyView = () => {
         positionId,
         lineId
       );
-      setSalaries(res.data.content);
-      setTotalPages(res.data.totalPages);
-      setIsLocked(res.data.content.length > 0 && res.data.content[0].locked);
+
+      const rows = res?.data?.content ?? [];
+      setSalaries(rows);
+      setTotalPages(res?.data?.totalPages ?? 0);
+      setIsLocked(rows.length > 0 && rows[0]?.locked === true);
+      setHasData(rows.length > 0);
     } catch (err) {
       console.error("Lỗi khi tải dữ liệu lương:", err);
+      setSalaries([]);
+      setTotalPages(0);
+      setIsLocked(false);
+      setHasData(false);
     }
   };
-  // useEffect(() => {
-  //   clearTimeout(debounceTimeout);
-  //   debounceTimeout = setTimeout(() => {
-  //     fetchSalaries();
-  //   }, 100);
-  //   return () => clearTimeout(debounceTimeout);
-  // }, [searchTerm]);
 
-  // 1) Lấy lương khi đổi tháng/năm/trang
   useEffect(() => {
     if (month && year) fetchSalaries();
   }, [month, year, page, size]);
@@ -142,11 +142,17 @@ const SalaryMonthlyView = () => {
         posId,
         liId
       );
-      setSalaries(res.data.content);
-      setTotalPages(res.data.totalPages);
-      setIsLocked(res.data.content.length > 0 && res.data.content[0].locked);
+      const rows = res?.data?.content ?? [];
+      setSalaries(rows);
+      setTotalPages(res?.data?.totalPages ?? 0);
+      setIsLocked(rows.length > 0 && rows[0].locked);
+      setHasData(rows.length > 0);
     } catch (err) {
       console.error("Lỗi khi tải dữ liệu lương:", err);
+      setSalaries([]);
+      setTotalPages(0);
+      setIsLocked(false);
+      setHasData(false);
     }
   };
 
@@ -154,29 +160,56 @@ const SalaryMonthlyView = () => {
     const fetchAvailableMonths = async () => {
       try {
         const res = await salaryService.getAvailableSalaryMonths();
-        const list = res.data;
+        const list = res?.data || [];
         setAvailableMonths(list);
 
         if (list.length > 0) {
+          // chọn tháng/năm mới nhất trong danh sách
           const [m, y] = list[list.length - 1].split("-");
           const newMonth = Number(m);
           const newYear = Number(y);
+
           setMonth(newMonth);
           setYear(newYear);
-          await salaryService
-            .getMonthlySalaries(newMonth, newYear, page, size, searchTerm)
-            .then((res) => {
-              setSalaries(res.data.content); // ✅ sửa lại
-              setTotalPages(res.data.totalPages); // ✅ đảm bảo phân trang đúng
-            });
+
+          // gọi API lấy bảng lương cho tháng/năm mới nhất
+          const first = await salaryService.getMonthlySalaries(
+            newMonth,
+            newYear,
+            page, // giữ nguyên page hiện tại (hoặc có thể set 0 nếu muốn)
+            size,
+            searchTerm,
+            departmentId,
+            positionId,
+            lineId
+          );
+
+          const rows = first?.data?.content ?? [];
+          setSalaries(rows);
+          setTotalPages(first?.data?.totalPages ?? 0);
+          setIsLocked(rows.length > 0 && rows[0]?.locked === true);
+          setHasData(rows.length > 0);
+        } else {
+          // không có tháng nào khả dụng
+          setSalaries([]);
+          setTotalPages(0);
+          setIsLocked(false);
+          setHasData(false);
         }
       } catch (err) {
         console.error("Không thể tải danh sách tháng có lương:", err);
+        // đảm bảo UI về trạng thái rỗng khi lỗi
+        setSalaries([]);
+        setTotalPages(0);
+        setIsLocked(false);
+        setHasData(false);
       }
     };
 
     fetchAvailableMonths();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   return (
     <MainLayout>
       <div className="attendance-container">
@@ -214,120 +247,124 @@ const SalaryMonthlyView = () => {
               ))}
             </select>
           </div>
-
-          <div className="salary-actions">
-            <button
-              className="btn-update"
-              disabled={isLocked}
-              onClick={async () => {
-                if (
-                  window.confirm(
-                    "Bạn có chắc muốn cập nhật lại bảng lương không?"
-                  )
-                ) {
-                  try {
-                    await salaryService.regenerateMonthlySalaries(month, year);
-                    await fetchSalaries();
-                    showSuccess(
-                      "Cập nhật bảng lương",
-                      "Đã cập nhật bảng lương thành công!"
-                    );
-                  } catch (err) {
-                    console.error("Lỗi khi cập nhật bảng lương:", err);
-                    showError(
-                      "Cập nhật bảng lương",
-                      "Cập nhật bảng lương thất bại!"
-                    );
-                  }
-                }
-              }}
-            >
-              Cập nhật bảng lương
-            </button>
-
-            {isHrManager && (
+          {hasData && (
+            <div className="salary-actions">
               <button
-                className="btn-lock"
+                className="btn-update"
+                disabled={isLocked}
                 onClick={async () => {
-                  const confirmMsg = isLocked
-                    ? "Bạn có chắc muốn mở khóa bảng lương này?"
-                    : "Bạn có chắc muốn chốt bảng lương này?";
-                  if (window.confirm(confirmMsg)) {
+                  if (
+                    window.confirm(
+                      "Bạn có chắc muốn cập nhật lại bảng lương không?"
+                    )
+                  ) {
                     try {
-                      await salaryService.lockSalaryMonth(
+                      await salaryService.regenerateMonthlySalaries(
                         month,
-                        year,
-                        !isLocked
+                        year
                       );
                       await fetchSalaries();
                       showSuccess(
-                        "Trạng thái chốt lương",
-                        isLocked
-                          ? "Đã mở khóa bảng lương."
-                          : "Đã chốt bảng lương."
+                        "Cập nhật bảng lương",
+                        "Đã cập nhật bảng lương thành công!"
                       );
                     } catch (err) {
+                      console.error("Lỗi khi cập nhật bảng lương:", err);
                       showError(
-                        "Trạng thái chốt lương",
-                        "Lỗi khi cập nhật trạng thái chốt lương!"
+                        "Cập nhật bảng lương",
+                        "Cập nhật bảng lương thất bại!"
                       );
                     }
                   }
                 }}
-                disabled={salaries.length === 0}
               >
-                {isLocked ? "Đã chốt (mở khóa)" : "Chốt bảng lương"}
+                Cập nhật bảng lương
               </button>
-            )}
-            <button
-              className="btn-export"
-              style={{
-                marginLeft: "8px",
-                backgroundColor: "#2563eb",
-                color: "white",
-              }}
-              onClick={async () => {
-                if (!month || !year) {
-                  showError(
-                    "Xuất báo cáo lương",
-                    "Vui lòng chọn tháng và năm."
-                  );
-                  return;
-                }
 
-                try {
-                  const response = await salaryService.exportMonthlySalaries(
-                    month,
-                    year
-                  );
-                  const blob = new Blob([response.data], {
-                    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                  });
+              {isHrManager && (
+                <button
+                  className="btn-lock"
+                  onClick={async () => {
+                    const confirmMsg = isLocked
+                      ? "Bạn có chắc muốn mở khóa bảng lương này?"
+                      : "Bạn có chắc muốn chốt bảng lương này?";
+                    if (window.confirm(confirmMsg)) {
+                      try {
+                        await salaryService.lockSalaryMonth(
+                          month,
+                          year,
+                          !isLocked
+                        );
+                        await fetchSalaries();
+                        showSuccess(
+                          "Trạng thái chốt lương",
+                          isLocked
+                            ? "Đã mở khóa bảng lương."
+                            : "Đã chốt bảng lương."
+                        );
+                      } catch (err) {
+                        showError(
+                          "Trạng thái chốt lương",
+                          "Lỗi khi cập nhật trạng thái chốt lương!"
+                        );
+                      }
+                    }
+                  }}
+                  disabled={salaries.length === 0}
+                >
+                  {isLocked ? "Đã chốt (mở khóa)" : "Chốt bảng lương"}
+                </button>
+              )}
+              <button
+                className="btn-export"
+                style={{
+                  marginLeft: "8px",
+                  backgroundColor: "#2563eb",
+                  color: "white",
+                }}
+                onClick={async () => {
+                  if (!month || !year) {
+                    showError(
+                      "Xuất báo cáo lương",
+                      "Vui lòng chọn tháng và năm."
+                    );
+                    return;
+                  }
 
-                  const url = window.URL.createObjectURL(blob);
-                  const link = document.createElement("a");
-                  link.href = url;
-                  link.setAttribute(
-                    "download",
-                    `bao_cao_luong_${month
-                      .toString()
-                      .padStart(2, "0")}_${year}.xlsx`
-                  );
-                  document.body.appendChild(link);
-                  link.click();
-                  link.remove();
-                } catch (err) {
-                  console.error("Export lương thất bại:", err);
-                  showError(
-                    "Xuất báo cáo lương",
-                    "Không thể xuất báo cáo lương."
-                  );
-                }
-              }}
-            >
-              Xuất Excel
-            </button>
-          </div>
+                  try {
+                    const response = await salaryService.exportMonthlySalaries(
+                      month,
+                      year
+                    );
+                    const blob = new Blob([response.data], {
+                      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    });
+
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.setAttribute(
+                      "download",
+                      `bao_cao_luong_${month
+                        .toString()
+                        .padStart(2, "0")}_${year}.xlsx`
+                    );
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                  } catch (err) {
+                    console.error("Export lương thất bại:", err);
+                    showError(
+                      "Xuất báo cáo lương",
+                      "Không thể xuất báo cáo lương."
+                    );
+                  }
+                }}
+              >
+                Xuất Excel
+              </button>
+            </div>
+          )}
         </div>
         <div className="attendance-controls">
           <div className="page-size-control">
