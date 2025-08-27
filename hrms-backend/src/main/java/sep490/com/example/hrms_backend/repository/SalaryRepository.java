@@ -15,4 +15,6 @@ public interface SalaryRepository extends JpaRepository<Salary, Long> {
     void deleteBySalaryMonth(LocalDate salaryMonth);
 
     boolean existsBySalaryMonthAndLockedTrue(LocalDate salaryMonth);
+
+    List<Salary> findBySalaryMonthAndEmployee_EmployeeId(LocalDate firstDay, Long employeeId);
 }

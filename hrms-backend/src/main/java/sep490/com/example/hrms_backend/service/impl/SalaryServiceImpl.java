@@ -25,7 +25,11 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toMap;
 
 @Service
 @RequiredArgsConstructor
@@ -70,17 +74,19 @@ public class SalaryServiceImpl implements SalaryService {
     @Override
     public List<SalaryDTO> getEmpSalariesByMonth(Long employeeId, int month, int year) {
         LocalDate firstDay = LocalDate.of(year, month, 1);
-        List<Salary> salaries = salaryRepository.findBySalaryMonth(firstDay);
-        List<Salary> results = new ArrayList<>();
-        for (Salary salary : salaries) {
-            if (salary.getEmployee().getEmployeeId().equals(employeeId)) {
-                results.add(salary);
-            }
-        }
-        return results.stream()
-                .map(SalaryMapper::mapToSalaryDTO)
+        List<Salary> salaries = salaryRepository
+                .findBySalaryMonthAndEmployee_EmployeeId(firstDay, employeeId);
+        List<Benefit> allBenefits = benefitService.getAllActive();
+
+        return salaries.stream()
+                .map(salary -> {
+                    SalaryDTO dto = SalaryMapper.mapToSalaryDTO(salary);
+                    dto.setAppliedBenefits(expandBenefits(dto.getAppliedBenefits(), allBenefits));
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
+
 
 
     @Override
@@ -320,5 +326,20 @@ public class SalaryServiceImpl implements SalaryService {
 
         return result;
     }
+    private List<SalaryBenefitDTO> expandBenefits(List<SalaryBenefitDTO> applied, List<Benefit> allBenefits) {
+        Map<String, SalaryBenefitDTO> map = (applied == null ? List.<SalaryBenefitDTO>of() : applied)
+                .stream()
+                .collect(toMap(SalaryBenefitDTO::getTitle, Function.identity(), (a, b) -> a));
 
+        return allBenefits.stream()
+                .map(b -> map.getOrDefault(
+                        b.getTitle(),
+                        SalaryBenefitDTO.builder()
+                                .title(b.getTitle())
+                                .type(b.getBenefitType())
+                                .amount(BigDecimal.ZERO)
+                                .build()
+                ))
+                .collect(Collectors.toList());
+    }
 }
