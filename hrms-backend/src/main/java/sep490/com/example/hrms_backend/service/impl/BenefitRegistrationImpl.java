@@ -213,11 +213,9 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
         List<Employee> employees;
         if (keyword != null && !keyword.trim().isEmpty()) {
             String likeKeyword = "%" + keyword.toLowerCase() + "%";
-//            employees = employeeRepository
-//                    .searchByPositionAndKeyword(positionId, keyword.trim().toLowerCase());
-            employees = employeeRepository.searchByPositionAndKeyword(positionId, likeKeyword);
+            employees = employeeRepository.searchByPositionAndKeywordAndNotDeleted(positionId, likeKeyword);
         } else {
-            employees = employeeRepository.findByPosition_PositionId(positionId);
+            employees = employeeRepository.findByPosition_PositionIdAndNotDeleted(positionId);
         }
 
         // 3. Lấy danh sách employeeId đã đăng ký rồi (với isRegister = true)
@@ -333,7 +331,7 @@ public class BenefitRegistrationImpl implements BenefitRegistrationService {
                 .findByBenefit_IdAndPosition_PositionId(benefitId, positionId)
                 .orElseThrow(() -> new HRMSAPIException("Không tìm thấy BenefitPosition"));
 
-        long totalEmployees = employeeRepository.countByPosition_PositionId(positionId);
+        long totalEmployees = employeeRepository.countByPosition_PositionIdAndIsDeletedFalse(positionId);
 
         long totalRegistered = benefitRegistrationRepository.countByBenefitPosition_Id(bp.getId());
 

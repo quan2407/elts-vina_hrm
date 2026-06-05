@@ -111,11 +111,31 @@
   padding-left: 12px;
 }
 
+/* WorkScheduleTable.css */
 .work-schedule-line-name {
-  background-color: #f8fafc;
-  font-style: italic;
-  justify-content: flex-start;
-  padding-left: 12px;
+  display: flex;
+  flex-direction: column; /* ↓ xuống dòng */
+  align-items: flex-start;
+}
+
+.work-schedule-line-name .line-title {
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.work-schedule-ot-remaining {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #586174; /* xám dễ đọc */
+}
+.error-banner {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 8px 12px;
+  border-left: 4px solid #ef4444;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  font-size: 14px;
 }
 
 .work-schedule-day-cell {

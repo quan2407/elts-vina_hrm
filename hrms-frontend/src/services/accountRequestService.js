@@ -1,9 +1,26 @@
 import axiosClient from "./axiosClient";
 
 const accountRequestService = {
-  getRequestsByStatus: (status, page = 0, size = 10) => {
+  getRequests: (page = 0, size = 10, filters = {}) => {
+    const {
+      status = "all",
+      search,
+      departmentId,
+      positionId,
+      lineId,
+    } = filters;
+
     return axiosClient.get(`/account-requests`, {
-      params: { status, page, size },
+      params: {
+        status,
+        page,
+        size,
+        // chỉ gửi khi có giá trị
+        ...(search ? { search } : {}),
+        ...(departmentId ? { departmentId } : {}),
+        ...(positionId ? { positionId } : {}),
+        ...(lineId ? { lineId } : {}),
+      },
     });
   },
 

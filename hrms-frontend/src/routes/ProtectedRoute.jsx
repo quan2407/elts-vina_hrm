@@ -20,7 +20,9 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
     console.log("Decoded token:", decoded);
     console.log("Roles:", roles);
-
+    if (roles.includes("ROLE_ADMIN")) {
+      return children;
+    }
     const hasAccess = roles.some((role) => allowedRoles.includes(role));
     if (!hasAccess) {
       console.log("Không có quyền truy cập, redirect unauthorized");

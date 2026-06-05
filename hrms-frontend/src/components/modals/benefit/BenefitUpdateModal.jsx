@@ -14,7 +14,8 @@ const UpdateProgramModal = ({ open, onCancel, onSubmit, initialData }) => {
             form.setFieldsValue({
                 title: initialData.title,
                 description: initialData.description,
-                detail: initialData.detail || ''
+                detail: initialData.detail || '',
+                isActive: initialData.isActive
             });
         }
     }, [open, initialData, form]);

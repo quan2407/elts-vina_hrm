@@ -62,11 +62,23 @@ public class OcrServiceImpl implements OcrService {
                     throw new IllegalArgumentException("Ảnh không hợp lệ.");
                 }
                 dto.setCitizenIssueDate(parseDate(extract(backText, "(?i)ngày, tháng, năm[^\\d]*(\\d{2}/\\d{2}/\\d{4})")));
-
+                String frontName = dto.getEmployeeName();
+                String backNameRaw = extractFullNameFromMRZ(backText);
+                String frontNorm = normalizeName(frontName);
+                System.out.println("Ten mat truoc " + frontNorm);
+                String backNorm = normalizeName(backNameRaw);
+                System.out.println("Ten mat sau " + backNorm);
+                System.out.println("equal or not: " + frontNorm.equals(backNorm) );
+                if (backNameRaw != null && frontNorm != null && backNorm != null
+                        && !frontNorm.equals(backNorm)
+                        && !backNorm.equals(frontNorm)) {
+                    throw new IllegalArgumentException("Ảnh mặt trước và mặt sau không thuộc cùng một người.");
+                }
             } catch (IOException e) {
                 log.error("Failed to process back image", e);
             }
         }
+
         dto.setFrontImagePath(frontImagePath);
         dto.setBackImagePath(backImagePath);
 
@@ -172,4 +184,28 @@ public class OcrServiceImpl implements OcrService {
                 || text.toLowerCase().contains("ngày, tháng, năm")
                 || text.matches(".*<<.*<<.*");
     }
+    private String normalizeName(String name) {
+        if (name == null) return null;
+        String noDiacritics = java.text.Normalizer.normalize(name, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        return noDiacritics.toUpperCase().replaceAll("[^A-Z]", "");
+    }
+
+    private String extractFullNameFromMRZ(String text) {
+        // Chỉ lấy dòng có '<<' và có chữ cái, loại bỏ dòng chứa VNM hoặc số
+        for (String line : text.split("\\r?\\n")) {
+            if (line.contains("<<") && line.matches("^[A-Z<]+$") && !line.contains("VNM")) {
+                String[] parts = line.split("<<");
+                if (parts.length >= 2) {
+                    String lastName = parts[0].replace("<", " ").trim();
+                    String givenName = parts[1].replace("<", " ").trim();
+                    return (lastName + " " + givenName).replaceAll("\\s+", " ").trim();
+                }
+            }
+        }
+        return null;
+    }
+
+
+
 }

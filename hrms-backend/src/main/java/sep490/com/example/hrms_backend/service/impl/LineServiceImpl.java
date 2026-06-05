@@ -8,9 +8,11 @@ import sep490.com.example.hrms_backend.dto.DepartmentDTO;
 import sep490.com.example.hrms_backend.dto.LineDTO;
 import sep490.com.example.hrms_backend.dto.LinePMCDto;
 import sep490.com.example.hrms_backend.entity.*;
+import sep490.com.example.hrms_backend.enums.NotificationType;
 import sep490.com.example.hrms_backend.mapper.LinePMCMapper;
 import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.LineService;
+import sep490.com.example.hrms_backend.service.NotificationService;
 
 import java.util.List;
 
@@ -23,6 +25,7 @@ public class LineServiceImpl implements LineService {
     private final AccountRepository accountRepository;
     private final RoleRepository roleRepository;
     private final PositionRepository positionRepository;
+    private final NotificationService notificationService;
 
     //tested
     @Override
@@ -35,6 +38,7 @@ public class LineServiceImpl implements LineService {
                 line.getDepartment().getDepartmentName()
         );
     }
+
     //tested
     @Override
     public List<LinePMCDto> getAllLine(String search) {
@@ -47,6 +51,7 @@ public class LineServiceImpl implements LineService {
         return lineServiceList.stream().map(LinePMCMapper::mapToLinePMCDto)
                 .toList();
     }
+
     //tested
     @Override
     public LineDTO getLineByLineId(Long lineId) {
@@ -58,10 +63,14 @@ public class LineServiceImpl implements LineService {
             return new LineDTO(line.getLineId(), line.getLineName(), line.getLeader().getEmployeeId());
         }
     }
+
     //tested
     @Transactional
     @Override
-    public void assignLeaderToLine(Long lineId, Long leaderId) {
+    public void assignLeaderToLine(Long lineId, Long leaderId, Long senderId) {
+
+        Employee sender = employeeRepository.findById(senderId).orElseThrow(() -> new RuntimeException("Khong tim thay nhan vien"));
+        Account senderAcc = sender.getAccount();
         Line line = lineRepository.findById(lineId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tổ"));
         if (line.getLeader() != null) {
@@ -98,5 +107,6 @@ public class LineServiceImpl implements LineService {
         line.setLeader(employee);
         lineRepository.save(line);
         employeeRepository.save(employee);
+        notificationService.addNotification(NotificationType.LEADER_CHANGE, senderAcc, account);
     }
 }

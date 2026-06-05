@@ -5,10 +5,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.*;
 import sep490.com.example.hrms_backend.entity.*;
+import sep490.com.example.hrms_backend.enums.NotificationType;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.mapper.WorkScheduleMapper;
 import sep490.com.example.hrms_backend.repository.*;
+import sep490.com.example.hrms_backend.service.NotificationService;
 import sep490.com.example.hrms_backend.service.WorkScheduleService;
+import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -30,6 +33,10 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final WorkScheduleDetailRepository workScheduleDetailRepository;
     private final HolidayRepository holidayRepository;
+    private final NotificationService notificationService;
+    private final AccountRepository accountRepository;
+    private final CurrentUserUtils currentUserUtils;
+
     @Override
     public List<WorkScheduleResponseDTO> createWorkSchedulesForAll(WorkScheduleCreateDTO dto) {
         int month = dto.getMonth();
@@ -80,10 +87,9 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                 }
             }
         }
-
-        // 👉 Sau khi tất cả WorkSchedule đã được tạo xong
         for (WorkSchedule schedule : createdSchedules) {
             generateDefaultWorkScheduleDetails(schedule);
+            recalcMonthlyOtUsed(schedule.getId());
         }
 
         return createdSchedules.stream()
@@ -103,35 +109,33 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         List<Line> lines = new ArrayList<>();
 
         if (dto.getLineId() != null) {
-            // Nếu có chuyền cụ thể
             Line line = lineRepository.findById(dto.getLineId())
                     .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "Không tìm thấy tổ"));
             lines.add(line);
         } else {
-            // Nếu không có chuyền thì kiểm tra xem phòng ban có chuyền nào không
             lines = lineRepository.findByDepartment_DepartmentId(department.getDepartmentId());
-
             if (lines.isEmpty()) {
-                // Phòng ban không có chuyền -> tạo lịch ở cấp phòng ban (line = null)
                 createScheduleWithoutLine(department, dto);
                 return;
             }
         }
-
-        // Có ít nhất 1 chuyền
         for (Line line : lines) {
             createScheduleForLine(department, line, dto);
         }
     }
     private void createScheduleForLine(Department department, Line line, WorkScheduleRangeDTO dto) {
         LocalDate currentDate = dto.getStartDate();
+        WorkSchedule scheduleOfThisLoop = null;
+
         while (!currentDate.isAfter(dto.getEndDate())) {
-            int month = currentDate.getMonthValue();
-            int year = currentDate.getYear();
+            // Chụp giá trị để dùng trong lambda (final/effectively final)
+            final int month = currentDate.getMonthValue();
+            final int year  = currentDate.getYear();
+            final Long deptId = department.getDepartmentId();
+            final Long lineId = line.getLineId();
 
             WorkSchedule schedule = workScheduleRepository
-                    .findByDepartment_DepartmentIdAndLine_LineIdAndMonthAndYear(
-                            department.getDepartmentId(), line.getLineId(), month, year)
+                    .findByDepartment_DepartmentIdAndLine_LineIdAndMonthAndYear(deptId, lineId, month, year)
                     .orElseGet(() -> workScheduleRepository.save(
                             WorkSchedule.builder()
                                     .department(department)
@@ -141,25 +145,34 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                                     .isDeleted(false)
                                     .isAccepted(false)
                                     .isSubmitted(false)
-                                    .isAccepted(false)
                                     .needRevision(false)
                                     .build()
                     ));
 
+            scheduleOfThisLoop = schedule;
+
             saveOrUpdateScheduleDetail(schedule, currentDate, dto);
             currentDate = currentDate.plusDays(1);
         }
+
+        if (scheduleOfThisLoop != null) {
+            recalcMonthlyOtUsed(scheduleOfThisLoop.getId());
+        }
     }
+
 
     private void createScheduleWithoutLine(Department department, WorkScheduleRangeDTO dto) {
         LocalDate currentDate = dto.getStartDate();
+        WorkSchedule scheduleOfThisLoop = null;
+
         while (!currentDate.isAfter(dto.getEndDate())) {
-            int month = currentDate.getMonthValue();
-            int year = currentDate.getYear();
+            // Chụp giá trị để dùng trong lambda
+            final int month = currentDate.getMonthValue();
+            final int year  = currentDate.getYear();
+            final Long deptId = department.getDepartmentId();
 
             WorkSchedule schedule = workScheduleRepository
-                    .findByDepartment_DepartmentIdAndLineIsNullAndMonthAndYear(
-                            department.getDepartmentId(), month, year)
+                    .findByDepartment_DepartmentIdAndLineIsNullAndMonthAndYear(deptId, month, year)
                     .orElseGet(() -> workScheduleRepository.save(
                             WorkSchedule.builder()
                                     .department(department)
@@ -169,18 +182,24 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                                     .isDeleted(false)
                                     .isAccepted(false)
                                     .isSubmitted(false)
-                                    .isAccepted(false)
                                     .needRevision(false)
                                     .build()
                     ));
 
+            scheduleOfThisLoop = schedule;
+
             saveOrUpdateScheduleDetail(schedule, currentDate, dto);
             currentDate = currentDate.plusDays(1);
         }
+
+        if (scheduleOfThisLoop != null) {
+            recalcMonthlyOtUsed(scheduleOfThisLoop.getId());
+        }
     }
 
+
+
     private void saveOrUpdateScheduleDetail(WorkSchedule schedule, LocalDate currentDate, WorkScheduleRangeDTO dto) {
-        // Nếu đã có detail cho ngày đó, xóa đi để ghi đè
         workScheduleDetailRepository.findByWorkSchedule_IdAndDateWork(schedule.getId(), currentDate)
                 .ifPresent(workScheduleDetailRepository::delete);
 
@@ -188,6 +207,9 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         boolean isWeekend = currentDate.getDayOfWeek() == DayOfWeek.SUNDAY;
         boolean isLate = dto.getEndTime().isAfter(LocalTime.of(17, 0));
         boolean isOvertime = isHoliday || isWeekend || isLate;
+
+        int extraOt = computeOvertimeMinutes(currentDate, dto.getStartTime(), dto.getEndTime());
+        ensureMonthlyCap(schedule.getId(), extraOt);
 
         WorkScheduleDetail detail = WorkScheduleDetail.builder()
                 .dateWork(currentDate)
@@ -369,13 +391,24 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                 .findByMonthAndYearAndIsSubmittedFalseAndIsDeletedFalse(month, year);
 
         for (WorkSchedule schedule : schedules) {
+            recalcMonthlyOtUsed(schedule.getId()); // << thêm
+            if (schedule.getMonthlyOtUsedMinutes() > schedule.getMonthlyOtCapMinutes()) {
+                double used = schedule.getMonthlyOtUsedMinutes() / 60.0;
+                throw new HRMSAPIException(HttpStatus.BAD_REQUEST,
+                        String.format("Lịch %s/%s vượt 40h OT: %.2f giờ.",
+                                schedule.getDepartment().getDepartmentName(),
+                                schedule.getLine() != null ? schedule.getLine().getLineName() : "Phòng ban",
+                                used));
+            }
             schedule.setSubmitted(true);
             schedule.setAccepted(false);
             schedule.setNeedRevision(false);
         }
-
         workScheduleRepository.saveAll(schedules);
+        Account sender = currentUserUtils.getCurrentAccount();
+        notifyMany(NotificationType.SCHEDULE_SUBMITTED, sender, findAllProductionManagers());
     }
+
 
     @Override
     public void acceptAllSubmittedSchedules(int month, int year) {
@@ -389,21 +422,39 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
             workScheduleRepository.save(schedule);
             generateAttendanceRecords(schedule);
         }
-
+        Account sender = currentUserUtils.getCurrentAccount();
+        notifyMany(NotificationType.SHIFT_CHANGED, sender, findAllEmployees());
     }
     public List<EmployeeWorkScheduleDTO> getWorkScheduleForEmployee(Long employeeId, int month, int year) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "Không tìm thấy nhân viên"));
 
-        Long lineId = employee.getLine() != null ? employee.getLine().getLineId() : null;
+        Long lineId = (employee.getLine() != null) ? employee.getLine().getLineId() : null;
         Long departmentId = employee.getDepartment().getDepartmentId();
 
-        Optional<WorkSchedule> scheduleOpt = (lineId != null)
-                ? workScheduleRepository.findByDepartment_DepartmentIdAndLine_LineIdAndMonthAndYearAndIsAcceptedTrue(departmentId, lineId, month, year)
-                : workScheduleRepository.findByDepartment_DepartmentIdAndLineIsNullAndMonthAndYearAndIsAcceptedTrue(departmentId, month, year);
+        Optional<WorkSchedule> scheduleOpt = Optional.empty();
+
+        if (lineId != null) {
+            scheduleOpt = workScheduleRepository
+                    .findByDepartment_DepartmentIdAndLine_LineIdAndMonthAndYearAndIsAcceptedTrue(
+                            departmentId, lineId, month, year
+                    );
+            if (scheduleOpt.isEmpty()) {
+                scheduleOpt = workScheduleRepository
+                        .findByDepartment_DepartmentIdAndLineIsNullAndMonthAndYearAndIsAcceptedTrue(
+                                departmentId, month, year
+                        );
+            }
+        } else {
+            scheduleOpt = workScheduleRepository
+                    .findByDepartment_DepartmentIdAndLineIsNullAndMonthAndYearAndIsAcceptedTrue(
+                            departmentId, month, year
+                    );
+        }
 
         WorkSchedule schedule = scheduleOpt.orElseThrow(() ->
-                new HRMSAPIException(HttpStatus.NOT_FOUND, "Không có lịch làm việc đã được duyệt cho tháng này"));
+                new HRMSAPIException(HttpStatus.NOT_FOUND, "Không có lịch làm việc đã được duyệt cho tháng này")
+        );
 
         return schedule.getWorkScheduleDetails().stream()
                 .map(detail -> EmployeeWorkScheduleDTO.builder()
@@ -416,6 +467,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                         .build()
                 ).toList();
     }
+
 
 
     @Override
@@ -431,6 +483,8 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         }
 
         workScheduleRepository.saveAll(schedules);
+        Account sender = currentUserUtils.getCurrentAccount();
+        notifyMany(NotificationType.SCHEDULE_REJECTED, sender, findAllPmc());
     }
     @Override
     public void requestRevision(int month, int year, String reason) {
@@ -445,7 +499,101 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         }
 
         workScheduleRepository.saveAll(approvedSchedules);
+        Account sender = currentUserUtils.getCurrentAccount();
+        notifyMany(NotificationType.SCHEDULE_NEEDS_REVISION, sender, findAllPmc());
     }
 
+    private int minutesBetween(LocalTime from, LocalTime to) {
+        int a = from.toSecondOfDay();
+        int b = to.toSecondOfDay();
+        if (b < a) b += 24 * 3600;
+        return (b - a) / 60;
+    }
+
+    private int computeOvertimeMinutes(WorkScheduleDetail d) {
+        LocalDate date = d.getDateWork();
+        LocalTime start = d.getStartTime();
+        LocalTime end = d.getEndTime();
+
+        boolean isHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(date);
+        boolean isWeekend = date.getDayOfWeek() == DayOfWeek.SUNDAY;
+
+        if (isHoliday || isWeekend) {
+            return minutesBetween(start, end);
+        }
+        LocalTime standardEnd = LocalTime.of(17, 0);
+        if (end.isAfter(standardEnd)) {
+            return minutesBetween(standardEnd, end);
+        }
+        return 0;
+    }
+
+    private void recalcMonthlyOtUsed(Long scheduleId) {
+        WorkSchedule s = workScheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "WorkSchedule không tồn tại"));
+
+        List<WorkScheduleDetail> details =
+                workScheduleDetailRepository.findByWorkSchedule_Id(scheduleId);
+
+        int used = 0;
+        for (WorkScheduleDetail d : details) {
+            used += computeOvertimeMinutes(d);
+        }
+        s.setMonthlyOtUsedMinutes(used);
+        workScheduleRepository.save(s);
+    }
+    private int computeOvertimeMinutes(LocalDate date, LocalTime start, LocalTime end) {
+        boolean isHoliday = holidayRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(date);
+        boolean isWeekend = date.getDayOfWeek() == DayOfWeek.SUNDAY;
+
+        if (isHoliday || isWeekend) {
+            return minutesBetween(start, end);
+        }
+        LocalTime standardEnd = LocalTime.of(17, 0);
+        if (end.isAfter(standardEnd)) {
+            return minutesBetween(standardEnd, end);
+        }
+        return 0;
+    }
+    private void ensureMonthlyCap(Long scheduleId, int extraMinutes) {
+        WorkSchedule s = workScheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new HRMSAPIException(HttpStatus.NOT_FOUND, "WorkSchedule không tồn tại"));
+
+        List<WorkScheduleDetail> details = workScheduleDetailRepository.findByWorkSchedule_Id(scheduleId);
+        int current = 0;
+        for (WorkScheduleDetail d : details) {
+            current += computeOvertimeMinutes(d.getDateWork(), d.getStartTime(), d.getEndTime());
+        }
+
+        int cap = Optional.ofNullable(s.getMonthlyOtCapMinutes()).orElse(2400);
+        int prospective = current + extraMinutes;
+
+        if (prospective > cap) {
+            int remain = Math.max(0, cap - current);
+            double remainHours = Math.round((remain / 60.0) * 10) / 10.0;
+            throw new HRMSAPIException(
+                    HttpStatus.BAD_REQUEST,
+                    "Vượt trần OT tháng (40h). Còn lại: " + remainHours + "h"
+            );
+        }
+    }
+    private void notifyMany(NotificationType type, Account sender, List<Account> receivers) {
+        if (receivers == null || receivers.isEmpty()) return;
+        for (Account acc : receivers) {
+            if (acc == null || acc.equals(sender)) continue;
+            notificationService.addNotification(type, sender, acc);
+        }
+    }
+    private List<Account> findAllProductionManagers() {
+        return accountRepository.findByRole_RoleNameInAndIsActiveTrue(List.of("ROLE_PRODUCTION_MANAGER")).stream().distinct().toList();
+    }
+
+    private List<Account> findAllEmployees() {
+        return accountRepository.findByRole_RoleNameInAndIsActiveTrue(List.of("ROLE_EMPLOYEE","ROLE_PMC","ROLE_LINE_LEADER","ROLE_HR","ROLE_HR_MANAGER")).stream().distinct().toList();
+    }
+
+    private List<Account> findAllPmc() {
+        return accountRepository.findByRole_RoleNameInAndIsActiveTrue(List.of("ROLE_PMC")).stream().distinct().toList();
+    }
 
 }

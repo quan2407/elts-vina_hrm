@@ -1,13 +1,21 @@
-import { Dropdown, Button } from 'antd';
+import { Dropdown, Button, Tooltip } from 'antd';
 import { EditOutlined, EyeOutlined, DeleteOutlined, DownOutlined, UnorderedListOutlined} from '@ant-design/icons';
 
-const BenefitDetailActionDropdown = ({ onView, onEdit, onDelete, onDetails }) => {
+const BenefitDetailActionDropdown = ({ onView, onEdit, onDelete, onDetails, canDelete = true }) => {
     const handleMenuClick = (e) => {
         if (e.key === 'view') onView?.();
         else if (e.key === 'edit') onEdit?.();
         else if (e.key === 'delete') onDelete?.();
         else if (e.key === 'details') onDetails?.();
     };
+
+     const deleteLabel = canDelete
+        ? 'Xóa phúc lợi'
+            : (
+                <Tooltip placement="left" title="Không thể xóa phúc lợi đang hoạt động">
+                      <span>Xóa phúc lợi</span>
+                    </Tooltip>
+              );
 
     const items = [
         {
@@ -29,8 +37,9 @@ const BenefitDetailActionDropdown = ({ onView, onEdit, onDelete, onDetails }) =>
         {
             key: 'delete',
             icon: <DeleteOutlined />,
-            label: 'Xóa phúc lợi',
+            label: deleteLabel,
             danger: true,
+            disabled: !canDelete,
         },
 
     ];

@@ -12,20 +12,24 @@ import sep490.com.example.hrms_backend.dto.SalaryDTO;
 import sep490.com.example.hrms_backend.entity.*;
 import sep490.com.example.hrms_backend.enums.BenefitType;
 import sep490.com.example.hrms_backend.enums.FormulaType;
+import sep490.com.example.hrms_backend.enums.NotificationType;
 import sep490.com.example.hrms_backend.mapper.SalaryMapper;
-import sep490.com.example.hrms_backend.repository.AttendanceRecordRepository;
-import sep490.com.example.hrms_backend.repository.BenefitRegistrationRepository;
-import sep490.com.example.hrms_backend.repository.EmployeeRepository;
-import sep490.com.example.hrms_backend.repository.SalaryRepository;
+import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.BenefitService;
+import sep490.com.example.hrms_backend.service.NotificationService;
 import sep490.com.example.hrms_backend.service.SalaryService;
+import sep490.com.example.hrms_backend.utils.CurrentUserUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toMap;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +40,9 @@ public class SalaryServiceImpl implements SalaryService {
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final BenefitRegistrationRepository benefitRegistrationRepository;
     private final BenefitService benefitService;
-
+    private final NotificationService notificationService;
+    private final AccountRepository accountRepository;
+    private final CurrentUserUtils currentUserUtils;
 
     @Override
     public List<SalaryDTO> getSalariesByMonth(int month, int year) {
@@ -70,17 +76,19 @@ public class SalaryServiceImpl implements SalaryService {
     @Override
     public List<SalaryDTO> getEmpSalariesByMonth(Long employeeId, int month, int year) {
         LocalDate firstDay = LocalDate.of(year, month, 1);
-        List<Salary> salaries = salaryRepository.findBySalaryMonth(firstDay);
-        List<Salary> results = new ArrayList<>();
-        for (Salary salary : salaries) {
-            if (salary.getEmployee().getEmployeeId().equals(employeeId)) {
-                results.add(salary);
-            }
-        }
-        return results.stream()
-                .map(SalaryMapper::mapToSalaryDTO)
+        List<Salary> salaries = salaryRepository
+                .findBySalaryMonthAndEmployee_EmployeeId(firstDay, employeeId);
+        List<Benefit> allBenefits = benefitService.getAllActive();
+
+        return salaries.stream()
+                .map(salary -> {
+                    SalaryDTO dto = SalaryMapper.mapToSalaryDTO(salary);
+                    dto.setAppliedBenefits(expandBenefits(dto.getAppliedBenefits(), allBenefits));
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
+
 
 
     @Override
@@ -115,13 +123,13 @@ public class SalaryServiceImpl implements SalaryService {
 
 
             BigDecimal hourlyRate = employee.getBasicSalary()
-                    .divide(BigDecimal.valueOf(26 * 8), 10, RoundingMode.HALF_UP);
+                    .divide(BigDecimal.valueOf(26 * 8), 10, RoundingMode.HALF_DOWN);
 
             BigDecimal productionSalary = hourlyRate.multiply(BigDecimal.valueOf(totalDayHours))
-                    .setScale(0, RoundingMode.CEILING);
+                    .setScale(0, RoundingMode.HALF_DOWN);
 
             BigDecimal overtimeSalary = hourlyRate.multiply(BigDecimal.valueOf(otHours*2 + weekendHours * 2 + holidayHours * 3))
-                    .setScale(0, RoundingMode.CEILING);
+                    .setScale(0,RoundingMode.HALF_DOWN);
 
             List<SalaryBenefit> benefitItems = generateSalaryBenefits(employee, null);
 
@@ -158,7 +166,10 @@ public class SalaryServiceImpl implements SalaryService {
             salary.setSalaryBenefits(benefitItems);
             salaryRepository.save(salary);
 
+
         }
+        Account sender = currentUserUtils.getCurrentAccount();
+        notifyMany(NotificationType.SALARY_CREATED, sender, findAllEmployees());
     }
 
 
@@ -190,6 +201,7 @@ public class SalaryServiceImpl implements SalaryService {
 
 
         generateMonthlySalaries(month, year);
+        Account sender = currentUserUtils.getCurrentAccount();
     }
 
     @Override
@@ -212,16 +224,20 @@ public class SalaryServiceImpl implements SalaryService {
         }
 
         salaryRepository.saveAll(salaries);
+        Account sender = currentUserUtils.getCurrentAccount();
+        if(locked){
+        notifyMany(NotificationType.SALARY_LOCKED, sender, findAllEmployees());}
+        else {
+            notifyMany(NotificationType.SALARY_UNLOCKED, sender, findAllEmployees());
+        }
     }
     @Override
     public Page<SalaryDTO> getSalariesByMonth(int month, int year, int page, int size, String search, Long departmentId, Long positionId, Long lineId) {
         LocalDate firstDay = LocalDate.of(year, month, 1);
         Pageable pageable = PageRequest.of(page, size);
 
-        // Lấy tất cả các lương trong tháng
         List<Salary> allSalaries = salaryRepository.findBySalaryMonth(firstDay);
 
-        // Lọc theo mã hoặc tên nhân viên nếu có search
         if (search != null && !search.trim().isEmpty()) {
             String lower = search.trim().toLowerCase();
             allSalaries = allSalaries.stream()
@@ -230,7 +246,6 @@ public class SalaryServiceImpl implements SalaryService {
                     .collect(Collectors.toList());
         }
 
-        // Lọc theo departmentId, positionId, lineId
         if (departmentId != null) {
             allSalaries = allSalaries.stream()
                     .filter(s -> s.getEmployee().getDepartment() != null &&
@@ -252,10 +267,8 @@ public class SalaryServiceImpl implements SalaryService {
                     .collect(Collectors.toList());
         }
 
-        // Lấy danh sách các benefit đang hoạt động
         List<Benefit> allBenefits = benefitService.getAllActive();
 
-        // Map các đối tượng Salary thành SalaryDTO và áp dụng full benefits
         List<SalaryDTO> salaryDTOs = allSalaries.stream()
                 .map(salary -> {
                     SalaryDTO dto = SalaryMapper.mapToSalaryDTO(salary);
@@ -325,5 +338,34 @@ public class SalaryServiceImpl implements SalaryService {
 
         return result;
     }
+    private List<SalaryBenefitDTO> expandBenefits(List<SalaryBenefitDTO> applied, List<Benefit> allBenefits) {
+        Map<String, SalaryBenefitDTO> map = (applied == null ? List.<SalaryBenefitDTO>of() : applied)
+                .stream()
+                .collect(toMap(SalaryBenefitDTO::getTitle, Function.identity(), (a, b) -> a));
+
+        return allBenefits.stream()
+                .map(b -> map.getOrDefault(
+                        b.getTitle(),
+                        SalaryBenefitDTO.builder()
+                                .title(b.getTitle())
+                                .type(b.getBenefitType())
+                                .amount(BigDecimal.ZERO)
+                                .build()
+                ))
+                .collect(Collectors.toList());
+    }
+    private void notifyMany(NotificationType type, Account sender, List<Account> receivers) {
+        if (receivers == null || receivers.isEmpty()) return;
+        for (Account acc : receivers) {
+            if (acc == null || acc.equals(sender)) continue;
+            notificationService.addNotification(type, sender, acc);
+        }
+    }
+
+
+    private List<Account> findAllEmployees() {
+        return accountRepository.findByRole_RoleNameInAndIsActiveTrue(List.of("ROLE_EMPLOYEE","ROLE_PMC","ROLE_LINE_LEADER","ROLE_HR","ROLE_HR_MANAGER","ROLE_PRODUCTION_MANAGER")).stream().distinct().toList();
+    }
+
 
 }

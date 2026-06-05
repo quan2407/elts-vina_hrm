@@ -124,4 +124,23 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
             @Param("lineId") Long lineId,
             Pageable pageable);
 
+    long countByPosition_PositionIdAndIsDeletedFalse(Long positionId);
+
+
+    @Query("SELECT e FROM Employee e WHERE e.position.positionId = :positionId AND e.isDeleted = false AND " +
+            "(LOWER(e.employeeName) LIKE :keyword OR LOWER(e.email) LIKE :keyword)")
+    List<Employee> searchByPositionAndKeywordAndNotDeleted(@Param("positionId") Long positionId,
+                                                           @Param("keyword") String keyword);
+
+
+    @Query("SELECT e FROM Employee e WHERE e.position.positionId = :positionId AND e.isDeleted = false")
+    List<Employee> findByPosition_PositionIdAndNotDeleted(@Param("positionId") Long positionId);
+
+    @Query("SELECT e FROM Employee e " +
+            "WHERE e.department.departmentId = :departmentId " +
+            "AND ((:lineId IS NULL AND e.line IS NULL) OR (:lineId IS NOT NULL AND e.line.lineId = :lineId)) " +
+            "AND e.isDeleted = false")
+    List<Employee> findActiveByDepartmentAndLine(@Param("departmentId") Long departmentId,
+                                                 @Param("lineId") Long lineId);
+
 }

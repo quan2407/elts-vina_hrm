@@ -5,17 +5,16 @@
   border-radius: 24px;
   padding: 20px;
   font-family: "Product Sans", sans-serif;
-
 }
 .line-table-empty {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 200px; /* hoặc 100% nếu container đủ cao */
-    font-size: 16px;
-    font-weight: 500;
-    color: #888;
-    text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px; /* hoặc 100% nếu container đủ cao */
+  font-size: 16px;
+  font-weight: 500;
+  color: #888;
+  text-align: center;
 }
 
 .line-table {
@@ -25,13 +24,11 @@
 .line-table-header,
 .line-table-row {
   display: grid;
-  grid-template-columns:
-    120px 250px 250px 250px 350px;
+  grid-template-columns: 120px 250px 250px 250px 350px;
   gap: 10px;
   padding: 18px 30px;
   margin-bottom: 20px;
   border-radius: 6px;
-
 }
 
 .line-header-cell {
@@ -55,16 +52,32 @@
   white-space: normal;
 }
 
-
-
+/* Style chung cho cả hai nút */
+.viewdetail-button,
 .viewcandidate-button {
-  width: 200px;
-  background-color: #26f78e;
-  color: #fff;
-  padding: 6px 20px;
-  border-radius: 6px;
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  font-weight: 600;
-  margin: 0 2.5px;
+  transition: background-color 0.2s ease;
+  margin: 0 4px; /* khoảng cách giữa 2 nút */
+}
 
+/* Nút "Xem chi tiết" - xanh dương */
+.viewdetail-button {
+  background-color: #2563eb;
+}
+.viewdetail-button:hover {
+  background-color: #1e40af;
+}
+
+/* Nút "Danh sách ứng viên" - xanh lá */
+.viewcandidate-button {
+  background-color: #22c55e;
+}
+.viewcandidate-button:hover {
+  background-color: #15803d;
 }

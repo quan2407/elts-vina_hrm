@@ -26,13 +26,14 @@ public class WorkDateRangeValidator implements ConstraintValidator<ValidWorkDate
             return true; // Let @NotNull handle
         }
 
-        if (!endDate.isAfter(startDate)) {
+        if (endDate.isBefore(startDate.plusDays(30))) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("Ngày nghỉ phải sau ngày vào công ty")
+            context.buildConstraintViolationWithTemplate("Ngày nghỉ phải cách ngày vào công ty ít nhất 30 ngày")
                     .addPropertyNode("endWorkAt")
                     .addConstraintViolation();
             return false;
         }
+
 
         return true;
     }

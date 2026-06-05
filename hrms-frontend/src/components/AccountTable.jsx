@@ -1,66 +1,24 @@
-import React, { useState, useEffect } from "react";
-import accountService from "../services/accountService";
+import React from "react";
 import "../styles/AccountTable.css";
 
-function AccountTable() {
-  const [accounts, setAccounts] = useState([]);
-  const [page, setPage] = useState(0);
-  const [size] = useState(10);
-  const [totalPages, setTotalPages] = useState(0);
+function AccountTable({ accounts, loading, onToggleStatus }) {
+  const isAdminRole = (roles) =>
+    Array.isArray(roles) &&
+    roles.some(
+      (r) => (typeof r === "string" ? r : r?.roleName) === "ROLE_ADMIN"
+    );
 
-  const fetchAccounts = async () => {
-    try {
-      const response = await accountService.getAllAccounts(page, size);
-      const data = response.data;
-
-      const formattedData = data.content.map((acc) => ({
-        id: acc.accountId,
-        username: acc.username,
-        email: acc.email,
-        isActive: acc.isActive,
-        lastLoginAt: acc.lastLoginAt,
-        roles: [acc.role],
-      }));
-
-      setAccounts(formattedData);
-      setTotalPages(data.totalPages);
-    } catch (err) {
-      console.error("Error fetching accounts:", err);
-      alert("Failed to load accounts.");
-    }
-  };
-  const getPageNumbers = () => {
-    const range = [];
-    const maxPagesToShow = 5;
-    let start = Math.max(0, page - Math.floor(maxPagesToShow / 2));
-    let end = Math.min(totalPages, start + maxPagesToShow);
-    if (end - start < maxPagesToShow) {
-      start = Math.max(0, end - maxPagesToShow);
-    }
-    for (let i = start; i < end; i++) {
-      range.push(i);
-    }
-    return range;
-  };
-
-  useEffect(() => {
-    fetchAccounts();
-  }, [page]);
-
-  const handleToggleStatus = async (id) => {
-    try {
-      await accountService.toggleAccountStatus(id);
-      fetchAccounts(); // Refresh list
-    } catch (err) {
-      console.error("Error toggling account status:", err);
-      alert("Failed to update account status.");
-    }
-  };
+  if (loading) return <div className="account-table-loading">Đang tải...</div>;
 
   return (
     <div className="account-table-container">
       <div className="account-table-header">
         <div className="account-header-cell username-column">Tên đăng nhập</div>
+        <div className="account-header-cell code-column">Mã NV</div>
+        <div className="account-header-cell name-column">Tên NV</div>
+        <div className="account-header-cell position-column">Chức vụ</div>
+        <div className="account-header-cell dept-column">Phòng ban</div>
+        <div className="account-header-cell line-column">Chuyền</div>
         <div className="account-header-cell email-column">Email</div>
         <div className="account-header-cell role-column">Vai trò</div>
         <div className="account-header-cell active-column">Kích hoạt</div>
@@ -70,89 +28,74 @@ function AccountTable() {
         <div className="account-header-cell actions-column">Hành động</div>
       </div>
 
-      {accounts.map((acc) => (
-        <div
-          key={acc.id}
-          className="account-table-row"
-        >
-          <div className="account-table-cell username-column">
-            {acc.username}
-          </div>
-          <div className="account-table-cell email-column">{acc.email}</div>
-          <div className="account-table-cell role-column">
-            {acc.roles
-              .map((r) => r.replace("ROLE_", "").replace(/_/g, " "))
-              .join(", ")}
-          </div>
-          <div className="account-table-cell active-column">
-            {acc.isActive ? "Yes" : "No"}
-          </div>
-          <div className="account-table-cell login-column">
-            {acc.lastLoginAt || "-"}
-          </div>
-          <div className="account-table-cell actions-column">
-            <div className="account-action-buttons-wrapper">
-              <button
-                className="account-table-action-btn account-table-active-btn"
-                onClick={() => handleToggleStatus(acc.id)}
-                disabled={acc.isActive}
-              >
-                Kích hoạt
-              </button>
-              <button
-                className="account-table-action-btn account-table-deactive-btn"
-                onClick={() => handleToggleStatus(acc.id)}
-                disabled={!acc.isActive}
-              >
-                Vô hiệu hóa
-              </button>
+      {accounts.map((acc) => {
+        const admin = isAdminRole(acc.roles);
+        const roleText = acc.roles
+          .map((r) =>
+            String(typeof r === "string" ? r : r?.roleName || "")
+              .replace("ROLE_", "")
+              .replace(/_/g, " ")
+          )
+          .join(", ");
+
+        return (
+          <div
+            key={acc.id}
+            className={`account-table-row ${admin ? "row-admin" : ""}`}
+          >
+            <div className="account-table-cell username-column">
+              {acc.username}
+            </div>
+            <div className="account-table-cell code-column">
+              {acc.employeeCode || "-"}
+            </div>
+            <div className="account-table-cell name-column">
+              {acc.employeeName || "-"}
+            </div>
+            <div className="account-table-cell position-column">
+              {acc.positionName || "-"}
+            </div>
+            <div className="account-table-cell dept-column">
+              {acc.departmentName || "-"}
+            </div>
+            <div className="account-table-cell line-column">
+              {acc.lineName || "-"}
+            </div>
+            <div className="account-table-cell email-column">{acc.email}</div>
+            <div className="account-table-cell role-column">
+              {roleText || "-"}
+            </div>
+            <div className="account-table-cell active-column">
+              {acc.isActive ? "Yes" : "No"}
+            </div>
+            <div className="account-table-cell login-column">
+              {acc.lastLoginAt
+                ? new Date(acc.lastLoginAt).toLocaleString("vi-VN")
+                : "-"}
+            </div>
+            <div className="account-table-cell actions-column">
+              <div className="account-action-buttons-wrapper">
+                <button
+                  className="account-table-action-btn account-table-active-btn"
+                  onClick={() => onToggleStatus(acc.id)}
+                  disabled={admin || acc.isActive}
+                  title={admin ? "ADMIN không thể thay đổi trạng thái" : ""}
+                >
+                  Kích hoạt
+                </button>
+                <button
+                  className="account-table-action-btn account-table-deactive-btn"
+                  onClick={() => onToggleStatus(acc.id)}
+                  disabled={admin || !acc.isActive}
+                  title={admin ? "ADMIN không thể thay đổi trạng thái" : ""}
+                >
+                  Vô hiệu hóa
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
-      <div className="account-pagination-container">
-        <button
-          className="account-pagination-btn"
-          onClick={() => setPage(0)}
-          disabled={page === 0}
-        >
-          «
-        </button>
-        <button
-          className="account-pagination-btn"
-          onClick={() => setPage(page - 1)}
-          disabled={page === 0}
-        >
-          ‹
-        </button>
-
-        {getPageNumbers().map((p) => (
-          <button
-            key={p}
-            onClick={() => setPage(p)}
-            className={`account-pagination-btn ${
-              p === page ? "account-pagination-active" : ""
-            }`}
-          >
-            {p + 1}
-          </button>
-        ))}
-
-        <button
-          className="account-pagination-btn"
-          onClick={() => setPage(page + 1)}
-          disabled={page === totalPages - 1}
-        >
-          ›
-        </button>
-        <button
-          className="account-pagination-btn"
-          onClick={() => setPage(totalPages - 1)}
-          disabled={page === totalPages - 1}
-        >
-          »
-        </button>
-      </div>
+        );
+      })}
     </div>
   );
 }

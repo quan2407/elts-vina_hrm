@@ -448,3 +448,8 @@
   justify-content: flex-end;
   margin-top: 16px;
 }
+.attendance-select-group {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* khoảng cách giữa tháng và năm */
+}

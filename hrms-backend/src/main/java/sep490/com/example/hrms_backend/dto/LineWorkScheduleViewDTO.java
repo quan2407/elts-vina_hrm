@@ -17,4 +17,8 @@ public class LineWorkScheduleViewDTO {
     private boolean isAccepted;
     private String rejectReason;
 
+    private Integer monthlyOtCapMinutes;
+    private Integer monthlyOtUsedMinutes;
+    private Integer monthlyOtRemainingMinutes;
+    private Double  monthlyOtRemainingHours;
 }

@@ -3,7 +3,6 @@ package sep490.com.example.hrms_backend.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,7 +21,6 @@ public class DashboardController {
     private final EmployeeService employeeService;
 
     @GetMapping("/recruitment-graph")
-    @PreAuthorize("hasAnyRole('HR')")
     public ResponseEntity<?> getRecruitmentGraph(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
                                                  @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
 
@@ -38,7 +36,6 @@ public class DashboardController {
         }
     }
     @GetMapping("/employee-gender-distribution")
-    @PreAuthorize("hasAnyRole('HR')")
     public ResponseEntity<?> getEmployeeGenderDistribution(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
@@ -51,7 +48,6 @@ public class DashboardController {
     }
 
     @GetMapping("/employee-department-distribution")
-    @PreAuthorize("hasAnyRole('HR')")
     public ResponseEntity<?> getEmployeeDepartmentDistribution(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {

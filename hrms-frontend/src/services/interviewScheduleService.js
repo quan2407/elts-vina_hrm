@@ -47,6 +47,16 @@ export const editInterview = async (data, id) => {
   }
 };
 
+export const editInterview2 = async (data, id) => {
+  try {
+    const response = await axiosClient.put(`${API_URL}/non-Hr/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Error editing interview:", error);
+    throw error;
+  }
+};
+
 export const updateInterviewStatus = async (id, status) => {
   try {
     const response = await axiosClient.put(`/interview/${id}/status`, { status });

@@ -5,7 +5,7 @@ import Paging from "./common/Paging.jsx";
 // REMOVED: import BenefitSearchForm from "./common/search/BenefitSearchForm.jsx";
 import BenefitDetailActionDropdown from "./common/BenefitDetailActionDropdown.jsx";
 import BenefitUpdateModal from "./modals/benefit/BenefitUpdateModal.jsx";
-import { Modal, message } from "antd";
+import { Modal, message, Tag } from "antd";
 import getBenefitTypeDisplay from '../utils/DisplayBenefitType.js'
 import { useNavigate } from 'react-router-dom';
 
@@ -62,7 +62,11 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
             <div className="employee-table-cell">{benefit.title}</div>
             <div className="employee-table-cell">{benefit.description}</div>
             <div className="employee-table-cell">{getBenefitTypeDisplay(benefit.benefitType)}</div>
-            <div className="employee-table-cell">{benefit.isActive ? 'Đang hoạt động' : 'Ngừng hoạt động'}</div>
+            <div className="employee-table-cell">
+               <Tag color={benefit.isActive ? 'green' : 'red'}>
+                 {benefit.isActive ? 'Đang hoạt động' : 'Ngừng hoạt động'}
+               </Tag>
+             </div>
             <div className="employee-table-cell">{formatDate(benefit.createdAt)}</div>
             <div className="employee-table-cell">
                 <BenefitDetailActionDropdown
@@ -80,6 +84,7 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
                             });
                         }
                     }}
+
                     onDelete={() => Modal.confirm({
                         title: "Bạn có chắc chắn muốn xóa?",
                         onOk: async () => {
@@ -92,6 +97,7 @@ const BenefitHRTableRow = ({ benefit, onUpdateSuccess }) => {
                             }
                         }
                     })}
+                    canDelete={!benefit.isActive}
                     onDetails={handleDetails}
                 />
             </div>
@@ -143,7 +149,7 @@ function BenefitHrTable({ reloadKey, onForceReload, filters = {} }) {
     }, [pageNumber, pageSize, JSON.stringify(filters), reloadKey]);
 
     return (
-        <div className="employee-table-wrapper">
+        <div className="employee-table-wrapper benefit-table">
             {/* REMOVED: <BenefitSearchForm .../> */}
             <BenefitHRTableHeader />
 

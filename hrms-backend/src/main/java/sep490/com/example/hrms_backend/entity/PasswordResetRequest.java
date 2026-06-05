@@ -17,6 +17,23 @@ public class PasswordResetRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "employee_id")
+    private Long employeeId;
+
+    @Column(name = "employee_code")
+    private String employeeCode;
+
+    @Column(name = "employee_name")
+    private String employeeName;
+
+    @Column(name = "department_name")
+    private String departmentName;
+
+    @Column(name = "position_name")
+    private String positionName;
+
+    @Column(name = "line_name")
+    private String lineName;
 
     @Column(nullable = false)
     private String email;
