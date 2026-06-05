@@ -1,18 +1,16 @@
-# ---------- Build stage ----------
-FROM maven:3.9-eclipse-temurin-17 AS builder
+# -------- Build stage --------
+FROM maven:3.9.8-eclipse-temurin-17 AS build
 WORKDIR /app
-
-# Cache dependencies để build nhanh hơn
 COPY pom.xml .
+RUN mvn -q -DskipTests dependency:go-offline
 COPY src ./src
-RUN mvn package -DskipTests
+RUN mvn -DskipTests package
 
-# ---------- Run stage ----------
-FROM eclipse-temurin:17-jre-alpine
+# -------- Run stage --------
+FROM eclipse-temurin:17-jre
 WORKDIR /app
-
-
-# Copy đúng file jar của bạn (loại trừ *.original)
-COPY --from=builder /app/target/*.jar app.jar
-
-ENTRYPOINT ["java","-jar","app.jar"]
+ENV JAVA_OPTS=""
+ENV PORT=8080
+EXPOSE 8080
+COPY --from=build /app/target/*.jar app.jar
+CMD ["sh","-c","java $JAVA_OPTS -Dserver.port=${PORT} -jar app.jar"]

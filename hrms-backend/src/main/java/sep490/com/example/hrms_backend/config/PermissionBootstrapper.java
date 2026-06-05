@@ -179,32 +179,5 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Position",
                 allRoles
         );
-        permissionRegistrationService.registerPermission(
-                "/api/applications/*/cancel",
-                "POST",
-                "Application",
-                allRoles
-        );
-        permissionRegistrationService.registerPermission(
-                "/api/employees/add-to-line/*",
-                "PUT",
-                "Employee",
-                List.of("ROLE_PMC")
-        );
-        permissionRegistrationService.registerPermission(
-                "/api/employees/leader/department/*",
-                "GET",
-                "Employee",
-                allRoles
-        );
-
-         permissionRegistrationService.registerPermission(
-                "/api/attendances/check-schedule-coverage",
-                "GET",
-                "Attendance",
-                allRoles
-        );
-
-
     }
 }
