@@ -50,7 +50,7 @@ function InterviewCreate() {
             (d) => d.name === interview.recruitmentDepartment
           );
           if (matchedDept) {
-            const employeeRes = await employeeService.getEmployeesByDepartmentId(matchedDept.id);
+            const employeeRes = await employeeService.getLeaderEmployeesByDepartmentId(matchedDept.id);
             setInterviewers(employeeRes.data);
           }
         } catch (err) {

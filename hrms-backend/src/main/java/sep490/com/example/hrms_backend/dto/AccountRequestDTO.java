@@ -8,7 +8,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class AccountRequestDTO {
     private Long id;
+    private String employeeCode;
     private String employeeName;
+    private String positionName;
+    private String departmentName;
+    private String lineName;
     private LocalDateTime requestedAt;
     private Boolean approved;
 }

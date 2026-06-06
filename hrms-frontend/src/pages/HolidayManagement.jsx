@@ -51,13 +51,33 @@ function HolidayManagement() {
               <label htmlFor="floatingInputValue">Tìm kiếm theo tên</label>
             </form>
 
-            <div
-              className="add-button"
-              style={{ height: "55px" }}
+            <button
+              type="button"
               onClick={handleAddClick}
+              style={{
+                backgroundColor: "#2563eb", // xanh dương
+                color: "#fff",
+                padding: "10px 20px",
+                borderRadius: "8px",
+                border: "none",
+                fontSize: "16px",
+                fontWeight: 500,
+                cursor: "pointer",
+                height: "55px",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "background-color 0.2s ease",
+              }}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.backgroundColor = "#1e40af")
+              }
+              onMouseOut={(e) =>
+                (e.currentTarget.style.backgroundColor = "#2563eb")
+              }
             >
-              <span className="export-text">Thêm ngày nghỉ</span>
-            </div>
+              Thêm ngày nghỉ
+            </button>
           </div>
         </div>
 

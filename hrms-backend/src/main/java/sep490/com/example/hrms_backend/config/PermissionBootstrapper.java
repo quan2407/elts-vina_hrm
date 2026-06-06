@@ -119,11 +119,28 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 List.of("ROLE_HR", "ROLE_HR_MANAGER")
         );
         permissionRegistrationService.registerPermission(
-               "/api/username/me/name",
+                "/api/username/me/name",
                 "GET",
                 "Profile",
                 allRoles
-);
+        );
+        permissionRegistrationService.registerPermission(
+                "/api/employees/department/*",
+                "GET",
+                "Employee",
+                allRoles
+        );
+        permissionRegistrationService.registerPermission(
+                "/api/me",
+                "GET",
+                "Employee",
+                allRoles
+        );
+        permissionRegistrationService.registerPermission(
+                "/api/interview/non-Hr/*",
+                "PUT",
+                "Interview",
+                allRoles);
         permissionRegistrationService.registerPermission("/api/hr/benefits", "GET", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
         permissionRegistrationService.registerPermission("/api/hr/benefits/*", "GET", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
         permissionRegistrationService.registerPermission("/api/hr/benefit/*/position/*", "GET", "Benefit", List.of("ROLE_HR", "ROLE_HR_MANAGER"));
@@ -162,6 +179,32 @@ public class PermissionBootstrapper implements ApplicationRunner {
                 "Position",
                 allRoles
         );
+        permissionRegistrationService.registerPermission(
+                "/api/applications/*/cancel",
+                "POST",
+                "Application",
+                allRoles
+        );
+        permissionRegistrationService.registerPermission(
+                "/api/employees/add-to-line/*",
+                "PUT",
+                "Employee",
+                List.of("ROLE_PMC")
+        );
+        permissionRegistrationService.registerPermission(
+                "/api/employees/leader/department/*",
+                "GET",
+                "Employee",
+                allRoles
+        );
+
+         permissionRegistrationService.registerPermission(
+                "/api/attendances/check-schedule-coverage",
+                "GET",
+                "Attendance",
+                allRoles
+        );
+
 
     }
 }

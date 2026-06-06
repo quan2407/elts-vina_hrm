@@ -172,7 +172,7 @@ public class LineServiceImplTest {
         when(positionRepository.findByPositionName("Tổ Trưởng")).thenReturn(positionToTruong);
 
         // Act
-        lineService.assignLeaderToLine(100L, 20L);
+        lineService.assignLeaderToLine(100L, 20L, 2L);
 
         // Assert & Verify
         ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);

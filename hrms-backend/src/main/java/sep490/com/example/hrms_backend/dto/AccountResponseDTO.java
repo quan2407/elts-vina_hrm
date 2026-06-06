@@ -16,5 +16,11 @@ public class AccountResponseDTO {
     private Boolean isActive;
     private LocalDateTime lastLoginAt;
     private String role;
+    private Long employeeId;
+    private String employeeCode;
+    private String employeeName;
+    private String positionName;
+    private String departmentName;
+    private String lineName;
 }
 

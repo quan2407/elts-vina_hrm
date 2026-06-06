@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import MainLayout from "../components/MainLayout";
 import applicationService from "../services/applicationService";
 import ApplicationForm from "../components/ApplicationForm";
-
+import SuccessModal from "../components/popup/SuccessModal";
 function ApplicationCreate() {
   const query = new URLSearchParams(window.location.search);
   const type = query.get("type"); // 'leave' hoặc 'makeup'
@@ -12,6 +12,13 @@ function ApplicationCreate() {
   const [formErrors, setFormErrors] = useState({});
   const navigate = useNavigate();
   const roles = JSON.parse(localStorage.getItem("role") || "[]");
+  const [modal, setModal] = useState({
+    open: false,
+    title: "",
+    message: "",
+    type: "success", // "success" | "error"
+  });
+  const [nextRoute, setNextRoute] = useState("");
 
   const handleSubmit = async (form) => {
     const formData = new FormData();
@@ -49,7 +56,6 @@ function ApplicationCreate() {
       formData.append("attachment", form.attachment);
     }
 
-    // 👇 NẾU HR / QLSX tạo hộ => thêm employeeId và gọi API khác
     const isCreateByAdmin = form.selectedEmployee?.id;
     if (isCreateByAdmin) {
       formData.append("employeeId", form.selectedEmployee.id);
@@ -66,18 +72,27 @@ function ApplicationCreate() {
         await applicationService.createApplication(formData);
       }
 
-      alert("Tạo đơn thành công!");
+      let target = "";
       if (isCreateByAdmin) {
         if (roles.includes("ROLE_HR")) {
-          navigate("/applications/approvals/hr");
+          target = "/applications/approvals/hr";
         } else if (roles.includes("ROLE_PRODUCTION_MANAGER")) {
-          navigate("/applications/approvals/manager");
+          target = "/applications/approvals/manager";
         } else {
-          navigate("/");
+          target = "/";
         }
       } else {
-        navigate("/my-applications");
+        target = "/my-applications";
       }
+      setNextRoute(target);
+
+      // Mở modal thành công; điều hướng sẽ thực hiện khi đóng modal
+      setModal({
+        open: true,
+        title: "Tạo đơn",
+        message: "Tạo đơn thành công!",
+        type: "success",
+      });
     } catch (err) {
       console.error("Lỗi tạo đơn:", err);
 
@@ -110,6 +125,17 @@ function ApplicationCreate() {
           externalErrors={formErrors}
         />
       </div>
+      {modal.open && (
+        <SuccessModal
+          title={modal.title}
+          message={modal.message}
+          type={modal.type}
+          onClose={() => {
+            setModal((m) => ({ ...m, open: false }));
+            if (nextRoute) navigate(nextRoute);
+          }}
+        />
+      )}
     </MainLayout>
   );
 }

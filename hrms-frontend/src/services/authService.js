@@ -26,11 +26,27 @@ const authService = {
     axiosClient.post("/auth/request-reset-password", data),
   changePassword: (data) => axiosClient.put("/auth/change-password", data),
 
-  getPendingResetRequests: (page = 0, size = 10) =>
-    axiosClient.get("/auth/admin/pending-reset-requests", {
-      params: { page, size },
-    }),
+  getResetRequests: (page = 0, size = 10, filters = {}) => {
+    const {
+      status = "all", // all | pending | approved | rejected
+      search, // tìm theo mã NV / tên NV
+      departmentName,
+      positionName,
+      lineName,
+    } = filters;
 
+    return axiosClient.get("/auth/admin/pending-reset-requests", {
+      params: {
+        status,
+        page,
+        size,
+        ...(search ? { search } : {}),
+        ...(departmentName ? { departmentName } : {}),
+        ...(positionName ? { positionName } : {}),
+        ...(lineName ? { lineName } : {}),
+      },
+    });
+  },
   approveResetPassword: (data) =>
     axiosClient.post("/auth/admin/approve-reset-password", data),
 };

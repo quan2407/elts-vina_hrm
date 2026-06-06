@@ -1,9 +1,11 @@
 package sep490.com.example.hrms_backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.HolidayDTO;
 import sep490.com.example.hrms_backend.entity.Holiday;
+import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.mapper.HolidayMapper;
 import sep490.com.example.hrms_backend.repository.HolidayRepository;
 import sep490.com.example.hrms_backend.service.HolidayService;
@@ -30,8 +32,10 @@ public class HolidayServiceImpl implements HolidayService {
     //tested
     @Override
     public HolidayDTO createHoliday(HolidayDTO holidayDTO) {
+        validateDates(holidayDTO);
+        ensureNoOverlap(holidayDTO, null);
         Holiday holiday = HolidayMapper.mapToEntity(holidayDTO);
-        holiday.setDeleted(false); // đảm bảo không bị xóa
+        holiday.setDeleted(false);
         holiday = holidayRepository.save(holiday);
         return HolidayMapper.mapToDTO(holiday);
     }
@@ -50,6 +54,8 @@ public class HolidayServiceImpl implements HolidayService {
         Holiday holiday = holidayRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy ngày nghỉ với ID: " + id));
         HolidayMapper.updateHolidayFromDTO(holidayDTO, holiday);
+        validateDates(holidayDTO);
+        ensureNoOverlap(holidayDTO, id);
         holiday = holidayRepository.save(holiday);
         return HolidayMapper.mapToDTO(holiday);
     }
@@ -81,4 +87,81 @@ public class HolidayServiceImpl implements HolidayService {
 
         return isOneTimeHoliday || isRecurringHoliday;
     }
+    private void validateDates(HolidayDTO dto) {
+        if (dto.getStartDate() == null || dto.getEndDate() == null) {
+            throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "startDate và endDate không được null");
+        }
+        if (dto.getEndDate().isBefore(dto.getStartDate())) {
+            throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "endDate không được nhỏ hơn startDate");
+        }
+    }
+
+    private boolean rangesOverlap(LocalDate aStart, LocalDate aEnd, LocalDate bStart, LocalDate bEnd) {
+        return !aStart.isAfter(bEnd) && !aEnd.isBefore(bStart);
+    }
+
+    private void ensureNoOverlap(HolidayDTO dto, Long excludeIdIfUpdate) {
+        LocalDate newStart = dto.getStartDate();
+        LocalDate newEnd   = dto.getEndDate();
+        boolean isRecurringNew = dto.isRecurring();
+        boolean oneTimeOverlap;
+        if (excludeIdIfUpdate == null) {
+            oneTimeOverlap = holidayRepository
+                    .existsByIsDeletedFalseAndIsRecurringFalseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(newEnd, newStart);
+        } else {
+            oneTimeOverlap = holidayRepository
+                    .existsByIdNotAndIsDeletedFalseAndIsRecurringFalseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                            excludeIdIfUpdate, newEnd, newStart
+                    );
+        }
+        if (!isRecurringNew && oneTimeOverlap) {
+            throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Khoảng ngày nghỉ bị trùng với ngày nghỉ khác");
+        }
+
+
+        List<Holiday> recurringList = holidayRepository.findAllByIsDeletedFalseAndIsRecurringTrue();
+
+        List<Holiday> oneTimeList   = holidayRepository.findAllByIsDeletedFalseAndIsRecurringFalse();
+
+
+        if (excludeIdIfUpdate != null) {
+            recurringList = recurringList.stream()
+                    .filter(h -> !h.getId().equals(excludeIdIfUpdate))
+                    .toList();
+            oneTimeList = oneTimeList.stream()
+                    .filter(h -> !h.getId().equals(excludeIdIfUpdate))
+                    .toList();
+        }
+
+        if (isRecurringNew) {
+            for (Holiday h : recurringList) {
+                LocalDate aStart = LocalDate.of(newStart.getYear(), dto.getStartDate().getMonth(), dto.getStartDate().getDayOfMonth());
+                LocalDate aEnd   = LocalDate.of(newStart.getYear(), dto.getEndDate().getMonth(), dto.getEndDate().getDayOfMonth());
+                LocalDate bStart = LocalDate.of(newStart.getYear(), h.getStartDate().getMonth(), h.getStartDate().getDayOfMonth());
+                LocalDate bEnd   = LocalDate.of(newStart.getYear(), h.getEndDate().getMonth(), h.getEndDate().getDayOfMonth());
+
+                if (rangesOverlap(aStart, aEnd, bStart, bEnd)) {
+                    throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Khoảng ngày nghỉ lặp lại bị trùng với holiday lặp lại khác");
+                }
+            }
+            for (Holiday h : oneTimeList) {
+                int year = h.getStartDate().getYear();
+                LocalDate aStart = LocalDate.of(year, dto.getStartDate().getMonth(), dto.getStartDate().getDayOfMonth());
+                LocalDate aEnd   = LocalDate.of(year, dto.getEndDate().getMonth(), dto.getEndDate().getDayOfMonth());
+                if (rangesOverlap(aStart, aEnd, h.getStartDate(), h.getEndDate())) {
+                    throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Khoảng ngày nghỉ lặp lại bị trùng với holiday one-time");
+                }
+            }
+        } else {
+            int year = newStart.getYear();
+            for (Holiday h : recurringList) {
+                LocalDate bStart = LocalDate.of(year, h.getStartDate().getMonth(), h.getStartDate().getDayOfMonth());
+                LocalDate bEnd   = LocalDate.of(year, h.getEndDate().getMonth(), h.getEndDate().getDayOfMonth());
+                if (rangesOverlap(newStart, newEnd, bStart, bEnd)) {
+                    throw new HRMSAPIException(HttpStatus.BAD_REQUEST, "Khoảng ngày nghỉ bị trùng với holiday lặp lại");
+                }
+            }
+        }
+    }
+
 }

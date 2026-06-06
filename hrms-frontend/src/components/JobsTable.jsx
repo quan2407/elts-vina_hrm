@@ -1,37 +1,11 @@
-import React, {
-  useEffect,
-  useState,
-  useImperativeHandle,
-  forwardRef,
-} from "react";
+import React, { forwardRef, useImperativeHandle } from "react";
 import "../styles/JobsTable.css";
-import { getAllRecruitments } from "../services/recruitmentService";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useNavigate } from "react-router-dom";
 
-
-
-const JobsTable = forwardRef(({ searchTerm, sortOrder, sortField }, ref) => {
-
-  const [jobs, setJobs] = useState([]);
+const JobsTable = forwardRef(({ jobs = [] }, ref) => {
   const navigate = useNavigate();
-
-
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const data = await getAllRecruitments(searchTerm, sortField, sortOrder);
-        setJobs(data);
-      } catch (error) {
-        console.error("Lỗi khi load danh sách công việc:", error);
-      }
-    };
-    fetchJobs();
-  }, [searchTerm, sortField, sortOrder]);
-
-
-  
 
   const formatDate = (isoDate) => {
     if (!isoDate) return "";
@@ -44,8 +18,6 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder, sortField }, ref) => {
       alert("Không có dữ liệu để xuất.");
       return;
     }
-
-
     const exportData = jobs.map((job) => ({
       ID: job.recruitmentId,
       "Tiêu đề": job.title,
@@ -53,18 +25,16 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder, sortField }, ref) => {
       "Mô tả": job.jobDescription,
       "Yêu cầu": job.jobRequirement,
       "Quyền lợi": job.benefits,
-      "Lương": job.minSalary +" - "+ job.maxSalary +"VND",
+      Lương: job.minSalary + " - " + job.maxSalary + " VND",
       "Số lượng": job.quantity,
       "Ngày tạo": formatDate(job.createAt),
       "Ngày hết hạn": formatDate(job.expiredAt),
       "Trạng thái": job.status,
       "SL Ứng tuyển": job.candidateRecruitmentsId?.length || 0,
     }));
-
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách tuyển dụng");
-
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
@@ -73,17 +43,13 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder, sortField }, ref) => {
     saveAs(blob, "DanhSachTuyenDung.xlsx");
   };
 
-  useImperativeHandle(ref, () => ({
-    exportToExcel,
-  }));
+  useImperativeHandle(ref, () => ({ exportToExcel }));
 
-  const handleCandidateClick = (jobId) => {
+  const handleCandidateClick = (jobId) =>
     navigate(`/candidates-management/${jobId}`);
-  }
-
-  const handleDetailClick = (jobId) => {
+  const handleDetailClick = (jobId) =>
     navigate(`/jobsdetail-management/${jobId}`);
-  };
+
   return (
     <div className="jobs-table-wrapper">
       <div className="jobs-table">
@@ -107,19 +73,29 @@ const JobsTable = forwardRef(({ searchTerm, sortOrder, sortField }, ref) => {
             <div className="jobs-table-cell">{job.title}</div>
             <div className="jobs-table-cell">{job.employmentType}</div>
             <div className="jobs-table-cell">{job.quantity}</div>
-            <div className="jobs-table-cell">{formatDate(job.createAt)} - {formatDate(job.expiredAt)}</div>
-            <div className="jobs-table-cell">{job.status}</div>
-            <div className="jobs-table-cell">{job.candidateRecruitmentsId.length}</div>
             <div className="jobs-table-cell">
-
-              <button className="viewcandidate-button" onClick={() => handleCandidateClick(job.recruitmentId)}>Danh sách ứng viên</button>
-
-              <button className="viewdetail-button" onClick={() => handleDetailClick(job.recruitmentId)}>Xem chi tiết</button>
-
+              {formatDate(job.createAt)} - {formatDate(job.expiredAt)}
+            </div>
+            <div className="jobs-table-cell">{job.status}</div>
+            <div className="jobs-table-cell">
+              {job.candidateRecruitmentsId?.length || 0}
+            </div>
+            <div className="jobs-table-cell">
+              <button
+                className="viewcandidate-button"
+                onClick={() => handleCandidateClick(job.recruitmentId)}
+              >
+                Danh sách ứng viên
+              </button>
+              <button
+                className="viewdetail-button"
+                onClick={() => handleDetailClick(job.recruitmentId)}
+              >
+                Xem chi tiết
+              </button>
             </div>
           </div>
         ))}
-
       </div>
     </div>
   );

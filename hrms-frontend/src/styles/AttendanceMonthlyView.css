@@ -44,7 +44,6 @@
   box-sizing: border-box;
 }
 
-/* Nút filter */
 .attendance-filter-btn {
   min-width: 90px;
   height: 38px;
@@ -107,9 +106,8 @@
   overflow: auto;
   max-width: 100%;
   scrollbar-gutter: stable both-edges;
-  /* dự phòng cho trường hợp overlay scrollbar vẫn che nội dung */
-  padding-right: 16px; /* chừa chỗ cho thanh cuộn dọc */
-  padding-bottom: 14px; /* chừa chỗ cho thanh cuộn ngang */
+  padding-right: 16px;
+  padding-bottom: 14px;
   box-sizing: content-box;
 }
 
@@ -449,4 +447,9 @@
   gap: 12px;
   justify-content: flex-end;
   margin-top: 16px;
+}
+.attendance-select-group {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* khoảng cách giữa tháng và năm */
 }

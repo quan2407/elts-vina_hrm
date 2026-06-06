@@ -6,7 +6,6 @@ import "../styles/EmployeeTable.css";
 import { PlusOutlined } from "@ant-design/icons";
 import { Button } from "antd";
 import BenefitCreateModal from "../components/modals/benefit/BenefitCreateModal.jsx";
-import Breadcrumb from "../components/Breadcrumb";
 import { useEffect, useState } from "react";
 import benefitService from "../services/benefitService.js";
 
@@ -16,10 +15,8 @@ import BenefitSearchForm from "../components/common/search/BenefitSearchForm.jsx
 function BenefitManagementHR() {
     const [reloadKey, setReloadKey] = useState(0);
 
-    // NEW: đưa filters lên cha
     const [filters, setFilters] = useState({});
 
-    const breadcrumbPaths = [{ name: "Quản lý phúc lợi" }];
 
     return (
         <MainLayout>
@@ -35,7 +32,6 @@ function BenefitManagementHR() {
                     </div>
                 </div>
 
-                <Breadcrumb paths={breadcrumbPaths} />
 
                 {/* NEW: Form tìm kiếm ở đây */}
                 <BenefitSearchForm

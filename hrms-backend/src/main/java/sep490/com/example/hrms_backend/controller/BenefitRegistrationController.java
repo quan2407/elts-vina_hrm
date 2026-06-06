@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sep490.com.example.hrms_backend.dto.benefit.*;
 import sep490.com.example.hrms_backend.service.BenefitRegistrationService;
@@ -42,7 +41,6 @@ public class BenefitRegistrationController {
 //        return new ResponseEntity<>(benefitRegistrationDTO, HttpStatus.CREATED);
 //    }
 
-    @PreAuthorize("hasAnyRole( 'HR')")
     @PostMapping("/hr/benefits/quick-register")
     public ResponseEntity<?> quickRegister(@RequestBody BenefitManualRegistrationRequest request) {
         try {
@@ -53,7 +51,6 @@ public class BenefitRegistrationController {
         }
     }
 
-    @PreAuthorize("hasAnyRole( 'HR')")
     @DeleteMapping("/hr/benefits/un-register/benefit/{benefitId}/position/{positionId}/employee/{employeeId}")
     public ResponseEntity<?> unRegister(@PathVariable Long benefitId, @PathVariable Long positionId,@PathVariable Long employeeId) {
         benefitRegistrationService.unRegister(benefitId, positionId, employeeId);
@@ -74,7 +71,6 @@ public class BenefitRegistrationController {
         return ResponseEntity.ok(resp);
     }
 
-    @PreAuthorize("hasAnyRole( 'HR')")
     @GetMapping("/hr/benefits/search-unregistered")
     public ResponseEntity<List<EmployeeBasicDetailResponse>> searchUnregisteredEmployees(
             @RequestParam Long benefitId,
@@ -87,7 +83,7 @@ public class BenefitRegistrationController {
         return ResponseEntity.ok(result);
     }
 
-    @PreAuthorize("hasAnyRole( 'HR')")
+
     @PostMapping("/hr/benefits/quick-register-all")
     public ResponseEntity<?> quickRegisterAll(@RequestBody BenefitMultiPositionRequestDTO request) {
         try {

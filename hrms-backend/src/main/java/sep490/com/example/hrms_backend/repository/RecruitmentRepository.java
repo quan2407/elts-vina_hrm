@@ -1,12 +1,13 @@
 package sep490.com.example.hrms_backend.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import sep490.com.example.hrms_backend.dto.RecruitmentGraphResponse;
 import sep490.com.example.hrms_backend.entity.Recruitment;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,5 +29,5 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
                 GROUP BY r.id, r.title, r.quantity
             """)
     List<RecruitmentGraphResponse> getRecruitmentGraphData(@Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate);
-
+    Page<Recruitment> findByTitleContainingIgnoreCase(String title, Pageable pageable);
 }

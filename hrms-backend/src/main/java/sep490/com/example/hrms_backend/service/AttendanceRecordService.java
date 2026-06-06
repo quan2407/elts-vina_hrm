@@ -9,6 +9,7 @@ import sep490.com.example.hrms_backend.dto.MonthYearDTO;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface AttendanceRecordService {
 
@@ -28,4 +29,6 @@ public interface AttendanceRecordService {
     List<AttendanceMonthlyViewDTO> getAttendanceForExport(int month, int year);
 
     Page<AttendanceMonthlyViewDTO> getMonthlyAttendance(int month, int year, int page, int size, String search, Long departmentId, Long positionId, Long lineId);
+
+    Map<String, Object> checkScheduleCoverage(int month, int year);
 }

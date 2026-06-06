@@ -4,7 +4,7 @@ import WorkScheduleTable from "../components/WorkScheduleTable";
 import "../styles/WorkScheduleManagement.css";
 import { Plus, Download } from "lucide-react";
 import workScheduleService from "../services/workScheduleService";
-
+import SuccessModal from "../components/popup/SuccessModal";
 function WorkScheduleProductionView({ canApprove = true }) {
   const today = new Date();
   const [month, setMonth] = useState(today.getMonth() + 1);
@@ -15,6 +15,20 @@ function WorkScheduleProductionView({ canApprove = true }) {
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestReason, setRequestReason] = useState("");
   const [needRevision, setNeedRevision] = useState(false);
+  const [modal, setModal] = useState({
+    open: false,
+    title: "",
+    message: "",
+    type: "success",
+  });
+
+  const showSuccess = (title, message) => {
+    setModal({ open: true, title, message, type: "success" });
+  };
+
+  const showError = (title, message) => {
+    setModal({ open: true, title, message, type: "error" });
+  };
 
   const getStatusLabel = () => {
     if (needRevision) {
@@ -42,12 +56,15 @@ function WorkScheduleProductionView({ canApprove = true }) {
     workScheduleService
       .acceptWorkSchedules(month, year)
       .then(() => {
-        alert("Duyệt lịch làm việc thành công!");
+        showSuccess("Duyệt lịch làm việc", "Duyệt lịch làm việc thành công!");
         setStatus("approved");
       })
       .catch((err) => {
         console.error("Lỗi duyệt lịch:", err);
-        alert("Đã xảy ra lỗi khi duyệt lịch làm việc.");
+        showError(
+          "Duyệt lịch làm việc",
+          "Đã xảy ra lỗi khi duyệt lịch làm việc."
+        );
       });
   };
 
@@ -107,12 +124,19 @@ function WorkScheduleProductionView({ canApprove = true }) {
                             workScheduleService
                               .rejectWorkSchedules(month, year, rejectReason)
                               .then(() => {
-                                alert("Từ chối lịch làm việc thành công!");
+                                showSuccess(
+                                  "Từ chối lịch làm việc",
+                                  "Từ chối lịch làm việc thành công!"
+                                );
                                 setStatus("not-submitted");
                                 setShowRejectModal(false);
                               })
-                              .catch(() => {
-                                alert("Lỗi khi từ chối lịch");
+                              .catch((err) => {
+                                console.error("Lỗi khi từ chối lịch:", err);
+                                showError(
+                                  "Từ chối lịch làm việc",
+                                  "Đã xảy ra lỗi khi từ chối lịch."
+                                );
                               });
                           }}
                           disabled={!rejectReason.trim()}
@@ -178,14 +202,24 @@ function WorkScheduleProductionView({ canApprove = true }) {
                             workScheduleService
                               .requestRevision(month, year, requestReason)
                               .then(() => {
-                                alert("Yêu cầu chỉnh sửa lịch thành công!");
+                                showSuccess(
+                                  "Yêu cầu chỉnh sửa",
+                                  "Yêu cầu chỉnh sửa lịch thành công!"
+                                );
                                 setShowRequestModal(false);
                                 setStatus("not-submitted");
                                 setNeedRevision(true);
                               })
-                              .catch(() =>
-                                alert("Lỗi khi gửi yêu cầu chỉnh sửa")
-                              );
+                              .catch((err) => {
+                                console.error(
+                                  "Lỗi khi gửi yêu cầu chỉnh sửa:",
+                                  err
+                                );
+                                showError(
+                                  "Yêu cầu chỉnh sửa",
+                                  "Đã xảy ra lỗi khi gửi yêu cầu chỉnh sửa."
+                                );
+                              });
                           }}
                         >
                           Gửi yêu cầu
@@ -256,6 +290,14 @@ function WorkScheduleProductionView({ canApprove = true }) {
           }}
         />
       </div>
+      {modal.open && (
+        <SuccessModal
+          title={modal.title}
+          message={modal.message}
+          type={modal.type}
+          onClose={() => setModal((m) => ({ ...m, open: false }))}
+        />
+      )}
     </MainLayout>
   );
 }

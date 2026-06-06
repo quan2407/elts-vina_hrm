@@ -2,6 +2,7 @@ package sep490.com.example.hrms_backend.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -10,20 +11,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import sep490.com.example.hrms_backend.dto.*;
-import sep490.com.example.hrms_backend.dto.benefit.UpdateOriginalSalaryDTO;
 import sep490.com.example.hrms_backend.entity.*;
-import sep490.com.example.hrms_backend.enums.BenefitType;
-import sep490.com.example.hrms_backend.enums.FormulaType;
+import sep490.com.example.hrms_backend.enums.NotificationType;
 import sep490.com.example.hrms_backend.exception.DuplicateEntryException;
 import sep490.com.example.hrms_backend.exception.HRMSAPIException;
 import sep490.com.example.hrms_backend.exception.ResourceNotFoundException;
 import sep490.com.example.hrms_backend.mapper.EmployeeMapper;
 import sep490.com.example.hrms_backend.repository.*;
 import sep490.com.example.hrms_backend.service.AccountService;
+import sep490.com.example.hrms_backend.service.NotificationService;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,26 +42,68 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
     private final AccountRequestRepository accountRequestRepository;
     private final RoleRepository roleRepository;
 
+    @Autowired
+    NotificationService notificationService;
 
     @Override
-    public Page<EmployeeResponseDTO> getAllEmployees(int page, int size, String search) {
+    public Page<EmployeeResponseDTO> getAllEmployees(int page, int size, String search,
+                                                     Long departmentId, Long positionId, Long lineId) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Employee> employeePage;
+
+        List<Employee> all = employeeRepository.findByIsDeletedFalse();
 
         if (search != null && !search.trim().isEmpty()) {
-            employeePage = employeeRepository
-                    .findByIsDeletedFalseAndEmployeeCodeContainingIgnoreCaseOrEmployeeNameContainingIgnoreCase(
-                            search, search, pageable);
-        } else {
-            employeePage = employeeRepository.findByIsDeletedFalse(pageable);
+            String lower = search.trim().toLowerCase();
+            all = all.stream()
+                    .filter(e ->
+                            (e.getEmployeeCode() != null && e.getEmployeeCode().toLowerCase().contains(lower)) ||
+                                    (e.getEmployeeName() != null && e.getEmployeeName().toLowerCase().contains(lower)))
+                    .toList();
         }
 
-        List<EmployeeResponseDTO> dtos = employeePage.getContent().stream()
+        if (departmentId != null) {
+            all = all.stream()
+                    .filter(e -> e.getDepartment() != null &&
+                            departmentId.equals(e.getDepartment().getDepartmentId()))
+                    .toList();
+        }
+
+        if (positionId != null) {
+            all = all.stream()
+                    .filter(e -> e.getPosition() != null &&
+                            positionId.equals(e.getPosition().getPositionId()))
+                    .toList();
+        }
+
+        if (lineId != null) {
+            all = all.stream()
+                    .filter(e -> e.getLine() != null &&
+                            lineId.equals(e.getLine().getLineId()))
+                    .toList();
+        }
+
+        List<EmployeeResponseDTO> dtos = all.stream()
                 .map(EmployeeMapper::mapToEmployeeResponseDTO)
                 .toList();
 
-        return new PageImpl<>(dtos, pageable, employeePage.getTotalElements());
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), dtos.size());
+        List<EmployeeResponseDTO> content = start >= dtos.size() ? List.of() : dtos.subList(start, end);
+
+        return new PageImpl<>(content, pageable, dtos.size());
     }
+
+    @Override
+    public List<EmployeeResponseDTO> getLeaderEmployeeByDepartmentId(Long id) {
+        Department department = departmentRepository.findById(id).orElse(null);
+
+        List<EmployeeResponseDTO> employees = department.getEmployees().stream()
+                .filter(employee -> employee.getPosition().getPositionName().equalsIgnoreCase("Tổ trưởng"))
+                .map(EmployeeMapper::mapToEmployeeResponseDTO)
+                .collect(Collectors.toList());
+        return employees;
+    }
+
 
     @Override
     public String getNextEmployeeCode() {
@@ -145,7 +186,12 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
 
     @Override
     @Transactional
-    public void addEmployeesToLine(Long lineId, List<Long> employeeIds) {
+    public void addEmployeesToLine(Long lineId, List<Long> employeeIds, Long senderId) {
+
+        Employee senderEmp = employeeRepository.findById(senderId).orElseThrow(() -> new RuntimeException("Không tìm thấy id"));
+
+        Account senderAcc = senderEmp.getAccount();
+
         Line line = lineRepository.findById(lineId).orElseThrow(() -> new ResourceNotFoundException("Line", "id", lineId));
 
         Position p = positionRepository.findByPositionName("Công Nhân");
@@ -178,6 +224,7 @@ public class EmployeeServiceImpl implements sep490.com.example.hrms_backend.serv
             e.setLine(line);
             employeeRepository.save(e);
 
+            notificationService.addNotification(NotificationType.LINE_CHANGED, senderAcc, e.getAccount());
         }
     }
 

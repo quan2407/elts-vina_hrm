@@ -12,7 +12,7 @@ import "react-quill/dist/quill.snow.css";
 import "../styles/ApplicationForm.css";
 import { Save } from "lucide-react";
 import Select from "react-select";
-
+import SuccessModal from "../components/popup/SuccessModal";
 function ApplicationForm({
   mode = "create",
   data = {},
@@ -56,7 +56,31 @@ function ApplicationForm({
   const roles = JSON.parse(localStorage.getItem("role") || "[]");
   const currentUserId = localStorage.getItem("userId") || "";
   const isManager = roles.includes("ROLE_PRODUCTION_MANAGER");
+  const viewMode = sessionStorage.getItem("viewMode") || "role";
+  const isViewingAsEmployee = viewMode === "employee";
+  const lockEmployeeSelect =
+    mode === "create" &&
+    isViewingAsEmployee &&
+    (roles.includes("ROLE_HR") || roles.includes("ROLE_PRODUCTION_MANAGER"));
+
   const isCreator = data?.creator;
+  const [modal, setModal] = useState({
+    open: false,
+    title: "",
+    message: "",
+    type: "success", // "success" | "error"
+  });
+  const [nextRoute, setNextRoute] = useState("");
+
+  const showSuccess = (title, message, routeAfterClose = "") => {
+    setModal({ open: true, title, message, type: "success" });
+    setNextRoute(routeAfterClose);
+  };
+
+  const showError = (title, message) => {
+    setModal({ open: true, title, message, type: "error" });
+    setNextRoute("");
+  };
 
   useEffect(() => {
     if (data) {
@@ -137,6 +161,16 @@ function ApplicationForm({
       fetchEmployees();
     }
   }, []);
+  useEffect(() => {
+    if (!lockEmployeeSelect) return;
+    if (!employees?.length) return;
+    if (selectedEmployee?.id) return;
+
+    const me = employees.find((e) => String(e.id) === String(currentUserId));
+    if (me) {
+      setSelectedEmployee(me);
+    }
+  }, [lockEmployeeSelect, employees, currentUserId, selectedEmployee]);
 
   useEffect(() => {
     setErrors((prev) => {
@@ -184,7 +218,10 @@ function ApplicationForm({
       ) {
         setEndDate(newEnd);
       }
-
+      const toHHmm = (s) => (s ? s.slice(0, 5) : "");
+      setCheckIn(toHHmm(data.checkIn));
+      setCheckOut(toHHmm(data.checkOut));
+      setAttachmentPath(data.attachmentPath || null);
       if (leaveCode !== (data.leaveCode || ""))
         setLeaveCode(data.leaveCode || "");
       if (isHalfDay !== (data.isHalfDay || false))
@@ -307,9 +344,18 @@ function ApplicationForm({
                         }
                       : null
                   }
-                  onChange={(selected) => setSelectedEmployee(selected)}
-                  placeholder="-- Chọn nhân viên --"
-                  isClearable
+                  onChange={
+                    lockEmployeeSelect
+                      ? undefined
+                      : (selected) => setSelectedEmployee(selected)
+                  }
+                  placeholder={
+                    lockEmployeeSelect
+                      ? "(Tự động chọn: chính bạn)"
+                      : "-- Chọn nhân viên --"
+                  }
+                  isClearable={!lockEmployeeSelect}
+                  isDisabled={lockEmployeeSelect}
                 />
               </div>
             </div>
@@ -760,10 +806,15 @@ function ApplicationForm({
                     applicationApprovalService
                       .approveStep1(data.id, { approved: true, note })
                       .then(() => {
-                        alert("✅ Đã duyệt đơn");
-                        navigate("/applications/approvals/manager");
+                        showSuccess(
+                          "Duyệt đơn",
+                          "Đã duyệt đơn thành công!",
+                          "/applications/approvals/manager"
+                        );
                       })
-                      .catch(() => alert("❌ Lỗi khi duyệt đơn"));
+                      .catch(() => {
+                        showError("Duyệt đơn", "Lỗi khi duyệt đơn");
+                      });
                   }
                 }}
                 style={{ marginRight: 10 }}
@@ -775,15 +826,23 @@ function ApplicationForm({
                 className="application-detail-reject-btn"
                 onClick={() => {
                   const note = prompt("Lý do từ chối:");
-                  if (!note) return alert("❗ Vui lòng nhập lý do từ chối.");
+                  if (!note) {
+                    showError("Từ chối đơn", "Vui lòng nhập lý do từ chối.");
+                    return;
+                  }
                   if (window.confirm("Bạn chắc chắn muốn từ chối đơn này?")) {
                     applicationApprovalService
                       .approveStep1(data.id, { approved: false, note })
                       .then(() => {
-                        alert("🚫 Đã từ chối đơn");
-                        navigate("/applications/approvals/manager");
+                        showSuccess(
+                          "Từ chối đơn",
+                          "Đã từ chối đơn.",
+                          "/applications/approvals/manager"
+                        );
                       })
-                      .catch(() => alert("❌ Lỗi khi từ chối đơn"));
+                      .catch(() =>
+                        showError("Từ chối đơn", "Lỗi khi từ chối đơn")
+                      );
                   }
                 }}
               >
@@ -804,10 +863,15 @@ function ApplicationForm({
                   applicationApprovalService
                     .approveStep2(data.id, { approved: true, note })
                     .then(() => {
-                      alert("✅ Đã duyệt đơn");
-                      navigate("/applications/approvals/hr");
+                      showSuccess(
+                        "Duyệt đơn (HR)",
+                        "Đã duyệt đơn thành công!",
+                        "/applications/approvals/hr"
+                      );
                     })
-                    .catch(() => alert("❌ Lỗi khi duyệt đơn"));
+                    .catch(() => {
+                      showError("Duyệt đơn (HR)", "Lỗi khi duyệt đơn");
+                    });
                 }
               }}
               style={{ marginRight: 10 }}
@@ -819,15 +883,23 @@ function ApplicationForm({
               className="application-detail-reject-btn"
               onClick={() => {
                 const note = prompt("Lý do từ chối:");
-                if (!note) return alert("❗ Vui lòng nhập lý do từ chối.");
+                if (!note) {
+                  showError("Từ chối đơn (HR)", "Vui lòng nhập lý do từ chối.");
+                  return;
+                }
                 if (window.confirm("Bạn chắc chắn muốn từ chối đơn này?")) {
                   applicationApprovalService
                     .approveStep2(data.id, { approved: false, note })
                     .then(() => {
-                      alert("🚫 Đã từ chối đơn");
-                      navigate("/applications/approvals/hr");
+                      showSuccess(
+                        "Từ chối đơn (HR)",
+                        "Đã từ chối đơn.",
+                        "/applications/approvals/hr"
+                      );
                     })
-                    .catch(() => alert("❌ Lỗi khi từ chối đơn"));
+                    .catch(() => {
+                      showError("Từ chối đơn (HR)", "Lỗi khi từ chối đơn");
+                    });
                 }
               }}
             >
@@ -836,6 +908,19 @@ function ApplicationForm({
           </div>
         )}
       </div>
+      {modal.open && (
+        <SuccessModal
+          title={modal.title}
+          message={modal.message}
+          type={modal.type}
+          onClose={() => {
+            setModal((m) => ({ ...m, open: false }));
+            if (nextRoute) {
+              navigate(nextRoute);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

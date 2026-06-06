@@ -14,7 +14,10 @@ import axiosClient from "../services/axiosClient";
 import { format } from "date-fns";
 import Swal from "sweetalert2";
 
+import { useNavigate } from "react-router-dom";
+
 function EmployeeCreate() {
+  const navigate = useNavigate();
   const [employeeCode, setEmployeeCode] = useState("");
   const [fullName, setFullName] = useState("");
   const [gender, setGender] = useState("");
@@ -26,6 +29,7 @@ function EmployeeCreate() {
   const [lineId, setLineId] = useState("");
   const [errors, setErrors] = useState({});
   const [showOcrModal, setShowOcrModal] = useState(false);
+  const [ocrError, setOcrError] = useState(null);
 
   const [nationality, setNationality] = useState("");
   const [idNumber, setIdNumber] = useState("");
@@ -56,6 +60,22 @@ function EmployeeCreate() {
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [activeSection, setActiveSection] = useState("basic-info");
+  const normalizeVN = (s) =>
+    (s || "")
+      .toString()
+      .trim()
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "")
+      .toLowerCase();
+
+  const isHiddenPosition = (name) =>
+    normalizeVN(name) === normalizeVN("Tổ Trưởng");
+  const showSuccess = (title, message) =>
+    setModal({ open: true, title, message, type: "success" });
+
+  const showError = (title, message) =>
+    setModal({ open: true, title, message, type: "error" });
+
   const resetForm = () => {
     setEmployeeCode("");
     setFullName("");
@@ -85,7 +105,7 @@ function EmployeeCreate() {
   };
   const handleOcrExtract = async () => {
     if (!frontFile && !backFile) {
-      alert("Vui lòng chọn ít nhất 1 ảnh CCCD");
+      showError("OCR CCCD", "Vui lòng chọn ít nhất 1 ảnh CCCD");
       return;
     }
 
@@ -96,7 +116,7 @@ function EmployeeCreate() {
     try {
       setOcrLoading(true);
       const res = await axiosClient.post("/ocr/scan-cccd", formData);
-
+      setOcrError(null);
       const data = res.data;
       setFullName(data.employeeName || "");
       setGender((data.gender || "").toUpperCase());
@@ -116,12 +136,14 @@ function EmployeeCreate() {
       setCccdFrontImage(data.cccdFrontImage || "");
       setCccdBackImage(data.cccdBackImage || "");
     } catch (err) {
-      alert(err?.response?.data?.message || "Lỗi OCR");
+      const msg = err?.response?.data?.message ?? err?.message ?? "Lỗi OCR.";
+      setOcrError(msg);
     } finally {
       setOcrLoading(false);
     }
   };
   const handleSubmit = async () => {
+    setErrors({});
     const formData = new FormData();
 
     // Duyệt từng trường và thêm vào formData
@@ -160,7 +182,9 @@ function EmployeeCreate() {
       "endWorkAt",
       endWorkAt ? format(endWorkAt, "yyyy-MM-dd") : ""
     );
-    formData.append("basicSalary", basicSalary?.trim() || "");
+    const bs = (basicSalary ?? "").toString().trim();
+
+    formData.append("basicSalary", bs);
     formData.append("departmentId", departmentId !== "" ? departmentId : "");
     formData.append("positionId", positionId !== "" ? positionId : "");
     formData.append("lineId", lineId !== "" ? lineId : "");
@@ -176,9 +200,9 @@ function EmployeeCreate() {
 
     try {
       await employeeService.createEmployee(formData);
-      alert("Tạo nhân viên thành công!");
       setErrors({});
       resetForm();
+      return true;
     } catch (err) {
       console.error("Lỗi tạo nhân viên:", err);
 
@@ -222,6 +246,7 @@ function EmployeeCreate() {
       } else {
         alert("Không nhận được phản hồi từ server!");
       }
+      return false;
     }
   };
   const confirmSave = async () => {
@@ -250,7 +275,10 @@ function EmployeeCreate() {
           icon: "success",
           title: "Đã lưu thành công!",
           confirmButtonText: "OK",
+          allowOutsideClick: false,
+          allowEscapeKey: false,
         });
+        navigate("/employee-management", { replace: true });
       }
     }
   };
@@ -331,8 +359,20 @@ function EmployeeCreate() {
             departmentService.getPositionsByDepartment(departmentId),
             departmentService.getLinesByDepartment(departmentId),
           ]);
-          setPositions(posRes.data);
-          setLines(lineRes.data);
+
+          const raw = posRes.data || [];
+          // 🔥 LỌC BỎ "Tổ trưởng" TRƯỚC KHI SET STATE
+          const filtered = raw.filter((p) => !isHiddenPosition(p.name));
+          setPositions(filtered);
+          setLines(lineRes.data || []);
+
+          // Nếu giá trị đang chọn không còn trong list (hoặc là "Tổ trưởng"), reset
+          if (
+            positionId &&
+            !filtered.some((p) => String(p.id) === String(positionId))
+          ) {
+            setPositionId("");
+          }
         } catch (err) {
           console.error("Lỗi load vị trí hoặc line:", err);
         }
@@ -341,8 +381,9 @@ function EmployeeCreate() {
     } else {
       setPositions([]);
       setLines([]);
+      setPositionId("");
     }
-  }, [departmentId]);
+  }, [departmentId, positionId]);
 
   const isClickScrolling = useRef(false);
 
@@ -576,6 +617,15 @@ function EmployeeCreate() {
                     ? "Đang trích xuất..."
                     : "📷 Trích xuất từ ảnh CCCD"}
                 </button>
+                {ocrError && (
+                  <div
+                    className="error-message"
+                    style={{ marginTop: 8 }}
+                    aria-live="assertive"
+                  >
+                    {ocrError}
+                  </div>
+                )}
               </div>
 
               <div className="employeedetail-form-row">
@@ -737,12 +787,9 @@ function EmployeeCreate() {
                   )}
                 </div>
               </div>
-              {/* Dân tộc & Tôn giáo */}
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">
-                    Dân tộc<span className="required-star">*</span>
-                  </div>
+                  <div className="employeedetail-input-label">Dân tộc</div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -758,9 +805,7 @@ function EmployeeCreate() {
                 </div>
 
                 <div className="employeedetail-input-group">
-                  <div className="employeedetail-input-label">
-                    Tôn giáo<span className="required-star">*</span>
-                  </div>
+                  <div className="employeedetail-input-label">Tôn giáo</div>
                   <input
                     className="employeedetail-input-field"
                     type="text"
@@ -776,7 +821,6 @@ function EmployeeCreate() {
                 </div>
               </div>
 
-              {/* Nơi ở hiện nay & Trình độ văn hóa */}
               <div className="employeedetail-form-row">
                 <div
                   className="employeedetail-input-group"
@@ -800,7 +844,7 @@ function EmployeeCreate() {
                 </div>
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Trình độ văn hóa<span className="required-star">*</span>
+                    Trình độ văn hóa
                   </div>
                   <input
                     className="employeedetail-input-field"
@@ -817,12 +861,10 @@ function EmployeeCreate() {
                   )}
                 </div>
               </div>
-
-              {/* Trình độ chuyên môn & Ngoại ngữ */}
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Trình độ chuyên môn<span className="required-star">*</span>
+                    Trình độ chuyên môn
                   </div>
                   <input
                     className="employeedetail-input-field"
@@ -857,7 +899,6 @@ function EmployeeCreate() {
                 </div>
               </div>
 
-              {/* Loại hình đào tạo & Chuyên ngành đào tạo */}
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
@@ -880,7 +921,7 @@ function EmployeeCreate() {
 
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Chuyên ngành đào tạo<span className="required-star">*</span>
+                    Chuyên ngành đào tạo
                   </div>
                   <input
                     className="employeedetail-input-field"
@@ -902,14 +943,12 @@ function EmployeeCreate() {
               id="contact-info"
               className="employeedetail-contact-information"
             >
-              <div className="employeedetail-form-title">
-                Thông tin liên hệ<span className="required-star">*</span>
-              </div>
+              <div className="employeedetail-form-title">Thông tin liên hệ</div>
 
               <div className="employeedetail-form-row">
                 <div className="employeedetail-input-group">
                   <div className="employeedetail-input-label">
-                    Số điện thoại
+                    Số điện thoại<span className="required-star">*</span>
                   </div>
                   <input
                     className="employeedetail-input-field"
@@ -1097,6 +1136,7 @@ function EmployeeCreate() {
 
             <div className="employeedetail-form-actions">
               <button
+                type="button"
                 className="submit-button"
                 onClick={confirmSave}
               >
@@ -1110,6 +1150,7 @@ function EmployeeCreate() {
           </div>
         </div>
       </div>
+
       {showOcrModal && (
         <CCCDModal
           onClose={() => setShowOcrModal(false)}

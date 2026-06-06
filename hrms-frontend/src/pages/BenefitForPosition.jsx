@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../components/MainLayout";
 import BenefitForPositionTable from "../components/BenefitForPositionTable.jsx";
-import Breadcrumb from "../components/Breadcrumb";
+
 import { Button, Input, Select } from "antd";
 import { CheckSquareOutlined } from "@ant-design/icons";
 import benefitService from "../services/benefitService.js";
@@ -36,14 +36,6 @@ function BenefitForPosition() {
         };
         fetchBenefitDetail();
     }, [benefitId]);
-
-    const breadcrumbPaths = useMemo(
-        () => [
-            { name: "Quản lý phúc lợi", url: "http://localhost:5173/benefits-management" },
-            { name: benefit ? `${benefit.title}` : "Đang tải..." },
-        ],
-        [benefit]
-    );
 
     const buttonStyles = isMultiSelectMode
         ? {
@@ -117,8 +109,6 @@ function BenefitForPosition() {
                         </Button>
                     </div>
                 </div>
-
-                <Breadcrumb paths={breadcrumbPaths} />
 
                 <div style={{ display: "flex", gap: 12, alignItems: "center", margin: "16px 0 8px 0", flexWrap: "wrap" }}>
                     <Input

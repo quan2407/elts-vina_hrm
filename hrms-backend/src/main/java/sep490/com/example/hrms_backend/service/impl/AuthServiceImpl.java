@@ -15,6 +15,8 @@ import sep490.com.example.hrms_backend.repository.AccountRepository;
 import sep490.com.example.hrms_backend.security.JwtTokenProvider;
 import sep490.com.example.hrms_backend.service.AuthService;
 
+import java.time.LocalDateTime;
+
 @Service
 @AllArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -45,13 +47,11 @@ public class AuthServiceImpl implements AuthService {
                             loginDto.getPassword()
                     )
             );
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
             account.setLoginAttempts(5);
+            account.setLastLoginAt(LocalDateTime.now());
             accountRepository.save(account);
             return jwtTokenProvider.generateToken(authentication);
-
         } catch (BadCredentialsException e) {
             int remainingAttempts = account.getLoginAttempts() - 1;
             account.setLoginAttempts(remainingAttempts);
@@ -59,9 +59,7 @@ public class AuthServiceImpl implements AuthService {
             if (remainingAttempts <= 0) {
                 account.setIsActive(false);
             }
-
             accountRepository.save(account);
-
             throw new HRMSAPIException(HttpStatus.UNAUTHORIZED,
                     "Sai mật khẩu. Số lần còn lại: " + Math.max(remainingAttempts, 0));
         }

@@ -2,6 +2,11 @@ package sep490.com.example.hrms_backend.service;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -15,9 +20,7 @@ import sep490.com.example.hrms_backend.mapper.RecruitmentMapper;
 import sep490.com.example.hrms_backend.repository.AccountRepository;
 import sep490.com.example.hrms_backend.repository.DepartmentRepository;
 import sep490.com.example.hrms_backend.repository.RecruitmentRepository;
-import org.springframework.scheduling.annotation.Scheduled;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -57,7 +60,28 @@ public class RecruitmentService {
 
         return RecruitmentMapper.mapToRecruitmentDtoList(recruitments);
     }
+    public Page<RecruitmentDto> getRecruitmentPage(int page,
+                                                   int size,
+                                                   String search,
+                                                   String sortField,
+                                                   String sortOrder) {
 
+        String sortProp = switch (sortField) {
+            case "title" -> "title";
+            case "employmentType" -> "employmentType";
+            case "expiredAt" -> "expiredAt";
+            default -> "createAt";
+        };
+        Sort.Direction direction = "asc".equalsIgnoreCase(sortOrder)
+                ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortProp));
+
+        Page<Recruitment> data = (search != null && !search.isBlank())
+                ? recruitmentRepository.findByTitleContainingIgnoreCase(search.trim(), pageable)
+                : recruitmentRepository.findAll(pageable);
+        return data.map(entity -> RecruitmentMapper.mapToRecruitmentDto(entity, new RecruitmentDto()));
+    }
     public RecruitmentDto getRecruitmentDtoById(long id) {
         Recruitment recruitment = recruitmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Recruitment not found with id: " + id));

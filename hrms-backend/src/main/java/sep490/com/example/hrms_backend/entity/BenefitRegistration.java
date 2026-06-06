@@ -7,7 +7,6 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "benefit_registrations")
@@ -32,14 +31,6 @@ public class BenefitRegistration {
     @NotNull
     @Column(name = "is_register")
     private Boolean isRegister = false ;
-
-    @ManyToMany
-    @JoinTable(
-            name = "benefit_registration_employee", // Tên bảng nối
-            joinColumns = @JoinColumn(name = "benefit_registration_id"), // Khóa chính của bảng BenefitRegistration
-            inverseJoinColumns = @JoinColumn(name = "employee_id") // Khóa chính của bảng Employee
-    )
-    private List<Employee> registrations; // Danh sách Employee đăng ký
 
     // 🔗 ====== QUAN HỆ (RELATIONSHIPS) ======
 

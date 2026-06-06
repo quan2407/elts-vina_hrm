@@ -60,19 +60,15 @@ public class EmployeeUpdateDTO {
     private String currentAddress;
 
     @Size(max = 255, message = "Dân tộc không được vượt quá 255 ký tự")
-    @NotBlank(message = "Dân tộc không được để trống")
     private String ethnicity;
 
     @Size(max = 255, message = "Tôn giáo không được vượt quá 255 ký tự")
-    @NotBlank(message = "Tôn giáo không được để trống")
     private String religion;
 
     @Size(max = 255, message = "Trình độ văn hóa không được vượt quá 255 ký tự")
-    @NotBlank(message = "Trình độ văn hóa không được để trống")
     private String educationLevel;
 
     @Size(max = 255, message = "Trình độ chuyên môn không được vượt quá 255 ký tự")
-    @NotBlank(message = "Trình độ chuyên môn không được để trống")
     private String specializedLevel;
 
     @Size(max = 255, message = "Ngoại ngữ không được vượt quá 255 ký tự")
@@ -82,7 +78,6 @@ public class EmployeeUpdateDTO {
     private String trainingType;
 
     @Size(max = 255, message = "Chuyên ngành đào tạo không được vượt quá 255 ký tự")
-    @NotBlank(message = "Chuyên ngành đào tạo không được để trống")
     private String trainingMajor;
 
 

@@ -4,7 +4,6 @@ import BenefitHrTable from "../components/BenefitHrTable";
 // import "../styles/ManagementLayout.css";
 import "../styles/EmployeeTable.css";
 import { Button, Modal, message, Input } from "antd";
-import Breadcrumb from "../components/Breadcrumb";
 import { useEffect, useState } from "react";
 import benefitService from "../services/benefitService.js";
 import BenefitForPositionForEmployeeTable from "../components/BenefitForPositionForEmployeeTable.jsx";
@@ -67,12 +66,6 @@ function BenefitForPositionForEmployee() {
         };
         fetchPositionDetail();
     }, [positionId]);
-
-    const breadcrumbPaths = [
-        { name: "Quản lý phúc lợi", url: "http://localhost:5173/benefits-management" },
-        { name: benefit ? `${benefit.title} ` : "Đang tải...", url: `http://localhost:5173/benefits-management/benefit/${benefitId}` },
-        { name: position ? `${position.name}` : "Đang tải..." }
-    ];
 
     const handleBulkDelete = () => {
         if (selectedEmployees.length === 0) return;
@@ -140,8 +133,6 @@ function BenefitForPositionForEmployee() {
                         </Button>
                     </div>
                 </div>
-
-                <Breadcrumb paths={breadcrumbPaths} />
 
                 {/* NEW: Search box đặt ở đây */}
                 <div style={{ display: "flex", gap: 12, alignItems: "center", margin: "16px 0 8px 0", flexWrap: "wrap" }}>
